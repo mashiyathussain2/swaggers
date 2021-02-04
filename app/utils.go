@@ -9,7 +9,9 @@ import (
 	"image/png"
 	"strings"
 
+	"github.com/avelino/slugify"
 	"github.com/nfnt/resize"
+	uuid "github.com/satori/go.uuid"
 	"github.com/vasupal1996/goerror"
 )
 
@@ -81,4 +83,9 @@ func (i *IMG) DecodeBase64StrToIMG(b64Str string) error {
 func (i *IMG) Resize(width, height uint) *image.Image {
 	m := resize.Resize(width, height, *i.Img, resize.NearestNeighbor)
 	return &m
+}
+
+// UniqueSlug converts a string into unique lowercase slug string
+func UniqueSlug(s string) string {
+	return slugify.Slugify(fmt.Sprintf("%s-%s", strings.ToLower(s), uuid.NewV1().String()[:4]))
 }

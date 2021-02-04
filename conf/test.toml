@@ -64,3 +64,9 @@ enableRequestLog=false
 
     [app.keeperCatalog]
     dbName = "test_catalog"
+
+    [app.brand]
+    dbName = "test_brand"
+
+        [app.category]
+    dbName = "category"

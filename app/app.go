@@ -23,6 +23,8 @@ type App struct {
 	// List of services this app is implementing
 	// Example       Example
 	KeeperCatalog KeeperCatalog
+	Brand         Brand
+	Category      Category
 }
 
 // NewApp returns new app instance
