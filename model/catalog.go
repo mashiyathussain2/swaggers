@@ -87,7 +87,7 @@ type Catalog struct {
 	FeaturedImage *CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	Specifications  []Specification `json:"specs,omitempty" bson:"specs,omitempty"`
-	FilterAttribute []Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
+	FilterAttribute []Attribute     `json:"filter_attrs,omitempty" bson:"filter_attrs,omitempty"`
 
 	VariantType VariantType `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
 	Variants    []Variant   `json:"variants,omitempty" bson:"variants,omitempty"`

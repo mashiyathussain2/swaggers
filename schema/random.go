@@ -2,8 +2,10 @@ package schema
 
 import (
 	"fmt"
+	"go-app/model"
 	"time"
 
+	"github.com/avelino/slugify"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/icrowley/fake"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -64,12 +66,165 @@ func GetRandomCreateCategoryOpts() *CreateCategoryOpts {
 	c := CreateCategoryOpts{
 		Name:     faker.Commerce().Department(),
 		ParentID: primitive.NewObjectIDFromTimestamp(time.Now()),
-		FeaturedImage: img{
+		FeaturedImage: Img{
 			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
 		},
-		Thumbnail: img{
+		Thumbnail: Img{
 			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
 		},
+	}
+	return &c
+}
+
+// GetRandomCreateCategoryResp returns random response based on passed opts
+func GetRandomCreateCategoryResp(opts *CreateCategoryOpts) *CreateCategoryResp {
+	res := CreateCategoryResp{
+		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name:       opts.Name,
+		Slug:       slugify.Slugify(opts.Name),
+		ParentID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		AncestorID: []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now())},
+		FeaturedImage: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			Width:  300,
+			Height: 300,
+		},
+		Thumbnail: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			Width:  100,
+			Height: 100,
+		},
+		IsMain: false,
+	}
+	if faker.RandomInt(0, 1) == 1 {
+		res.IsMain = true
+	}
+	return &res
+}
+
+// GetRandomEditCategoryResp returns random response based on passed opts
+func GetRandomEditCategoryResp(opts *EditCategoryOpts) *EditCategoryResp {
+	res := EditCategoryResp{
+		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name:       opts.Name,
+		Slug:       slugify.Slugify(opts.Name),
+		ParentID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		AncestorID: []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now())},
+		FeaturedImage: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			Width:  300,
+			Height: 300,
+		},
+		Thumbnail: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			Width:  100,
+			Height: 100,
+		},
+		IsMain: false,
+	}
+	if faker.RandomInt(0, 1) == 1 {
+		res.IsMain = true
+	}
+	return &res
+}
+
+// GetRandomEditCategoryOpts masking random edit category with create category
+func GetRandomEditCategoryOpts() *EditCategoryOpts {
+	t := true
+	c := EditCategoryOpts{
+		ID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name: faker.Commerce().Department(),
+		FeaturedImage: &Img{
+			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+		},
+		Thumbnail: &Img{
+			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+		},
+		IsMain: &t,
+	}
+	if faker.RandomInt(0, 1) == 1 {
+		f := false
+		c.IsMain = &f
+	}
+	return &c
+}
+
+// GetRandomGetCategoriesResp returns random data into GetCategoriesResp struct
+func GetRandomGetCategoriesResp() *GetCategoriesResp {
+	c := GetCategoriesResp{
+		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
+		ParentID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		AncestorID: []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now())},
+		Thumbnail: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			Width:  300,
+			Height: 300,
+		},
+		FeaturedImage: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			Width:  100,
+			Height: 100,
+		},
+		IsMain: true,
+	}
+	if faker.RandomInt(0, 1) == 1 {
+		c.IsMain = true
+	}
+	return &c
+}
+
+// GetRandomGetMainCategoriesMapResp fills random data into struct
+func GetRandomGetMainCategoriesMapResp() *GetMainCategoriesMapResp {
+	c := GetMainCategoriesMapResp{
+		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
+		ParentID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		AncestorID: []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now())},
+		Thumbnail: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			Width:  100,
+			Height: 100,
+		},
+		FeaturedImage: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			Width:  300,
+			Height: 300,
+		},
+	}
+	return &c
+}
+
+// GetRandomGetParentCategoriesResp fills random data into struct
+func GetRandomGetParentCategoriesResp() *GetParentCategoriesResp {
+	c := GetParentCategoriesResp{
+		ID: primitive.NewObjectIDFromTimestamp(time.Now()),
+		Thumbnail: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			Width:  100,
+			Height: 100,
+		},
+	}
+	return &c
+}
+
+// GetRandomGetMainCategoriesByParentIDResp fills random data into struct
+func GetRandomGetMainCategoriesByParentIDResp() *GetMainCategoriesByParentIDResp {
+	c := GetMainCategoriesByParentIDResp{
+		ID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name: faker.Commerce().ProductName(),
+		FeaturedImage: &model.IMG{
+			SRC:    faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			Width:  300,
+			Height: 300,
+		},
+	}
+	return &c
+}
+
+// GetRandomGetSubCategoriesByParentIDResp fills random data into struct
+func GetRandomGetSubCategoriesByParentIDResp() *GetSubCategoriesByParentIDResp {
+	c := GetSubCategoriesByParentIDResp{
+		ID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name: faker.Commerce().ProductName(),
 	}
 	return &c
 }

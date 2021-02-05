@@ -68,5 +68,5 @@ enableRequestLog=false
     [app.brand]
     dbName = "test_brand"
 
-        [app.category]
-    dbName = "category"
+    [app.category]
+    dbName = "test_category"

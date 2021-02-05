@@ -4,6 +4,7 @@ import (
 	"go-app/app"
 	"go-app/server/config"
 	"go-app/server/logger"
+	"go-app/server/validator"
 
 	"github.com/gorilla/mux"
 )
@@ -16,8 +17,14 @@ func NewTestAPI(c *config.APIConfig) *API {
 		Router:     &Router{},
 		Config:     c,
 		Logger:     l,
+		Validator:  validator.NewValidation(),
 	}
 	api.setupRoutes()
 	api.App = &app.App{}
 	return api
+}
+
+func getTestConfig() *config.APIConfig {
+	c := config.GetConfigFromFile("test")
+	return &c.APIConfig
 }
