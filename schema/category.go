@@ -10,8 +10,8 @@ import (
 type CreateCategoryOpts struct {
 	Name          string             `json:"name" validate:"required"`
 	ParentID      primitive.ObjectID `json:"parent_id"`
-	Thumbnail     img                `json:"thumbnail" validate:"required"`
-	FeaturedImage img                `json:"featured_image" validate:"required"`
+	Thumbnail     Img                `json:"thumbnail" validate:"required"`
+	FeaturedImage Img                `json:"featured_image" validate:"required"`
 	IsMain        bool               `json:"is_main"`
 }
 
@@ -25,4 +25,57 @@ type CreateCategoryResp struct {
 	Thumbnail     *model.IMG           `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
 	FeaturedImage *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	IsMain        bool                 `json:"is_main,omitempty" bson:"is_main,omitempty"`
+}
+
+// EditCategoryOpts contains fields to be updated in db
+type EditCategoryOpts struct {
+	ID            primitive.ObjectID `json:"id" validate:"required"`
+	Name          string             `json:"name"`
+	Thumbnail     *Img               `json:"thumbnail"`
+	FeaturedImage *Img               `json:"featured_image"`
+	IsMain        *bool              `json:"is_main"`
+}
+
+// EditCategoryResp contains updated category fields
+type EditCategoryResp = CreateCategoryResp
+
+// GetCategoriesResp contains fields to be returned for category doc
+type GetCategoriesResp struct {
+	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	ParentID      primitive.ObjectID   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	AncestorID    []primitive.ObjectID `json:"ancestors_id,omitempty" bson:"ancestors_id,omitempty"`
+	Thumbnail     *model.IMG           `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
+	FeaturedImage *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	IsMain        bool                 `json:"is_main,omitempty" bson:"is_main,omitempty"`
+}
+
+// GetMainCategoriesMapResp contains fields to be returned for category map with key as id and this schema as value
+type GetMainCategoriesMapResp struct {
+	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	ParentID      primitive.ObjectID   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	AncestorID    []primitive.ObjectID `json:"ancestors_id,omitempty" bson:"ancestors_id,omitempty"`
+	Thumbnail     *model.IMG           `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
+	FeaturedImage *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+}
+
+// GetParentCategoriesResp contains fields to be returned for all parent categories
+type GetParentCategoriesResp struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name      string             `json:"name,omitempty" bson:"name,omitempty"`
+	Thumbnail *model.IMG         `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
+}
+
+// GetMainCategoriesByParentIDResp contains fields to be returned for all children categories matching parent id
+type GetMainCategoriesByParentIDResp struct {
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
+	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+}
+
+// GetSubCategoriesByParentIDResp contains fields to be returned for all children categories matching parent id
+type GetSubCategoriesByParentIDResp struct {
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name,omitempty" bson:"name,omitempty"`
 }

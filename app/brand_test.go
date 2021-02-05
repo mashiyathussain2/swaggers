@@ -131,9 +131,9 @@ func TestBrandImpl_EditBrand(t *testing.T) {
 					Name: tt.args.createBrandOpts.Name + " Edited",
 				}
 
-				editBrandResp := res
+				editBrandResp := schema.EditBrandResp(*res)
 				editBrandResp.Name = tt.args.createBrandOpts.Name + " Edited"
-				tt.want = editBrandResp
+				tt.want = &editBrandResp
 
 				return nil
 			},
