@@ -45,12 +45,6 @@ type CreateCatalogOpts struct {
 	RetailPrice uint32 `json:"retail_price" validate:"gt=0"`
 }
 
-// CreateVariantOpts contains create variant arguments
-type CreateVariantOpts struct {
-	SKU       string `json:"sku" validate:"required"`
-	Attribute string `json:"attribute"`
-}
-
 // CreateCatalogResp response
 type CreateCatalogResp struct {
 	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -83,20 +77,57 @@ type CreateCatalogResp struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
+// CreateVariantOpts contains create variant arguments
+type CreateVariantOpts struct {
+	SKU       string `json:"sku" validate:"required"`
+	Attribute string `json:"attribute" validate:"required"`
+}
+
+// AddVariantOpts contains fields to add a new variant into existing catalog
+type AddVariantOpts struct {
+	VariantType string `json:"variant_type" validate:"required"`
+	SKU         string `json:"sku" validate:"required"`
+	Attribute   string `json:"attribute" validate:"required"`
+}
+
+// CreateVariantResp contains response fields when a new variant is created
+type CreateVariantResp struct {
+	ID        primitive.ObjectID `json:"id"`
+	SKU       string             `json:"sku"`
+	Attribute string             `json:"attribute"`
+}
+
+// AddVariantResp contains response fields when a new variant is added into existing catalog
+type AddVariantResp = CreateVariantResp
+
 // EditCatalogOpts contains fields which are passed in edit catalog func as args
 type EditCatalogOpts struct {
 	ID              primitive.ObjectID   `json:"id" validate:"required"`
 	Name            string               `json:"name"`
+	Description     string               `json:"description"`
 	CategoryID      []primitive.ObjectID `json:"category_id"`
 	Keywords        []string             `json:"keywords" validate:"unique"`
 	ETA             *etaOpts             `json:"eta"`
 	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
 	FilterAttribute []filterAttribute    `json:"filter_attr" validate:"dive"`
-
-	HSNCode     string `json:"hsn_code"`
-	BasePrice   uint32 `json:"base_price" validate:"gtefield=RetailPrice"`
-	RetailPrice uint32 `json:"retail_price"`
+	HSNCode         string               `json:"hsn_code"`
+	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtfield=RetailPrice"`
+	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
 }
 
 // EditCatalogResp contains fields which are returned when a catalog is edited
-type EditCatalogResp = CreateCatalogResp
+type EditCatalogResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Paths       []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords    []string           `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	// FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
+	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
+	HSNCode         string                `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
+	BasePrice       model.Price           `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice     model.Price           `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
+	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}

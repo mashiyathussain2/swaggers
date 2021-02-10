@@ -95,8 +95,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"variants": [
 					{
 						"sku": "sku1",
-						"base_price": 1299,
-						"retail_price": 1099
+						"attribute": "red"
 					}
 				]
 			}`),
@@ -113,7 +112,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 				RetailPrice: 1099,
 				Variants: []CreateVariantOpts{
 					{
-						SKU: "sku1",
+						SKU:       "sku1",
+						Attribute: "red",
 					},
 				},
 			},
@@ -164,8 +164,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"variants": [
 					{
 						"sku": "sku1",
-						"base_price": 1299,
-						"retail_price": 1099
+						"attribute": "red"
 					}
 				],
 				"base_price": 1299,
@@ -437,6 +436,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				assert.Equal(t, errs[0].Error(), tt.err[0])
 			}
 			if !tt.wantErr {
+				assert.Len(t, errs, 0)
 				assert.Equal(t, tt.want, sc)
 			}
 		})
@@ -456,11 +456,13 @@ func TestCreateVariantOpts(t *testing.T) {
 		{
 			name: "[Ok]",
 			json: string(`{
-				"sku": "sku1"
+				"sku": "sku1",
+				"attribute": "red"
 			}`),
 			wantErr: false,
 			want: CreateVariantOpts{
-				SKU: "sku1",
+				SKU:       "sku1",
+				Attribute: "red",
 			},
 		},
 		{
@@ -478,10 +480,36 @@ func TestCreateVariantOpts(t *testing.T) {
 		{
 			name: "[Error] Empty SKU",
 			json: string(`{
-				"sku": ""
+				"sku": "",
+				"attribute": "red"
 			}`),
 			wantErr: true,
 			err:     []string{"sku is a required field"},
+		},
+		{
+			name: "[Error] No SKU",
+			json: string(`{
+				"attribute": "red"
+			}`),
+			wantErr: true,
+			err:     []string{"sku is a required field"},
+		},
+		{
+			name: "[Error] No Attribute",
+			json: string(`{
+				"sku": "red-1"
+			}`),
+			wantErr: true,
+			err:     []string{"attribute is a required field"},
+		},
+		{
+			name: "[Error] Empty Attribute",
+			json: string(`{
+				"sku": "red-1",
+				"attribute": ""
+			}`),
+			wantErr: true,
+			err:     []string{"attribute is a required field"},
 		},
 	}
 	for _, tt := range tests {
@@ -495,6 +523,513 @@ func TestCreateVariantOpts(t *testing.T) {
 				assert.Equal(t, errs[0].Error(), tt.err[0])
 			}
 			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestAddVariantOpts(t *testing.T) {
+	t.Parallel()
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    AddVariantOpts
+	}{
+		{
+			name: "[Ok]",
+			json: string(`{
+				"variant_type": "size",
+				"sku": "sku1",
+				"attribute": "red"
+			}`),
+			wantErr: false,
+			want: AddVariantOpts{
+				VariantType: "size",
+				SKU:         "sku1",
+				Attribute:   "red",
+			},
+		},
+		{
+			name: "[Ok] With Attribute",
+			json: string(`{
+				"sku": "sku1",
+				"variant_type": "size",
+				"attribute": "Red"
+			}`),
+			wantErr: false,
+			want: AddVariantOpts{
+				SKU:         "sku1",
+				Attribute:   "Red",
+				VariantType: "size",
+			},
+		},
+		{
+			name: "[Error] Empty SKU",
+			json: string(`{
+				"variant_type": "size",
+				"sku": "",
+				"attribute": "red"
+			}`),
+			wantErr: true,
+			err:     []string{"sku is a required field"},
+		},
+		{
+			name: "[Error] No SKU",
+			json: string(`{
+				"variant_type": "size",
+				"attribute": "red"
+			}`),
+			wantErr: true,
+			err:     []string{"sku is a required field"},
+		},
+		{
+			name: "[Error] No Attribute",
+			json: string(`{
+				"variant_type": "size",
+				"sku": "red-1"
+			}`),
+			wantErr: true,
+			err:     []string{"attribute is a required field"},
+		},
+		{
+			name: "[Error] Empty Attribute",
+			json: string(`{
+				"variant_type": "size",
+				"sku": "red-1",
+				"attribute": ""
+			}`),
+			wantErr: true,
+			err:     []string{"attribute is a required field"},
+		},
+		{
+			name: "[Error] Empty VariantType",
+			json: string(`{
+				"variant_type": "",
+				"sku": "red-1",
+				"attribute": "red"
+			}`),
+			wantErr: true,
+			err:     []string{"variant_type is a required field"},
+		},
+		{
+			name: "[Error] No VariantType",
+			json: string(`{
+				"sku": "red-1",
+				"attribute": "red"
+			}`),
+			wantErr: true,
+			err:     []string{"variant_type is a required field"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc AddVariantOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestEditCatalogOpts(t *testing.T) {
+	t.Parallel()
+	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    EditCatalogOpts
+	}{
+		{
+			name: "[Ok]",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+				RetailPrice: 1099,
+			},
+		},
+		{
+			name: "[Ok] Without Retail Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+			},
+		},
+		{
+			name: "[Ok] Without Base Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"retail_price": 1299
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				RetailPrice: 1299,
+			},
+		},
+		{
+			name: "[Ok] 0 BasePrice",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 0
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   0,
+			},
+		},
+		{
+			name: "[Ok] 0 Retail Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"retail_price": 0
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				RetailPrice: 0,
+			},
+		},
+		{
+			name: "[Ok] Valid BasePrice 0 Retail Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"retail_price": 0,
+				"base_price": 1200
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				RetailPrice: 0,
+				BasePrice:   1200,
+			},
+		},
+		{
+			name: "[Error] Base Price Less Than Retail Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"retail_price": 1400,
+				"base_price": 1200
+			}`),
+			wantErr: true,
+			err:     []string{"Key: 'EditCatalogOpts.base_price' Error:Field validation for 'base_price' failed on the 'isdefault|gtfield=RetailPrice' tag"},
+		},
+		{
+			name: "[Ok] With Specs",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"specifications": [{
+					"Name": "k1",
+					"Value": "v1"
+				},{
+					"Name": "k2",
+					"Value": "v2"
+				}]
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+				RetailPrice: 1099,
+				Specifications: []specsOpts{
+					{
+						Name:  "k1",
+						Value: "v1",
+					},
+					{
+						Name:  "k2",
+						Value: "v2",
+					},
+				},
+			},
+		},
+		{
+			name: "[Ok] With Filter Attribute",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"filter_attr": [{
+					"Name": "k1",
+					"Value": "v1"
+				},{
+					"Name": "k2",
+					"Value": "v2"
+				}]
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+				RetailPrice: 1099,
+				FilterAttribute: []filterAttribute{
+					{
+						Name:  "k1",
+						Value: "v1",
+					},
+					{
+						Name:  "k2",
+						Value: "v2",
+					},
+				},
+			},
+		},
+		{
+			name: "[Error] Passing duplicate keywords",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"keywords":  ["k1", "k1"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: true,
+			err:     []string{"keywords must contain unique values"},
+		},
+		{
+			name: "[Ok] With ETA",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"eta": {
+					"min": 1,
+					"max": 7,
+					"unit": "day"
+				}
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+				RetailPrice: 1099,
+				ETA: &etaOpts{
+					Min:  1,
+					Max:  7,
+					Unit: "day",
+				},
+			},
+		},
+		{
+			name: "[Error] With Invalid ETA Unit",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"eta": {
+					"min": 1,
+					"max": 7,
+					"unit": "year"
+				}
+			}`),
+			wantErr: true,
+			err:     []string{"unit must be one of [hour day month]"},
+		},
+		{
+			name: "[Error] With empty Name[1] field specification",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"specifications": [{
+					"Name": "",
+					"Value": "v2"
+				}],
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: true,
+			err:     []string{"name is a required field"},
+		},
+		{
+			name: "[Error] With empty Value[0] field specification",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"specifications": [{
+					"Name": "k1",
+					"Value": ""
+				},{
+					"Name": "k2",
+					"Value": "v2"
+				}],
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: true,
+			err:     []string{"value is a required field"},
+		},
+		{
+			name: "[Error] Without ID",
+			json: string(`{
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: true,
+			err:     []string{"id is a required field"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc EditCatalogOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
 				assert.Equal(t, tt.want, sc)
 			}
 		})

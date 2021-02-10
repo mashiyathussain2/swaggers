@@ -166,6 +166,7 @@ func TestCreateCategoryOpts(t *testing.T) {
 				assert.Equal(t, errs[0].Error(), tt.err[0])
 			}
 			if !tt.wantErr {
+				assert.Len(t, errs, 0)
 				assert.Equal(t, tt.want, s)
 			}
 		})
@@ -291,6 +292,7 @@ func TestEditCategoryOpts(t *testing.T) {
 				assert.Equal(t, errs[0].Error(), tt.err[0])
 			}
 			if !tt.wantErr {
+				assert.Len(t, errs, 0)
 				assert.Equal(t, tt.want, s)
 			}
 		})

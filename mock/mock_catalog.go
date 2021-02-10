@@ -7,6 +7,7 @@ package mock
 import (
 	gomock "github.com/golang/mock/gomock"
 	schema "go-app/schema"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
 )
 
@@ -33,6 +34,21 @@ func (m *MockKeeperCatalog) EXPECT() *MockKeeperCatalogMockRecorder {
 	return m.recorder
 }
 
+// AddVariant mocks base method
+func (m *MockKeeperCatalog) AddVariant(arg0 primitive.ObjectID, arg1 *schema.AddVariantOpts) (*schema.CreateVariantResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddVariant", arg0, arg1)
+	ret0, _ := ret[0].(*schema.CreateVariantResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddVariant indicates an expected call of AddVariant
+func (mr *MockKeeperCatalogMockRecorder) AddVariant(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVariant", reflect.TypeOf((*MockKeeperCatalog)(nil).AddVariant), arg0, arg1)
+}
+
 // CreateCatalog mocks base method
 func (m *MockKeeperCatalog) CreateCatalog(arg0 *schema.CreateCatalogOpts) (*schema.CreateCatalogResp, error) {
 	m.ctrl.T.Helper()
@@ -49,10 +65,10 @@ func (mr *MockKeeperCatalogMockRecorder) CreateCatalog(arg0 interface{}) *gomock
 }
 
 // EditCatalog mocks base method
-func (m *MockKeeperCatalog) EditCatalog(arg0 *schema.EditCatalogOpts) (*schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) EditCatalog(arg0 *schema.EditCatalogOpts) (*schema.EditCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EditCatalog", arg0)
-	ret0, _ := ret[0].(*schema.CreateCatalogResp)
+	ret0, _ := ret[0].(*schema.EditCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

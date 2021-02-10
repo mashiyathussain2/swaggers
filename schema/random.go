@@ -36,7 +36,39 @@ func GetRandomCreateCatalogOpts() *CreateCatalogOpts {
 	s.Specifications = sp
 	s.CategoryID = cid
 	s.BasePrice = uint32(gofakeit.Price(1, 5000)) + s.RetailPrice
+	s.ETA = &etaOpts{
+		Min:  uint(gofakeit.Number(1, 5)),
+		Max:  uint(gofakeit.Number(6, 15)),
+		Unit: faker.RandomChoice([]string{"days", "hour"}),
+	}
+	return &s
+}
 
+// GetRandomEditCatalogOpts returns EditCatalogOpts with random data
+func GetRandomEditCatalogOpts(id primitive.ObjectID) *EditCatalogOpts {
+	s := EditCatalogOpts{
+		ID:          id,
+		Name:        faker.Commerce().ProductName(),
+		Description: faker.Lorem().Paragraph(gofakeit.Number(1, 5)),
+		HSNCode:     faker.Code().Ean8(),
+		Keywords:    faker.Lorem().Words(gofakeit.Number(1, 5)),
+		RetailPrice: uint32(gofakeit.Price(1, 10000)),
+	}
+
+	var sp []specsOpts
+	var fa []filterAttribute
+	for i := 0; i < gofakeit.Number(1, 5); i++ {
+		sp = append(sp, specsOpts{Name: fake.Title(), Value: fake.Sentence()})
+		fa = append(fa, filterAttribute{Name: fake.Title(), Value: fake.Sentence()})
+	}
+
+	s.Specifications = sp
+	s.BasePrice = uint32(gofakeit.Price(1, 5000)) + s.RetailPrice
+	s.ETA = &etaOpts{
+		Min:  uint(gofakeit.Number(1, 5)),
+		Max:  uint(gofakeit.Number(6, 15)),
+		Unit: faker.RandomChoice([]string{"days", "hour"}),
+	}
 	return &s
 }
 
@@ -44,7 +76,7 @@ func GetRandomCreateCatalogOpts() *CreateCatalogOpts {
 func GetRandomCreateVariantOpts() *CreateVariantOpts {
 	s := CreateVariantOpts{
 		SKU:       faker.Internet().Slug(),
-		Attribute: faker.RandomChoice([]string{"", "color", "size"}),
+		Attribute: faker.RandomChoice([]string{"color", "size"}),
 	}
 	return &s
 }
@@ -227,4 +259,14 @@ func GetRandomGetSubCategoriesByParentIDResp() *GetSubCategoriesByParentIDResp {
 		Name: faker.Commerce().ProductName(),
 	}
 	return &c
+}
+
+// GetRandomGetCategoryPath returns random category path string
+func GetRandomGetCategoryPath(id primitive.ObjectID) model.Path {
+	var path model.Path
+	for j := 0; j < faker.RandomInt(1, 4); j++ {
+		path += fmt.Sprintf("/%s", primitive.NewObjectIDFromTimestamp(time.Now()).Hex())
+	}
+	path += fmt.Sprintf("/%s", id.Hex())
+	return path
 }

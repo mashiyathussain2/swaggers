@@ -37,7 +37,7 @@ type Attribute struct {
 }
 
 // Path contains entire category hierarchy
-type Path string
+type Path = string
 
 /*Status stores catalog status such as unlisted (default), published, archive
 
@@ -104,7 +104,7 @@ type Catalog struct {
 }
 
 // VariantType is a paramater which defines the variant classification for a particular catalog such as size or color or design etc.
-type VariantType string
+type VariantType = string
 
 // Defining the type of variants for variant creation in catalog
 const (

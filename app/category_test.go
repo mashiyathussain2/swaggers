@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"log"
 	"reflect"
 	"testing"
 	"time"
@@ -32,6 +33,7 @@ func validateCreateCategoryResp(t *testing.T, opts *schema.CreateCategoryOpts, r
 
 func TestCategoryImpl_CreateCategory(t *testing.T) {
 	t.Parallel()
+
 	app := NewTestApp(getTestConfig())
 	defer CleanTestApp(app)
 
@@ -73,7 +75,10 @@ func TestCategoryImpl_CreateCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				parentCatOpts := schema.GetRandomCreateCategoryOpts()
 				parentCatOpts.ParentID = primitive.NilObjectID
-				resp, _ := tt.fields.App.Category.CreateCategory(parentCatOpts)
+				resp, err := tt.fields.App.Category.CreateCategory(parentCatOpts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 				tt.args.opts.ParentID = resp.ID
 				tt.args.parentOpts = resp
 			},
@@ -96,11 +101,17 @@ func TestCategoryImpl_CreateCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				parentCatOpts := schema.GetRandomCreateCategoryOpts()
 				parentCatOpts.ParentID = primitive.NilObjectID
-				resp, _ := tt.fields.App.Category.CreateCategory(parentCatOpts)
+				resp, err := tt.fields.App.Category.CreateCategory(parentCatOpts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				parentCatOpts2 := schema.GetRandomCreateCategoryOpts()
 				parentCatOpts2.ParentID = resp.ID
-				resp2, _ := tt.fields.App.Category.CreateCategory(parentCatOpts2)
+				resp2, err := tt.fields.App.Category.CreateCategory(parentCatOpts2)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.opts.ParentID = resp2.ID
 				tt.args.parentOpts = resp2
@@ -247,7 +258,10 @@ func TestCategoryImpl_GetAncestorsByID(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 				tt.args.id = resp1.ID
 				tt.want = resp1.AncestorID
 			},
@@ -264,11 +278,17 @@ func TestCategoryImpl_GetAncestorsByID(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts2 := schema.GetRandomCreateCategoryOpts()
 				opts2.ParentID = resp1.ID
-				resp2, _ := tt.fields.App.Category.CreateCategory(opts2)
+				resp2, err := tt.fields.App.Category.CreateCategory(opts2)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.id = resp2.ID
 				tt.want = resp2.AncestorID
@@ -356,7 +376,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -384,7 +407,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
 				opts1.IsMain = false
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -413,7 +439,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
 				opts1.IsMain = true
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -441,7 +470,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -484,11 +516,17 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts2 := schema.GetRandomCreateCategoryOpts()
 				opts2.ParentID = resp1.ID
-				resp2, _ := tt.fields.App.Category.CreateCategory(opts2)
+				resp2, err := tt.fields.App.Category.CreateCategory(opts2)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts2
 				tt.args.createResp = resp2
@@ -515,7 +553,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -537,7 +578,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -562,7 +606,10 @@ func TestCategoryImpl_EditCategory(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = primitive.NilObjectID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args.createOpts = opts1
 				tt.args.createResp = resp1
@@ -639,7 +686,10 @@ func TestCategoryImpl_GetCategoryPath(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts0 := schema.GetRandomCreateCategoryOpts()
 				opts0.ParentID = primitive.NilObjectID
-				resp0, _ := tt.fields.App.Category.CreateCategory(opts0)
+				resp0, err := tt.fields.App.Category.CreateCategory(opts0)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args = args{
 					id: resp0.ID,
@@ -658,11 +708,17 @@ func TestCategoryImpl_GetCategoryPath(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts0 := schema.GetRandomCreateCategoryOpts()
 				opts0.ParentID = primitive.NilObjectID
-				resp0, _ := tt.fields.App.Category.CreateCategory(opts0)
+				resp0, err := tt.fields.App.Category.CreateCategory(opts0)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = resp0.ID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				tt.args = args{
 					id: resp1.ID,
@@ -681,16 +737,24 @@ func TestCategoryImpl_GetCategoryPath(t *testing.T) {
 			prepare: func(tt *TC) {
 				opts0 := schema.GetRandomCreateCategoryOpts()
 				opts0.ParentID = primitive.NilObjectID
-				resp0, _ := tt.fields.App.Category.CreateCategory(opts0)
+				resp0, err := tt.fields.App.Category.CreateCategory(opts0)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.ParentID = resp0.ID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts2 := schema.GetRandomCreateCategoryOpts()
 				opts2.ParentID = resp1.ID
-				resp2, _ := tt.fields.App.Category.CreateCategory(opts2)
-
+				resp2, err := tt.fields.App.Category.CreateCategory(opts2)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 				tt.args = args{
 					id: resp2.ID,
 				}
@@ -751,32 +815,50 @@ func TestCategoryImpl_GetMainCategoriesMap(t *testing.T) {
 				opts0 := schema.GetRandomCreateCategoryOpts()
 				opts0.IsMain = true
 				opts0.ParentID = primitive.NilObjectID
-				resp0, _ := tt.fields.App.Category.CreateCategory(opts0)
+				resp0, err := tt.fields.App.Category.CreateCategory(opts0)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts1 := schema.GetRandomCreateCategoryOpts()
 				opts1.IsMain = false
 				opts1.ParentID = resp0.ID
-				resp1, _ := tt.fields.App.Category.CreateCategory(opts1)
+				resp1, err := tt.fields.App.Category.CreateCategory(opts1)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts11 := schema.GetRandomCreateCategoryOpts()
 				opts11.IsMain = false
 				opts11.ParentID = resp1.ID
-				resp11, _ := tt.fields.App.Category.CreateCategory(opts11)
+				resp11, err := tt.fields.App.Category.CreateCategory(opts11)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts01 := schema.GetRandomCreateCategoryOpts()
 				opts01.IsMain = true
 				opts01.ParentID = resp0.ID
-				resp01, _ := tt.fields.App.Category.CreateCategory(opts01)
+				resp01, err := tt.fields.App.Category.CreateCategory(opts01)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts110 := schema.GetRandomCreateCategoryOpts()
 				opts110.IsMain = true
 				opts110.ParentID = resp11.ID
-				resp110, _ := tt.fields.App.Category.CreateCategory(opts110)
+				resp110, err := tt.fields.App.Category.CreateCategory(opts110)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				opts010 := schema.GetRandomCreateCategoryOpts()
 				opts010.IsMain = true
 				opts010.ParentID = resp01.ID
-				resp010, _ := tt.fields.App.Category.CreateCategory(opts010)
+				resp010, err := tt.fields.App.Category.CreateCategory(opts010)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				want := make(map[string]schema.GetMainCategoriesMapResp)
 				want[resp0.ID.Hex()] = schema.GetMainCategoriesMapResp{
@@ -926,17 +1008,26 @@ func TestCategoryImpl_GetMainParentCategories(t *testing.T) {
 				parent1Opts := schema.GetRandomCreateCategoryOpts()
 				parent1Opts.ParentID = primitive.NilObjectID
 				parent1Opts.IsMain = true
-				parent1Resp, _ := tt.fields.App.Category.CreateCategory(parent1Opts)
+				parent1Resp, err := tt.fields.App.Category.CreateCategory(parent1Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				parent2Opts := schema.GetRandomCreateCategoryOpts()
 				parent2Opts.ParentID = primitive.NilObjectID
 				parent2Opts.IsMain = false
-				parent2Resp, _ := tt.fields.App.Category.CreateCategory(parent2Opts)
+				parent2Resp, err := tt.fields.App.Category.CreateCategory(parent2Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				parent3Opts := schema.GetRandomCreateCategoryOpts()
 				parent3Opts.ParentID = primitive.NilObjectID
 				parent3Opts.IsMain = true
-				parent3Resp, _ := tt.fields.App.Category.CreateCategory(parent3Opts)
+				parent3Resp, err := tt.fields.App.Category.CreateCategory(parent3Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children1Opts := schema.GetRandomCreateCategoryOpts()
 				children1Opts.ParentID = parent1Resp.ID
@@ -1022,12 +1113,18 @@ func TestCategoryImpl_GetMainCategoriesByParentID(t *testing.T) {
 				parent1Opts := schema.GetRandomCreateCategoryOpts()
 				parent1Opts.ParentID = primitive.NilObjectID
 				parent1Opts.IsMain = true
-				parent1Resp, _ := tt.fields.App.Category.CreateCategory(parent1Opts)
+				parent1Resp, err := tt.fields.App.Category.CreateCategory(parent1Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children10Opts := schema.GetRandomCreateCategoryOpts()
 				children10Opts.ParentID = parent1Resp.ID
 				children10Opts.IsMain = true
-				children10Resp, _ := tt.fields.App.Category.CreateCategory(children10Opts)
+				children10Resp, err := tt.fields.App.Category.CreateCategory(children10Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children12Opts := schema.GetRandomCreateCategoryOpts()
 				children12Opts.ParentID = parent1Resp.ID
@@ -1037,12 +1134,18 @@ func TestCategoryImpl_GetMainCategoriesByParentID(t *testing.T) {
 				children13Opts := schema.GetRandomCreateCategoryOpts()
 				children13Opts.ParentID = parent1Resp.ID
 				children13Opts.IsMain = true
-				children13Resp, _ := tt.fields.App.Category.CreateCategory(children13Opts)
+				children13Resp, err := tt.fields.App.Category.CreateCategory(children13Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				parent2Opts := schema.GetRandomCreateCategoryOpts()
 				parent2Opts.ParentID = primitive.NilObjectID
 				parent2Opts.IsMain = true
-				parent2Resp, _ := tt.fields.App.Category.CreateCategory(parent2Opts)
+				parent2Resp, err := tt.fields.App.Category.CreateCategory(parent2Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children21Opts := schema.GetRandomCreateCategoryOpts()
 				children21Opts.ParentID = parent2Resp.ID
@@ -1127,22 +1230,34 @@ func TestCategoryImpl_GetSubCategoriesByParentID(t *testing.T) {
 				parent1Opts := schema.GetRandomCreateCategoryOpts()
 				parent1Opts.ParentID = primitive.NilObjectID
 				parent1Opts.IsMain = true
-				parent1Resp, _ := tt.fields.App.Category.CreateCategory(parent1Opts)
+				parent1Resp, err := tt.fields.App.Category.CreateCategory(parent1Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children11Opts := schema.GetRandomCreateCategoryOpts()
 				children11Opts.ParentID = parent1Resp.ID
 				children11Opts.IsMain = true
-				children11Resp, _ := tt.fields.App.Category.CreateCategory(children11Opts)
+				children11Resp, err := tt.fields.App.Category.CreateCategory(children11Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children111Opts := schema.GetRandomCreateCategoryOpts()
 				children111Opts.ParentID = children11Resp.ID
 				children111Opts.IsMain = true
-				children111Resp, _ := tt.fields.App.Category.CreateCategory(children111Opts)
+				children111Resp, err := tt.fields.App.Category.CreateCategory(children111Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children112Opts := schema.GetRandomCreateCategoryOpts()
 				children112Opts.ParentID = children11Resp.ID
 				children112Opts.IsMain = true
-				children112Resp, _ := tt.fields.App.Category.CreateCategory(children112Opts)
+				children112Resp, err := tt.fields.App.Category.CreateCategory(children112Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children113Opts := schema.GetRandomCreateCategoryOpts()
 				children113Opts.ParentID = children11Resp.ID
@@ -1226,42 +1341,66 @@ func TestCategoryImpl_GetCategories(t *testing.T) {
 				parent1Opts := schema.GetRandomCreateCategoryOpts()
 				parent1Opts.ParentID = primitive.NilObjectID
 				parent1Opts.IsMain = true
-				parent1Resp, _ := tt.fields.App.Category.CreateCategory(parent1Opts)
+				parent1Resp, err := tt.fields.App.Category.CreateCategory(parent1Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children11Opts := schema.GetRandomCreateCategoryOpts()
 				children11Opts.ParentID = parent1Resp.ID
 				children11Opts.IsMain = true
-				children11Resp, _ := tt.fields.App.Category.CreateCategory(children11Opts)
+				children11Resp, err := tt.fields.App.Category.CreateCategory(children11Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children111Opts := schema.GetRandomCreateCategoryOpts()
 				children111Opts.ParentID = children11Resp.ID
 				children111Opts.IsMain = true
-				children111Resp, _ := tt.fields.App.Category.CreateCategory(children111Opts)
+				children111Resp, err := tt.fields.App.Category.CreateCategory(children111Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children112Opts := schema.GetRandomCreateCategoryOpts()
 				children112Opts.ParentID = children11Resp.ID
 				children112Opts.IsMain = true
-				children112Resp, _ := tt.fields.App.Category.CreateCategory(children112Opts)
+				children112Resp, err := tt.fields.App.Category.CreateCategory(children112Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children113Opts := schema.GetRandomCreateCategoryOpts()
 				children113Opts.ParentID = children11Resp.ID
 				children113Opts.IsMain = false
-				children113Resp, _ := tt.fields.App.Category.CreateCategory(children113Opts)
+				children113Resp, err := tt.fields.App.Category.CreateCategory(children113Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children12Opts := schema.GetRandomCreateCategoryOpts()
 				children12Opts.ParentID = parent1Resp.ID
 				children12Opts.IsMain = true
-				children12Resp, _ := tt.fields.App.Category.CreateCategory(children12Opts)
+				children12Resp, err := tt.fields.App.Category.CreateCategory(children12Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				parent2Opts := schema.GetRandomCreateCategoryOpts()
 				parent2Opts.ParentID = primitive.NilObjectID
 				parent2Opts.IsMain = true
-				parent2Resp, _ := tt.fields.App.Category.CreateCategory(parent2Opts)
+				parent2Resp, err := tt.fields.App.Category.CreateCategory(parent2Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				children21Opts := schema.GetRandomCreateCategoryOpts()
 				children21Opts.ParentID = parent1Resp.ID
 				children21Opts.IsMain = true
-				children21Resp, _ := tt.fields.App.Category.CreateCategory(children21Opts)
+				children21Resp, err := tt.fields.App.Category.CreateCategory(children21Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
 
 				want := []schema.GetCategoriesResp{
 					{
