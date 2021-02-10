@@ -25,6 +25,7 @@ type App struct {
 	KeeperCatalog KeeperCatalog
 	Brand         Brand
 	Category      Category
+	Discount      Discount
 }
 
 // NewApp returns new app instance

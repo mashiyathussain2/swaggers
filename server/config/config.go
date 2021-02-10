@@ -49,6 +49,7 @@ type APPConfig struct {
 	KeeperCatalogConfig ServiceConfig `mapstructure:"keeperCatalog"`
 	CategoryConfig      ServiceConfig `mapstructure:"category"`
 	BrandConfig         ServiceConfig `mapstructure:"brand"`
+	DiscountConfig      ServiceConfig `mapstructure:"discount"`
 }
 
 // ServiceConfig contains app service related config

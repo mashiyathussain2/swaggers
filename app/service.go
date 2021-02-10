@@ -12,4 +12,9 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.CategoryConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.Discount = InitDiscount(&DiscountOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.DiscountConfig.DBName),
+		Logger: a.Logger,
+	})
 }

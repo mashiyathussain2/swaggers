@@ -52,6 +52,8 @@ func registerFunc(validate *validator.Validate) {
 		return name
 	})
 	validate.RegisterValidation("required_with_field", requiredWithField)
+
+	validate.RegisterValidation("required_if", requiredIf)
 }
 
 // Validate validates the struct
@@ -102,4 +104,31 @@ func isNilOrZeroValue(field reflect.Value) bool {
 	default:
 		return field.IsZero()
 	}
+}
+
+var requiredIf validator.Func = func(fl validator.FieldLevel) bool {
+
+	/*
+		Type        string	`json:"type" validate:"required,oneof=flat_off percent_off"`
+		MaxValue	uint	`json:"max_value" validate:"required_if=Type percent_off"`
+	*/
+
+	otherFieldName := strings.Split(fl.Param(), " ")[0]
+	otherFieldValCheck := strings.Split(fl.Param(), " ")[1]
+
+	var otherFieldVal reflect.Value
+	if fl.Parent().Kind() == reflect.Ptr {
+		otherFieldVal = fl.Parent().Elem().FieldByName(otherFieldName)
+	} else {
+		otherFieldVal = fl.Parent().FieldByName(otherFieldName)
+	}
+
+	if otherFieldValCheck != otherFieldVal.String() {
+		if isNilOrZeroValue(fl.Field()) {
+			return true
+		}
+		return false
+	}
+
+	return true
 }

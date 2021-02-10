@@ -70,3 +70,6 @@ enableRequestLog=false
 
     [app.category]
     dbName = "test_category"
+
+    [app.discount]
+    dbName = "test_discount"
