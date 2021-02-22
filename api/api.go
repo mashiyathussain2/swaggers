@@ -39,6 +39,7 @@ type Router struct {
 	Root       *mux.Router
 	APIRoot    *mux.Router
 	StaticRoot *mux.Router
+	TestRoot   *mux.Router
 }
 
 // NewAPI returns API instance
@@ -60,6 +61,7 @@ func (a *API) setupRoutes() {
 	a.Router.APIRoot = a.MainRouter.PathPrefix("/api").Subrouter()
 	a.InitRoutes()
 	if a.Config.EnableTestRoute {
+		a.Router.TestRoot = a.Router.APIRoot.PathPrefix("/test").Subrouter()
 		a.InitTestRoutes()
 	}
 	if a.Config.EnableMediaRoute {

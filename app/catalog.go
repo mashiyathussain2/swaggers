@@ -23,6 +23,9 @@ type KeeperCatalog interface {
 	CreateCatalog(*schema.CreateCatalogOpts) (*schema.CreateCatalogResp, error)
 	EditCatalog(*schema.EditCatalogOpts) (*schema.EditCatalogResp, error)
 	AddVariant(primitive.ObjectID, *schema.AddVariantOpts) (*schema.AddVariantResp, error)
+
+	GetBasicCatalogInfo(*schema.GetBasicCatalogFilter) ([]schema.GetBasicCatalogResp, error)
+	GetCatalogFilter() (*schema.GetCatalogFilterResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
@@ -299,4 +302,56 @@ func (kc *KeeperCatalogImpl) validateAddVariant(ctx context.Context, catalogID p
 		}
 	}
 	return nil
+}
+
+// GetBasicCatalogInfo returns list of catalog with basic detail such as name, thumbnail, category, retail price, status
+/*
+	Filters By brand_id, category_id
+*/
+func (kc *KeeperCatalogImpl) GetBasicCatalogInfo(filter *schema.GetBasicCatalogFilter) ([]schema.GetBasicCatalogResp, error) {
+	ctx := context.TODO()
+	queryFilter := bson.M{}
+	if len(filter.BrandID) > 0 {
+		queryFilter["brand_id"] = bson.M{
+			"$in": filter.BrandID,
+		}
+	}
+	if len(filter.CategoryID) > 0 {
+		var regexID []string
+		var regexStr string
+		for _, id := range filter.CategoryID {
+			regexID = append(regexID, id.Hex())
+		}
+		regexStr = strings.Join(regexID, "|")
+		queryFilter["category_path"] = bson.M{
+			"$regex": primitive.Regex{
+				Pattern: regexStr,
+				Options: "i",
+			},
+		}
+	}
+
+	var res []schema.GetBasicCatalogResp
+	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, queryFilter)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query for catalog")
+	}
+	if err := cur.All(ctx, &res); err != nil {
+		return nil, errors.Wrap(err, "failed to find catalog")
+	}
+
+	return res, nil
+}
+
+// GetCatalogFilter returns list of filter supported for filter and their respective values
+func (kc *KeeperCatalogImpl) GetCatalogFilter() (*schema.GetCatalogFilterResp, error) {
+	// ctx := context.TODO()
+	c, err := kc.App.Category.GetCategoriesBasic()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get category filter")
+	}
+
+	return &schema.GetCatalogFilterResp{
+		Category: c,
+	}, nil
 }

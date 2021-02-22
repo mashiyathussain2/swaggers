@@ -131,3 +131,23 @@ type EditCatalogResp struct {
 	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
+
+// GetBasicCatalogFilter contains filter fields for GetCatalog
+type GetBasicCatalogFilter struct {
+	BrandID    []primitive.ObjectID `json:"id"`
+	CategoryID []primitive.ObjectID `json:"category_id"`
+}
+
+// GetBasicCatalogResp contains fields to be returned as GetCatalog response
+type GetBasicCatalogResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Paths       []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty"`
+	RetailPrice model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+}
+
+// GetCatalogFilterResp response contains filter list and their values to be returned
+type GetCatalogFilterResp struct {
+	Category []GetCategoriesBasicResp `json:"category"`
+}

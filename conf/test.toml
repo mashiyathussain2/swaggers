@@ -73,3 +73,8 @@ enableRequestLog=false
 
     [app.discount]
     dbName = "test_discount"
+
+    [app.catalogListener]
+    groupId = "x-g"
+    brokers = ["localhost:29092"]
+    topic = "x"

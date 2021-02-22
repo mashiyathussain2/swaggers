@@ -99,10 +99,10 @@ func GetRandomCreateCategoryOpts() *CreateCategoryOpts {
 		Name:     faker.Commerce().Department(),
 		ParentID: primitive.NewObjectIDFromTimestamp(time.Now()),
 		FeaturedImage: Img{
-			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 300, 300),
+			SRC: "https://picsum.photos/seed/picsum/300/300",
 		},
 		Thumbnail: Img{
-			SRC: faker.Avatar().Url(faker.RandomChoice([]string{"jpg", "jpeg", "png"}), 100, 100),
+			SRC: "https://picsum.photos/seed/picsum/100/100",
 		},
 	}
 	return &c

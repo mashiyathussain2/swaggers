@@ -1501,3 +1501,165 @@ func TestCategoryImpl_GetCategories(t *testing.T) {
 		})
 	}
 }
+
+func TestCategoryImpl_GetCategoriesBasic(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+
+	type TC struct {
+		name    string
+		fields  fields
+		want    []schema.GetCategoriesBasicResp
+		wantErr bool
+		prepare func(*TC)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.CategoryConfig.DBName),
+				Logger: app.Logger,
+			},
+			wantErr: false,
+			prepare: func(tt *TC) {
+				parent1Opts := schema.GetRandomCreateCategoryOpts()
+				parent1Opts.ParentID = primitive.NilObjectID
+				parent1Opts.IsMain = true
+				parent1Resp, err := tt.fields.App.Category.CreateCategory(parent1Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children11Opts := schema.GetRandomCreateCategoryOpts()
+				children11Opts.ParentID = parent1Resp.ID
+				children11Opts.IsMain = true
+				children11Resp, err := tt.fields.App.Category.CreateCategory(children11Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children111Opts := schema.GetRandomCreateCategoryOpts()
+				children111Opts.ParentID = children11Resp.ID
+				children111Opts.IsMain = true
+				children111Resp, err := tt.fields.App.Category.CreateCategory(children111Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children112Opts := schema.GetRandomCreateCategoryOpts()
+				children112Opts.ParentID = children11Resp.ID
+				children112Opts.IsMain = true
+				children112Resp, err := tt.fields.App.Category.CreateCategory(children112Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children113Opts := schema.GetRandomCreateCategoryOpts()
+				children113Opts.ParentID = children11Resp.ID
+				children113Opts.IsMain = false
+				children113Resp, err := tt.fields.App.Category.CreateCategory(children113Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children12Opts := schema.GetRandomCreateCategoryOpts()
+				children12Opts.ParentID = parent1Resp.ID
+				children12Opts.IsMain = true
+				children12Resp, err := tt.fields.App.Category.CreateCategory(children12Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				parent2Opts := schema.GetRandomCreateCategoryOpts()
+				parent2Opts.ParentID = primitive.NilObjectID
+				parent2Opts.IsMain = true
+				parent2Resp, err := tt.fields.App.Category.CreateCategory(parent2Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				children21Opts := schema.GetRandomCreateCategoryOpts()
+				children21Opts.ParentID = parent1Resp.ID
+				children21Opts.IsMain = true
+				children21Resp, err := tt.fields.App.Category.CreateCategory(children21Opts)
+				if err != nil {
+					log.Fatalf("%s", err)
+				}
+
+				want := []schema.GetCategoriesBasicResp{
+					{
+						ID:     parent1Resp.ID,
+						Name:   parent1Resp.Name,
+						IsMain: parent1Resp.IsMain,
+					},
+					{
+						ID:     children11Resp.ID,
+						Name:   children11Resp.Name,
+						IsMain: children11Resp.IsMain,
+					},
+					{
+						ID:     children111Resp.ID,
+						Name:   children111Resp.Name,
+						IsMain: children111Resp.IsMain,
+					},
+					{
+						ID:     children112Resp.ID,
+						Name:   children112Resp.Name,
+						IsMain: children112Resp.IsMain,
+					},
+					{
+						ID:     children113Resp.ID,
+						Name:   children113Resp.Name,
+						IsMain: children113Resp.IsMain,
+					},
+					{
+						ID:     children12Resp.ID,
+						Name:   children12Resp.Name,
+						IsMain: children12Resp.IsMain,
+					},
+					{
+						ID:     parent2Resp.ID,
+						Name:   parent2Resp.Name,
+						IsMain: parent2Resp.IsMain,
+					},
+					{
+						ID:     children21Resp.ID,
+						Name:   children21Resp.Name,
+						IsMain: children12Resp.IsMain,
+					},
+				}
+				tt.want = want
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &CategoryImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Category = ci
+			tt.prepare(&tt)
+			got, err := ci.GetCategoriesBasic()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CategoryImpl.GetCategories() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+		})
+	}
+}

@@ -50,6 +50,13 @@ type GetCategoriesResp struct {
 	IsMain        bool                 `json:"is_main,omitempty" bson:"is_main,omitempty"`
 }
 
+// GetCategoriesBasicResp contains id, name and IsMain of category to be returned for category doc
+type GetCategoriesBasicResp struct {
+	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name   string             `json:"name,omitempty" bson:"name,omitempty"`
+	IsMain bool               `json:"is_main,omitempty" bson:"is_main,omitempty"`
+}
+
 // GetMainCategoriesMapResp contains fields to be returned for category map with key as id and this schema as value
 type GetMainCategoriesMapResp struct {
 	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`

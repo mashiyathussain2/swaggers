@@ -5,6 +5,7 @@ import (
 	"go-app/mock"
 	"go-app/model"
 	"go-app/schema"
+	"strings"
 	"testing"
 	"time"
 
@@ -98,7 +99,7 @@ func TestKeeperCatalogImpl_CreateCatalog(t *testing.T) {
 			name: "[Ok]",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_1"),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -122,7 +123,7 @@ func TestKeeperCatalogImpl_CreateCatalog(t *testing.T) {
 			name: "[Ok] With Variants",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_2"),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -146,7 +147,7 @@ func TestKeeperCatalogImpl_CreateCatalog(t *testing.T) {
 			name: "[Error] When brandID does not exists",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_3"),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -835,6 +836,485 @@ func TestKeeperCatalogImpl_AddVariant(t *testing.T) {
 			if tt.wantErr {
 				assert.Nil(t, got)
 				assert.NotNil(t, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_GetBasicCatalogInfoWithBothFilter(t *testing.T) {
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts   []schema.CreateCatalogOpts
+		resp   []schema.CreateCatalogResp
+		filter *schema.GetBasicCatalogFilter
+	}
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		wantErr    bool
+		want       []schema.GetBasicCatalogResp
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockBrand, *mock.MockCategory)
+		validator  func(*testing.T, *TC, []schema.GetBasicCatalogResp)
+	}
+	tests := []TC{
+		{
+			name: "[Ok] With Category and BrandID Filter",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_1"),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				randIndex0 := faker.RandomInt(0, len(tt.args.resp)-1)
+
+				strCategoryID := strings.Split(tt.args.resp[randIndex0].Paths[faker.RandomInt(0, len(tt.args.resp[randIndex0].Paths)-1)], "/")
+				randCategoryID0, _ := primitive.ObjectIDFromHex(faker.RandomChoice(strCategoryID))
+
+				tt.args.filter = &schema.GetBasicCatalogFilter{
+					BrandID:    []primitive.ObjectID{tt.args.resp[randIndex0].BrandID},
+					CategoryID: []primitive.ObjectID{randCategoryID0},
+				}
+
+				tt.want = []schema.GetBasicCatalogResp{
+					{
+						ID:          tt.args.resp[randIndex0].ID,
+						Paths:       tt.args.resp[randIndex0].Paths,
+						Name:        tt.args.resp[randIndex0].Name,
+						Description: tt.args.resp[randIndex0].Description,
+						RetailPrice: tt.args.resp[randIndex0].RetailPrice,
+					},
+				}
+			},
+			buildStubs: func(tt *TC, b *mock.MockBrand, c *mock.MockCategory) {
+				var opts []schema.CreateCatalogOpts
+				for i := 0; i < faker.RandomInt(4, 20); i++ {
+					opt := schema.GetRandomCreateCatalogOpts()
+					opts = append(opts, *opt)
+				}
+				tt.args.opts = opts
+
+				for _, opt := range tt.args.opts {
+					call := b.EXPECT().CheckBrandIDExists(gomock.Any(), opt.BrandID).Return(true, nil)
+					gomock.InOrder(call)
+					var categoryCalls []*gomock.Call
+					for _, id := range opt.CategoryID {
+						path := schema.GetRandomGetCategoryPath(id)
+						call := c.EXPECT().GetCategoryPath(id).Return(path, nil)
+						categoryCalls = append(categoryCalls, call)
+					}
+					gomock.InOrder(categoryCalls...)
+				}
+
+				var resp []schema.CreateCatalogResp
+				for _, opt := range tt.args.opts {
+					res, _ := tt.fields.App.KeeperCatalog.CreateCatalog(&opt)
+					resp = append(resp, *res)
+				}
+				tt.args.resp = resp
+
+			},
+			validator: func(t *testing.T, tt *TC, res []schema.GetBasicCatalogResp) {
+				assert.Len(t, res, len(tt.want))
+				assert.Equal(t, tt.want, res)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Brand = mockBrand
+			tt.fields.App.Category = mockCategory
+			tt.fields.App.KeeperCatalog = kc
+
+			tt.buildStubs(&tt, mockBrand, mockCategory)
+			tt.prepare(&tt)
+
+			got, err := kc.GetBasicCatalogInfo(tt.args.filter)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("KeeperCatalogImpl.GetBasicCatalogInfo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validator(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_GetBasicCatalogInfoWithCategoryFilter(t *testing.T) {
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts   []schema.CreateCatalogOpts
+		resp   []schema.CreateCatalogResp
+		filter *schema.GetBasicCatalogFilter
+	}
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		wantErr    bool
+		want       []schema.GetBasicCatalogResp
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockBrand, *mock.MockCategory)
+		validator  func(*testing.T, *TC, []schema.GetBasicCatalogResp)
+	}
+	tests := []TC{
+		{
+			name: "[Ok] With Category Filter",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_2"),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+
+				randIndex0 := faker.RandomInt(0, len(tt.args.resp)-1)
+				randIndex1 := faker.RandomInt(0, len(tt.args.resp)-1)
+
+				strCategoryID0 := strings.Split(tt.args.resp[randIndex0].Paths[faker.RandomInt(0, len(tt.args.resp[randIndex0].Paths)-1)], "/")
+				randCategoryID0, _ := primitive.ObjectIDFromHex(faker.RandomChoice(strCategoryID0))
+
+				strCategoryID1 := strings.Split(tt.args.resp[randIndex1].Paths[faker.RandomInt(0, len(tt.args.resp[randIndex1].Paths)-1)], "/")
+				randCategoryID1, _ := primitive.ObjectIDFromHex(faker.RandomChoice(strCategoryID1))
+
+				tt.args.filter = &schema.GetBasicCatalogFilter{
+					CategoryID: []primitive.ObjectID{randCategoryID0, randCategoryID1},
+				}
+				t.Log(tt.args.filter)
+
+				tt.want = []schema.GetBasicCatalogResp{
+					{
+						ID:          tt.args.resp[randIndex0].ID,
+						Paths:       tt.args.resp[randIndex0].Paths,
+						Name:        tt.args.resp[randIndex0].Name,
+						Description: tt.args.resp[randIndex0].Description,
+						RetailPrice: tt.args.resp[randIndex0].RetailPrice,
+					},
+					{
+						ID:          tt.args.resp[randIndex1].ID,
+						Paths:       tt.args.resp[randIndex1].Paths,
+						Name:        tt.args.resp[randIndex1].Name,
+						Description: tt.args.resp[randIndex1].Description,
+						RetailPrice: tt.args.resp[randIndex1].RetailPrice,
+					},
+				}
+			},
+			buildStubs: func(tt *TC, b *mock.MockBrand, c *mock.MockCategory) {
+				var opts []schema.CreateCatalogOpts
+				for i := 0; i < faker.RandomInt(10, 20); i++ {
+					opt := schema.GetRandomCreateCatalogOpts()
+					opts = append(opts, *opt)
+				}
+				tt.args.opts = opts
+				var resp []schema.CreateCatalogResp
+				for _, opt := range tt.args.opts {
+					b.EXPECT().CheckBrandIDExists(gomock.Any(), opt.BrandID).Times(1).Return(true, nil)
+					var categoryCalls []*gomock.Call
+					for _, id := range opt.CategoryID {
+						path := schema.GetRandomGetCategoryPath(id)
+						call := c.EXPECT().GetCategoryPath(id).Return(path, nil)
+						categoryCalls = append(categoryCalls, call)
+					}
+					gomock.InOrder(categoryCalls...)
+					res, _ := tt.fields.App.KeeperCatalog.CreateCatalog(&opt)
+					resp = append(resp, *res)
+				}
+				tt.args.resp = resp
+			},
+			validator: func(t *testing.T, tt *TC, res []schema.GetBasicCatalogResp) {
+				assert.Len(t, res, len(tt.want))
+				assert.Equal(t, tt.want, res)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Brand = mockBrand
+			tt.fields.App.Category = mockCategory
+			tt.fields.App.KeeperCatalog = kc
+
+			tt.buildStubs(&tt, mockBrand, mockCategory)
+			tt.prepare(&tt)
+
+			got, err := kc.GetBasicCatalogInfo(tt.args.filter)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("KeeperCatalogImpl.GetBasicCatalogInfo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validator(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_GetBasicCatalogInfoWithBrandFilter(t *testing.T) {
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts   []schema.CreateCatalogOpts
+		resp   []schema.CreateCatalogResp
+		filter *schema.GetBasicCatalogFilter
+	}
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		wantErr    bool
+		want       []schema.GetBasicCatalogResp
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockBrand, *mock.MockCategory)
+		validator  func(*testing.T, *TC, []schema.GetBasicCatalogResp)
+	}
+	tests := []TC{
+		{
+			name: "[Ok] With Brand Filter",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_3"),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				randIndex0 := faker.RandomInt(0, len(tt.args.resp)-1)
+				randIndex1 := faker.RandomInt(0, len(tt.args.resp)-1)
+
+				tt.args.filter = &schema.GetBasicCatalogFilter{
+					BrandID: []primitive.ObjectID{tt.args.resp[randIndex0].BrandID, tt.args.resp[randIndex1].BrandID},
+				}
+
+				tt.want = []schema.GetBasicCatalogResp{
+					{
+						ID:          tt.args.resp[randIndex0].ID,
+						Paths:       tt.args.resp[randIndex0].Paths,
+						Name:        tt.args.resp[randIndex0].Name,
+						Description: tt.args.resp[randIndex0].Description,
+						RetailPrice: tt.args.resp[randIndex0].RetailPrice,
+					},
+					{
+						ID:          tt.args.resp[randIndex1].ID,
+						Paths:       tt.args.resp[randIndex1].Paths,
+						Name:        tt.args.resp[randIndex1].Name,
+						Description: tt.args.resp[randIndex1].Description,
+						RetailPrice: tt.args.resp[randIndex1].RetailPrice,
+					},
+				}
+			},
+			buildStubs: func(tt *TC, b *mock.MockBrand, c *mock.MockCategory) {
+				var opts []schema.CreateCatalogOpts
+				for i := 0; i < faker.RandomInt(4, 20); i++ {
+					opt := schema.GetRandomCreateCatalogOpts()
+					opts = append(opts, *opt)
+				}
+				tt.args.opts = opts
+
+				for _, opt := range tt.args.opts {
+					call := b.EXPECT().CheckBrandIDExists(gomock.Any(), opt.BrandID).Return(true, nil)
+					gomock.InOrder(call)
+					var categoryCalls []*gomock.Call
+					for _, id := range opt.CategoryID {
+						path := schema.GetRandomGetCategoryPath(id)
+						call := c.EXPECT().GetCategoryPath(id).Return(path, nil)
+						categoryCalls = append(categoryCalls, call)
+					}
+					gomock.InOrder(categoryCalls...)
+				}
+
+				var resp []schema.CreateCatalogResp
+				for _, opt := range tt.args.opts {
+					res, _ := tt.fields.App.KeeperCatalog.CreateCatalog(&opt)
+					resp = append(resp, *res)
+				}
+				tt.args.resp = resp
+
+			},
+			validator: func(t *testing.T, tt *TC, res []schema.GetBasicCatalogResp) {
+				assert.Len(t, res, len(tt.want))
+				assert.Equal(t, tt.want, res)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Brand = mockBrand
+			tt.fields.App.Category = mockCategory
+			tt.fields.App.KeeperCatalog = kc
+
+			tt.buildStubs(&tt, mockBrand, mockCategory)
+			tt.prepare(&tt)
+
+			got, err := kc.GetBasicCatalogInfo(tt.args.filter)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("KeeperCatalogImpl.GetBasicCatalogInfo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validator(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_GetCatalogFilter(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type TC struct {
+		name       string
+		fields     fields
+		wantErr    bool
+		want       *schema.GetCatalogFilterResp
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockCategory)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_1"),
+				Logger: app.Logger,
+			},
+			wantErr: false,
+			prepare: func(tt *TC) {
+
+			},
+			buildStubs: func(tt *TC, c *mock.MockCategory) {
+				var resp []schema.GetCategoriesBasicResp
+				for i := 0; i < faker.RandomInt(6, 20); i++ {
+					resp = append(resp, schema.GetCategoriesBasicResp{
+						ID:   primitive.NewObjectIDFromTimestamp(time.Now()),
+						Name: faker.Commerce().Department(),
+					})
+				}
+				c.EXPECT().GetCategoriesBasic().Times(1).Return(resp, nil)
+				tt.want = &schema.GetCatalogFilterResp{
+					Category: resp,
+				}
+			},
+		},
+		{
+			name: "[Ok] No Categories",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName + "_1"),
+				Logger: app.Logger,
+			},
+			wantErr: false,
+			prepare: func(tt *TC) {
+
+			},
+			buildStubs: func(tt *TC, c *mock.MockCategory) {
+				var resp []schema.GetCategoriesBasicResp
+				c.EXPECT().GetCategoriesBasic().Times(1).Return(resp, nil)
+				tt.want = &schema.GetCatalogFilterResp{
+					Category: resp,
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			tt.fields.App.KeeperCatalog = kc
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Category = mockCategory
+
+			tt.buildStubs(&tt, mockCategory)
+
+			got, err := kc.GetCatalogFilter()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("KeeperCatalogImpl.GetCatalogFilter() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+
+			if tt.wantErr {
+				assert.Nil(t, got)
 				assert.Equal(t, tt.err.Error(), err.Error())
 			}
 		})
