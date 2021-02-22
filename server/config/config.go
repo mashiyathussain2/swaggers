@@ -50,11 +50,20 @@ type APPConfig struct {
 	CategoryConfig      ServiceConfig `mapstructure:"category"`
 	BrandConfig         ServiceConfig `mapstructure:"brand"`
 	DiscountConfig      ServiceConfig `mapstructure:"discount"`
+
+	CatalogListenerConfig ListenerConfig `mapstructure:"catalogListener"`
 }
 
 // ServiceConfig contains app service related config
 type ServiceConfig struct {
 	DBName string `mapstructure:"dbName"`
+}
+
+// ListenerConfig contains app kafka topic listener related config
+type ListenerConfig struct {
+	GroupID string   `mapstructure:"groupId"`
+	Brokers []string `mapstructure:"brokers"`
+	Topic   string   `mapstructure:"topic"`
 }
 
 // TokenAuthConfig contains token authentication related configuration

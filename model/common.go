@@ -3,6 +3,8 @@ package model
 import (
 	"image"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 // IMG contains image url, src, height and id
@@ -22,7 +24,7 @@ func (i *IMG) LoadFromURL() error {
 
 	m, _, err := image.Decode(resp.Body)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to decode img src: %s", i.SRC)
 	}
 
 	i.Height = m.Bounds().Dy()

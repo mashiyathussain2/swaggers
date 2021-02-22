@@ -8,6 +8,11 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/category", a.requestHandler(a.getCategory)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/category/main", a.requestHandler(a.getMainCategoryMap)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/keeper/catalog", a.requestHandler(a.createCatalog)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}", a.requestHandler(a.editCatalog)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/catalog/basic", a.requestHandler(a.getBasicCatalogInfo)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/catalog/filter", a.requestHandler(a.getCatalogFilter)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/category/lvl1", a.requestHandler(a.getParentCategory)).Methods("GET")
 	a.Router.APIRoot.Handle("/category/{categoryID}/lvl2", a.requestHandler(a.getMainCategoryByParentID)).Methods("GET")
 	a.Router.APIRoot.Handle("/category/{categoryID}/lvl3", a.requestHandler(a.getSubCatergoryByParentID)).Methods("GET")

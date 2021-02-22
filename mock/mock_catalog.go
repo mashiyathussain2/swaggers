@@ -78,3 +78,18 @@ func (mr *MockKeeperCatalogMockRecorder) EditCatalog(arg0 interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).EditCatalog), arg0)
 }
+
+// GetBasicCatalogInfo mocks base method
+func (m *MockKeeperCatalog) GetBasicCatalogInfo(arg0 *schema.GetBasicCatalogFilter) ([]schema.GetBasicCatalogResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBasicCatalogInfo", arg0)
+	ret0, _ := ret[0].([]schema.GetBasicCatalogResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBasicCatalogInfo indicates an expected call of GetBasicCatalogInfo
+func (mr *MockKeeperCatalogMockRecorder) GetBasicCatalogInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBasicCatalogInfo", reflect.TypeOf((*MockKeeperCatalog)(nil).GetBasicCatalogInfo), arg0)
+}

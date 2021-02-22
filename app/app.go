@@ -2,6 +2,7 @@ package app
 
 import (
 	"go-app/server/config"
+	"go-app/server/kafka"
 	mongostorage "go-app/server/storage/mongodb"
 
 	"github.com/rs/zerolog"
@@ -26,6 +27,10 @@ type App struct {
 	Brand         Brand
 	Category      Category
 	Discount      Discount
+
+	// Kafka Consumer
+
+	CatalogListener kafka.Consumer
 }
 
 // NewApp returns new app instance
@@ -35,4 +40,10 @@ func NewApp(opts *Options) *App {
 		Logger:  opts.Logger,
 		Config:  opts.Config,
 	}
+}
+
+// Close closes all the resources linked with the app
+func (a *App) Close() {
+	// terminating connections to all consumes
+	CloseConsumer(a)
 }

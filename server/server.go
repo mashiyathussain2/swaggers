@@ -126,6 +126,7 @@ func (s *Server) StopServer() {
 	if s.Redis != nil {
 		s.Redis.Close()
 	}
+	s.API.App.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	s.httpServer.Shutdown(ctx)

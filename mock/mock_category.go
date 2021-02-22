@@ -94,6 +94,21 @@ func (mr *MockCategoryMockRecorder) GetCategories() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategories", reflect.TypeOf((*MockCategory)(nil).GetCategories))
 }
 
+// GetCategoriesBasic mocks base method
+func (m *MockCategory) GetCategoriesBasic() ([]schema.GetCategoriesBasicResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategoriesBasic")
+	ret0, _ := ret[0].([]schema.GetCategoriesBasicResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCategoriesBasic indicates an expected call of GetCategoriesBasic
+func (mr *MockCategoryMockRecorder) GetCategoriesBasic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoriesBasic", reflect.TypeOf((*MockCategory)(nil).GetCategoriesBasic))
+}
+
 // GetCategoryPath mocks base method
 func (m *MockCategory) GetCategoryPath(arg0 primitive.ObjectID) (string, error) {
 	m.ctrl.T.Helper()

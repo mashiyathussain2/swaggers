@@ -27,6 +27,7 @@ type Category interface {
 	GetCategoryPath(primitive.ObjectID) (string, error)
 
 	GetCategories() ([]schema.GetCategoriesResp, error)
+	GetCategoriesBasic() ([]schema.GetCategoriesBasicResp, error)
 	GetMainParentCategories() ([]schema.GetParentCategoriesResp, error)
 	GetMainCategoriesByParentID(primitive.ObjectID) ([]schema.GetMainCategoriesByParentIDResp, error)
 	GetSubCategoriesByParentID(primitive.ObjectID) ([]schema.GetSubCategoriesByParentIDResp, error)
@@ -116,9 +117,9 @@ func (ci *CategoryImpl) GetAncestorsByID(id primitive.ObjectID) ([]primitive.Obj
 	err := ci.DB.Collection(model.CategoryColl).FindOne(context.Background(), filter, opts).Decode(&category)
 	if err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-			return nil, errors.Errorf("category with id:%s not found", id)
+			return nil, errors.Errorf("category with id:%s not found", id.Hex())
 		}
-		return nil, errors.Wrapf(err, "failed to find category: %s", id)
+		return nil, errors.Wrapf(err, "failed to find category: %s", id.Hex())
 	}
 	return category.AncestorsID, nil
 }
@@ -159,7 +160,7 @@ func (ci *CategoryImpl) EditCategory(opts *schema.EditCategoryOpts) (*schema.Edi
 	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	if err := ci.DB.Collection(model.CategoryColl).FindOneAndUpdate(context.Background(), filter, bson.M{"$set": updateField}, qOpts).Decode(&updateField); err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-			return nil, errors.Errorf("category with id:%s not found", opts.ID)
+			return nil, errors.Errorf("category with id:%s not found", opts.ID.Hex())
 		}
 		return nil, errors.Wrap(err, "failed to update category")
 	}
@@ -275,6 +276,22 @@ func (ci *CategoryImpl) GetCategories() ([]schema.GetCategoriesResp, error) {
 	ctx := context.Background()
 	filter := bson.M{}
 	cur, err := ci.DB.Collection(model.CategoryColl).Find(ctx, filter)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to find categories")
+	}
+	if err := cur.All(ctx, &categories); err != nil {
+		return nil, errors.Wrap(err, "failed to decode categories")
+	}
+	return categories, nil
+}
+
+// GetCategoriesBasic returns all the categories document but only id,name and is_main field
+func (ci *CategoryImpl) GetCategoriesBasic() ([]schema.GetCategoriesBasicResp, error) {
+	var categories []schema.GetCategoriesBasicResp
+	ctx := context.Background()
+	opts := options.Find().SetProjection(bson.M{"_id": 1, "name": 1, "is_main": 1})
+	filter := bson.M{}
+	cur, err := ci.DB.Collection(model.CategoryColl).Find(ctx, filter, opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "query failed to find categories")
 	}
