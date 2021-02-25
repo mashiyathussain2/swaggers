@@ -1,6 +1,8 @@
 package app
 
 import (
+	"go-app/schema"
+
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -32,5 +34,7 @@ func InitPebble(opts *PebbleOpts) Content {
 	return &p
 }
 
-// CreatePebble creates new create a new pebble document in the document, and generates and returns a token to upload video
-func (pi *PebbleImpl) CreatePebble() {}
+// CreatePebble creates new create a new pebble document in the db, and generates and returns a token to upload video
+func (pi *PebbleImpl) CreatePebble(opts *schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error) {
+	return nil, nil
+}
