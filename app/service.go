@@ -2,18 +2,15 @@ package app
 
 // InitService this initializes all the busines logic services
 func InitService(a *App) {
-	a.Media = InitContent(&MediaImplOpts{
+	a.Media = InitMedia(&MediaImplOpts{
 		App:    a,
-		DB:     a.MongoDB.Client.Database(a.Config.ContentConfig.DBName),
+		DB:     a.MongoDB.Client.Database(a.Config.MediaConfig.DBName),
 		Logger: a.Logger,
-		S3: InitS3(&S3Opts{
-			Config: &a.Config.S3Config,
-		}),
 	})
 
-	a.Content = InitPebble(&PebbleOpts{
+	a.Content = InitContent(&ContentOpts{
 		App:    a,
-		DB:     a.MongoDB.Client.Database(a.Config.PebbleConfig.DBName),
+		DB:     a.MongoDB.Client.Database(a.Config.ContentConfig.DBName),
 		Logger: a.Logger,
 	})
 }

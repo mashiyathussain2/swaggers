@@ -1,5 +1,3 @@
-//go:generate $GOPATH/bin/mockgen -destination=./../mock/mock_content.go -package=mock go-app/app Content
-
 package app
 
 import (
@@ -29,8 +27,8 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 		App    *App
 		DB     *mongo.Database
 		Logger *zerolog.Logger
-		S3     S3
 	}
+
 	type args struct {
 		videoID   string
 		videoType string
@@ -53,7 +51,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 			name: "[Ok]",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -70,7 +68,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 			name: "[Error] Failed to generate token",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -93,10 +91,9 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 				App:    tt.fields.App,
 				DB:     tt.fields.DB,
 				Logger: tt.fields.Logger,
-				S3:     tt.fields.S3,
 			}
 			mockS3 := mock.NewMockS3(ctrl)
-			ci.S3 = mockS3
+			ci.App.S3 = mockS3
 
 			tt.fields.App.Media = ci
 			tt.buildStubs(&tt, mockS3)
@@ -127,7 +124,6 @@ func TestContentImpl_GenerateVideoUploadToken(t *testing.T) {
 		App    *App
 		DB     *mongo.Database
 		Logger *zerolog.Logger
-		S3     S3
 	}
 	type args struct {
 		opts *schema.GenerateVideoUploadTokenOpts
@@ -149,7 +145,7 @@ func TestContentImpl_GenerateVideoUploadToken(t *testing.T) {
 			name: "[Ok]",
 			fields: fields{
 				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
 				Logger: app.Logger,
 			},
 			args: args{
@@ -166,21 +162,7 @@ func TestContentImpl_GenerateVideoUploadToken(t *testing.T) {
 			},
 			prepare: func(tt *TC) {},
 			validate: func(t *testing.T, tt *TC, resp *schema.GenerateVideoUploadTokenResp) {
-				assert.False(t, resp.ID.IsZero())
 				assert.Equal(t, tt.want.Token, resp.Token)
-				var res model.Video
-				err := tt.fields.DB.Collection(model.VideoContentColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&res)
-				assert.Nil(t, err)
-				assert.Empty(t, res.CloudfrontURL)
-				assert.Empty(t, res.DestBucket)
-				assert.Empty(t, res.Dimensions)
-				assert.Empty(t, res.FileName)
-				assert.Empty(t, res.Framerate)
-				assert.Empty(t, res.SRCBucket)
-				assert.Empty(t, res.Duration)
-				assert.Empty(t, res.GUID)
-				assert.False(t, res.IsPortrait)
-				assert.False(t, res.IsProcessed)
 			},
 		},
 	}
@@ -193,10 +175,9 @@ func TestContentImpl_GenerateVideoUploadToken(t *testing.T) {
 				App:    tt.fields.App,
 				DB:     tt.fields.DB,
 				Logger: tt.fields.Logger,
-				S3:     tt.fields.S3,
 			}
 			mockS3 := mock.NewMockS3(ctrl)
-			ci.S3 = mockS3
+			ci.App.S3 = mockS3
 			tt.fields.App.Media = ci
 			tt.buildStubs(&tt, mockS3)
 
@@ -207,6 +188,314 @@ func TestContentImpl_GenerateVideoUploadToken(t *testing.T) {
 			}
 			if !tt.wantErr {
 				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestMediaImpl_DeleteMedia(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		id primitive.ObjectID
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		want     bool
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC, bool)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			want: true,
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateVideoOpts()
+				resp, _ := tt.fields.App.Media.CreateVideoMedia(opts)
+				tt.args.id = resp.ID
+			},
+			validate: func(t *testing.T, tt *TC, resp bool) {
+				assert.Equal(t, tt.want, resp)
+				count, err := tt.fields.DB.Collection(model.MediaColl).CountDocuments(context.TODO(), bson.M{"_id": tt.args.id})
+				assert.Nil(t, err)
+				assert.Equal(t, int64(0), count)
+			},
+		},
+		{
+			name: "[Error] When id does not exist",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			wantErr: true,
+			args:    args{},
+			prepare: func(tt *TC) {
+				tt.args.id = primitive.NewObjectIDFromTimestamp(time.Now())
+				tt.err = errors.Errorf("media with id:%s not found", tt.args.id.Hex())
+			},
+			validate: func(t *testing.T, tt *TC, resp bool) {
+				assert.Equal(t, tt.want, resp)
+				count, err := tt.fields.DB.Collection(model.MediaColl).CountDocuments(context.TODO(), bson.M{"_id": tt.args.id})
+				assert.Nil(t, err)
+				assert.Equal(t, int64(0), count)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mi := &MediaImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Media = mi
+			tt.prepare(&tt)
+			got, err := mi.DeleteMedia(tt.args.id)
+			if tt.wantErr {
+				assert.False(t, got, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestMediaImpl_CreateVideoMedia(t *testing.T) {
+
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateVideoOpts
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		want     *schema.CreateVideoResp
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC, *schema.CreateVideoResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateVideoOpts()
+				tt.args.opts = opts
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.CreateVideoResp) {
+				assert.False(t, resp.ID.IsZero())
+				assert.Equal(t, tt.args.opts.FileName, resp.FileName)
+				assert.Equal(t, tt.args.opts.GUID, resp.GUID)
+				assert.Equal(t, tt.args.opts.SRCBucket, resp.SRCBucket)
+				assert.Equal(t, tt.args.opts.SRCHeight, resp.Dimensions.Height)
+				assert.Equal(t, tt.args.opts.SRCWidth, resp.Dimensions.Width)
+				assert.Equal(t, tt.args.opts.IsPortrait, resp.IsPortrait)
+				assert.Equal(t, tt.args.opts.CloudFrontURL, resp.CloudfrontURL)
+				assert.Equal(t, tt.args.opts.Duration, resp.Duration)
+				assert.Equal(t, tt.args.opts.Framerate, resp.Framerate)
+				assert.Equal(t, tt.args.opts.PlaybackBucket, resp.PlaybackBucket)
+				assert.Equal(t, tt.args.opts.PlaybackURL, resp.PlaybackURL)
+				assert.Equal(t, tt.args.opts.ThumbnailBuckets, resp.ThumbnailBuckets)
+				assert.Equal(t, tt.args.opts.ThumbnailURLS, resp.ThumbnailURLS)
+				assert.Equal(t, tt.args.opts.ProcessedAt, resp.ProcessedAt)
+				assert.WithinDuration(t, time.Now().UTC(), resp.CreatedAt, time.Millisecond*100)
+
+				var doc model.Video
+
+				err := tt.fields.DB.Collection(model.MediaColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.Equal(t, doc.ID, resp.ID)
+				assert.Equal(t, doc.Type, model.VideoType)
+				assert.Equal(t, doc.FileName, resp.FileName)
+				assert.Equal(t, doc.GUID, resp.GUID)
+				assert.Equal(t, doc.SRCBucket, resp.SRCBucket)
+				assert.Equal(t, doc.Dimensions, resp.Dimensions)
+				assert.Equal(t, doc.IsPortrait, resp.IsPortrait)
+				assert.Equal(t, doc.CloudfrontURL, resp.CloudfrontURL)
+				assert.Equal(t, doc.Duration, resp.Duration)
+				assert.Equal(t, doc.Framerate, resp.Framerate)
+				assert.Equal(t, doc.PlaybackBucket, resp.PlaybackBucket)
+				assert.Equal(t, doc.PlaybackURL, resp.PlaybackURL)
+				assert.Equal(t, doc.ThumbnailBuckets, resp.ThumbnailBuckets)
+				assert.Equal(t, doc.ThumbnailURLS, resp.ThumbnailURLS)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mi := &MediaImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Media = mi
+			tt.prepare(&tt)
+			got, err := mi.CreateVideoMedia(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MediaImpl.CreateVideoMedia() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestMediaImpl_GetVideoMediaByID(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		createOpts *schema.CreateVideoOpts
+		createResp *schema.CreateVideoResp
+		id         primitive.ObjectID
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.GetMediaResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockS3)
+		validate   func(*testing.T, *TC, *schema.GetMediaResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateVideoOpts()
+				tt.args.createOpts = opts
+				resp, _ := tt.fields.App.Media.CreateVideoMedia(opts)
+				tt.args.createResp = resp
+				tt.args.id = resp.ID
+				tt.want = &schema.GetMediaResp{
+					ID:            resp.ID,
+					FileName:      resp.FileName,
+					CloudfrontURL: resp.CloudfrontURL,
+					SRCBucket:     resp.SRCBucket,
+					Dimensions:    resp.Dimensions,
+					Duration:      resp.Duration,
+					Framerate:     resp.Framerate,
+					IsPortrait:    resp.IsPortrait,
+					PlaybackURL:   resp.PlaybackURL,
+					ThumbnailURLS: resp.ThumbnailURLS,
+					CreatedAt:     resp.CreatedAt.UTC(),
+				}
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.GetMediaResp) {
+				assert.Equal(t, tt.want.ID, resp.ID)
+				assert.Equal(t, tt.want.FileName, resp.FileName)
+				assert.Equal(t, tt.want.CloudfrontURL, resp.CloudfrontURL)
+				assert.Equal(t, tt.want.SRCBucket, resp.SRCBucket)
+				assert.Equal(t, tt.want.Dimensions, resp.Dimensions)
+				assert.Equal(t, tt.want.Duration, resp.Duration)
+				assert.Equal(t, tt.want.Framerate, resp.Framerate)
+				assert.Equal(t, tt.want.IsPortrait, resp.IsPortrait)
+				assert.Equal(t, tt.want.PlaybackURL, resp.PlaybackURL)
+				assert.Equal(t, tt.want.ThumbnailURLS, resp.ThumbnailURLS)
+				assert.WithinDuration(t, tt.want.CreatedAt, resp.CreatedAt, time.Microsecond*1000)
+			},
+		},
+		{
+			name: "[Error] Media ID does not exist",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			wantErr: true,
+			args:    args{},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateVideoOpts()
+				tt.args.createOpts = opts
+				resp, _ := tt.fields.App.Media.CreateVideoMedia(opts)
+				tt.args.createResp = resp
+				tt.args.id = primitive.NewObjectID()
+				tt.err = errors.Errorf("media with id:%s not found", tt.args.id.Hex())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mi := &MediaImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Media = mi
+			tt.prepare(&tt)
+			got, err := mi.GetVideoMediaByID(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MediaImpl.GetVideoMediaByID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+			if tt.wantErr {
+				assert.Nil(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
 			}
 		})
 	}

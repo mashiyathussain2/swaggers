@@ -12,11 +12,13 @@ type Options struct {
 	MongoDB *mongostorage.MongoStorage
 	Logger  *zerolog.Logger
 	Config  *config.APPConfig
+	S3      S3
 }
 
 // App := contains resources to implement business logic
 type App struct {
 	MongoDB *mongostorage.MongoStorage
+	S3      S3
 	Logger  *zerolog.Logger
 	Config  *config.APPConfig
 
@@ -33,6 +35,9 @@ func NewApp(opts *Options) *App {
 		MongoDB: opts.MongoDB,
 		Logger:  opts.Logger,
 		Config:  opts.Config,
+		S3: InitS3(&S3Opts{
+			Config: &opts.Config.S3Config,
+		}),
 	}
 }
 

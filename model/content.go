@@ -11,6 +11,12 @@ const (
 	ContentColl string = "content"
 )
 
+// list of supported type of content
+const (
+	PebbleType         string = "pebble"
+	CatalogContentType string = "catalog_content"
+)
+
 // Content contains linked media (image/video) with influencer, catalog or customer
 type Content struct {
 	//fields required for Linking
@@ -23,15 +29,20 @@ type Content struct {
 	CustomerID    primitive.ObjectID   `json:"customer_id,omitempty" bson:"customer_id,omitempty"`
 	Label         *Label               `json:"label,omitempty" bson:"label,omitempty"`
 
-	//Fields for displaying
+	// Flag to enable content availability when processing is done
+	IsProcessed bool `json:"is_processed" bson:"is_processed"`
+	// Flag to toggle content visibility
+	IsActive bool `json:"is_active" bson:"is_active"`
+
 	Caption  string   `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags []string `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
 
 	//Catalog Linking
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 
-	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt   time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	ProcessedAt time.Time `json:"processed_at,omitempty" bson:"processed_at,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 //Like has user's liking reference wrt a particular content
@@ -54,6 +65,6 @@ type View struct {
 //Label will contain meta datapoint for content
 type Label struct {
 	Interests []string `json:"interests,omitempty" bson:"interests,omitempty"`
-	AgeGroup  []string `json:"age_group,omitempty" bson:"age_group,omitempty"`
-	Gender    []string `json:"gender,omitempty" bson:"gender,omitempty"`
+	AgeGroups []string `json:"age_groups,omitempty" bson:"age_groups,omitempty"`
+	Genders   []string `json:"genders,omitempty" bson:"genders,omitempty"`
 }
