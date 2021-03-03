@@ -1318,3 +1318,226 @@ func TestContentImpl_GetContent(t *testing.T) {
 		})
 	}
 }
+
+func TestContentImpl_CreateCatalogVideoContent(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateVideoCatalogContentOpts
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.CreateVideoCatalogContentResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockMedia)
+		validate   func(*testing.T, *TC, *schema.CreateVideoCatalogContentResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = schema.GetRandomCreateCatalogContentOpts()
+			},
+			buildStubs: func(tt *TC, mc *mock.MockMedia) {
+				resp := schema.GenerateVideoUploadTokenResp{
+					Token: "https://hypd-vod-source-16jim3me9cmrc.s3.ap-south-1.amazonaws.com/5fbb7f1f7f10f60aaffa2598.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA5LCMVADVOIOHO66X%2F20201123%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20201123T092135Z&X-Amz-Expires=1800&X-Amz-SignedHeaders=host&X-Amz-Signature=4ed77bbf055c9dbdfa0f45c6e352859f0ed0cf3dad2175c19469427e0f7c82dd",
+				}
+				mc.EXPECT().GenerateVideoUploadToken(gomock.Any()).Times(1).Return(&resp, nil)
+				tt.want = &schema.CreateVideoCatalogContentResp{Token: resp.Token}
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.CreatePebbleResp) {
+				assert.False(t, resp.ID.IsZero())
+				assert.Equal(t, tt.want.Token, resp.Token)
+
+				var res model.Content
+				err := tt.fields.DB.Collection(model.ContentColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&res)
+				assert.Nil(t, err)
+				assert.Equal(t, tt.args.opts.BrandID, res.BrandIDs[0])
+				assert.Nil(t, res.InfluencerIDs)
+				assert.Equal(t, tt.args.opts.CatalogID, res.CatalogIDs[0])
+				assert.Equal(t, primitive.NilObjectID, res.CustomerID)
+				assert.Equal(t, tt.args.opts.Label.Gender, res.Label.Genders)
+				assert.Equal(t, tt.args.opts.Label.AgeGroup, res.Label.AgeGroups)
+				assert.Equal(t, tt.args.opts.Label.Interests, res.Label.Interests)
+				assert.Equal(t, model.CatalogContentType, res.Type)
+				assert.WithinDuration(t, time.Now().UTC(), res.CreatedAt, time.Millisecond*200)
+				assert.True(t, res.UpdatedAt.IsZero())
+				assert.Nil(t, res.Hashtags)
+				assert.False(t, res.IsProcessed)
+				assert.False(t, res.IsActive)
+			},
+		},
+		{
+			name: "[Error] error on GenerateVideoUploadToken",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			args:    args{},
+			wantErr: true,
+			prepare: func(tt *TC) {
+				tt.args.opts = schema.GetRandomCreateCatalogContentOpts()
+			},
+			buildStubs: func(tt *TC, mc *mock.MockMedia) {
+				err := errors.Errorf("cannot generate upload token")
+				mc.EXPECT().GenerateVideoUploadToken(gomock.Any()).Times(1).Return(nil, err)
+				tt.err = err
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			mockMedia := mock.NewMockMedia(ctrl)
+			ci.App.Media = mockMedia
+			tt.prepare(&tt)
+			tt.buildStubs(&tt, mockMedia)
+
+			got, err := ci.CreateCatalogVideoContent(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.CreateCatalogVideoContent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestContentImpl_EditCatalogContent(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		createOpts *schema.CreateVideoCatalogContentOpts
+		createResp *schema.CreateVideoCatalogContentResp
+		opts       *schema.EditCatalogContentOpts
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.EditCatalogContentResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockMedia)
+		validate   func(*testing.T, *TC, *schema.EditCatalogContentResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				createOpts := schema.GetRandomCreateCatalogContentOpts()
+				createResp, _ := tt.fields.App.Content.CreateCatalogVideoContent(createOpts)
+				trueBool := true
+				tt.args.opts = &schema.EditCatalogContentOpts{
+					ID:       createResp.ID,
+					IsActive: &trueBool,
+				}
+				tt.args.createOpts = createOpts
+				tt.want = &schema.EditCatalogContentResp{
+					ID:       createResp.ID,
+					IsActive: &trueBool,
+				}
+			},
+			buildStubs: func(tt *TC, mc *mock.MockMedia) {
+				resp := schema.GenerateVideoUploadTokenResp{
+					Token: "https://hypd-vod-source-16jim3me9cmrc.s3.ap-south-1.amazonaws.com/5fbb7f1f7f10f60aaffa2598.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA5LCMVADVOIOHO66X%2F20201123%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20201123T092135Z&X-Amz-Expires=1800&X-Amz-SignedHeaders=host&X-Amz-Signature=4ed77bbf055c9dbdfa0f45c6e352859f0ed0cf3dad2175c19469427e0f7c82dd",
+				}
+				mc.EXPECT().GenerateVideoUploadToken(gomock.Any()).Times(1).Return(&resp, nil)
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.EditCatalogContentResp) {
+				assert.Equal(t, tt.want, resp)
+				var doc model.Content
+				err := tt.fields.DB.Collection(model.ContentColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.Equal(t, tt.args.createOpts.BrandID, doc.BrandIDs[0])
+				assert.Equal(t, primitive.NilObjectID, doc.CustomerID)
+				assert.Nil(t, doc.InfluencerIDs)
+				assert.Equal(t, tt.args.createOpts.CatalogID, doc.CatalogIDs[0])
+				assert.Equal(t, true, doc.IsActive)
+				assert.Equal(t, false, doc.IsProcessed)
+				assert.Equal(t, tt.args.createOpts.Label.AgeGroup, doc.Label.AgeGroups)
+				assert.Equal(t, tt.args.createOpts.Label.Gender, doc.Label.Genders)
+				assert.Equal(t, tt.args.createOpts.Label.Interests, doc.Label.Interests)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+
+			tt.fields.App.Content = ci
+			mockMedia := mock.NewMockMedia(ctrl)
+			tt.fields.App.Media = mockMedia
+			tt.buildStubs(&tt, mockMedia)
+			tt.prepare(&tt)
+
+			got, err := ci.EditCatalogContent(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.EditCatalogContent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				assert.Nil(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}

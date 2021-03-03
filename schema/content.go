@@ -50,7 +50,7 @@ type EditPebbleOpts struct {
 
 // EditPebbleResp contains fields to be returned in EditPebble operation
 type EditPebbleResp struct {
-	ID            primitive.ObjectID   `json:"id"`
+	ID            primitive.ObjectID   `json:"id"  validate:"required"`
 	Caption       string               `json:"caption,omitempty"`
 	InfluencerIDs []primitive.ObjectID `json:"influencer_ids,omitempty"`
 	BrandIDs      []primitive.ObjectID `json:"brand_ids,omitempty"`
@@ -98,4 +98,29 @@ type GetContentFilter struct {
 	To   time.Time `json:"to" validate:"gtefield=From"`
 
 	Page uint `json:"page"`
+}
+
+// CreateVideoCatalogContentOpts contains and validates args required to create a catalog video-content
+type CreateVideoCatalogContentOpts struct {
+	FileName  string             `json:"file_name" validate:"required"`
+	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	Label     *LabelOpts         `json:"label" validate:"required"`
+}
+
+// CreateVideoCatalogContentResp returns content id and video upload token
+type CreateVideoCatalogContentResp = CreatePebbleResp
+
+// EditCatalogContentOpts contains fields and validations required to edit existing catalog content
+type EditCatalogContentOpts struct {
+	ID       primitive.ObjectID `json:"id" validate:"required"`
+	IsActive *bool              `json:"is_active,omitempty"`
+	Label    *EditLabelOpts     `json:"label,omitempty"`
+}
+
+// EditCatalogContentResp contains fields to be returned in respose of edit catalog content
+type EditCatalogContentResp struct {
+	ID       primitive.ObjectID `json:"id" validate:"required"`
+	IsActive *bool              `json:"is_active,omitempty"`
+	Label    *EditLabelOpts     `json:"label,omitempty"`
 }

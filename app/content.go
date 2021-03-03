@@ -25,6 +25,9 @@ type Content interface {
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
 	DeletePebble(primitive.ObjectID) (bool, error)
+
+	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
+	EditCatalogContent(*schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -339,4 +342,82 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 	}
 
 	return res, nil
+}
+
+// CreateCatalogVideoContent creates video content for catalog
+func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error) {
+	cc := model.Content{
+		Type:       model.CatalogContentType,
+		MediaType:  model.VideoType,
+		BrandIDs:   []primitive.ObjectID{opts.BrandID},
+		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
+		Label: &model.Label{
+			Interests: opts.Label.Interests,
+			AgeGroups: opts.Label.AgeGroup,
+			Genders:   opts.Label.Gender,
+		},
+		CreatedAt: time.Now().UTC(),
+	}
+
+	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create catalog content")
+	}
+	cc.ID = res.InsertedID.(primitive.ObjectID)
+
+	// Getting s3 upload token with provided args
+	// This token is then used by frontend to directly upload media to s3
+	res1, err1 := ci.App.Media.GenerateVideoUploadToken(
+		&schema.GenerateVideoUploadTokenOpts{
+			FileName: cc.ID.Hex(),
+		},
+	)
+	if err1 != nil {
+		return nil, err1
+	}
+	return &schema.CreateVideoCatalogContentResp{ID: cc.ID, Token: res1.Token}, nil
+}
+
+// EditCatalogContent updates the catalog content allowed editable fields
+/*
+	Allowed Fields:
+		IsActive
+*/
+func (ci *ContentImpl) EditCatalogContent(opts *schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error) {
+	var update bson.D
+	if opts.IsActive != nil {
+		update = append(update, bson.E{Key: "is_active", Value: opts.IsActive})
+	}
+
+	if opts.Label != nil {
+		if len(opts.Label.AgeGroup) > 0 {
+			update = append(update, bson.E{Key: "label.age_groups", Value: opts.Label.AgeGroup})
+		}
+		if len(opts.Label.Gender) > 0 {
+			update = append(update, bson.E{Key: "label.genders", Value: opts.Label.Gender})
+		}
+		if len(opts.Label.Interests) > 0 {
+			update = append(update, bson.E{Key: "label.interests", Value: opts.Label.Interests})
+		}
+	}
+
+	filter := bson.M{"_id": opts.ID}
+	updateQuery := bson.M{"$set": update}
+
+	res, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, updateQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to update content")
+	}
+	if res.MatchedCount == 0 {
+		return nil, errors.Wrap(err, "failed to find content")
+	}
+	if res.ModifiedCount == 0 {
+		return nil, errors.Wrap(err, "failed to update content")
+	}
+
+	return &schema.EditCatalogContentResp{
+		ID:       opts.ID,
+		Label:    opts.Label,
+		IsActive: opts.IsActive,
+	}, nil
 }
