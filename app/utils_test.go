@@ -130,3 +130,56 @@ func TestIMG_Resize(t *testing.T) {
 		})
 	}
 }
+
+func TestParseHashtag(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "[Ok]",
+			args: args{
+				s: "#test checking for #some hashtags by #hashtag",
+			},
+			want: []string{"#test", "#some", "#hashtag"},
+		},
+		{
+			name: "[Ok] Only hashtag",
+			args: args{
+				s: "#test #checking #for #hashtags #by #hashtag",
+			},
+			want: []string{"#test", "#checking", "#for", "#hashtags", "#by", "#hashtag"},
+		},
+		{
+			name: "[Ok] No Hashtag",
+			args: args{
+				s: "this string has no hashtag",
+			},
+			want: nil,
+		},
+		{
+			name: "[Ok] Two Non-Seperated Hashtags",
+			args: args{
+				s: "this string #has#two hashtag",
+			},
+			want: []string{"#has", "#two"},
+		},
+		{
+			name: "[Ok] Two Double Space Seperated Hashtags",
+			args: args{
+				s: "this string #has  #two hashtag",
+			},
+			want: []string{"#has", "#two"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ParseHashtag(tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

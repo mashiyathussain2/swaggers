@@ -59,8 +59,8 @@ enableRequestLog=false
 
 [app]
 
-    [app.content]
+    [app.media]
     dbName = "test_content"
 
-    [app.pebble]
-    dbName = "test_pebble"
+    [app.content]
+    dbName = "test_content"

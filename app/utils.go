@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"regexp"
 	"strings"
 
 	"github.com/avelino/slugify"
@@ -98,4 +99,10 @@ func FileTypeFromFileName(s string) (string, error) {
 		return "", errors.New("invalid file type: missing file extension")
 	}
 	return i[len(i)-1], nil
+}
+
+// ParseHashtag parses a string and returns list of hashtag mentions in that string.
+func ParseHashtag(s string) []string {
+	r := regexp.MustCompile(`\#[a-zA-Z]+\b`)
+	return r.FindAllString(s, -1)
 }

@@ -32,4 +32,5 @@ require (
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	syreclabs.com/go/faker v1.2.3
 )

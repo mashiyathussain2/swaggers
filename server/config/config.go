@@ -47,8 +47,8 @@ type APIConfig struct {
 type APPConfig struct {
 	DatabaseConfig DatabaseConfig
 	S3Config       S3Config
+	MediaConfig    ServiceConfig `mapstructure:"media"`
 	ContentConfig  ServiceConfig `mapstructure:"content"`
-	PebbleConfig   ServiceConfig `mapstructure:"pebble"`
 }
 
 // ServiceConfig contains app service related config

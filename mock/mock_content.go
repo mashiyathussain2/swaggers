@@ -7,6 +7,7 @@ package mock
 import (
 	gomock "github.com/golang/mock/gomock"
 	schema "go-app/schema"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
 )
 
@@ -33,32 +34,77 @@ func (m *MockContent) EXPECT() *MockContentMockRecorder {
 	return m.recorder
 }
 
-// GenerateVideoUploadToken mocks base method
-func (m *MockContent) GenerateVideoUploadToken(arg0 *schema.GenerateVideoUploadTokenOpts) (*schema.GenerateVideoUploadTokenResp, error) {
+// CreatePebble mocks base method
+func (m *MockContent) CreatePebble(arg0 *schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateVideoUploadToken", arg0)
-	ret0, _ := ret[0].(*schema.GenerateVideoUploadTokenResp)
+	ret := m.ctrl.Call(m, "CreatePebble", arg0)
+	ret0, _ := ret[0].(*schema.CreatePebbleResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GenerateVideoUploadToken indicates an expected call of GenerateVideoUploadToken
-func (mr *MockContentMockRecorder) GenerateVideoUploadToken(arg0 interface{}) *gomock.Call {
+// CreatePebble indicates an expected call of CreatePebble
+func (mr *MockContentMockRecorder) CreatePebble(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateVideoUploadToken", reflect.TypeOf((*MockContent)(nil).GenerateVideoUploadToken), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePebble", reflect.TypeOf((*MockContent)(nil).CreatePebble), arg0)
 }
 
-// generateS3UploadToken mocks base method
-func (m *MockContent) generateS3UploadToken(arg0, arg1 string) (string, error) {
+// DeletePebble mocks base method
+func (m *MockContent) DeletePebble(arg0 primitive.ObjectID) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "generateS3UploadToken", arg0, arg1)
-	ret0, _ := ret[0].(string)
+	ret := m.ctrl.Call(m, "DeletePebble", arg0)
+	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// generateS3UploadToken indicates an expected call of generateS3UploadToken
-func (mr *MockContentMockRecorder) generateS3UploadToken(arg0, arg1 interface{}) *gomock.Call {
+// DeletePebble indicates an expected call of DeletePebble
+func (mr *MockContentMockRecorder) DeletePebble(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "generateS3UploadToken", reflect.TypeOf((*MockContent)(nil).generateS3UploadToken), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePebble", reflect.TypeOf((*MockContent)(nil).DeletePebble), arg0)
+}
+
+// EditPebble mocks base method
+func (m *MockContent) EditPebble(arg0 *schema.EditPebbleOpts) (*schema.EditPebbleResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditPebble", arg0)
+	ret0, _ := ret[0].(*schema.EditPebbleResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EditPebble indicates an expected call of EditPebble
+func (mr *MockContentMockRecorder) EditPebble(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditPebble", reflect.TypeOf((*MockContent)(nil).EditPebble), arg0)
+}
+
+// GetContentByID mocks base method
+func (m *MockContent) GetContentByID(arg0 primitive.ObjectID) (*schema.GetContentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContentByID", arg0)
+	ret0, _ := ret[0].(*schema.GetContentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetContentByID indicates an expected call of GetContentByID
+func (mr *MockContentMockRecorder) GetContentByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContentByID", reflect.TypeOf((*MockContent)(nil).GetContentByID), arg0)
+}
+
+// ProcessVideoContent mocks base method
+func (m *MockContent) ProcessVideoContent(arg0 *schema.CreateVideoOpts) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessVideoContent", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProcessVideoContent indicates an expected call of ProcessVideoContent
+func (mr *MockContentMockRecorder) ProcessVideoContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessVideoContent", reflect.TypeOf((*MockContent)(nil).ProcessVideoContent), arg0)
 }
