@@ -1,0 +1,3 @@
+.vscode
+conf/default.toml
+server/auth/debug.test
