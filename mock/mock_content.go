@@ -34,6 +34,21 @@ func (m *MockContent) EXPECT() *MockContentMockRecorder {
 	return m.recorder
 }
 
+// CreateCatalogVideoContent mocks base method
+func (m *MockContent) CreateCatalogVideoContent(arg0 *schema.CreateVideoCatalogContentOpts) (*schema.CreatePebbleResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCatalogVideoContent", arg0)
+	ret0, _ := ret[0].(*schema.CreatePebbleResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCatalogVideoContent indicates an expected call of CreateCatalogVideoContent
+func (mr *MockContentMockRecorder) CreateCatalogVideoContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCatalogVideoContent", reflect.TypeOf((*MockContent)(nil).CreateCatalogVideoContent), arg0)
+}
+
 // CreatePebble mocks base method
 func (m *MockContent) CreatePebble(arg0 *schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error) {
 	m.ctrl.T.Helper()
@@ -62,6 +77,21 @@ func (m *MockContent) DeletePebble(arg0 primitive.ObjectID) (bool, error) {
 func (mr *MockContentMockRecorder) DeletePebble(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePebble", reflect.TypeOf((*MockContent)(nil).DeletePebble), arg0)
+}
+
+// EditCatalogContent mocks base method
+func (m *MockContent) EditCatalogContent(arg0 *schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditCatalogContent", arg0)
+	ret0, _ := ret[0].(*schema.EditCatalogContentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EditCatalogContent indicates an expected call of EditCatalogContent
+func (mr *MockContentMockRecorder) EditCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCatalogContent", reflect.TypeOf((*MockContent)(nil).EditCatalogContent), arg0)
 }
 
 // EditPebble mocks base method

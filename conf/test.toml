@@ -57,10 +57,22 @@ username=""
 [middleware]
 enableRequestLog=false
 
+[ivs]
+region="eu-west-1"
+authorizeChannel=false
+latencyMode="LOW"
+channelType="STANDARD"
+
 [app]
 
     [app.media]
-    dbName = "test_content"
+    dbName="test_content"
 
     [app.content]
-    dbName = "test_content"
+    dbName="test_content"
+
+    [app.live]
+    dbName="test_live"
+
+
+

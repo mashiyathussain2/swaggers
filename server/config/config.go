@@ -21,6 +21,7 @@ type Config struct {
 	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
 	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
 	S3Config         S3Config         `mapstructure:"s3"`
+	IVSConfig        IVSConfig        `mapstructure:"ivs"`
 }
 
 // ServerConfig has only server specific configuration
@@ -47,8 +48,10 @@ type APIConfig struct {
 type APPConfig struct {
 	DatabaseConfig DatabaseConfig
 	S3Config       S3Config
-	MediaConfig    ServiceConfig `mapstructure:"media"`
-	ContentConfig  ServiceConfig `mapstructure:"content"`
+	IVSConfig
+	MediaConfig   ServiceConfig `mapstructure:"media"`
+	ContentConfig ServiceConfig `mapstructure:"content"`
+	LiveConfig    ServiceConfig `mapstructure:"live"`
 }
 
 // ServiceConfig contains app service related config
@@ -129,6 +132,17 @@ type S3Config struct {
 	S3VideoUploadBucket     string        `mapstructure:"s3VideoUploadBucket"`
 	S3VideoUploadKey        string        `mapstructure:"s3VideoUploadKey"`
 	PresignedURLValidity    time.Duration `mapstructure:"presignedURLValidity"`
+}
+
+// IVSConfig contains aws ivs related configuration
+type IVSConfig struct {
+	Region           string `mapstructure:"region"`
+	ARN              string `mapstructure:"arn"`
+	AccessKeyID      string `mapstructure:"accessKeyId"`
+	SecretAccessKey  string `mapstructure:"secretAccessKey"`
+	AuthorizeChannel bool   `mapstructure:"authorizeChannel"`
+	LatencyMode      string `mapstructure:"latencyMode"`
+	ChannelType      string `mapstructure:"channelType"`
 }
 
 // ConnectionURL returns connection string to of mongodb storage

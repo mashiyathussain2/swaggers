@@ -66,3 +66,59 @@ func GetRandomVideoMedia() *Video {
 	}
 	return v
 }
+
+// GetRandomLive returns live model populated with random data
+func GetRandomLive() *Live {
+	name := faker.Name().Name()
+	now := time.Now().UTC()
+	l := &Live{
+		ID:            primitive.NewObjectIDFromTimestamp(time.Now()),
+		Name:          name,
+		Slug:          faker.Internet().Slug(),
+		InfluencerIDs: []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now())},
+		CatalogIDs:    []primitive.ObjectID{primitive.NewObjectIDFromTimestamp(time.Now()), primitive.NewObjectIDFromTimestamp(time.Now())},
+		Status: &StreamStatus{
+			Name:      ActiveStatus,
+			CreatedAt: now,
+		},
+		StatusHistory: []StreamStatus{
+			{
+				Name:      ActiveStatus,
+				CreatedAt: now,
+			},
+			{
+				Name:      DiscardStatus,
+				CreatedAt: now.Add(-36 * time.Hour),
+			},
+		},
+		FeaturedImage: &IMG{
+			SRC:    "https://deepakacademy.files.wordpress.com/2020/07/carryminatiyu.jpg",
+			Width:  1280,
+			Height: 720,
+		},
+		StreamEndImage: &IMG{
+			SRC:    "https://i2.wp.com/www.movieslantern.com/wp-content/uploads/2019/10/maxresdefault-170.jpg?fit=768%2C432&ssl=1",
+			Width:  1280,
+			Height: 720,
+		},
+		IVS: &IVS{
+			Channel: &IVSChannel{
+				ARN:                   faker.Letterify("???-????-?????"),
+				Name:                  name,
+				Type:                  "STANDARD",
+				LatencyMode:           "LOW",
+				PlaybackAuthorization: false,
+			},
+			Ingestion: &IVSIngest{
+				IngestURL: faker.Letterify("rtmp://??.???.??.??:8000"),
+				StreamKey: faker.RandomString(20),
+			},
+			Playback: &IVSPlayback{
+				PlaybackURL: faker.Letterify("https://?????.??????.com/????.m3u8"),
+			},
+		},
+		ScheduledAt: time.Now().Add(time.Duration(faker.RandomInt(10, 1000) * int(time.Hour))).UTC(),
+		CreatedAt:   time.Now().UTC(),
+	}
+	return l
+}

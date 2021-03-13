@@ -21,6 +21,7 @@ import (
 type Content interface {
 	ProcessVideoContent(*schema.ProcessVideoContentOpts) (bool, error)
 	GetContentByID(primitive.ObjectID) (*schema.GetContentResp, error)
+	GetContent(*schema.GetContentFilter) ([]schema.GetContentResp, error)
 
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)

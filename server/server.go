@@ -79,7 +79,6 @@ func NewServer() *Server {
 		TokenAuth:  auth.NewTokenAuthentication(&c.TokenAuthConfig),
 		Validator:  validator.NewValidation(),
 	})
-
 	// Initializing app and services
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
