@@ -25,6 +25,7 @@ type App struct {
 	// List of services this app is implementing
 	Media   Media
 	Content Content
+	Live    Live
 	// Kafka Consumer
 
 }

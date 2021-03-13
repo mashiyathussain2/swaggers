@@ -82,3 +82,22 @@ func GetRandomCreateCatalogContentOpts() *CreateVideoCatalogContentOpts {
 	}
 	return s
 }
+
+// GetRandomCreateLiveStreamOpts returns CreateLiveStreamOpts with random data
+func GetRandomCreateLiveStreamOpts() *CreateLiveStreamOpts {
+	s := CreateLiveStreamOpts{
+		Name: faker.Name().Name(),
+		FeaturedImage: &Img{
+			SRC: "https://deepakacademy.files.wordpress.com/2020/07/carryminatiyu.jpg",
+		},
+		StreamEndImage: &Img{
+			SRC: "https://i2.wp.com/www.movieslantern.com/wp-content/uploads/2019/10/maxresdefault-170.jpg?fit=768%2C432&ssl=1",
+		},
+		InfluencerIDs: []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID()},
+		ScheduledAt:   time.Now().UTC().Add(7 * time.Minute),
+	}
+	for i := 0; i < faker.RandomInt(1, 10); i++ {
+		s.CatalogIDs = append(s.CatalogIDs, primitive.NewObjectID())
+	}
+	return &s
+}
