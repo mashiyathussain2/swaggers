@@ -101,7 +101,6 @@ func (ui *UserImpl) CreateUser(opts *schema.CreateUserOpts) (*schema.CreateUserR
 	user.EmailVerificationCode, _ = GenerateOTP(ui.App.Config.TokenAuthConfig.OTPLength)
 
 	if err := ui.sendConfirmationEmail(&user); err != nil {
-
 	}
 
 	res, err := ui.DB.Collection(model.UserColl).InsertOne(context.TODO(), user)
@@ -168,6 +167,10 @@ func (ui *UserImpl) sendConfirmationEmail(u *model.User) error {
 					Data:    aws.String(htmlBody),
 				},
 			},
+			Subject: &ses.Content{
+				Charset: aws.String("utf-8"),
+				Data:    aws.String("HYPD: Email Verification OTP"),
+			},
 		},
 		Source: aws.String("hello@hypd.in"),
 	}
@@ -200,7 +203,12 @@ func (ui *UserImpl) sendForgotPasswordOTPEmail(u *model.User) error {
 					Data:    aws.String(htmlBody),
 				},
 			},
+			Subject: &ses.Content{
+				Charset: aws.String("utf-8"),
+				Data:    aws.String("HYPD: Password Reset OTP"),
+			},
 		},
+
 		Source: aws.String("hello@hypd.in"),
 	}
 	_, err := ui.App.SES.SendEmail(input)
