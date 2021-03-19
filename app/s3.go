@@ -17,6 +17,7 @@ import (
 // S3 contains methods which interact with AWS S3 Specific SDK
 type S3 interface {
 	GetPutObjectRequestURL(*s3.PutObjectInput) (string, error)
+	PutObject(opts *s3.PutObjectInput) (*s3.PutObjectOutput, error)
 }
 
 // S3Opts contains args required to create S3Impl instance
@@ -35,8 +36,8 @@ func InitS3(opts *S3Opts) S3 {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(opts.Config.Region),
 		Credentials: credentials.NewStaticCredentials(
-			opts.Config.S3UploadAccessKeyID,
-			opts.Config.S3UploadSecretAccessKey,
+			opts.Config.AccessKeyID,
+			opts.Config.SecretAccessKey,
 			"", // a token will be created when the session it's used.
 		),
 	})
@@ -54,4 +55,9 @@ func InitS3(opts *S3Opts) S3 {
 func (s3i *S3Impl) GetPutObjectRequestURL(input *s3.PutObjectInput) (string, error) {
 	req, _ := s3i.S3.PutObjectRequest(input)
 	return req.Presign(s3i.Config.PresignedURLValidity * time.Minute)
+}
+
+// PutObject calls aws sdk PutObject method to upload byte object
+func (s3i *S3Impl) PutObject(opts *s3.PutObjectInput) (*s3.PutObjectOutput, error) {
+	return s3i.S3.PutObject(opts)
 }

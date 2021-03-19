@@ -46,10 +46,35 @@ type GetLiveStreamResp struct {
 
 // GetLiveStreamsFilter contains and validates supported filter to get live streams
 type GetLiveStreamsFilter struct {
-	Page            uint      `json:"page"`
-	Status          []string  `json:"status"`
-	ScheduledAtFrom time.Time `json:"scheduled_at_from"`
-	ScheduledAtTo   time.Time `json:"scheduled_at_to"`
-	CreatedAtFrom   time.Time `json:"created_at_from"`
-	CreatedAtTo     time.Time `json:"created_at_to"`
+	Page            int       `queryparam:"page"`
+	Status          []string  `queryparam:"status"`
+	ScheduledAtFrom time.Time `queryparam:"scheduled_at_from"`
+	ScheduledAtTo   time.Time `queryparam:"scheduled_at_to"`
+	CreatedAtFrom   time.Time `queryparam:"created_at_from"`
+	CreatedAtTo     time.Time `queryparam:"created_at_to"`
+}
+
+// StartLiveStreamResp contains fields to be returned in response to start live
+type StartLiveStreamResp struct {
+	StreamKey string `json:"stream_key"`
+	IngestURL string `json:"ingest_url"`
+}
+
+// CreateLiveCommentOpts contains fields and validations to push a comment in kafka topic and ivs meta data
+type CreateLiveCommentOpts struct {
+	Type         string             `json:"type"`
+	LiveID       primitive.ObjectID `json:"live_id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+	ARN          string             `json:"arn" validate:"required"`
+	Name         string             `json:"name" validate:"required"`
+	ProfileImage *Img               `json:"profile_image" validate:"required"`
+	Description  string             `json:"description" validate:"required"`
+	CreatedAt    time.Time          `json:"created_at"`
+}
+
+// CreateIVSCommentMetaData contains fields to be returned to aws putmeta data api
+type CreateIVSCommentMetaData struct {
+	Name         string `json:"name"`
+	ProfileImage *Img   `json:"profile_image"`
+	Description  string `json:"description"`
 }

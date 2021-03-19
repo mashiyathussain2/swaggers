@@ -2,12 +2,19 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"go-app/model"
 	"go-app/schema"
+	"go-app/server/kafka"
+	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/ivs"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+
+	segKafka "github.com/segmentio/kafka-go"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,9 +24,19 @@ import (
 // Live contains methods to implement live functionality in the app
 type Live interface {
 	CreateLiveStream(*schema.CreateLiveStreamOpts) (*schema.CreateLiveStreamResp, error)
-	StartLiveStream(primitive.ObjectID) (string, error)
+	StartLiveStream(primitive.ObjectID) (*schema.StartLiveStreamResp, error)
 	DiscardLiveStream(primitive.ObjectID) error
 	EndLiveStream(primitive.ObjectID) error
+	JoinLiveStream(primitive.ObjectID) (string, error)
+
+	PushComment(*schema.CreateLiveCommentOpts)
+
+	GetLiveStreamByID(primitive.ObjectID) (*schema.GetLiveStreamResp, error)
+	GetLiveStreams(*schema.GetLiveStreamsFilter) ([]schema.GetLiveStreamResp, error)
+
+	ConsumeComment(m kafka.Message)
+
+	CreateLiveComment(*schema.CreateLiveCommentOpts)
 }
 
 // LiveImpl implemethods Live interface methods
@@ -123,7 +140,7 @@ func (li *LiveImpl) CreateLiveStream(opts *schema.CreateLiveStreamOpts) (*schema
 }
 
 // StartLiveStream starts a live stream
-func (li *LiveImpl) StartLiveStream(id primitive.ObjectID) (string, error) {
+func (li *LiveImpl) StartLiveStream(id primitive.ObjectID) (*schema.StartLiveStreamResp, error) {
 	// Updating status in mongodb
 	st := model.StreamStatus{
 		Name:      model.ActiveStatus,
@@ -132,7 +149,7 @@ func (li *LiveImpl) StartLiveStream(id primitive.ObjectID) (string, error) {
 	filter := bson.M{"_id": id}
 	update := bson.M{
 		"$set": bson.M{
-			"stream_status": st,
+			"status": st,
 		},
 		"$push": bson.M{
 			"status_history": st,
@@ -141,11 +158,14 @@ func (li *LiveImpl) StartLiveStream(id primitive.ObjectID) (string, error) {
 	var stream model.Live
 	if err := li.DB.Collection(model.LiveColl).FindOneAndUpdate(context.TODO(), filter, update).Decode(&stream); err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-			return "", errors.Errorf("failed to find live stream with id:%s", id.Hex())
+			return nil, errors.Errorf("failed to find live stream with id:%s", id.Hex())
 		}
-		return "", errors.Errorf("failed to start live stream with id:%s", id.Hex())
+		return nil, errors.Errorf("failed to start live stream with id:%s", id.Hex())
 	}
-	return stream.IVS.Ingestion.StreamKey, nil
+	return &schema.StartLiveStreamResp{
+		StreamKey: stream.IVS.Ingestion.StreamKey,
+		IngestURL: stream.IVS.Ingestion.IngestURL,
+	}, nil
 }
 
 // DiscardLiveStream marks an upcoming livestream discarded
@@ -157,7 +177,7 @@ func (li *LiveImpl) DiscardLiveStream(id primitive.ObjectID) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{
 		"$set": bson.M{
-			"stream_status": st,
+			"status": st,
 		},
 		"$push": bson.M{
 			"status_history": st,
@@ -186,7 +206,7 @@ func (li *LiveImpl) EndLiveStream(id primitive.ObjectID) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{
 		"$set": bson.M{
-			"stream_status": st,
+			"status": st,
 		},
 		"$push": bson.M{
 			"status_history": st,
@@ -209,6 +229,26 @@ func (li *LiveImpl) EndLiveStream(id primitive.ObjectID) error {
 	}
 
 	return nil
+}
+
+// JoinLiveStream returns a playback url to user can stream the live feed
+func (li *LiveImpl) JoinLiveStream(id primitive.ObjectID) (string, error) {
+	filter := bson.M{"_id": id}
+
+	var stream model.Live
+	opts := options.FindOne().SetProjection(bson.M{"ivs.playback": 1, "status": 1})
+	if err := li.DB.Collection(model.LiveColl).FindOne(context.TODO(), filter, opts).Decode(&stream); err != nil {
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return "", errors.Errorf("failed to find live stream with id:%s", id.Hex())
+		}
+		return "", errors.Errorf("failed to end live stream with id:%s", id.Hex())
+	}
+
+	if stream.Status.Name != model.ActiveStatus {
+		return "", errors.New("stream is not active")
+	}
+
+	return stream.IVS.Playback.PlaybackURL, nil
 }
 
 // GetLiveStreamByID returns specific live stream info matched by id
@@ -257,4 +297,78 @@ func (li *LiveImpl) GetLiveStreams(filterOpts *schema.GetLiveStreamsFilter) ([]s
 		return nil, errors.Wrap(err, "failed to get live streams")
 	}
 	return resp, nil
+}
+
+// PushComment pushes the comment object into kafka topic and aws ivs meta data api
+func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
+	// Pushing comment to kafka topic
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		opts.Type = "comment"
+		opts.CreatedAt = time.Now().UTC()
+		bytes, err := json.Marshal(opts)
+		if err == nil {
+			li.App.LiveCommentProducer.Publish(segKafka.Message{
+				Key:   nil,
+				Value: bytes,
+			})
+			return
+		}
+		li.Logger.Err(err).Interface("opts", opts).Msg("failed to decode opts to bytes")
+	}()
+
+	// Pushing comment to IVS meta-data
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		s := schema.CreateIVSCommentMetaData{
+			Name:         opts.Name,
+			ProfileImage: opts.ProfileImage,
+			Description:  opts.Description,
+		}
+		bytes, err := json.Marshal(s)
+		metaData := string(bytes)
+		if err == nil {
+			params := ivs.PutMetadataInput{
+				ChannelArn: &opts.ARN,
+				Metadata:   &metaData,
+			}
+			_, err := li.IVS.PutMetadata(&params)
+			if err != nil {
+				li.Logger.Err(err).RawJSON("metadata", bytes).Msg("failed to push comment in ivs metadata")
+			}
+			return
+		}
+		li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
+	}()
+
+	wg.Wait()
+}
+
+func (li *LiveImpl) ConsumeComment(m kafka.Message) {
+	message := m.(segKafka.Message).Value
+	var s schema.CreateLiveCommentOpts
+	err := json.Unmarshal(message, &s)
+	if err != nil {
+		li.Logger.Err(err).RawJSON("message", message).Msg("failed to read live comment data")
+		return
+	}
+	li.App.LiveComments.Commit(context.Background(), m)
+}
+
+func (li *LiveImpl) CreateLiveComment(opts *schema.CreateLiveCommentOpts) {
+	s := schema.CreateCommentOpts{
+		ResourceType: model.LiveType,
+		ResourceID:   opts.LiveID,
+		Description:  opts.Description,
+		UserID:       opts.UserID,
+		CreatedAt:    opts.CreatedAt,
+	}
+
+	if _, err := li.App.Content.CreateComment(&s); err != nil {
+		li.Logger.Err(err).Interface("opts", opts).Msg("failed to create live comment")
+	}
 }

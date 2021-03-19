@@ -500,3 +500,105 @@ func TestMediaImpl_GetVideoMediaByID(t *testing.T) {
 		})
 	}
 }
+
+func TestMediaImpl_CreateImageMedia(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateImageMediaOpts
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.CreateImageMediaResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockS3)
+		validate   func(*testing.T, *TC, *schema.CreateImageMediaResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateImageMediaOpts()
+				tt.args.opts = opts
+			},
+			buildStubs: func(tt *TC, mc *mock.MockS3) {
+				mc.EXPECT().PutObject(gomock.Any()).Times(1).Return(nil, nil)
+			},
+			validate: func(t *testing.T, tt *TC, got *schema.CreateImageMediaResp) {
+				assert.False(t, got.ID.IsZero())
+				assert.Contains(t, got.FileName, tt.args.opts.FileName)
+				assert.Equal(t, uint(225), got.Dimensions.Height)
+				assert.Equal(t, uint(225), got.Dimensions.Width)
+				assert.NotEmpty(t, got.URL)
+			},
+		},
+		{
+			name: "[Error] Invalid Base64",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			buildStubs: func(tt *TC, mc *mock.MockS3) {
+				mc.EXPECT().PutObject(gomock.Any()).Times(0).Return(nil, nil)
+			},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateImageMediaOpts()
+				opts.Base64SRC = opts.Base64SRC + "somerandomdata"
+				tt.args.opts = opts
+				tt.err = errors.New("failed to un-base image string: illegal base64 data at input byte 1892")
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockS3 := mock.NewMockS3(ctrl)
+
+			mi := &MediaImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+
+			tt.fields.App.Media = mi
+			tt.fields.App.S3 = mockS3
+			tt.buildStubs(&tt, mockS3)
+			tt.prepare(&tt)
+			got, err := mi.CreateImageMedia(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MediaImpl.CreateImageMedia() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+			if tt.wantErr {
+				assert.Nil(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}

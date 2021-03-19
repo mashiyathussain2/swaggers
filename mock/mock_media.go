@@ -34,6 +34,21 @@ func (m *MockMedia) EXPECT() *MockMediaMockRecorder {
 	return m.recorder
 }
 
+// CreateImageMedia mocks base method
+func (m *MockMedia) CreateImageMedia(arg0 *schema.CreateImageMediaOpts) (*schema.CreateImageMediaResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateImageMedia", arg0)
+	ret0, _ := ret[0].(*schema.CreateImageMediaResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateImageMedia indicates an expected call of CreateImageMedia
+func (mr *MockMediaMockRecorder) CreateImageMedia(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImageMedia", reflect.TypeOf((*MockMedia)(nil).CreateImageMedia), arg0)
+}
+
 // CreateVideoMedia mocks base method
 func (m *MockMedia) CreateVideoMedia(arg0 *schema.CreateVideoOpts) (*schema.CreateVideoResp, error) {
 	m.ctrl.T.Helper()
@@ -77,6 +92,21 @@ func (m *MockMedia) GenerateVideoUploadToken(arg0 *schema.GenerateVideoUploadTok
 func (mr *MockMediaMockRecorder) GenerateVideoUploadToken(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateVideoUploadToken", reflect.TypeOf((*MockMedia)(nil).GenerateVideoUploadToken), arg0)
+}
+
+// GetImageMediaByID mocks base method
+func (m *MockMedia) GetImageMediaByID(arg0 primitive.ObjectID) (*schema.GetMediaResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImageMediaByID", arg0)
+	ret0, _ := ret[0].(*schema.GetMediaResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImageMediaByID indicates an expected call of GetImageMediaByID
+func (mr *MockMediaMockRecorder) GetImageMediaByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImageMediaByID", reflect.TypeOf((*MockMedia)(nil).GetImageMediaByID), arg0)
 }
 
 // GetVideoMediaByID mocks base method

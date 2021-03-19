@@ -79,7 +79,7 @@ func TestContentImpl_CreatePebble(t *testing.T) {
 				assert.Equal(t, tt.args.opts.BrandIDs, res.BrandIDs)
 				assert.Equal(t, tt.args.opts.InfluencerIDs, res.InfluencerIDs)
 				assert.Equal(t, tt.args.opts.CatalogIDs, res.CatalogIDs)
-				assert.Equal(t, primitive.NilObjectID, res.CustomerID)
+				assert.Equal(t, primitive.NilObjectID, res.UserID)
 				assert.Equal(t, tt.args.opts.Label.Gender, res.Label.Genders)
 				assert.Equal(t, tt.args.opts.Label.AgeGroup, res.Label.AgeGroups)
 				assert.Equal(t, tt.args.opts.Label.Interests, res.Label.Interests)
@@ -123,7 +123,7 @@ func TestContentImpl_CreatePebble(t *testing.T) {
 				assert.Equal(t, tt.args.opts.BrandIDs, res.BrandIDs)
 				assert.Equal(t, tt.args.opts.InfluencerIDs, res.InfluencerIDs)
 				assert.Equal(t, tt.args.opts.CatalogIDs, res.CatalogIDs)
-				assert.Equal(t, primitive.NilObjectID, res.CustomerID)
+				assert.Equal(t, primitive.NilObjectID, res.UserID)
 				assert.Equal(t, tt.args.opts.Label.Gender, res.Label.Genders)
 				assert.Equal(t, tt.args.opts.Label.AgeGroup, res.Label.AgeGroups)
 				assert.Equal(t, tt.args.opts.Label.Interests, res.Label.Interests)
@@ -756,7 +756,7 @@ func TestContentImpl_GetContentByID(t *testing.T) {
 					MediaID:       tt.args.createContentOpts.MediaID,
 					InfluencerIDs: tt.args.createContentOpts.InfluencerIDs,
 					BrandIDs:      tt.args.createContentOpts.BrandIDs,
-					CustomerID:    tt.args.createContentOpts.CustomerID,
+					UserID:        tt.args.createContentOpts.UserID,
 					CatalogIDs:    tt.args.createContentOpts.CatalogIDs,
 					Label:         tt.args.createContentOpts.Label,
 					IsActive:      tt.args.createContentOpts.IsActive,
@@ -989,7 +989,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     c.MediaType,
 						MediaID:       c.MediaID,
 						InfluencerIDs: c.InfluencerIDs,
-						CustomerID:    c.CustomerID,
+						UserID:        c.UserID,
 						BrandIDs:      c.BrandIDs,
 						CatalogIDs:    c.CatalogIDs,
 						Label:         c.Label,
@@ -1053,7 +1053,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     c.MediaType,
 						MediaID:       c.MediaID,
 						InfluencerIDs: c.InfluencerIDs,
-						CustomerID:    c.CustomerID,
+						UserID:        c.UserID,
 						BrandIDs:      c.BrandIDs,
 						CatalogIDs:    c.CatalogIDs,
 						Label:         c.Label,
@@ -1112,7 +1112,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     c.MediaType,
 						MediaID:       c.MediaID,
 						InfluencerIDs: c.InfluencerIDs,
-						CustomerID:    c.CustomerID,
+						UserID:        c.UserID,
 						BrandIDs:      c.BrandIDs,
 						CatalogIDs:    c.CatalogIDs,
 						Label:         c.Label,
@@ -1165,7 +1165,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     contents[randInt0].MediaType,
 						MediaID:       contents[randInt0].MediaID,
 						InfluencerIDs: contents[randInt0].InfluencerIDs,
-						CustomerID:    contents[randInt0].CustomerID,
+						UserID:        contents[randInt0].UserID,
 						BrandIDs:      contents[randInt0].BrandIDs,
 						CatalogIDs:    contents[randInt0].CatalogIDs,
 						Label:         contents[randInt0].Label,
@@ -1180,7 +1180,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     contents[randInt1].MediaType,
 						MediaID:       contents[randInt1].MediaID,
 						InfluencerIDs: contents[randInt1].InfluencerIDs,
-						CustomerID:    contents[randInt1].CustomerID,
+						UserID:        contents[randInt1].UserID,
 						BrandIDs:      contents[randInt1].BrandIDs,
 						CatalogIDs:    contents[randInt1].CatalogIDs,
 						Label:         contents[randInt1].Label,
@@ -1225,7 +1225,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     c.MediaType,
 						MediaID:       c.MediaID,
 						InfluencerIDs: c.InfluencerIDs,
-						CustomerID:    c.CustomerID,
+						UserID:        c.UserID,
 						BrandIDs:      c.BrandIDs,
 						CatalogIDs:    c.CatalogIDs,
 						Label:         c.Label,
@@ -1273,7 +1273,7 @@ func TestContentImpl_GetContent(t *testing.T) {
 						MediaType:     c.MediaType,
 						MediaID:       c.MediaID,
 						InfluencerIDs: c.InfluencerIDs,
-						CustomerID:    c.CustomerID,
+						UserID:        c.UserID,
 						BrandIDs:      c.BrandIDs,
 						CatalogIDs:    c.CatalogIDs,
 						Label:         c.Label,
@@ -1374,7 +1374,7 @@ func TestContentImpl_CreateCatalogVideoContent(t *testing.T) {
 				assert.Equal(t, tt.args.opts.BrandID, res.BrandIDs[0])
 				assert.Nil(t, res.InfluencerIDs)
 				assert.Equal(t, tt.args.opts.CatalogID, res.CatalogIDs[0])
-				assert.Equal(t, primitive.NilObjectID, res.CustomerID)
+				assert.Equal(t, primitive.NilObjectID, res.UserID)
 				assert.Equal(t, tt.args.opts.Label.Gender, res.Label.Genders)
 				assert.Equal(t, tt.args.opts.Label.AgeGroup, res.Label.AgeGroups)
 				assert.Equal(t, tt.args.opts.Label.Interests, res.Label.Interests)
@@ -1446,9 +1446,11 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 		Logger *zerolog.Logger
 	}
 	type args struct {
-		createOpts *schema.CreateVideoCatalogContentOpts
-		createResp *schema.CreateVideoCatalogContentResp
-		opts       *schema.EditCatalogContentOpts
+		createOpts      *schema.CreateVideoCatalogContentOpts
+		createImgOpts   *schema.CreateImageCatalogContentOpts
+		createResp      *schema.CreateVideoCatalogContentResp
+		createImageResp *schema.CreateImageCatalogContentResp
+		opts            *schema.EditCatalogContentOpts
 	}
 
 	type TC struct {
@@ -1465,7 +1467,7 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 
 	tests := []TC{
 		{
-			name: "[Ok]",
+			name: "[Ok] Video Type",
 			fields: fields{
 				App:    app,
 				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
@@ -1497,7 +1499,7 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 				err := tt.fields.DB.Collection(model.ContentColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&doc)
 				assert.Nil(t, err)
 				assert.Equal(t, tt.args.createOpts.BrandID, doc.BrandIDs[0])
-				assert.Equal(t, primitive.NilObjectID, doc.CustomerID)
+				assert.Equal(t, primitive.NilObjectID, doc.UserID)
 				assert.Nil(t, doc.InfluencerIDs)
 				assert.Equal(t, tt.args.createOpts.CatalogID, doc.CatalogIDs[0])
 				assert.Equal(t, true, doc.IsActive)
@@ -1505,6 +1507,49 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 				assert.Equal(t, tt.args.createOpts.Label.AgeGroup, doc.Label.AgeGroups)
 				assert.Equal(t, tt.args.createOpts.Label.Gender, doc.Label.Genders)
 				assert.Equal(t, tt.args.createOpts.Label.Interests, doc.Label.Interests)
+			},
+		},
+		{
+			name: "[Ok] Image Type",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				createOpts := schema.GetRandomCreateCatalogImageContentOpts()
+				createResp, _ := tt.fields.App.Content.CreateCatalogImageContent(createOpts)
+				trueBool := true
+				tt.args.opts = &schema.EditCatalogContentOpts{
+					ID:       createResp.ID,
+					IsActive: &trueBool,
+				}
+				tt.args.createImgOpts = createOpts
+				tt.want = &schema.EditCatalogContentResp{
+					ID:       createResp.ID,
+					IsActive: &trueBool,
+				}
+			},
+			buildStubs: func(tt *TC, mc *mock.MockMedia) {
+				// resp := schema.GenerateVideoUploadTokenResp{
+				// 	Token: "https://hypd-vod-source-16jim3me9cmrc.s3.ap-south-1.amazonaws.com/5fbb7f1f7f10f60aaffa2598.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA5LCMVADVOIOHO66X%2F20201123%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20201123T092135Z&X-Amz-Expires=1800&X-Amz-SignedHeaders=host&X-Amz-Signature=4ed77bbf055c9dbdfa0f45c6e352859f0ed0cf3dad2175c19469427e0f7c82dd",
+				// }
+				// mc.EXPECT().GenerateVideoUploadToken(gomock.Any()).Times(1).Return(&resp, nil)
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.EditCatalogContentResp) {
+				assert.Equal(t, tt.want, resp)
+				var doc model.Content
+				err := tt.fields.DB.Collection(model.ContentColl).FindOne(context.TODO(), bson.M{"_id": resp.ID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.Equal(t, tt.args.createImgOpts.BrandID, doc.BrandIDs[0])
+				assert.Equal(t, primitive.NilObjectID, doc.UserID)
+				assert.Nil(t, doc.InfluencerIDs)
+				assert.Equal(t, tt.args.createImgOpts.CatalogID, doc.CatalogIDs[0])
+				assert.Equal(t, true, doc.IsActive)
+				assert.Equal(t, true, doc.IsProcessed)
+				assert.Equal(t, tt.args.createImgOpts.Label.AgeGroup, doc.Label.AgeGroups)
+				assert.Equal(t, tt.args.createImgOpts.Label.Gender, doc.Label.Genders)
+				assert.Equal(t, tt.args.createImgOpts.Label.Interests, doc.Label.Interests)
 			},
 		},
 	}
@@ -1538,6 +1583,688 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 				assert.Nil(t, err)
 				tt.validate(t, &tt, got)
 			}
+		})
+	}
+}
+
+func TestContentImpl_CreateCatalogImageContent(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateImageCatalogContentOpts
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.CreateImageCatalogContentResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockMedia)
+		validate   func(*testing.T, *TC, *schema.CreateImageCatalogContentResp)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = schema.GetRandomCreateCatalogImageContentOpts()
+			},
+			validate: func(t *testing.T, tt *TC, got *schema.CreateImageCatalogContentResp) {
+				var doc model.Content
+				err := tt.fields.DB.Collection(model.ContentColl).FindOne(context.TODO(), bson.M{"_id": got.ID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.Equal(t, tt.args.opts.MediaID, doc.MediaID)
+				assert.Equal(t, tt.args.opts.CatalogID, doc.CatalogIDs[0])
+				assert.Equal(t, tt.args.opts.BrandID, doc.BrandIDs[0])
+				assert.Equal(t, tt.args.opts.Label.AgeGroup, doc.Label.AgeGroups)
+				assert.Equal(t, tt.args.opts.Label.Interests, doc.Label.Interests)
+				assert.Equal(t, tt.args.opts.Label.Gender, doc.Label.Genders)
+				assert.True(t, doc.IsProcessed)
+				assert.Equal(t, doc.Type, model.CatalogContentType)
+				assert.Equal(t, doc.MediaType, model.ImageType)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			got, err := ci.CreateCatalogImageContent(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.CreateCatalogImageContent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestContentImpl_CreateComment(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateCommentOpts
+	}
+
+	type TC struct {
+		name     string
+		args     args
+		fields   fields
+		want     *schema.CreateCommentResp
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC, *schema.CreateCommentResp)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.CreateCommentOpts{
+					ResourceType: faker.RandomChoice([]string{model.PebbleType, model.LiveType}),
+					ResourceID:   primitive.NewObjectID(),
+					Description:  faker.Lorem().Sentence(100),
+					UserID:       primitive.NewObjectID(),
+				}
+				if faker.RandomInt(0, 1) == 1 {
+					tt.args.opts.CreatedAt = time.Now().Add(-20 * time.Minute).UTC()
+				}
+			},
+			validate: func(t *testing.T, tt *TC, got *schema.CreateCommentResp) {
+				assert.False(t, got.ID.IsZero())
+				assert.Equal(t, tt.args.opts.Description, got.Description)
+				assert.Equal(t, tt.args.opts.ResourceID, got.ResourceID)
+				assert.Equal(t, tt.args.opts.ResourceType, got.ResourceType)
+				assert.Equal(t, tt.args.opts.UserID, got.UserID)
+				if tt.args.opts.CreatedAt.IsZero() {
+					assert.WithinDuration(t, time.Now().UTC(), got.CreatedAt, 100*time.Millisecond)
+				} else {
+					assert.Equal(t, tt.args.opts.CreatedAt, got.CreatedAt)
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+
+			got, err := ci.CreateComment(tt.args.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.CreateComment() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				assert.Empty(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+			if !tt.wantErr {
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestContentImpl_CreateView(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateViewOpts
+	}
+
+	type TC struct {
+		name     string
+		args     args
+		fields   fields
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.CreateViewOpts{
+					ResourceType: faker.RandomChoice([]string{model.PebbleType, model.LiveType}),
+					ResourceID:   primitive.NewObjectID(),
+					Duration:     15 * time.Second,
+					UserID:       primitive.NewObjectID(),
+				}
+				if faker.RandomInt(0, 1) == 1 {
+					tt.args.opts.CreatedAt = time.Now().Add(-20 * time.Minute).UTC()
+				}
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var doc model.View
+				err := tt.fields.DB.Collection(model.ViewColl).FindOne(context.TODO(), bson.M{"resource_type": tt.args.opts.ResourceType, "resource_id": tt.args.opts.ResourceID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.Equal(t, tt.args.opts.Duration, doc.Duration)
+				if tt.args.opts.CreatedAt.IsZero() {
+					assert.WithinDuration(t, time.Now().UTC(), doc.CreatedAt, 100*time.Millisecond)
+				} else {
+					assert.WithinDuration(t, tt.args.opts.CreatedAt, doc.CreatedAt, 10*time.Millisecond)
+				}
+				assert.Equal(t, tt.args.opts.Duration, doc.Duration)
+				assert.Equal(t, tt.args.opts.UserID, doc.UserID)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			if err := ci.CreateView(tt.args.opts); (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.CreateView() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			tt.validate(t, &tt)
+		})
+	}
+}
+
+func TestContentImpl_CreateLike(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateLikeOpts
+	}
+
+	type TC struct {
+		name     string
+		args     args
+		fields   fields
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.CreateLikeOpts{
+					ResourceType: faker.RandomChoice([]string{model.PebbleType, model.LiveType}),
+					ResourceID:   primitive.NewObjectID(),
+					UserID:       primitive.NewObjectID(),
+				}
+
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var doc model.Like
+				err := tt.fields.DB.Collection(model.LikeColl).FindOne(context.TODO(), bson.M{"resource_type": tt.args.opts.ResourceType, "resource_id": tt.args.opts.ResourceID}).Decode(&doc)
+				assert.Nil(t, err)
+				assert.WithinDuration(t, time.Now().UTC(), doc.CreatedAt, 100*time.Millisecond)
+				assert.Equal(t, tt.args.opts.UserID, doc.UserID)
+			},
+		},
+		{
+			name: "[Ok] Unlike",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.CreateLikeOpts{
+					ResourceType: faker.RandomChoice([]string{model.PebbleType, model.LiveType}),
+					ResourceID:   primitive.NewObjectID(),
+					UserID:       primitive.NewObjectID(),
+				}
+				tt.fields.App.Content.CreateLike(tt.args.opts)
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var doc model.Like
+				err := tt.fields.DB.Collection(model.LikeColl).FindOne(context.TODO(), bson.M{"resource_type": tt.args.opts.ResourceType, "resource_id": tt.args.opts.ResourceID}).Decode(&doc)
+				assert.NotNil(t, err)
+				assert.Equal(t, "mongo: no documents in result", err.Error())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			if err := ci.CreateLike(tt.args.opts); (err != nil) != tt.wantErr {
+				t.Errorf("ContentImpl.CreateLike() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			tt.validate(t, &tt)
+		})
+	}
+}
+
+func TestContentImpl_UpdateContentBrandInfo(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		createDocs []model.Content
+		opts       *schema.UpdateContentBrandInfoOpts
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		prepare  func(*TC)
+		validate func(*testing.T, *TC)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				id := primitive.NewObjectID()
+				var doc []interface{}
+				var docs []model.Content
+				for i := 0; i < 10; i++ {
+					d := model.Content{}
+					d.BrandIDs = append(d.BrandIDs, id)
+					d.BrandInfo = append(d.BrandInfo, model.BrandInfo{
+						ID:   id,
+						Name: faker.Name().Name(),
+						Logo: &model.IMG{
+							SRC:    faker.Avatar().Url("png", 200, 200),
+							Width:  200,
+							Height: 200,
+						},
+					})
+					if faker.RandomInt(0, 1) == 1 {
+						id2 := primitive.NewObjectID()
+						d.BrandIDs = append(d.BrandIDs, id2)
+						d.BrandInfo = append(d.BrandInfo, model.BrandInfo{
+							ID:   id2,
+							Name: faker.Name().Name(),
+							Logo: &model.IMG{
+								SRC:    faker.Avatar().Url("png", 200, 200),
+								Width:  200,
+								Height: 200,
+							},
+						})
+					}
+					docs = append(docs, d)
+					doc = append(doc, d)
+				}
+				tt.args.createDocs = docs
+				tt.fields.DB.Collection(model.ContentColl).InsertMany(context.TODO(), doc)
+
+				tt.args.opts = &schema.UpdateContentBrandInfoOpts{
+					ID:   id,
+					Name: faker.Name().Name(),
+					Logo: &model.IMG{
+						SRC:    faker.Avatar().Url("png", 200, 200),
+						Width:  200,
+						Height: 200,
+					},
+				}
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var docs []model.Content
+				cur, err := tt.fields.DB.Collection(model.ContentColl).Find(context.TODO(), bson.M{"brand_ids": tt.args.opts.ID})
+				assert.Nil(t, err)
+				err = cur.All(context.TODO(), &docs)
+				assert.Nil(t, err)
+				assert.Len(t, docs, 10)
+				for i, doc := range docs {
+					assert.Equal(t, tt.args.createDocs[i].BrandIDs, doc.BrandIDs)
+					if len(tt.args.createDocs[i].BrandIDs) == 1 {
+						assert.Len(t, doc.BrandInfo, 1)
+						assert.Len(t, doc.BrandIDs, 1)
+					} else {
+						assert.Len(t, doc.BrandIDs, 2)
+						assert.Len(t, doc.BrandInfo, 2)
+					}
+					assert.Equal(t, tt.args.opts.ID, doc.BrandInfo[0].ID)
+					assert.Equal(t, tt.args.opts.Name, doc.BrandInfo[0].Name)
+					assert.Equal(t, tt.args.opts.Logo, doc.BrandInfo[0].Logo)
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			ci.UpdateContentBrandInfo(tt.args.opts)
+			tt.validate(t, &tt)
+		})
+	}
+}
+
+func TestContentImpl_UpdateContentInfluencerInfo(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		createDocs []model.Content
+		opts       *schema.UpdateContentInfluencerInfoOpts
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		wantErr  bool
+		prepare  func(*TC)
+		validate func(*testing.T, *TC)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				var doc []interface{}
+				var docs []model.Content
+				id := primitive.NewObjectID()
+				for i := 0; i < 10; i++ {
+					d := model.Content{}
+					d.InfluencerIDs = append(d.InfluencerIDs, id)
+					d.InfluencerInfo = append(d.InfluencerInfo, model.InfluencerInfo{
+						ID:   id,
+						Name: faker.Name().Name(),
+						ProfileImage: &model.IMG{
+							SRC:    faker.Avatar().Url("png", 200, 200),
+							Width:  200,
+							Height: 200,
+						},
+					})
+					if faker.RandomInt(0, 1) == 1 {
+						id2 := primitive.NewObjectID()
+						d.InfluencerIDs = append(d.InfluencerIDs, id2)
+						d.InfluencerInfo = append(d.InfluencerInfo, model.InfluencerInfo{
+							ID:   id2,
+							Name: faker.Name().Name(),
+							ProfileImage: &model.IMG{
+								SRC:    faker.Avatar().Url("png", 200, 200),
+								Width:  200,
+								Height: 200,
+							},
+						})
+					}
+					docs = append(docs, d)
+					doc = append(doc, d)
+				}
+				tt.args.createDocs = docs
+				tt.fields.DB.Collection(model.ContentColl).InsertMany(context.TODO(), doc)
+				tt.args.opts = &schema.UpdateContentInfluencerInfoOpts{
+					ID:   id,
+					Name: faker.Name().Name(),
+					ProfileImage: &model.IMG{
+						SRC:    faker.Avatar().Url("png", 200, 200),
+						Width:  200,
+						Height: 200,
+					},
+				}
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var docs []model.Content
+				cur, err := tt.fields.DB.Collection(model.ContentColl).Find(context.TODO(), bson.M{"influencer_ids": tt.args.opts.ID})
+				assert.Nil(t, err)
+				err = cur.All(context.TODO(), &docs)
+				assert.Nil(t, err)
+				assert.Len(t, docs, 10)
+				for i, doc := range docs {
+					assert.Equal(t, tt.args.createDocs[i].InfluencerIDs, doc.InfluencerIDs)
+					if len(tt.args.createDocs[i].InfluencerIDs) == 1 {
+						assert.Len(t, doc.InfluencerInfo, 1)
+						assert.Len(t, doc.InfluencerIDs, 1)
+					} else {
+						assert.Len(t, doc.InfluencerIDs, 2)
+						assert.Len(t, doc.InfluencerInfo, 2)
+					}
+					assert.Equal(t, tt.args.opts.ID, doc.InfluencerInfo[0].ID)
+					assert.Equal(t, tt.args.opts.Name, doc.InfluencerInfo[0].Name)
+					assert.Equal(t, tt.args.opts.ProfileImage, doc.InfluencerInfo[0].ProfileImage)
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			ci.UpdateContentInfluencerInfo(tt.args.opts)
+			tt.validate(t, &tt)
+		})
+	}
+}
+
+func TestContentImpl_UpdateContentCatalogInfo(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		createDocs []model.Content
+		opts       *schema.UpdateContentCatalogInfoOpts
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		wantErr  bool
+		prepare  func(*TC)
+		validate func(*testing.T, *TC)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				id := primitive.NewObjectID()
+				var doc []interface{}
+				var docs []model.Content
+				for i := 0; i < 10; i++ {
+					d := model.Content{}
+					d.CatalogInfo = append(d.CatalogInfo, model.CatalogInfo{
+						ID:   id,
+						Name: "test name",
+						FeaturedImage: &model.IMG{
+							SRC:    faker.Avatar().Url("png", 200, 200),
+							Width:  200,
+							Height: 200,
+						},
+						RetailPrice: model.SetINRPrice(300),
+						BasePrice:   model.SetINRPrice(200),
+					})
+					d.CatalogIDs = append(d.CatalogIDs, id)
+					if faker.RandomInt(0, 1) == 1 {
+						id2 := primitive.NewObjectID()
+						d.CatalogIDs = append(d.CatalogIDs, id2)
+						d.CatalogInfo = append(d.CatalogInfo, model.CatalogInfo{
+							ID:   id2,
+							Name: "test name 2",
+							FeaturedImage: &model.IMG{
+								SRC:    faker.Avatar().Url("png", 200, 200),
+								Width:  200,
+								Height: 200,
+							},
+							RetailPrice: model.SetINRPrice(300),
+							BasePrice:   model.SetINRPrice(200),
+						})
+					}
+					docs = append(docs, d)
+					doc = append(doc, d)
+				}
+				tt.args.createDocs = docs
+				tt.fields.DB.Collection(model.ContentColl).InsertMany(context.TODO(), doc)
+				tt.args.opts = &schema.UpdateContentCatalogInfoOpts{
+					ID:   id,
+					Name: faker.Name().Name(),
+					FeaturedImage: &model.IMG{
+						SRC:    faker.Avatar().Url("png", 200, 200),
+						Width:  200,
+						Height: 200,
+					},
+					RetailPrice: model.SetINRPrice(300),
+					BasePrice:   model.SetINRPrice(200),
+				}
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var docs []model.Content
+				cur, err := tt.fields.DB.Collection(model.ContentColl).Find(context.TODO(), bson.M{"catalog_ids": tt.args.opts.ID})
+				assert.Nil(t, err)
+				err = cur.All(context.TODO(), &docs)
+				assert.Nil(t, err)
+				assert.Len(t, docs, 10)
+				for i, doc := range docs {
+					assert.Equal(t, tt.args.createDocs[i].CatalogIDs, doc.CatalogIDs)
+					if len(tt.args.createDocs[i].CatalogIDs) == 1 {
+						assert.Len(t, doc.CatalogInfo, 1)
+						assert.Len(t, doc.CatalogIDs, 1)
+					} else {
+						assert.Len(t, doc.CatalogIDs, 2)
+						assert.Len(t, doc.CatalogInfo, 2)
+					}
+					assert.Equal(t, tt.args.opts.ID, doc.CatalogInfo[0].ID)
+					assert.Equal(t, tt.args.opts.Name, doc.CatalogInfo[0].Name)
+					assert.Equal(t, tt.args.opts.FeaturedImage, doc.CatalogInfo[0].FeaturedImage)
+					assert.Equal(t, tt.args.opts.RetailPrice, doc.CatalogInfo[0].RetailPrice)
+					assert.Equal(t, tt.args.opts.BasePrice, doc.CatalogInfo[0].BasePrice)
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ci := &ContentImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Content = ci
+			tt.prepare(&tt)
+			ci.UpdateContentCatalogInfo(tt.args.opts)
+			tt.validate(t, &tt)
 		})
 	}
 }

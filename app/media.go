@@ -3,15 +3,22 @@
 package app
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+
 	"go-app/model"
 	"go-app/schema"
+	"image/jpeg"
+	"image/png"
+	"strings"
 	"time"
 
 	aws "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,8 +28,11 @@ import (
 type Media interface {
 	GenerateVideoUploadToken(*schema.GenerateVideoUploadTokenOpts) (*schema.GenerateVideoUploadTokenResp, error)
 	CreateVideoMedia(*schema.CreateVideoOpts) (*schema.CreateVideoResp, error)
+	CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schema.CreateImageMediaResp, error)
 	DeleteMedia(primitive.ObjectID) (bool, error)
 	GetVideoMediaByID(primitive.ObjectID) (*schema.GetMediaResp, error)
+
+	GetImageMediaByID(primitive.ObjectID) (*schema.GetMediaResp, error)
 }
 
 // MediaImpl implements Content service methods
@@ -65,8 +75,8 @@ func (mi *MediaImpl) GenerateVideoUploadToken(opts *schema.GenerateVideoUploadTo
 
 func (mi *MediaImpl) generateS3UploadToken(videoID, videoType string) (string, error) {
 	url, err := mi.App.S3.GetPutObjectRequestURL(&s3.PutObjectInput{
-		Bucket: aws.String(mi.App.Config.S3Config.S3VideoUploadBucket),
-		Key:    aws.String(videoID + videoType),
+		Bucket: aws.String(mi.App.Config.S3Config.VideoUploadBucket),
+		Key:    aws.String(fmt.Sprintf("%s/%s", mi.App.Config.S3Config.VideoUploadPath, videoID+videoType)),
 	})
 	if err != nil {
 		mi.Logger.Err(err).Msg("failed to generate presigned upload url")
@@ -144,5 +154,73 @@ func (mi *MediaImpl) GetVideoMediaByID(id primitive.ObjectID) (*schema.GetMediaR
 		}
 		return nil, errors.Wrapf(err, "query failed to find media with id:%s", id.Hex())
 	}
+	return &resp, nil
+}
+
+// GetImageMediaByID returns image media document with matching id
+func (mi *MediaImpl) GetImageMediaByID(id primitive.ObjectID) (*schema.GetMediaResp, error) {
+	var resp schema.GetMediaResp
+	if err := mi.DB.Collection(model.MediaColl).FindOne(context.TODO(), bson.M{"_id": id}).Decode(&resp); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, errors.Errorf("media with id:%s not found", id.Hex())
+		}
+		return nil, errors.Wrapf(err, "query failed to find media with id:%s", id.Hex())
+	}
+	return &resp, nil
+}
+
+// CreateImageMedia takes a base64 source as string, decode, uploads to aws and stores the reference in Image collection
+func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schema.CreateImageMediaResp, error) {
+	img := IMG{}
+	if err := img.DecodeBase64StrToIMG(opts.Base64SRC); err != nil {
+		return nil, err
+	}
+	i := model.Image{
+		FileName: strings.ToLower(uuid.NewV1().String()[:4] + opts.FileName),
+		FileType: img.Type,
+		Dimensions: &model.Dimensions{
+			Height: uint(img.Conf.Height),
+			Width:  uint(img.Conf.Width),
+		},
+		CreatedAt: time.Now().UTC(),
+	}
+
+	var buf bytes.Buffer
+	switch img.Type {
+	case "image/png":
+		png.Encode(&buf, *img.Img)
+	case "image/jpeg":
+		jpeg.Encode(&buf, *img.Img, nil)
+	case "default":
+		return nil, errors.New("invalid image file type")
+	}
+
+	params := s3.PutObjectInput{
+		Body:   bytes.NewReader(buf.Bytes()),
+		Bucket: aws.String(mi.App.Config.S3Config.ImageUploadBucket),
+		Key:    aws.String("/assets/catalog/img/" + i.FileName),
+	}
+
+	_, err := mi.App.S3.PutObject(&params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to upload image to cdn")
+	}
+
+	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
+
+	res, err := mi.DB.Collection(model.MediaColl).InsertOne(context.TODO(), i)
+	if err != nil {
+		mi.Logger.Err(err).Msg("failed to generate image media")
+		return nil, errors.Wrap(err, "failed to generate image media")
+	}
+
+	resp := schema.CreateImageMediaResp{
+		ID:         res.InsertedID.(primitive.ObjectID),
+		FileType:   i.FileType,
+		FileName:   i.FileName,
+		Dimensions: i.Dimensions,
+		URL:        i.SRCBucketURL,
+	}
+
 	return &resp, nil
 }

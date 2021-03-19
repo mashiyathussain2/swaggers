@@ -11,17 +11,18 @@ import (
 
 // Config struct stores entire project configurations
 type Config struct {
-	ServerConfig     ServerConfig     `mapstructure:"server"`
-	APIConfig        APIConfig        `mapstructure:"api"`
-	APPConfig        APPConfig        `mapstructure:"app"`
-	KafkaConfig      KafkaConfig      `mapstructure:"kafka"`
-	LoggerConfig     LoggerConfig     `mapstructure:"logger"`
-	DatabaseConfig   DatabaseConfig   `mapstructure:"database"`
-	RedisConfig      RedisConfig      `mapstructure:"redis"`
-	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
-	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
-	S3Config         S3Config         `mapstructure:"s3"`
-	IVSConfig        IVSConfig        `mapstructure:"ivs"`
+	ServerConfig        ServerConfig        `mapstructure:"server"`
+	APIConfig           APIConfig           `mapstructure:"api"`
+	APPConfig           APPConfig           `mapstructure:"app"`
+	KafkaConfig         KafkaConfig         `mapstructure:"kafka"`
+	LoggerConfig        LoggerConfig        `mapstructure:"logger"`
+	DatabaseConfig      DatabaseConfig      `mapstructure:"database"`
+	RedisConfig         RedisConfig         `mapstructure:"redis"`
+	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
+	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
+	S3Config            S3Config            `mapstructure:"s3"`
+	IVSConfig           IVSConfig           `mapstructure:"ivs"`
+	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 }
 
 // ServerConfig has only server specific configuration
@@ -46,12 +47,37 @@ type APIConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig DatabaseConfig
-	S3Config       S3Config
-	IVSConfig
-	MediaConfig   ServiceConfig `mapstructure:"media"`
-	ContentConfig ServiceConfig `mapstructure:"content"`
-	LiveConfig    ServiceConfig `mapstructure:"live"`
+	DatabaseConfig      DatabaseConfig
+	S3Config            S3Config
+	ElasticsearchConfig ElasticsearchConfig
+	IVSConfig           IVSConfig
+	MediaConfig         ServiceConfig `mapstructure:"media"`
+	ContentConfig       ServiceConfig `mapstructure:"content"`
+	LiveConfig          ServiceConfig `mapstructure:"live"`
+
+	LiveCommentProducerConfig ProducerConfig `mapstructure:"liveCommentProducer"`
+	ContentFullProducerConfig ProducerConfig `mapstructure:"contentFullProducer"`
+
+	BrandChangesConfig       ListenerConfig `mapstructure:"brandChangesConsumer"`
+	InfluencerChangesConfig  ListenerConfig `mapstructure:"influencerChangesConsumer"`
+	CatalogChangesConfig     ListenerConfig `mapstructure:"catalogChangesConsumer"`
+	ContentChangesConfig     ListenerConfig `mapstructure:"contentChangesConsumer"`
+	LiveCommentChangesConfig ListenerConfig `mapstructure:"liveCommentChangesConsumer"`
+}
+
+type ContentStreamProcessorConfig struct {
+	TopicProcessorName    string   `mapstructure:"topicProcessorName"`
+	InputTopics           []string `mapstructure:"inputTopics"`
+	InputPartitions       []int    `mapstructure:"inputPartitions"`
+	CatalogTopicStream    string   `mapstructure:"catalogTopicStream"`
+	BrandTopicStream      string   `mapstructure:"brandTopicStream"`
+	InfluencerTopicStream string   `mapstructure:"influencerTopicStream"`
+}
+
+// ElasticsearchConfig contains elasticsearch related configurations
+type ElasticsearchConfig struct {
+	Endpoint   string `mapstructure:"endpoint"`
+	BrandIndex string `mapstructure:"brandIndex"`
 }
 
 // ServiceConfig contains app service related config
@@ -61,9 +87,20 @@ type ServiceConfig struct {
 
 // ListenerConfig contains app kafka topic listener related config
 type ListenerConfig struct {
-	GroupID string   `mapstructure:"groupId"`
-	Brokers []string `mapstructure:"brokers"`
-	Topic   string   `mapstructure:"topic"`
+	GroupID  string   `mapstructure:"groupId"`
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+}
+
+// ListenerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
@@ -79,6 +116,8 @@ type KafkaConfig struct {
 	BrokerURL   string   `mapstructure:"brokerUrl"`
 	BrokerPort  string   `mapstructure:"brokerPort"`
 	Brokers     []string `mapstructure:"brokers"`
+	Username    string   `mapstructure:"username"`
+	Password    string   `mapstructure:"password"`
 }
 
 // LoggerConfig contains different logger configurations
@@ -123,15 +162,14 @@ type DatabaseConfig struct {
 
 // S3Config stores s3 configurations
 type S3Config struct {
-	BucketName              string        `mapstructure:"bucketName"`
-	Region                  string        `mapstructure:"region"`
-	AccessKeyID             string        `mapstructure:"accessKeyID"`
-	SecretAccessKey         string        `mapstructure:"secretAccessKey"`
-	S3UploadAccessKeyID     string        `mapstructure:"s3VideoUploadAccessKeyId"`
-	S3UploadSecretAccessKey string        `mapstructure:"s3VideoUploadSecretAccessKey"`
-	S3VideoUploadBucket     string        `mapstructure:"s3VideoUploadBucket"`
-	S3VideoUploadKey        string        `mapstructure:"s3VideoUploadKey"`
-	PresignedURLValidity    time.Duration `mapstructure:"presignedURLValidity"`
+	Region               string        `mapstructure:"region"`
+	AccessKeyID          string        `mapstructure:"accessKeyID"`
+	SecretAccessKey      string        `mapstructure:"secretAccessKey"`
+	ImageUploadPath      string        `mapstructure:"imageUploadPath"`
+	ImageUploadBucket    string        `mapstructure:"imageUploadBucket"`
+	VideoUploadPath      string        `mapstructure:"videoUploadPath"`
+	VideoUploadBucket    string        `mapstructure:"videoUploadBucket"`
+	PresignedURLValidity time.Duration `mapstructure:"presignedURLValidity"`
 }
 
 // IVSConfig contains aws ivs related configuration
@@ -153,7 +191,7 @@ func (d *DatabaseConfig) ConnectionURL() string {
 	}
 	url += fmt.Sprintf("%s", d.Host)
 	if d.ReplicaSet != "" {
-		url += fmt.Sprintf("?replicaSet=%s", d.ReplicaSet)
+		url += fmt.Sprintf("/?replicaSet=%s", d.ReplicaSet)
 	}
 	return url
 }
@@ -218,5 +256,8 @@ func GetConfigFromFile(fileName string) *Config {
 		fmt.Printf("couldn't read config: %s", err)
 		os.Exit(1)
 	}
+	config.APPConfig.S3Config = config.S3Config
+	config.APPConfig.IVSConfig = config.IVSConfig
+	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	return config
 }

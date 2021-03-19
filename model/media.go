@@ -53,14 +53,13 @@ type Video struct {
 // Image contains image content data such as url, meta etc
 type Image struct {
 	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	FileName   string             `json:"filename,omitempty" bson:"filename,omitempty"`
+	FileName   string             `json:"file_name,omitempty" bson:"file_name,omitempty"`
 	FileType   string             `json:"file_type,omitempty" bson:"file_type,omitempty"`
 	Dimensions *Dimensions        `json:"dimensions,omitempty" bson:"dimensions,omitempty"`
 
 	SRCBucket string `json:"src_bucket,omitempty" bson:"src_bucket,omitempty"`
 	// To access image from s3 bucket
 	SRCBucketURL  string `json:"src_bucket_url,omitempty" bson:"src_bucket_url,omitempty"`
-	IsPortrait    bool   `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
 	CloudfrontURL string `json:"cloudfront_url,omitempty" bson:"cloudfront_url,omitempty"`
 	// URL = CloudfrontURL + SRCBucket (used by app); to access image from cloudfront
 	URL string `json:"url,omitempty" bson:"url,omitempty"`
