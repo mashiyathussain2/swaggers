@@ -187,10 +187,10 @@ func (ci *CategoryImpl) GetCategoryPath(id primitive.ObjectID) (string, error) {
 	}
 
 	for _, id := range ancestorsID {
-		path += fmt.Sprintf("/%s", id)
+		path += fmt.Sprintf("/%s", id.Hex())
 	}
 
-	path += fmt.Sprintf("/%s", id)
+	path += fmt.Sprintf("/%s", id.Hex())
 
 	return path, nil
 }

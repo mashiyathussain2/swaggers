@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.5.0
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.8.0

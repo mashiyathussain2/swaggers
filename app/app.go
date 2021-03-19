@@ -2,7 +2,6 @@ package app
 
 import (
 	"go-app/server/config"
-	"go-app/server/kafka"
 	mongostorage "go-app/server/storage/mongodb"
 
 	"github.com/rs/zerolog"
@@ -27,10 +26,9 @@ type App struct {
 	Brand         Brand
 	Category      Category
 	Discount      Discount
-
-	// Kafka Consumer
-
-	CatalogListener kafka.Consumer
+	Group         Group
+	Collection    Collection
+	Inventory     Inventory
 }
 
 // NewApp returns new app instance

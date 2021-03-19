@@ -19,7 +19,7 @@ type specsOpts struct {
 	Value string `json:"value" validate:"required"`
 }
 
-type filterAttribute struct {
+type FilterAttribute struct {
 	Name  string `json:"name" validate:"required"`
 	Value string `json:"value" validate:"required"`
 }
@@ -34,7 +34,7 @@ type CreateCatalogOpts struct {
 
 	ETA             *etaOpts          `json:"eta"`
 	Specifications  []specsOpts       `json:"specifications" validate:"dive"`
-	FilterAttribute []filterAttribute `json:"filter_attr" validate:"dive"`
+	FilterAttribute []FilterAttribute `json:"filter_attr" validate:"dive"`
 
 	HSNCode string `json:"hsn_code" validate:"required,gt=0"`
 
@@ -55,7 +55,7 @@ type CreateCatalogResp struct {
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
 	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
 
-	// Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
+	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
 	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
 	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
 	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
@@ -81,13 +81,16 @@ type CreateCatalogResp struct {
 type CreateVariantOpts struct {
 	SKU       string `json:"sku" validate:"required"`
 	Attribute string `json:"attribute" validate:"required"`
+	Unit      int    `json:"unit" validate:"required"`
 }
 
 // AddVariantOpts contains fields to add a new variant into existing catalog
 type AddVariantOpts struct {
-	VariantType string `json:"variant_type" validate:"required"`
-	SKU         string `json:"sku" validate:"required"`
-	Attribute   string `json:"attribute" validate:"required"`
+	ID          primitive.ObjectID `json:"id" validate:"required"`
+	VariantType string             `json:"variant_type" validate:"required"`
+	SKU         string             `json:"sku" validate:"required"`
+	Attribute   string             `json:"attribute" validate:"required"`
+	Unit        int                `json:"unit" validate:"required"`
 }
 
 // CreateVariantResp contains response fields when a new variant is created
@@ -95,6 +98,7 @@ type CreateVariantResp struct {
 	ID        primitive.ObjectID `json:"id"`
 	SKU       string             `json:"sku"`
 	Attribute string             `json:"attribute"`
+	Unit      int                `json:"unit"`
 }
 
 // AddVariantResp contains response fields when a new variant is added into existing catalog
@@ -109,7 +113,7 @@ type EditCatalogOpts struct {
 	Keywords        []string             `json:"keywords" validate:"unique"`
 	ETA             *etaOpts             `json:"eta"`
 	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
-	FilterAttribute []filterAttribute    `json:"filter_attr" validate:"dive"`
+	FilterAttribute []FilterAttribute    `json:"filter_attr" validate:"dive"`
 	HSNCode         string               `json:"hsn_code"`
 	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtfield=RetailPrice"`
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
@@ -150,4 +154,77 @@ type GetBasicCatalogResp struct {
 // GetCatalogFilterResp response contains filter list and their values to be returned
 type GetCatalogFilterResp struct {
 	Category []GetCategoriesBasicResp `json:"category"`
+}
+
+// KeeperSearchCatalogOpts contains fields which are passed on catalog search function
+type KeeperSearchCatalogOpts struct {
+	Name string `json:"name" validate:"required"`
+	Page int64  `json:"page" validate:"gte=0"`
+}
+
+// KeeperSearchCatalogResp contains fields which are returned on catalog search to Keeper
+type KeeperSearchCatalogResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
+	Path        []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	BasePrice   model.Price        `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	Status      *model.Status      `json:"status,omitempty" bson:"status,omitempty"`
+	Variants    []model.Variant    `json:"variants,omitempty" bson:"variants,omitempty"`
+	VariantType model.VariantType  `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+}
+
+// DeleteVariantOpts contains fields which are passed on delete variant from catalog function
+type DeleteVariantOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
+}
+
+// UpdateCatalogStatusOpts contains fields which are passed on update catalog status function
+type UpdateCatalogStatusOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	Status    string             `json:"status" validate:"required,oneof=publish unlist draft archive"`
+}
+
+//UpdateCatalogStatusResp contains fields which are returned on update catalog status function
+type UpdateCatalogStatusResp struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Field   string `json:"field"`
+}
+
+//GetCatalogResp alias for Get Catalog
+type GetCatalogResp = CreateCatalogResp
+
+//AddCatalogContentOpts contains fields which are passed on add content api
+type AddCatalogContentOpts struct {
+	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	FileName  string             `json:"filename" validate:"required"`
+	Label     *ContentLabel      `json:"label" validate:"required"`
+}
+
+//AddCatalogContentImageOpts contains fields which are passed on add content api
+type AddCatalogContentImageOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	MediaID   primitive.ObjectID `json:"media_id" validate:"required"`
+	Label     *ContentLabel      `json:"label" validate:"required"`
+}
+
+//AddCatalogContentResp contains fields which are received from CMS and passed to Keeper
+type AddCatalogContentResp struct {
+	ID    primitive.ObjectID `json:"id"`
+	Token string             `json:"string"`
+}
+
+type ContentLabel struct {
+	Interests []string `json:"interests" validate:"required" bson:"interests"`
+	AgeGroup  []string `json:"age_group" validate:"required" bson:"interests"`
+	Gender    []string `json:"gender" validate:"required" bson:"gender"`
+}
+
+//GetCatalogsByFilterOpts contains fields which are used to filter catalogs
+type GetCatalogsByFilterOpts struct {
+	BrandIDs []primitive.ObjectID `json:"brands"`
+	Status   []string             `json:"status"`
 }

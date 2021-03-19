@@ -92,12 +92,15 @@ type Catalog struct {
 	VariantType VariantType `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
 	Variants    []Variant   `json:"variants,omitempty" bson:"variants,omitempty"`
 
-	ETA    *ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
-	Status *Status `json:"status,omitempty" bson:"status,omitempty"`
+	ETA           *ETA     `json:"eta,omitempty" bson:"eta,omitempty"`
+	Status        *Status  `json:"status,omitempty" bson:"status,omitempty"`
+	StatusHistory []Status `json:"status_history,omitempty" bson:"status_history,omitempty"`
 
 	HSNCode     string `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 	BasePrice   *Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
 	RetailPrice *Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+
+	CatalogContent []string `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -119,4 +122,13 @@ type Variant struct {
 	Attribute   string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
 	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
 	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
+	IsDeleted   bool               `json:"is_deleted" bson:"is_deleted"`
 }
+
+// Defining the type of Catalog Status
+const (
+	Draft   string = "draft"
+	Unlist  string = "unlist"
+	Archive string = "archive"
+	Publish string = "publish"
+)
