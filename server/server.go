@@ -61,9 +61,6 @@ func NewServer() *Server {
 	}
 
 	server.InitLoggers()
-	if c.KafkaConfig.EnableKafka {
-		server.InitKafka()
-	}
 
 	if c.ServerConfig.UseMemoryStore {
 		server.Redis = memorystorage.NewMemoryStorage()
@@ -83,6 +80,7 @@ func NewServer() *Server {
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
 	app.InitService(server.API.App)
+	app.InitConsumer(server.API.App)
 	return server
 }
 
@@ -150,12 +148,4 @@ func (s *Server) InitLoggers() {
 
 	// Setting logger
 	s.Log = l
-}
-
-// InitKafka initializes sarama kafka
-func (s *Server) InitKafka() {
-	k := goKafka.NewSaramaKafka(&s.Config.KafkaConfig)
-
-	// Setting up kafka
-	s.Kafka = k
 }
