@@ -54,10 +54,38 @@ type CreateSaleResp struct {
 	Name string             `json:"name,omitempty" bson:"name,omitempty"`
 	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
 
-	Banner model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+//EditSaleOpts validates schema for editing a sale
+type EditSaleOpts struct {
+	ID     primitive.ObjectID `json:"id" validate:"required"`
+	Name   string             `json:"name" `
+	Banner *Img               `json:"banner" `
+}
+
+// EditSaleResp contains fields to be returned as response when a sale is edited
+type EditSaleResp struct {
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
+
+	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+
+	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
+	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
+
+	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+//EditSaleStatusOpts schema for editing a sale status.
+type EditSaleStatusOpts struct {
+	ID     primitive.ObjectID   `json:"id" validate:"required"`
+	Status model.SaleStatusType `json:"status" validate:"required, oneof=disable archive schedule"`
 }

@@ -44,7 +44,7 @@ func (a *API) editCategory(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	requestCTX.SetAppResponse(res, http.StatusCreated)
+	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
 func (a *API) getCategory(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -95,6 +95,34 @@ func (a *API) getSubCatergoryByParentID(requestCTX *handler.RequestContext, w ht
 		return
 	}
 	res, err := a.App.Category.GetSubCategoriesByParentID(parentID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getCategoryPath(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	categoryID, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["categoryID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Category.GetCategoryPath(categoryID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getAncestorsByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	categoryID, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["categoryID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Category.GetAncestorsByID(categoryID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

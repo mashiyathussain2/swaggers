@@ -6,6 +6,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type CheckBrandIDExistsResp struct {
+	Status bool `json:"status"`
+	Found  bool `json:"found"`
+}
+
 // CreateBrandOpts serialize the create brand args
 type CreateBrandOpts struct {
 	Name             string `json:"name" validate:"required"`
@@ -24,15 +29,3 @@ type CreateBrandResp struct {
 	WebsiteLink string             `json:"website_link,omitempty" bson:"website_link,omitempty"`
 	Fulfillment *model.Fulfillment `json:"fulfillment,omitempty" bson:"fulfillment,omitempty"`
 }
-
-// EditBrandOpts serialize the edit brand args
-type EditBrandOpts struct {
-	ID               primitive.ObjectID `json:"id" validate:"required"`
-	Name             string             `json:"name,omitempty"`
-	Description      string             `json:"description,omitempty"`
-	WebsiteLink      string             `json:"website_link,omitempty" validate:"url|isdefault"`
-	FulfillmentEmail string             `json:"fulfillment_email,omitempty" validate:"email|isdefault"`
-}
-
-// EditBrandResp contains all the fields to be returned for edit brand operation
-type EditBrandResp = CreateBrandResp

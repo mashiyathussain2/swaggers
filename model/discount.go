@@ -25,6 +25,16 @@ const (
 	PercentOffType DiscountType = "percent_off"
 )
 
+// SaleStatusType is type of status applicable on a sale
+type SaleStatusType string
+
+//Contains list of sale status
+const (
+	Live     SaleStatusType = "live"
+	Schedule SaleStatusType = "schedule"
+	Disable  SaleStatusType = "disable"
+)
+
 // Discount contains catalog level discounts.
 // 1 unique catalog can only have document document/instance
 type Discount struct {
@@ -49,14 +59,16 @@ type Discount struct {
 
 // Sale contains grouping of various catalog discounts.
 type Sale struct {
-	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name   string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug   string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Status SaleStatusType     `json:"status" bson:"status"`
 
-	Banner IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	Banner *IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

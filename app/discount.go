@@ -18,6 +18,8 @@ type Discount interface {
 	CreateDiscount(*schema.CreateDiscountOpts) (*schema.CreateDiscountResp, error)
 	DeactivateDiscount(id primitive.ObjectID) error
 	CreateSale(*schema.CreateSaleOpts) (*schema.CreateSaleResp, error)
+	EditSale(*schema.EditSaleOpts) (*schema.EditSaleResp, error)
+	EditSaleStatus(*schema.EditSaleStatusOpts) error
 }
 
 // DiscountImpl implements Discount service methods
@@ -162,12 +164,14 @@ func (di *DiscountImpl) DeactivateDiscount(id primitive.ObjectID) error {
 
 // CreateSale creates a new sale in db
 func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateSaleResp, error) {
+	//TODO: Add status
 	s := model.Sale{
 		Name: opts.Name,
 		Slug: UniqueSlug(opts.Name),
-		Banner: model.IMG{
+		Banner: &model.IMG{
 			SRC: opts.Banner.SRC,
 		},
+		Status:      model.Schedule,
 		ValidAfter:  opts.ValidAfter,
 		ValidBefore: opts.ValidBefore,
 		CreatedAt:   time.Now().UTC(),
@@ -176,7 +180,7 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		return nil, errors.Wrap(err, "failed to load banner image")
 	}
 
-	res, err := di.DB.Collection(model.DiscountColl).InsertOne(context.TODO(), s)
+	res, err := di.DB.Collection(model.SaleColl).InsertOne(context.TODO(), s)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert sale object")
 	}
@@ -190,4 +194,94 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		ValidBefore: s.ValidBefore,
 		CreatedAt:   s.CreatedAt,
 	}, nil
+}
+
+//EditSale edits Sale info such as Name and Banner Image
+func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleResp, error) {
+
+	ctx := context.TODO()
+	sale := model.Sale{}
+	findQuery := bson.M{"_id": opts.ID}
+	t := time.Now().UTC()
+
+	updateData := bson.D{}
+
+	err := di.DB.Collection(model.SaleColl).FindOne(ctx, findQuery).Decode(&sale)
+	if err != nil {
+		return nil, errors.Errorf("unable to find the sale with id: %s", opts.ID.Hex())
+	}
+
+	if t.After(sale.ValidAfter) && t.Before(sale.ValidBefore) {
+		return nil, errors.Errorf("cannot edit the sale, since sale is already live")
+	}
+
+	if t.After(sale.ValidBefore) {
+		return nil, errors.Errorf("cannot edit the sale, since sale is already finished")
+	}
+
+	if opts.Name != "" {
+		sale.Name = opts.Name
+		updateData = append(updateData, bson.E{
+			Key: "name", Value: opts.Name,
+		})
+	}
+	if opts.Banner != nil {
+		banner := model.IMG{SRC: opts.Banner.SRC}
+		err := banner.LoadFromURL()
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to load banner image")
+		}
+		updateData = append(updateData, bson.E{
+			Key: "banner", Value: banner,
+		})
+		sale.Banner = &banner
+	}
+	updateData = append(updateData, bson.E{
+		Key: "updated_at", Value: t,
+	})
+	sale.UpdatedAt = t
+	updateQuery := bson.M{"$set": updateData}
+
+	res, err := di.DB.Collection(model.SaleColl).UpdateOne(ctx, findQuery, updateQuery)
+
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to update the sale with id: %s", opts.ID.Hex())
+	}
+
+	if res.ModifiedCount == 0 {
+		return nil, errors.Errorf("unable to update the sale with id: %s", opts.ID.Hex())
+	}
+	return &schema.EditSaleResp{
+		ID:          sale.ID,
+		Name:        sale.Name,
+		Slug:        sale.Slug,
+		Banner:      sale.Banner,
+		ValidAfter:  sale.ValidAfter,
+		ValidBefore: sale.ValidBefore,
+		CreatedAt:   sale.CreatedAt,
+		UpdatedAt:   sale.UpdatedAt,
+	}, nil
+}
+
+//EditSaleStatus deletes the scheduled sale from the database
+func (di *DiscountImpl) EditSaleStatus(opts *schema.EditSaleStatusOpts) error {
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+	updateQuery := bson.M{
+		"$set": bson.M{
+			"status": opts.Status,
+		},
+	}
+	res, err := di.DB.Collection(model.SaleColl).UpdateOne(context.TODO(), filter, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to update sale status with id %s", opts.ID.Hex())
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find the sale with id: %s", opts.ID.Hex())
+	}
+	if res.ModifiedCount == 0 {
+		return errors.Wrapf(err, "unable to update sale status with id %s", opts.ID.Hex())
+	}
+	return nil
 }

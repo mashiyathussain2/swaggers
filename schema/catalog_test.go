@@ -72,7 +72,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				HSNCode:     "hsnCode1",
 				BasePrice:   1299,
 				RetailPrice: 1099,
-				FilterAttribute: []filterAttribute{
+				FilterAttribute: []FilterAttribute{
 					{
 						Name:  "Color",
 						Value: "Red",
@@ -876,7 +876,7 @@ func TestEditCatalogOpts(t *testing.T) {
 				HSNCode:     "hsnCode1",
 				BasePrice:   1299,
 				RetailPrice: 1099,
-				FilterAttribute: []filterAttribute{
+				FilterAttribute: []FilterAttribute{
 					{
 						Name:  "k1",
 						Value: "v1",
@@ -1021,6 +1021,485 @@ func TestEditCatalogOpts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var sc EditCatalogOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+func TestKeeperSearchCatalog(t *testing.T) {
+	t.Parallel()
+	// cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    KeeperSearchCatalogOpts
+	}{
+		{
+			name: "[Ok]",
+			json: string(`{
+				"name": "test",
+				"page": 0
+			}`),
+			wantErr: false,
+			want: KeeperSearchCatalogOpts{
+				Name: "test",
+				Page: 0,
+			},
+		},
+
+		{
+			name: "[Error] Page Less Than 0",
+			json: string(`{
+				"name": "test",
+				"page": -2
+			}`),
+			wantErr: true,
+			err:     []string{"page must be 0 or greater"},
+		},
+		{
+			name: "[Error] name is required field",
+			json: string(`{
+				"page": 0
+			}`),
+			wantErr: true,
+			err:     []string{"name is a required field"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc KeeperSearchCatalogOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+func TestKeeperCatalogImpl_DeleteVariant(t *testing.T) {
+	t.Parallel()
+	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	vID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    DeleteVariantOpts
+	}{
+		{
+			name: "[Ok]",
+			json: string(`{
+				"catalog_id": "5e8821fe1108c87837ef2612",
+				"variant_id": "603378cb6c45d2a044f167a8"
+			}`),
+			wantErr: false,
+			want: DeleteVariantOpts{
+				CatalogID: cID,
+				VariantID: vID,
+			},
+		},
+
+		{
+			name: "[Error] Catalog ID Missing",
+			json: string(`{
+				"variant_id": "603378cb6c45d2a044f167a8"
+			}`),
+			wantErr: true,
+			err:     []string{"catalog_id is a required field"},
+		},
+		{
+			name: "[Error] Variant ID Missing",
+			json: string(`{
+				"catalog_id": "5e8821fe1108c87837ef2612"
+			}`),
+			wantErr: true,
+			err:     []string{"variant_id is a required field"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc DeleteVariantOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
+	t.Parallel()
+	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	status := []string{"publish", "unlist", "draft", "archive", "fake"}
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    UpdateCatalogStatusOpts
+	}{
+		{
+			name: "[OK] Publish",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"status":"publish"
+				}`),
+			wantErr: false,
+			want: UpdateCatalogStatusOpts{
+				CatalogID: cID,
+				Status:    status[0],
+			},
+		},
+		{
+			name: "[OK] unlist",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"status":"unlist"
+				}`),
+			wantErr: false,
+			want: UpdateCatalogStatusOpts{
+				CatalogID: cID,
+				Status:    status[1],
+			},
+		},
+		{
+			name: "[OK] draft",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"status":"draft"
+				}`),
+			wantErr: false,
+			want: UpdateCatalogStatusOpts{
+				CatalogID: cID,
+				Status:    status[2],
+			},
+		},
+		{
+			name: "[OK] archive",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"status":"archive"
+				}`),
+			wantErr: false,
+			want: UpdateCatalogStatusOpts{
+				CatalogID: cID,
+				Status:    status[3],
+			},
+		},
+		{
+			name: "[Error] fake",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"status":"fake"
+				}`),
+			wantErr: true,
+			err:     []string{"status must be one of [publish unlist draft archive]"},
+		},
+		{
+			name: "[Error] catalog_id is missing",
+			json: string(`{
+				"status":"publish"
+				}`),
+			wantErr: true,
+			err:     []string{"catalog_id is a required field"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc UpdateCatalogStatusOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
+	t.Parallel()
+	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	bID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
+	fName := "fake file"
+	label := ContentLabel{
+		Interests: []string{"A", "B"},
+		AgeGroup:  []string{"25-30"},
+		Gender:    []string{"M", "F"},
+	}
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    AddCatalogContentOpts
+	}{
+		{
+			name: "[OK]",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: false,
+			want: AddCatalogContentOpts{
+				BrandID:   bID,
+				CatalogID: cID,
+				FileName:  fName,
+				Label:     &label,
+			},
+		},
+		{
+			name: "[Error] catalog_id missing",
+			json: string(`{
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"catalog_id is a required field"},
+		},
+		{
+			name: "[Error] Brand is Missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"brand_id is a required field"},
+		},
+		{
+			name: "[Error] File name is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"filename is a required field"},
+		},
+		{
+			name: "[Error] interests is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"interests is a required field"},
+		},
+		{
+			name: "[Error] Age Group is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"age_group is a required field"},
+		},
+		{
+			name: "[Error] Gender is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"brand_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"gender is a required field"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc AddCatalogContentOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
+	t.Parallel()
+	mediaID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
+	label := ContentLabel{
+		Interests: []string{"A", "B"},
+		AgeGroup:  []string{"25-30"},
+		Gender:    []string{"M", "F"},
+	}
+	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    AddCatalogContentImageOpts
+	}{
+		{
+			name: "[OK]",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"media_id":"603378cb6c45d2a044f167a8",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: false,
+			want: AddCatalogContentImageOpts{
+				CatalogID: cID,
+				MediaID:   mediaID,
+				Label:     &label,
+			},
+		},
+		{
+			name: "[Error] catalog_id missing",
+			json: string(`{
+				"media_id":"603378cb6c45d2a044f167a8",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"catalog_id is a required field"},
+		},
+		{
+			name: "[Error] Media ID is Missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"media_id is a required field"},
+		},
+		{
+			name: "[Error] interests is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"media_id":"603378cb6c45d2a044f167a8",
+				"label":{
+					"age_group":["25-30"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"interests is a required field"},
+		},
+		{
+			name: "[Error] Age Group is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"media_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"gender":["M","F"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"age_group is a required field"},
+		},
+		{
+			name: "[Error] Gender is missing",
+			json: string(`{
+				"catalog_id":"5e8821fe1108c87837ef2612",
+				"media_id":"603378cb6c45d2a044f167a8",
+				"filename":"fake file",
+				"label":{
+					"interests":["A","B"],
+					"age_group":["25-30"]
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"gender is a required field"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc AddCatalogContentImageOpts
 			err := json.Unmarshal([]byte(tt.json), &sc)
 			assert.Nil(t, err)
 			errs := tv.Validate(&sc)

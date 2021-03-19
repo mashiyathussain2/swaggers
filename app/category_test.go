@@ -225,7 +225,7 @@ func TestCategoryImpl_GetAncestorsByID(t *testing.T) {
 	t.Parallel()
 
 	app := NewTestApp(getTestConfig())
-	defer CleanTestApp(app)
+	// defer CleanTestApp(app)
 
 	type fields struct {
 		App    *App

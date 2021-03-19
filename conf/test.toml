@@ -58,7 +58,7 @@ username=""
 enableRequestLog=false
 
 [app]
-
+pageSize=10
     [app.example]
     dbName = "test_example"
 
@@ -73,8 +73,12 @@ enableRequestLog=false
 
     [app.discount]
     dbName = "test_discount"
+    
+    [app.group]
+    dbName = "test_catalog"
 
-    [app.catalogListener]
-    groupId = "x-g"
-    brokers = ["localhost:29092"]
-    topic = "x"
+    [app.collection]
+    dbName = "test_catalog"
+
+    [app.inventory]
+    dbName = "test_catalog"

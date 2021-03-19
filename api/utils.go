@@ -3,11 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"go-app/model"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	errors "github.com/vasupal1996/goerror"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	goErr "errors"
 )
@@ -89,4 +92,45 @@ func (a *API) DecodeJSONBody(r *http.Request, dst interface{}) error {
 		// return &malformedRequest{status: http.StatusBadRequest, msg: msg}
 	}
 	return nil
+}
+
+//Extracts page value from the request
+func GetPageValue(r *http.Request) int {
+	var val int
+	var err error
+	if r.URL.Query().Get("page") != "" {
+		val, err = strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil {
+			val = 0
+		}
+	}
+	return val
+}
+
+//Extracts status value from the request
+func GetStatusValue(r *http.Request) string {
+	var val string
+	if r.URL.Query().Get("status") != "" {
+		val = r.URL.Query().Get("status")
+		if val == "" {
+			val = model.Publish
+		}
+	}
+	return val
+}
+
+//Extracts ObjectID from the request
+func GetObjectID(r *http.Request) (primitive.ObjectID, error) {
+	var val primitive.ObjectID
+	var err error
+	if r.URL.Query().Get("id") != "" {
+		val, err = primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+		if err != nil {
+			return primitive.NilObjectID, err
+		}
+	}
+	if r.URL.Query().Get("id") == "" {
+		return primitive.NilObjectID, nil
+	}
+	return val, nil
 }

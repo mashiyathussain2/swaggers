@@ -7,7 +7,6 @@ package mock
 import (
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	schema "go-app/schema"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
 )
@@ -48,34 +47,4 @@ func (m *MockBrand) CheckBrandIDExists(arg0 context.Context, arg1 primitive.Obje
 func (mr *MockBrandMockRecorder) CheckBrandIDExists(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBrandIDExists", reflect.TypeOf((*MockBrand)(nil).CheckBrandIDExists), arg0, arg1)
-}
-
-// CreateBrand mocks base method
-func (m *MockBrand) CreateBrand(arg0 *schema.CreateBrandOpts) (*schema.CreateBrandResp, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateBrand", arg0)
-	ret0, _ := ret[0].(*schema.CreateBrandResp)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateBrand indicates an expected call of CreateBrand
-func (mr *MockBrandMockRecorder) CreateBrand(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBrand", reflect.TypeOf((*MockBrand)(nil).CreateBrand), arg0)
-}
-
-// EditBrand mocks base method
-func (m *MockBrand) EditBrand(arg0 *schema.EditBrandOpts) (*schema.CreateBrandResp, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EditBrand", arg0)
-	ret0, _ := ret[0].(*schema.CreateBrandResp)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// EditBrand indicates an expected call of EditBrand
-func (mr *MockBrandMockRecorder) EditBrand(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditBrand", reflect.TypeOf((*MockBrand)(nil).EditBrand), arg0)
 }

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"testing"
@@ -363,7 +364,7 @@ func TestDiscountImpl_CreateDiscount(t *testing.T) {
 					ValidAfter:  validAfter,
 					ValidBefore: validBefore,
 					Slug:        "slug",
-					Banner: model.IMG{
+					Banner: &model.IMG{
 						SRC:    faker.Avatar().Url("png", 400, 400),
 						Width:  400,
 						Height: 400,
@@ -412,7 +413,7 @@ func TestDiscountImpl_CreateDiscount(t *testing.T) {
 					ValidAfter:  validAfter,
 					ValidBefore: validBefore,
 					Slug:        "slug",
-					Banner: model.IMG{
+					Banner: &model.IMG{
 						SRC:    faker.Avatar().Url("png", 400, 400),
 						Width:  400,
 						Height: 400,
@@ -662,6 +663,214 @@ func TestDiscountImpl_CreateSale(t *testing.T) {
 			}
 			if tt.wantErr {
 				assert.Nil(t, got)
+				assert.NotNil(t, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestDiscountImpl_EditSale(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.EditSaleOpts
+	}
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC, *schema.EditSaleResp)
+	}
+	db := app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName)
+	validBefore, _ := time.Parse(time.RFC3339, "2021-03-18T00:00:00+00:00")
+	validAfter, _ := time.Parse(time.RFC3339, "2021-03-15T00:00:00+00:00")
+
+	liveSale := model.Sale{
+		ID:          primitive.NewObjectID(),
+		Name:        "Initial Name",
+		ValidBefore: validBefore,
+		ValidAfter:  validAfter,
+	}
+	db.Collection(model.SaleColl).InsertOne(context.TODO(), liveSale)
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.EditSaleOpts{
+					ID:   liveSale.ID,
+					Name: "new name",
+				}
+				tt.args.opts = &opts
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.EditSaleResp) {
+				assert.False(t, resp.ID.IsZero())
+				assert.WithinDuration(t, time.Now().UTC(), resp.UpdatedAt, 200*time.Millisecond)
+				assert.Equal(t, tt.args.opts.Name, resp.Name)
+				assert.NotEmpty(t, resp.Slug)
+				// assert.Equal(t, tt.args.opts.Banner.SRC, resp.Banner.SRC)
+				// assert.Equal(t, 200, resp.Banner.Width)
+				// assert.Equal(t, 200, resp.Banner.Height)
+			},
+			wantErr: false,
+		},
+		{
+			name: "[Error] Sale ID not found",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.EditSaleOpts{
+					ID:   primitive.NewObjectID(),
+					Name: "new name",
+				}
+				tt.args.opts = &opts
+				tt.err = errors.Errorf("unable to find the sale with id: %s", tt.args.opts.ID.Hex())
+			},
+			validate: func(t *testing.T, tt *TC, resp *schema.EditSaleResp) {
+				assert.False(t, resp.ID.IsZero())
+				assert.WithinDuration(t, time.Now().UTC(), resp.UpdatedAt, 200*time.Millisecond)
+				assert.Equal(t, tt.args.opts.Name, resp.Name)
+				assert.NotEmpty(t, resp.Slug)
+				// assert.Equal(t, tt.args.opts.Banner.SRC, resp.Banner.SRC)
+				// assert.Equal(t, 200, resp.Banner.Width)
+				// assert.Equal(t, 200, resp.Banner.Height)
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			di := &DiscountImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Discount = di
+			tt.prepare(&tt)
+			got, err := di.EditSale(tt.args.opts)
+			fmt.Println(got)
+			fmt.Println(err)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+			if tt.wantErr {
+				assert.Nil(t, got)
+				assert.NotNil(t, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestDiscountImpl_EditSaleStatus(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.EditSaleStatusOpts
+	}
+	type TC struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+		err     error
+		prepare func(*TC)
+	}
+	db := app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName)
+	validBefore, _ := time.Parse(time.RFC3339, "2021-03-18T00:00:00+00:00")
+	validAfter, _ := time.Parse(time.RFC3339, "2021-03-15T00:00:00+00:00")
+
+	liveSale := model.Sale{
+		ID:          primitive.NewObjectID(),
+		Name:        "Initial Name",
+		ValidBefore: validBefore,
+		ValidAfter:  validAfter,
+	}
+	db.Collection(model.SaleColl).InsertOne(context.TODO(), liveSale)
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.EditSaleStatusOpts{
+					ID:     liveSale.ID,
+					Status: "archive",
+				}
+				tt.args.opts = &opts
+			},
+
+			wantErr: false,
+		},
+		{
+			name: "[Error] Sale ID not found",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.EditSaleStatusOpts{
+					ID:     primitive.NewObjectID(),
+					Status: "archive",
+				}
+				tt.args.opts = &opts
+				tt.err = errors.Errorf("unable to find the sale with id: %s", tt.args.opts.ID.Hex())
+			},
+
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			di := &DiscountImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Discount = di
+			tt.prepare(&tt)
+			err := di.EditSaleStatus(tt.args.opts)
+			fmt.Println(err)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+			}
+			if tt.wantErr {
 				assert.NotNil(t, err)
 				assert.Equal(t, tt.err.Error(), err.Error())
 			}

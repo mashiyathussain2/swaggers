@@ -25,12 +25,12 @@ func GetRandomCreateCatalogOpts() *CreateCatalogOpts {
 	s.BrandID = primitive.NewObjectIDFromTimestamp(time.Now())
 
 	var sp []specsOpts
-	var fa []filterAttribute
+	var fa []FilterAttribute
 	var cid []primitive.ObjectID
 	for i := 0; i < gofakeit.Number(1, 5); i++ {
 		sp = append(sp, specsOpts{Name: fake.Title(), Value: fake.Sentence()})
 		cid = append(cid, primitive.NewObjectIDFromTimestamp(time.Now()))
-		fa = append(fa, filterAttribute{Name: fake.Title(), Value: fake.Sentence()})
+		fa = append(fa, FilterAttribute{Name: fake.Title(), Value: fake.Sentence()})
 	}
 
 	s.Specifications = sp
@@ -56,10 +56,10 @@ func GetRandomEditCatalogOpts(id primitive.ObjectID) *EditCatalogOpts {
 	}
 
 	var sp []specsOpts
-	var fa []filterAttribute
+	var fa []FilterAttribute
 	for i := 0; i < gofakeit.Number(1, 5); i++ {
 		sp = append(sp, specsOpts{Name: fake.Title(), Value: fake.Sentence()})
-		fa = append(fa, filterAttribute{Name: fake.Title(), Value: fake.Sentence()})
+		fa = append(fa, FilterAttribute{Name: fake.Title(), Value: fake.Sentence()})
 	}
 
 	s.Specifications = sp
@@ -269,4 +269,25 @@ func GetRandomGetCategoryPath(id primitive.ObjectID) model.Path {
 	}
 	path += fmt.Sprintf("/%s", id.Hex())
 	return path
+}
+
+// GetRandomKeeperSearchCatalog returns random catalog name and page
+func GetRandomKeeperSearchCatalog() *KeeperSearchCatalogOpts {
+	keeperSearchCatalogOpts := KeeperSearchCatalogOpts{
+		Name: faker.Commerce().ProductName(),
+		Page: faker.RandomInt64(0, 3),
+	}
+	return &keeperSearchCatalogOpts
+}
+
+//GetRandomCreateGroupOpts returns random Group Name and Catalog IDs
+func GetRandomCreateGroupOpts() *CreateCatalogGroupOpts {
+	var catalogIDs []primitive.ObjectID
+	for i := 0; i < faker.RandomInt(2, 5); i++ {
+		catalogIDs = append(catalogIDs, primitive.NewObjectID())
+	}
+	return &CreateCatalogGroupOpts{
+		Basis: faker.Commerce().ProductName(),
+		IDs:   catalogIDs,
+	}
 }
