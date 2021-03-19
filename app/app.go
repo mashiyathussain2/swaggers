@@ -2,6 +2,8 @@ package app
 
 import (
 	"go-app/server/config"
+	"go-app/server/kafka"
+
 	mongostorage "go-app/server/storage/mongodb"
 
 	"github.com/rs/zerolog"
@@ -21,13 +23,26 @@ type App struct {
 	S3      S3
 	Logger  *zerolog.Logger
 	Config  *config.APPConfig
+	ES      Elasticsearch
 
 	// List of services this app is implementing
 	Media   Media
 	Content Content
 	Live    Live
-	// Kafka Consumer
 
+	// Update Processor
+	ContentUpdateProcessor *ContentUpdateProcessor
+
+	// Kafka Consumer
+	LiveComments      kafka.Consumer
+	BrandChanges      kafka.Consumer
+	InfluencerChanges kafka.Consumer
+	CatalogChanges    kafka.Consumer
+	ContentChanges    kafka.Consumer
+
+	// Kafka Producer
+	LiveCommentProducer kafka.Producer
+	ContentFullProducer kafka.Producer
 }
 
 // NewApp returns new app instance
@@ -39,6 +54,10 @@ func NewApp(opts *Options) *App {
 		S3: InitS3(&S3Opts{
 			Config: &opts.Config.S3Config,
 		}),
+		ES: InitElasticsearch(&ElasticsearchImplOpts{
+			Logger: opts.Logger,
+			Config: &opts.Config.ElasticsearchConfig,
+		}),
 	}
 }
 
@@ -46,4 +65,5 @@ func NewApp(opts *Options) *App {
 func (a *App) Close() {
 	// terminating connections to all consumes
 	CloseConsumer(a)
+	CloseProducer(a)
 }

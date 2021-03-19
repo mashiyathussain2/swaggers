@@ -6,6 +6,7 @@ package mock
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	model "go-app/model"
 	schema "go-app/schema"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
@@ -34,6 +35,21 @@ func (m *MockContent) EXPECT() *MockContentMockRecorder {
 	return m.recorder
 }
 
+// CreateCatalogImageContent mocks base method
+func (m *MockContent) CreateCatalogImageContent(arg0 *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCatalogImageContent", arg0)
+	ret0, _ := ret[0].(*schema.CreateImageCatalogContentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateCatalogImageContent indicates an expected call of CreateCatalogImageContent
+func (mr *MockContentMockRecorder) CreateCatalogImageContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCatalogImageContent", reflect.TypeOf((*MockContent)(nil).CreateCatalogImageContent), arg0)
+}
+
 // CreateCatalogVideoContent mocks base method
 func (m *MockContent) CreateCatalogVideoContent(arg0 *schema.CreateVideoCatalogContentOpts) (*schema.CreatePebbleResp, error) {
 	m.ctrl.T.Helper()
@@ -49,6 +65,35 @@ func (mr *MockContentMockRecorder) CreateCatalogVideoContent(arg0 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCatalogVideoContent", reflect.TypeOf((*MockContent)(nil).CreateCatalogVideoContent), arg0)
 }
 
+// CreateComment mocks base method
+func (m *MockContent) CreateComment(arg0 *schema.CreateCommentOpts) (*schema.CreateCommentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateComment", arg0)
+	ret0, _ := ret[0].(*schema.CreateCommentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateComment indicates an expected call of CreateComment
+func (mr *MockContentMockRecorder) CreateComment(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockContent)(nil).CreateComment), arg0)
+}
+
+// CreateLike mocks base method
+func (m *MockContent) CreateLike(arg0 *schema.CreateLikeOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateLike", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateLike indicates an expected call of CreateLike
+func (mr *MockContentMockRecorder) CreateLike(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLike", reflect.TypeOf((*MockContent)(nil).CreateLike), arg0)
+}
+
 // CreatePebble mocks base method
 func (m *MockContent) CreatePebble(arg0 *schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error) {
 	m.ctrl.T.Helper()
@@ -62,6 +107,20 @@ func (m *MockContent) CreatePebble(arg0 *schema.CreatePebbleOpts) (*schema.Creat
 func (mr *MockContentMockRecorder) CreatePebble(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePebble", reflect.TypeOf((*MockContent)(nil).CreatePebble), arg0)
+}
+
+// CreateView mocks base method
+func (m *MockContent) CreateView(arg0 *schema.CreateViewOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateView", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateView indicates an expected call of CreateView
+func (mr *MockContentMockRecorder) CreateView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateView", reflect.TypeOf((*MockContent)(nil).CreateView), arg0)
 }
 
 // DeletePebble mocks base method
@@ -109,6 +168,51 @@ func (mr *MockContentMockRecorder) EditPebble(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditPebble", reflect.TypeOf((*MockContent)(nil).EditPebble), arg0)
 }
 
+// GetBrandInfo mocks base method
+func (m *MockContent) GetBrandInfo(arg0 []string) ([]model.BrandInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBrandInfo", arg0)
+	ret0, _ := ret[0].([]model.BrandInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBrandInfo indicates an expected call of GetBrandInfo
+func (mr *MockContentMockRecorder) GetBrandInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBrandInfo", reflect.TypeOf((*MockContent)(nil).GetBrandInfo), arg0)
+}
+
+// GetCatalogInfo mocks base method
+func (m *MockContent) GetCatalogInfo(arg0 []string) ([]model.CatalogInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCatalogInfo", arg0)
+	ret0, _ := ret[0].([]model.CatalogInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCatalogInfo indicates an expected call of GetCatalogInfo
+func (mr *MockContentMockRecorder) GetCatalogInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogInfo", reflect.TypeOf((*MockContent)(nil).GetCatalogInfo), arg0)
+}
+
+// GetContent mocks base method
+func (m *MockContent) GetContent(arg0 *schema.GetContentFilter) ([]schema.GetContentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContent", arg0)
+	ret0, _ := ret[0].([]schema.GetContentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetContent indicates an expected call of GetContent
+func (mr *MockContentMockRecorder) GetContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContent", reflect.TypeOf((*MockContent)(nil).GetContent), arg0)
+}
+
 // GetContentByID mocks base method
 func (m *MockContent) GetContentByID(arg0 primitive.ObjectID) (*schema.GetContentResp, error) {
 	m.ctrl.T.Helper()
@@ -124,6 +228,21 @@ func (mr *MockContentMockRecorder) GetContentByID(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContentByID", reflect.TypeOf((*MockContent)(nil).GetContentByID), arg0)
 }
 
+// GetInfluencerInfo mocks base method
+func (m *MockContent) GetInfluencerInfo(arg0 []string) ([]model.InfluencerInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInfluencerInfo", arg0)
+	ret0, _ := ret[0].([]model.InfluencerInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInfluencerInfo indicates an expected call of GetInfluencerInfo
+func (mr *MockContentMockRecorder) GetInfluencerInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInfluencerInfo", reflect.TypeOf((*MockContent)(nil).GetInfluencerInfo), arg0)
+}
+
 // ProcessVideoContent mocks base method
 func (m *MockContent) ProcessVideoContent(arg0 *schema.CreateVideoOpts) (bool, error) {
 	m.ctrl.T.Helper()
@@ -137,4 +256,40 @@ func (m *MockContent) ProcessVideoContent(arg0 *schema.CreateVideoOpts) (bool, e
 func (mr *MockContentMockRecorder) ProcessVideoContent(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessVideoContent", reflect.TypeOf((*MockContent)(nil).ProcessVideoContent), arg0)
+}
+
+// UpdateContentBrandInfo mocks base method
+func (m *MockContent) UpdateContentBrandInfo(arg0 *schema.UpdateContentBrandInfoOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UpdateContentBrandInfo", arg0)
+}
+
+// UpdateContentBrandInfo indicates an expected call of UpdateContentBrandInfo
+func (mr *MockContentMockRecorder) UpdateContentBrandInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContentBrandInfo", reflect.TypeOf((*MockContent)(nil).UpdateContentBrandInfo), arg0)
+}
+
+// UpdateContentCatalogInfo mocks base method
+func (m *MockContent) UpdateContentCatalogInfo(arg0 *schema.UpdateContentCatalogInfoOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UpdateContentCatalogInfo", arg0)
+}
+
+// UpdateContentCatalogInfo indicates an expected call of UpdateContentCatalogInfo
+func (mr *MockContentMockRecorder) UpdateContentCatalogInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContentCatalogInfo", reflect.TypeOf((*MockContent)(nil).UpdateContentCatalogInfo), arg0)
+}
+
+// UpdateContentInfluencerInfo mocks base method
+func (m *MockContent) UpdateContentInfluencerInfo(arg0 *schema.UpdateContentInfluencerInfoOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "UpdateContentInfluencerInfo", arg0)
+}
+
+// UpdateContentInfluencerInfo indicates an expected call of UpdateContentInfluencerInfo
+func (mr *MockContentMockRecorder) UpdateContentInfluencerInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContentInfluencerInfo", reflect.TypeOf((*MockContent)(nil).UpdateContentInfluencerInfo), arg0)
 }

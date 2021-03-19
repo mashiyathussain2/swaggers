@@ -1,7 +1,5 @@
 package app
 
-import "fmt"
-
 // InitService this initializes all the busines logic services
 func InitService(a *App) {
 	a.Media = InitMedia(&MediaImplOpts{
@@ -16,7 +14,6 @@ func InitService(a *App) {
 		Logger: a.Logger,
 	})
 
-	fmt.Println(a.Config)
 	a.Live = InitLive(&LiveOpts{
 		App:    a,
 		DB:     a.MongoDB.Client.Database(a.Config.LiveConfig.DBName),

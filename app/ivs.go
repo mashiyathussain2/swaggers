@@ -16,7 +16,7 @@ import (
 // IVS contains methods to implement AWS IVS service
 type IVS interface {
 	CreateChannel(string) (*ivs.CreateChannelOutput, error)
-	// PutMetadata(*ivs.PutMetadataInput) (*ivs.PutMetadataOutput, error)
+	PutMetadata(*ivs.PutMetadataInput) (*ivs.PutMetadataOutput, error)
 	StopStream(string) (*ivs.StopStreamOutput, error)
 }
 
@@ -91,7 +91,7 @@ func (ivsi *IVSImpl) PutMetadata(opts *ivs.PutMetadataInput) (*ivs.PutMetadataOu
 // StopStream ends the active stream on
 func (ivsi *IVSImpl) StopStream(arn string) (*ivs.StopStreamOutput, error) {
 	opts := &ivs.StopStreamInput{
-		ChannelArn: &ivsi.Config.ARN,
+		ChannelArn: &arn,
 	}
 	return ivsi.IVS.StopStream(opts)
 }

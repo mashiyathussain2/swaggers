@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -534,6 +535,56 @@ func TestGetContentFilter(t *testing.T) {
 			}
 			if !tt.wantErr {
 				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestKafkaMeta(t *testing.T) {
+	id, _ := primitive.ObjectIDFromHex("6052e43c29fc71ce32cf7772")
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     string
+		want    KafkaMeta
+	}{
+		{
+			name: "[Ok]",
+			json: string(`{
+				"_id": {
+					"$oid": "6052e43c29fc71ce32cf7772"
+				},
+				"ts": {
+					"$timestamp": {
+						"t": 1616047143,
+						"i": 5
+					}
+				},
+				"ns": "entity.brand",
+				"op": "u"
+			}`),
+			want: KafkaMeta{
+				ID: id,
+				Timestamp: primitive.Timestamp{
+					T: 1616047143,
+					I: 5,
+				},
+				Namespace: "entity.brand",
+				Operation: "u",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc KafkaMeta
+			err := bson.UnmarshalExtJSON([]byte(tt.json), false, &sc)
+			if tt.wantErr {
+				assert.Equal(t, err.Error(), tt.err)
+			}
+			if !tt.wantErr {
+				assert.Equal(t, nil, err)
 				assert.Equal(t, tt.want, sc)
 			}
 		})

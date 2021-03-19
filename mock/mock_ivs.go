@@ -48,6 +48,21 @@ func (mr *MockIVSMockRecorder) CreateChannel(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChannel", reflect.TypeOf((*MockIVS)(nil).CreateChannel), arg0)
 }
 
+// PutMetadata mocks base method
+func (m *MockIVS) PutMetadata(arg0 *ivs.PutMetadataInput) (*ivs.PutMetadataOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutMetadata", arg0)
+	ret0, _ := ret[0].(*ivs.PutMetadataOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutMetadata indicates an expected call of PutMetadata
+func (mr *MockIVSMockRecorder) PutMetadata(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetadata", reflect.TypeOf((*MockIVS)(nil).PutMetadata), arg0)
+}
+
 // StopStream mocks base method
 func (m *MockIVS) StopStream(arg0 string) (*ivs.StopStreamOutput, error) {
 	m.ctrl.T.Helper()

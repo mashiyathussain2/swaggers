@@ -15,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"syreclabs.com/go/faker"
 )
 
 // Content contains methods to implement and operation pebble(video-only) content
@@ -28,7 +29,21 @@ type Content interface {
 	DeletePebble(primitive.ObjectID) (bool, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
+	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
 	EditCatalogContent(*schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error)
+
+	CreateComment(*schema.CreateCommentOpts) (*schema.CreateCommentResp, error)
+	CreateView(*schema.CreateViewOpts) error
+	CreateLike(*schema.CreateLikeOpts) error
+
+	UpdateContentBrandInfo(*schema.UpdateContentBrandInfoOpts)
+	UpdateContentInfluencerInfo(*schema.UpdateContentInfluencerInfoOpts)
+	UpdateContentCatalogInfo(*schema.UpdateContentCatalogInfoOpts)
+
+	// External API functions
+	GetBrandInfo([]string) ([]model.BrandInfo, error)
+	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
+	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -421,4 +436,179 @@ func (ci *ContentImpl) EditCatalogContent(opts *schema.EditCatalogContentOpts) (
 		Label:    opts.Label,
 		IsActive: opts.IsActive,
 	}, nil
+}
+
+func (ci *ContentImpl) CreateCatalogImageContent(opts *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
+	cc := model.Content{
+		Type:       model.CatalogContentType,
+		MediaType:  model.ImageType,
+		MediaID:    opts.MediaID,
+		BrandIDs:   []primitive.ObjectID{opts.BrandID},
+		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
+		Label: &model.Label{
+			Interests: opts.Label.Interests,
+			AgeGroups: opts.Label.AgeGroup,
+			Genders:   opts.Label.Gender,
+		},
+		IsProcessed: true,
+		CreatedAt:   time.Now().UTC(),
+	}
+
+	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create catalog content")
+	}
+	cc.ID = res.InsertedID.(primitive.ObjectID)
+
+	return &schema.CreateImageCatalogContentResp{
+		ID: cc.ID,
+	}, nil
+}
+
+func (ci *ContentImpl) CreateComment(opts *schema.CreateCommentOpts) (*schema.CreateCommentResp, error) {
+	c := model.Comment{
+		ResourceType: opts.ResourceType,
+		ResourceID:   opts.ResourceID,
+		Description:  opts.Description,
+		UserID:       opts.UserID,
+		CreatedAt:    opts.CreatedAt,
+	}
+	if c.CreatedAt.IsZero() {
+		c.CreatedAt = time.Now().UTC()
+	}
+	res, err := ci.DB.Collection(model.CommentColl).InsertOne(context.TODO(), c)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to insert comment")
+	}
+
+	return &schema.CreateCommentResp{
+		ID:           res.InsertedID.(primitive.ObjectID),
+		ResourceType: c.ResourceType,
+		ResourceID:   c.ResourceID,
+		Description:  c.Description,
+		UserID:       c.UserID,
+		CreatedAt:    c.CreatedAt,
+	}, nil
+}
+
+func (ci *ContentImpl) CreateView(opts *schema.CreateViewOpts) error {
+	v := model.View{
+		ResourceType: opts.ResourceType,
+		ResourceID:   opts.ResourceID,
+		Duration:     opts.Duration,
+		UserID:       opts.UserID,
+		CreatedAt:    opts.CreatedAt,
+	}
+	if v.CreatedAt.IsZero() {
+		v.CreatedAt = time.Now().UTC()
+	}
+
+	_, err := ci.DB.Collection(model.ViewColl).InsertOne(context.TODO(), v)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to create view")
+		return errors.Wrap(err, "failed to create view")
+	}
+	return nil
+}
+
+// CreateLike register a new like if like does not exists for that specific user else remove the like
+func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
+	ctx := context.TODO()
+	filter := bson.M{"resource_type": opts.ResourceType, "resource_id": opts.ResourceID, "user_id": opts.UserID}
+	exists, err := ci.DB.Collection(model.LikeColl).CountDocuments(ctx, filter)
+	if err != nil {
+		return errors.Wrap(err, "failed to check if like exists")
+	}
+
+	// like does not exists for the user for the specific resource thus creating a new like
+	if exists == 0 {
+		v := model.Like{
+			ResourceType: opts.ResourceType,
+			ResourceID:   opts.ResourceID,
+			CreatedAt:    time.Now().UTC(),
+			UserID:       opts.UserID,
+		}
+		if _, err := ci.DB.Collection(model.LikeColl).InsertOne(ctx, v); err != nil {
+			ci.Logger.Err(err).Interface("opts", opts).Msg("failed to create like")
+			return errors.Wrap(err, "failed to create like")
+		}
+		return nil
+	}
+
+	// like exists thus removing the like
+	if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
+		return errors.Wrap(err, "failed to unlike")
+	}
+
+	return nil
+}
+
+func (ci *ContentImpl) UpdateContentBrandInfo(opts *schema.UpdateContentBrandInfoOpts) {
+	filter := bson.M{
+		"brand_ids": opts.ID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"brand_info.$": opts,
+		},
+	}
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update brand")
+	}
+}
+
+func (ci *ContentImpl) UpdateContentInfluencerInfo(opts *schema.UpdateContentInfluencerInfoOpts) {
+	filter := bson.M{
+		"influencer_ids": opts.ID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"influencer_info.$": opts,
+		},
+	}
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
+	}
+}
+
+func (ci *ContentImpl) UpdateContentCatalogInfo(opts *schema.UpdateContentCatalogInfoOpts) {
+	filter := bson.M{
+		"catalog_info._id": opts.ID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"catalog_info.$": opts,
+		},
+	}
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
+	}
+}
+
+func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
+	brandInfo := []model.BrandInfo{}
+	for _, id := range ids {
+		Id, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			continue
+		}
+		brandInfo = append(brandInfo, model.BrandInfo{
+			ID:   Id,
+			Name: faker.Company().Name(),
+			Logo: &model.IMG{
+				SRC: faker.Avatar().Url("png", 50, 50),
+			},
+		})
+	}
+	return brandInfo, nil
+}
+
+func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, error) {
+	influencerInfo := []model.InfluencerInfo{}
+	return influencerInfo, nil
+}
+
+func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
+	catalogInfo := []model.CatalogInfo{}
+	return catalogInfo, nil
 }

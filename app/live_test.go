@@ -1,9 +1,11 @@
 package app
 
 import (
+	"context"
 	"go-app/mock"
 	"go-app/model"
 	"go-app/schema"
+	"go-app/server/kafka"
 	"testing"
 	"time"
 
@@ -16,7 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/net/context"
 	"syreclabs.com/go/faker"
 )
 
@@ -539,7 +540,12 @@ func TestLiveImpl_EndLiveStream(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LiveImpl.DiscardLiveStream() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			tt.validate(t, &tt)
+			if !tt.wantErr {
+				tt.validate(t, &tt)
+			}
+			if tt.wantErr {
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -566,12 +572,12 @@ func TestLiveImpl_StartLiveStream(t *testing.T) {
 		name       string
 		fields     fields
 		args       args
-		want       string
+		want       *schema.StartLiveStreamResp
 		wantErr    bool
 		err        error
 		prepare    func(*TC)
 		buildStubs func(*TC, *mock.MockIVS)
-		validate   func(*testing.T, *TC, string)
+		validate   func(*testing.T, *TC, *schema.StartLiveStreamResp)
 	}
 
 	tests := []TC{
@@ -615,7 +621,7 @@ func TestLiveImpl_StartLiveStream(t *testing.T) {
 				mc.EXPECT().CreateChannel(name).Times(1).Return(&resp, nil)
 				tt.args.ivsResp = &resp
 			},
-			validate: func(t *testing.T, tt *TC, resp string) {
+			validate: func(t *testing.T, tt *TC, resp *schema.StartLiveStreamResp) {
 				var doc model.Live
 				err := tt.fields.DB.Collection(model.LiveColl).FindOne(context.TODO(), bson.M{"_id": tt.args.id}).Decode(&doc)
 				assert.Nil(t, err)
@@ -624,7 +630,8 @@ func TestLiveImpl_StartLiveStream(t *testing.T) {
 				assert.Equal(t, doc.Status.Name, model.ActiveStatus)
 				assert.WithinDuration(t, time.Now().UTC(), doc.Status.CreatedAt, 300*time.Millisecond)
 				assert.Equal(t, *tt.args.ivsResp.StreamKey.Value, doc.IVS.Ingestion.StreamKey)
-				assert.Equal(t, doc.IVS.Ingestion.StreamKey, resp)
+				assert.Equal(t, doc.IVS.Ingestion.StreamKey, resp.StreamKey)
+				assert.Equal(t, doc.IVS.Ingestion.IngestURL, resp.IngestURL)
 			},
 		},
 		{
@@ -643,9 +650,6 @@ func TestLiveImpl_StartLiveStream(t *testing.T) {
 
 			},
 			wantErr: true,
-			validate: func(t *testing.T, tt *TC, resp string) {
-				assert.Equal(t, "", resp)
-			},
 		},
 	}
 	for _, tt := range tests {
@@ -669,9 +673,14 @@ func TestLiveImpl_StartLiveStream(t *testing.T) {
 				t.Errorf("LiveImpl.DiscardLiveStream() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr {
-				assert.Empty(t, got)
+				assert.Nil(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
 			}
-			tt.validate(t, &tt, got)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+
 		})
 	}
 }
@@ -830,8 +839,11 @@ func TestLiveImpl_GetLiveStreamByID(t *testing.T) {
 			}
 			if tt.wantErr {
 				assert.Empty(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
 			}
-			tt.validate(t, &tt, got)
+			if !tt.wantErr {
+				tt.validate(t, &tt, got)
+			}
 		})
 	}
 }
@@ -1203,6 +1215,294 @@ func TestLiveImpl_GetLiveStreams(t *testing.T) {
 				assert.Nil(t, err)
 				tt.validate(t, &tt, got)
 			}
+		})
+	}
+}
+
+func TestLiveImpl_JoinLiveStream(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+		IVS    IVS
+	}
+	type args struct {
+		createOpts *schema.CreateLiveStreamOpts
+		ivsResp    *ivs.CreateChannelOutput
+		id         primitive.ObjectID
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       string
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockIVS)
+		validate   func(*testing.T, *TC, string)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				resp, _ := tt.fields.App.Live.CreateLiveStream(tt.args.createOpts)
+				tt.fields.App.Live.StartLiveStream(resp.ID)
+				tt.args.id = resp.ID
+				tt.want = *tt.args.ivsResp.Channel.PlaybackUrl
+			},
+			buildStubs: func(tt *TC, mc *mock.MockIVS) {
+				tt.args.createOpts = schema.GetRandomCreateLiveStreamOpts()
+				name := tt.args.createOpts.Name
+				arn := faker.Letterify("???-????-?????")
+				authorized := false
+				channelType := faker.RandomChoice([]string{"STANDARD"})
+				ingestEndpoint := faker.Letterify("rtmp://??.???.??.??:8000")
+				latencyMode := faker.RandomChoice([]string{"LOW"})
+				playbackURL := faker.Letterify("https://?????.??????.com/????.m3u8")
+				streamKey := faker.RandomString(20)
+
+				resp := ivs.CreateChannelOutput{
+					Channel: &ivs.Channel{
+						Arn:            &arn,
+						Authorized:     &authorized,
+						IngestEndpoint: &ingestEndpoint,
+						LatencyMode:    &latencyMode,
+						Name:           &name,
+						Type:           &channelType,
+						PlaybackUrl:    &playbackURL,
+					},
+					StreamKey: &ivs.StreamKey{
+						Value: &streamKey,
+					},
+				}
+				mc.EXPECT().CreateChannel(name).Times(1).Return(&resp, nil)
+				tt.args.ivsResp = &resp
+			},
+			validate: func(t *testing.T, tt *TC, resp string) {
+				assert.Equal(t, tt.want, resp)
+				var doc model.Live
+				err := tt.fields.DB.Collection(model.LiveColl).FindOne(context.TODO(), bson.M{"_id": tt.args.id}).Decode(&doc)
+				assert.Nil(t, err)
+			},
+		},
+		{
+			name: "[Error] stream is not active",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				resp, _ := tt.fields.App.Live.CreateLiveStream(tt.args.createOpts)
+				tt.fields.App.Live.EndLiveStream(resp.ID)
+				tt.args.id = resp.ID
+				tt.err = errors.New("stream is not active")
+			},
+			buildStubs: func(tt *TC, mc *mock.MockIVS) {
+				tt.args.createOpts = schema.GetRandomCreateLiveStreamOpts()
+				name := tt.args.createOpts.Name
+				arn := faker.Letterify("???-????-?????")
+				authorized := false
+				channelType := faker.RandomChoice([]string{"STANDARD"})
+				ingestEndpoint := faker.Letterify("rtmp://??.???.??.??:8000")
+				latencyMode := faker.RandomChoice([]string{"LOW"})
+				playbackURL := faker.Letterify("https://?????.??????.com/????.m3u8")
+				streamKey := faker.RandomString(20)
+
+				resp := ivs.CreateChannelOutput{
+					Channel: &ivs.Channel{
+						Arn:            &arn,
+						Authorized:     &authorized,
+						IngestEndpoint: &ingestEndpoint,
+						LatencyMode:    &latencyMode,
+						Name:           &name,
+						Type:           &channelType,
+						PlaybackUrl:    &playbackURL,
+					},
+					StreamKey: &ivs.StreamKey{
+						Value: &streamKey,
+					},
+				}
+				mc.EXPECT().CreateChannel(name).Times(1).Return(&resp, nil)
+				mc.EXPECT().StopStream(arn).Times(1).Return(nil, nil)
+				tt.args.ivsResp = &resp
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockIVS := mock.NewMockIVS(ctrl)
+			li := &LiveImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+				IVS:    tt.fields.IVS,
+			}
+			li.IVS = mockIVS
+			tt.fields.App.Live = li
+
+			tt.buildStubs(&tt, mockIVS)
+			tt.prepare(&tt)
+			got, err := li.JoinLiveStream(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LiveImpl.JoinLiveStream() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				assert.Empty(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+			if !tt.wantErr {
+				tt.validate(t, &tt, got)
+			}
+		})
+	}
+}
+
+func TestLiveImpl_PushComment(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	li := &LiveImpl{
+		App:    app,
+		DB:     app.MongoDB.Client.Database(app.Config.MediaConfig.DBName),
+		Logger: app.Logger,
+	}
+
+	k := kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: app.Logger,
+		Config: &app.Config.LiveCommentProducerConfig,
+	})
+
+	app.LiveCommentProducer = k
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+		IVS    IVS
+	}
+	type args struct {
+		comment *schema.CreateLiveCommentOpts
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "Ok",
+			args: args{
+				comment: &schema.CreateLiveCommentOpts{
+					LiveID: primitive.NewObjectID(),
+					UserID: primitive.NewObjectID(),
+					ARN:    faker.RandomString(10),
+					Name:   faker.Name().Name(),
+					ProfileImage: &schema.Img{
+						SRC: faker.Avatar().Url("png", 50, 50),
+					},
+					Description: faker.Lorem().Sentence(faker.RandomInt(0, 100)),
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			li.PushComment(tt.args.comment)
+		})
+	}
+}
+
+func TestLiveImpl_CreateLiveComment(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockContent := mock.NewMockContent(ctrl)
+
+	li := &LiveImpl{
+		App:    app,
+		DB:     app.MongoDB.Client.Database(app.Config.LiveConfig.DBName),
+		Logger: app.Logger,
+	}
+	app.Live = li
+	app.Content = mockContent
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		opts *schema.CreateLiveCommentOpts
+	}
+
+	type TC struct {
+		name       string
+		args       args
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockContent)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			args: args{},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.CreateLiveCommentOpts{
+					LiveID: primitive.NewObjectID(),
+					UserID: primitive.NewObjectID(),
+					ARN:    faker.RandomString(10),
+					Name:   faker.Name().Name(),
+					ProfileImage: &schema.Img{
+						SRC: faker.Avatar().Url("png", 50, 50),
+					},
+					Description: faker.Lorem().Sentence(faker.RandomInt(0, 100)),
+					CreatedAt:   time.Now().UTC(),
+				}
+			},
+			buildStubs: func(tt *TC, m *mock.MockContent) {
+				s := schema.CreateCommentOpts{
+					ResourceType: model.LiveType,
+					ResourceID:   tt.args.opts.LiveID,
+					UserID:       tt.args.opts.UserID,
+					Description:  tt.args.opts.Description,
+					CreatedAt:    tt.args.opts.CreatedAt,
+				}
+				resp := schema.CreateCommentResp{}
+				m.EXPECT().CreateComment(&s).Times(1).Return(&resp, nil)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare(&tt)
+			tt.buildStubs(&tt, mockContent)
+			li.CreateLiveComment(tt.args.opts)
 		})
 	}
 }

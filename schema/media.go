@@ -65,14 +65,35 @@ type CreateVideoResp struct {
 // GetMediaResp contains fields to returned in GetMedia response
 type GetMediaResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CloudfrontURL string             `json:"cloudfront_url,omitempty" bson:"cloudfront_url,omitempty"`
-	SRCBucket     string             `json:"src_bucket,omitempty" bson:"src_bucket,omitempty"`
 	FileName      string             `json:"filename,omitempty" bson:"filename,omitempty"`
-	IsPortrait    bool               `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
-	Dimensions    *model.Dimensions  `json:"dimensions,omitempty" bson:"dimensions,omitempty"`
-	Duration      float32            `json:"duration,omitempty" bson:"duration,omitempty"`
-	Framerate     uint               `json:"framerate,omitempty" bson:"framerate,omitempty"`
-	PlaybackURL   string             `json:"hls_playback_url,omitempty" bson:"hls_playback_url,omitempty"`
-	ThumbnailURLS []string           `json:"thumbnail_url,omitempty" bson:"thumbnail_url,omitempty"`
 	CreatedAt     time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	SRCBucket     string             `json:"src_bucket,omitempty" bson:"src_bucket,omitempty"`
+	CloudfrontURL string             `json:"cloudfront_url,omitempty" bson:"cloudfront_url,omitempty"`
+	Dimensions    *model.Dimensions  `json:"dimensions,omitempty" bson:"dimensions,omitempty"`
+
+	// Video
+	IsPortrait    bool     `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
+	Duration      float32  `json:"duration,omitempty" bson:"duration,omitempty"`
+	Framerate     uint     `json:"framerate,omitempty" bson:"framerate,omitempty"`
+	PlaybackURL   string   `json:"hls_playback_url,omitempty" bson:"hls_playback_url,omitempty"`
+	ThumbnailURLS []string `json:"thumbnail_url,omitempty" bson:"thumbnail_url,omitempty"`
+
+	// Image
+	FileType string `json:"file_type,omitempty" bson:"file_type,omitempty"`
+	URL      string `json:"url,omitempty" bson:"url,omitempty"`
+}
+
+// CreateImageMediaOpts contains fields and validations required to create image media
+type CreateImageMediaOpts struct {
+	FileName  string `json:"file_name" validate:"required"`
+	Base64SRC string `json:"base64_src" validate:"required"`
+}
+
+// CreateImageMediaResp contains fields to be returned for image upload
+type CreateImageMediaResp struct {
+	ID         primitive.ObjectID `json:"id"`
+	FileName   string             `json:"file_name"`
+	FileType   string             `json:"file_type"`
+	Dimensions *model.Dimensions  `json:"dimensions"`
+	URL        string             `json:"url"`
 }
