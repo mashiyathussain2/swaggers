@@ -7,8 +7,8 @@ import (
 )
 
 type CheckBrandIDExistsResp struct {
-	Status bool `json:"status"`
-	Found  bool `json:"found"`
+	Success bool `json:"success"`
+	Payload bool `json:"payload"`
 }
 
 // CreateBrandOpts serialize the create brand args
