@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Brand service contains all the CRUD operations related to brands
@@ -23,14 +22,12 @@ type Brand interface {
 // BrandImpl implements brand service methods
 type BrandImpl struct {
 	App    *App
-	DB     *mongo.Database
 	Logger *zerolog.Logger
 }
 
 // BrandOpts contains args required to create a new instance of brand service
 type BrandOpts struct {
 	App    *App
-	DB     *mongo.Database
 	Logger *zerolog.Logger
 }
 
@@ -38,7 +35,6 @@ type BrandOpts struct {
 func InitBrand(opts *BrandOpts) Brand {
 	return &BrandImpl{
 		App:    opts.App,
-		DB:     opts.DB,
 		Logger: opts.Logger,
 	}
 }
