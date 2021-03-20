@@ -213,5 +213,7 @@ func GetConfigFromFile(fileName string) *Config {
 		fmt.Printf("couldn't read config: %s", err)
 		os.Exit(1)
 	}
+	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	return config
 }
