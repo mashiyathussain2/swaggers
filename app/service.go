@@ -7,6 +7,10 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.KeeperCatalogConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.Brand = InitBrand(&BrandOpts{
+		App:    a,
+		Logger: a.Logger,
+	})
 	a.Category = InitCategory(&CategoryOpts{
 		App:    a,
 		DB:     a.MongoDB.Client.Database(a.Config.CategoryConfig.DBName),
