@@ -32,6 +32,15 @@ type ServerConfig struct {
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
+}
+
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
 }
 
 // APIConfig contains api package related configurations
