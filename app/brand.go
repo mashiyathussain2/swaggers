@@ -67,9 +67,9 @@ func (b *BrandImpl) CheckBrandIDExists(ctx context.Context, id primitive.ObjectI
 	if err != nil {
 		return false, errors.Wrap(err, "unable to decode response")
 	}
-	if res.Status != false {
+	if !res.Success {
 		return false, errors.Errorf("unable to check if brand id exists")
 	}
 
-	return res.Found, nil
+	return res.Payload, nil
 }
