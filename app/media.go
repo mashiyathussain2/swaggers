@@ -191,6 +191,8 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 		png.Encode(&buf, *img.Img)
 	case "image/jpeg":
 		jpeg.Encode(&buf, *img.Img, nil)
+	case "image/jpg":
+		jpeg.Encode(&buf, *img.Img, nil)
 	case "default":
 		return nil, errors.New("invalid image file type")
 	}

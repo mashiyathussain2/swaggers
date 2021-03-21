@@ -32,12 +32,12 @@ func (i *IMG) DecodeBase64StrToIMG(b64Str string) error {
 	// finding the index where base64Image data starts
 	coI := strings.Index(string(b64Str), ",")
 	if coI == -1 {
-		return goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil)
+		return goerror.New("invalid base64 image string [format should be`data:image/(jpeg/jpg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil)
 	}
 
 	b64ImgData := string(b64Str)[coI+1:]
 	if b64ImgData == "" {
-		return goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil)
+		return goerror.New("invalid base64 image string [format should be`data:image/(jpeg/jpg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil)
 	}
 	imgType := strings.TrimSuffix(b64Str[5:coI], ";base64")
 	// getting the image type
@@ -67,10 +67,15 @@ func (i *IMG) DecodeBase64StrToIMG(b64Str string) error {
 	case "image/jpeg":
 		img, err = jpeg.Decode(imgByteReader)
 		if err != nil {
-			return goerror.New(fmt.Sprintf("failed to decode jpeg/jpg image: %s", err), nil)
+			return goerror.New(fmt.Sprintf("failed to decode jpeg image: %s", err), nil)
+		}
+	case "image/jpg":
+		img, err = jpeg.Decode(imgByteReader)
+		if err != nil {
+			return goerror.New(fmt.Sprintf("failed to decode jpg image: %s", err), nil)
 		}
 	default:
-		return goerror.New("invalid image type [only jpeg and png are allowed]", nil)
+		return goerror.New("invalid image type [only jpeg/jpg and png are allowed]", nil)
 	}
 
 	i.Type = imgType
