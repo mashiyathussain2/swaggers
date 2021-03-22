@@ -34,6 +34,7 @@ type ServerConfig struct {
 	CloseTimeout   time.Duration `mapstructure:"closeTimeout"`
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
 }
 
 // APIConfig contains api package related configurations
@@ -118,6 +119,14 @@ type KafkaConfig struct {
 	Brokers     []string `mapstructure:"brokers"`
 	Username    string   `mapstructure:"username"`
 	Password    string   `mapstructure:"password"`
+}
+
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
 }
 
 // LoggerConfig contains different logger configurations
