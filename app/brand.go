@@ -22,6 +22,7 @@ type Brand interface {
 	GetBrandByID(primitive.ObjectID) (*schema.GetBrandResp, error)
 	CheckBrandByID(primitive.ObjectID) (bool, error)
 	GetBrandsByID([]primitive.ObjectID) ([]schema.GetBrandResp, error)
+	GetBrands() ([]schema.GetBrandResp, error)
 }
 
 // BrandImpl implements brand interface methods
@@ -237,6 +238,21 @@ func (bi *BrandImpl) GetBrandsByID(ids []primitive.ObjectID) ([]schema.GetBrandR
 	if err != nil {
 		bi.Logger.Err(err).Interface("ids", ids).Msg("failed to get brands with ids")
 		return nil, errors.Wrap(err, "failed to get brand with id")
+	}
+	var resp []schema.GetBrandResp
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find brands")
+	}
+	return resp, nil
+}
+
+func (bi *BrandImpl) GetBrands() ([]schema.GetBrandResp, error) {
+	ctx := context.TODO()
+	filter := bson.M{}
+	cur, err := bi.DB.Collection(model.BrandColl).Find(context.TODO(), filter)
+	if err != nil {
+		bi.Logger.Err(err).Msg("failed to get brands")
+		return nil, errors.Wrap(err, "failed to get brands")
 	}
 	var resp []schema.GetBrandResp
 	if err := cur.All(ctx, &resp); err != nil {

@@ -588,3 +588,127 @@ func TestBrandImpl_GetBrandsByID(t *testing.T) {
 		})
 	}
 }
+
+func TestBrandImpl_GetBrands(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+	}
+
+	type TC struct {
+		name     string
+		fields   fields
+		args     args
+		want     []schema.GetBrandResp
+		wantErr  bool
+		err      error
+		prepare  func(*TC)
+		validate func(*testing.T, *TC, []schema.GetBrandResp)
+	}
+
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.UserConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				opts := schema.GetRandomCreateBrandOpts()
+				_, _ = tt.fields.App.Brand.CreateBrand(opts)
+
+				opts1 := schema.GetRandomCreateBrandOpts()
+				_, _ = tt.fields.App.Brand.CreateBrand(opts1)
+
+				opts2 := schema.GetRandomCreateBrandOpts()
+				_, _ = tt.fields.App.Brand.CreateBrand(opts2)
+
+				var want []model.Brand
+				cur, _ := tt.fields.DB.Collection(model.BrandColl).Find(context.TODO(), bson.M{})
+				cur.All(context.TODO(), &want)
+
+				tt.want = []schema.GetBrandResp{
+					{
+						ID:                 want[0].ID,
+						Name:               want[0].Name,
+						LName:              want[0].LName,
+						RegisteredName:     want[0].RegisteredName,
+						FulfillmentEmail:   want[0].FulfillmentEmail,
+						FulfillmentCCEmail: want[0].FulfillmentCCEmail,
+						Domain:             want[0].Domain,
+						Website:            want[0].Website,
+						Logo:               want[0].Logo,
+						CoverImg:           want[0].CoverImg,
+						Bio:                want[0].Bio,
+						SocialAccount:      want[0].SocialAccount,
+					},
+					{
+						ID:                 want[1].ID,
+						Name:               want[1].Name,
+						LName:              want[1].LName,
+						RegisteredName:     want[1].RegisteredName,
+						FulfillmentEmail:   want[1].FulfillmentEmail,
+						FulfillmentCCEmail: want[1].FulfillmentCCEmail,
+						Domain:             want[1].Domain,
+						Website:            want[1].Website,
+						Logo:               want[1].Logo,
+						Bio:                want[1].Bio,
+						CoverImg:           want[1].CoverImg,
+						SocialAccount:      want[1].SocialAccount,
+					},
+					{
+						ID:                 want[2].ID,
+						Name:               want[2].Name,
+						LName:              want[2].LName,
+						RegisteredName:     want[2].RegisteredName,
+						FulfillmentEmail:   want[2].FulfillmentEmail,
+						FulfillmentCCEmail: want[2].FulfillmentCCEmail,
+						Domain:             want[2].Domain,
+						Website:            want[2].Website,
+						Logo:               want[2].Logo,
+						Bio:                want[2].Bio,
+						CoverImg:           want[2].CoverImg,
+						SocialAccount:      want[2].SocialAccount,
+					},
+				}
+			},
+			validate: func(t *testing.T, tt *TC, got []schema.GetBrandResp) {
+				assert.Equal(t, tt.want, got)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bi := &BrandImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Brand = bi
+			tt.prepare(&tt)
+			got, err := bi.GetBrands()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BrandImpl.GetBrandsByID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				tt.validate(t, &tt, got)
+			}
+			if tt.wantErr {
+				assert.Nil(t, got)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}

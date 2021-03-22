@@ -16,6 +16,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/customer", a.requestWithAuthHandler(a.updateCustomerInfo)).Methods("PUT")
 
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestHandler(a.createbrand)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/brands", a.requestHandler(a.getBrands)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestHandler(a.getBrandsById)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestHandler(a.editbrand)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/brand/{brandID}/check", a.requestHandler(a.checkBrandByID)).Methods("GET")

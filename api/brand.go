@@ -89,3 +89,13 @@ func (a *API) checkBrandByID(requestCTX *handler.RequestContext, w http.Response
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) getBrands(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	res, err := a.App.Brand.GetBrands()
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
