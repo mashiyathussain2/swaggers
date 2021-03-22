@@ -57,11 +57,17 @@ func (ii *InfluencerImpl) CreateInfluencer(opts *schema.CreateInfluencerOpts) (*
 		CoverImg: &model.IMG{
 			SRC: opts.CoverImg.SRC,
 		},
+		ProfileImage: &model.IMG{
+			SRC: opts.ProfileImage.SRC,
+		},
 		ExternalLinks: opts.ExternalLinks,
 		CreatedAt:     time.Now().UTC(),
 	}
 	if err := i.CoverImg.LoadFromURL(); err != nil {
 		return nil, errors.Wrap(err, "invalid image for influencer cover")
+	}
+	if err := i.ProfileImage.LoadFromURL(); err != nil {
+		return nil, errors.Wrap(err, "invalid image for profile image")
 	}
 	if opts.SocialAccount != nil {
 		i.SocialAccount = &model.SocialAccount{}
@@ -91,6 +97,7 @@ func (ii *InfluencerImpl) CreateInfluencer(opts *schema.CreateInfluencerOpts) (*
 		Bio:           i.Bio,
 		ExternalLinks: i.ExternalLinks,
 		CoverImg:      i.CoverImg,
+		ProfileImage:  i.ProfileImage,
 		SocialAccount: i.SocialAccount,
 		CreatedAt:     i.CreatedAt,
 	}, nil
@@ -103,12 +110,21 @@ func (ii *InfluencerImpl) EditInfluencer(opts *schema.EditInfluencerOpts) (*sche
 	if opts.Name != "" {
 		update = append(update, bson.E{Key: "name", Value: opts.Name})
 	}
+
 	if opts.CoverImg != nil {
 		img := model.IMG{SRC: opts.CoverImg.SRC}
 		if err := img.LoadFromURL(); err != nil {
 			return nil, errors.Wrap(err, "invalid image for brand cover")
 		}
 		update = append(update, bson.E{Key: "cover_img", Value: img})
+	}
+
+	if opts.ProfileImage != nil {
+		img := model.IMG{SRC: opts.ProfileImage.SRC}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "invalid image for profile image")
+		}
+		update = append(update, bson.E{Key: "profile_image", Value: img})
 	}
 	if opts.Bio != "" {
 		update = append(update, bson.E{Key: "bio", Value: opts.Bio})
@@ -155,6 +171,7 @@ func (ii *InfluencerImpl) EditInfluencer(opts *schema.EditInfluencerOpts) (*sche
 		Name:          influencer.Name,
 		ExternalLinks: influencer.ExternalLinks,
 		CoverImg:      influencer.CoverImg,
+		ProfileImage:  influencer.ProfileImage,
 		SocialAccount: influencer.SocialAccount,
 		Bio:           influencer.Bio,
 		CreatedAt:     influencer.CreatedAt,

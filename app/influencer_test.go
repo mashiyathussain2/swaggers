@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"testing"
@@ -63,6 +62,9 @@ func TestInfluencerImpl_CreateInfluencer(t *testing.T) {
 				assert.Equal(t, 400, got.CoverImg.Height)
 				assert.Equal(t, tt.args.opts.Bio, got.Bio)
 				assert.Equal(t, tt.args.opts.ExternalLinks, got.ExternalLinks)
+				assert.Equal(t, tt.args.opts.ProfileImage.SRC, got.ProfileImage.SRC)
+				assert.Equal(t, 200, got.ProfileImage.Width)
+				assert.Equal(t, 400, got.ProfileImage.Height)
 				if tt.args.opts.SocialAccount != nil {
 					assert.Equal(t, uint(tt.args.opts.SocialAccount.Facebook.FollowersCount), got.SocialAccount.Facebook.FollowersCount)
 					assert.Equal(t, uint(tt.args.opts.SocialAccount.Instagram.FollowersCount), got.SocialAccount.Instagram.FollowersCount)
@@ -177,6 +179,9 @@ func TestInfluencerImpl_EditInfluencer(t *testing.T) {
 					CoverImg: &schema.Img{
 						SRC: faker.Avatar().Url("png", 50, 50),
 					},
+					ProfileImage: &schema.Img{
+						SRC: faker.Avatar().Url("png", 50, 50),
+					},
 					ExternalLinks: []string{faker.Internet().Url()},
 				}
 				tt.want = &schema.EditInfluencerResp{
@@ -184,6 +189,11 @@ func TestInfluencerImpl_EditInfluencer(t *testing.T) {
 					Name: tt.args.opts.Name,
 					CoverImg: &model.IMG{
 						SRC:    tt.args.opts.CoverImg.SRC,
+						Width:  50,
+						Height: 50,
+					},
+					ProfileImage: &model.IMG{
+						SRC:    tt.args.opts.ProfileImage.SRC,
 						Width:  50,
 						Height: 50,
 					},
@@ -195,7 +205,6 @@ func TestInfluencerImpl_EditInfluencer(t *testing.T) {
 				}
 			},
 			validate: func(t *testing.T, tt *TC, got *schema.EditInfluencerResp) {
-				fmt.Printf("%+v\n", got)
 				assert.WithinDuration(t, time.Now().UTC(), got.UpdatedAt, 100*time.Millisecond)
 				assert.WithinDuration(t, tt.want.CreatedAt, got.CreatedAt, 100*time.Millisecond)
 				got.UpdatedAt = time.Time{}
@@ -351,6 +360,7 @@ func TestInfluencerImpl_GetInfluencersByID(t *testing.T) {
 						ID:            want[0].ID,
 						Name:          want[0].Name,
 						CoverImg:      want[0].CoverImg,
+						ProfileImage:  want[0].ProfileImage,
 						SocialAccount: want[0].SocialAccount,
 						Bio:           want[0].Bio,
 						ExternalLinks: want[0].ExternalLinks,
@@ -359,6 +369,7 @@ func TestInfluencerImpl_GetInfluencersByID(t *testing.T) {
 						ID:            want[1].ID,
 						Name:          want[1].Name,
 						CoverImg:      want[1].CoverImg,
+						ProfileImage:  want[1].ProfileImage,
 						SocialAccount: want[1].SocialAccount,
 						Bio:           want[1].Bio,
 						ExternalLinks: want[1].ExternalLinks,
