@@ -12,6 +12,7 @@ type CreateInfluencerOpts struct {
 	Name          string             `json:"name" validate:"required"`
 	Bio           string             `json:"bio"`
 	CoverImg      *Img               `json:"cover_img" validate:"required"`
+	ProfileImage  *Img               `json:"profile_image" validate:"required"`
 	ExternalLinks []string           `json:"external_links" validate:"required,min=1,dive,min=6"`
 	SocialAccount *SocialAccountOpts `json:"social_account"`
 }
@@ -22,6 +23,7 @@ type CreateInfluencerResp struct {
 	Name          string               `json:"name"`
 	Bio           string               `json:"bio"`
 	CoverImg      *model.IMG           `json:"cover_img"`
+	ProfileImage  *model.IMG           `json:"profile_image"`
 	ExternalLinks []string             `json:"external_links"`
 	SocialAccount *model.SocialAccount `json:"social_account"`
 	CreatedAt     time.Time            `json:"created_at"`
@@ -33,6 +35,7 @@ type EditInfluencerOpts struct {
 	Name          string             `json:"name"`
 	Bio           string             `json:"bio"`
 	CoverImg      *Img               `json:"cover_img"`
+	ProfileImage  *Img               `json:"profile_image"`
 	ExternalLinks []string           `json:"external_links"`
 	SocialAccount *SocialAccountOpts `json:"social_account"`
 }
@@ -43,6 +46,7 @@ type EditInfluencerResp struct {
 	Name          string               `json:"name"`
 	Bio           string               `json:"bio"`
 	CoverImg      *model.IMG           `json:"cover_img"`
+	ProfileImage  *model.IMG           `json:"profile_image"`
 	ExternalLinks []string             `json:"external_links"`
 	SocialAccount *model.SocialAccount `json:"social_account"`
 	CreatedAt     time.Time            `json:"created_at"`
@@ -59,6 +63,7 @@ type GetInfluencerResp struct {
 	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
 	CoverImg      *model.IMG           `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
+	ProfileImage  *model.IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	SocialAccount *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
 	ExternalLinks []string             `json:"external_links,omitempty" bson:"external_links,omitempty"`
 	Bio           string               `json:"bio,omitempty" bson:"bio,omitempty"`

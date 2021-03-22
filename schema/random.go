@@ -77,6 +77,9 @@ func GetRandomCreateInfluencerOpts() *CreateInfluencerOpts {
 		CoverImg: &Img{
 			SRC: faker.Avatar().Url("png", 200, 400),
 		},
+		ProfileImage: &Img{
+			SRC: faker.Avatar().Url("png", 200, 400),
+		},
 		ExternalLinks: []string{faker.Internet().Url()},
 		Bio:           faker.Lorem().Sentence(3),
 	}
