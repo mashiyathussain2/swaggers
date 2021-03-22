@@ -783,3 +783,73 @@ func (kc *KeeperCatalogImpl) GetCatalogBySlug(slug string) (*schema.GetCatalogRe
 	}
 	return catalog, nil
 }
+
+func (kc *KeeperCatalogImpl) GetVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id":          cat_id,
+			"variants._id": var_id,
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$variants",
+		},
+	}}
+	matchStage2 := bson.D{{
+		Key: "$match", Value: bson.M{
+			"variants._id": var_id,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from": "discount",
+			"let": bson.M{
+				"variant_id": "$variants._id",
+			},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+
+						"$expr":     bson.M{"$in": bson.A{"$$variant_id", "$variants_id"}},
+						"is_active": true,
+					}},
+			},
+			"as": "discount_info",
+		},
+	}}
+	projectStage :=
+		bson.D{{
+			Key: "$project", Value: bson.M{
+				"_id":                     1,
+				"name":                    1,
+				"base_price":              1,
+				"retail_price":            1,
+				"discount_info.value":     1,
+				"discount_info.type":      1,
+				"discount_info.max_value": 1,
+				"variant_type":            1,
+				"variants":                1,
+				"featured_image":          1,
+			},
+		}}
+
+	ctx := context.TODO()
+
+	catalogsCursor, err := kc.DB.Collection(model.GroupColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		unwindStage,
+		matchStage2,
+		lookupStage,
+		projectStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id:%s", cat_id.Hex())
+	}
+	var catalog []schema.GetCatalogVariantResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+	return &catalog[0], nil
+}
