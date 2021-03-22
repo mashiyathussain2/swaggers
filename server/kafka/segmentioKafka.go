@@ -2,15 +2,18 @@ package kafka
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"go-app/server/config"
 	"log"
 	"net"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
 // SegmentioKafkaImpl has kafka cluster config and connection instance
@@ -43,6 +46,21 @@ func NewSegmentioKafka(c *config.KafkaConfig) *SegmentioKafkaImpl {
 		os.Exit(1)
 	}
 	return &SegmentioKafkaImpl{Config: c, Conn: controllerConn}
+}
+
+// NewSegmentioKafkaDialer returns new segmentio kafka dialer instance
+func NewSegmentioKafkaDialer(c *config.KafkaConfig) *kafka.Dialer {
+	mechanism := plain.Mechanism{
+		Username: c.Username,
+		Password: c.Password,
+	}
+	dialer := &kafka.Dialer{
+		Timeout:       10 * time.Second,
+		DualStack:     true,
+		TLS:           &tls.Config{},
+		SASLMechanism: mechanism,
+	}
+	return dialer
 }
 
 // SegmentioConsumer implements `Consumer` methods

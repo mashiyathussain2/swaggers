@@ -22,6 +22,7 @@ func (a *API) createInfluencer(requestCTX *handler.RequestContext, w http.Respon
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
+	return
 }
 
 func (a *API) editInfluencer(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {

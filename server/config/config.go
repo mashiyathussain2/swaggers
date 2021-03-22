@@ -92,6 +92,8 @@ type KafkaConfig struct {
 	BrokerURL   string   `mapstructure:"brokerUrl"`
 	BrokerPort  string   `mapstructure:"brokerPort"`
 	Brokers     []string `mapstructure:"brokers"`
+	Username    string   `mapstructure:"username"`
+	Password    string   `mapstructure:"password"`
 }
 
 // LoggerConfig contains different logger configurations
