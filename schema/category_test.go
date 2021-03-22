@@ -36,10 +36,10 @@ func TestCreateCategoryOpts(t *testing.T) {
 			wantErr: false,
 			want: CreateCategoryOpts{
 				Name: "Smartphones",
-				Thumbnail: Img{
+				Thumbnail: &Img{
 					SRC: "https://images-eu.ssl-images-amazon.com/images/G/31/img18/Wireless/Catpage/BrandFarm/liwuwe_2018-05-07T11-25_f0461b_1113497_350x100_gps_cn_2.jpg",
 				},
-				FeaturedImage: Img{
+				FeaturedImage: &Img{
 					SRC: "https://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg",
 				},
 				IsMain: true,
@@ -60,13 +60,53 @@ func TestCreateCategoryOpts(t *testing.T) {
 			wantErr: false,
 			want: CreateCategoryOpts{
 				Name: "Smartphones",
-				Thumbnail: Img{
+				Thumbnail: &Img{
 					SRC: "https://images-eu.ssl-images-amazon.com/images/G/31/img18/Wireless/Catpage/BrandFarm/liwuwe_2018-05-07T11-25_f0461b_1113497_350x100_gps_cn_2.jpg",
 				},
-				FeaturedImage: Img{
+				FeaturedImage: &Img{
 					SRC: "https://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg",
 				},
 				IsMain: false,
+			},
+		},
+		{
+			name: "[OK] Without featured image",
+			json: string(`{
+				"name": "Smartphones",
+				"thumbnail": {
+					"src": "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg"
+				},
+				"parent_id": "5e8821fe1108c87837ef2611",
+				"is_main": false
+			}`),
+			wantErr: false,
+			want: CreateCategoryOpts{
+				Name: "Smartphones",
+				Thumbnail: &Img{
+					SRC: "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg",
+				},
+				IsMain:   false,
+				ParentID: pid,
+			},
+		},
+		{
+			name: "[OK] Without thumbnail",
+			json: string(`{
+				"name": "Smartphones",
+				"featured_image": {
+					"src": "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg"
+				},
+				"parent_id": "5e8821fe1108c87837ef2611",
+				"is_main": false
+			}`),
+			wantErr: false,
+			want: CreateCategoryOpts{
+				Name: "Smartphones",
+				FeaturedImage: &Img{
+					SRC: "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg",
+				},
+				IsMain:   false,
+				ParentID: pid,
 			},
 		},
 		{
@@ -85,10 +125,10 @@ func TestCreateCategoryOpts(t *testing.T) {
 			wantErr: false,
 			want: CreateCategoryOpts{
 				Name: "Smartphones",
-				Thumbnail: Img{
+				Thumbnail: &Img{
 					SRC: "https://images-eu.ssl-images-amazon.com/images/G/31/img18/Wireless/Catpage/BrandFarm/liwuwe_2018-05-07T11-25_f0461b_1113497_350x100_gps_cn_2.jpg",
 				},
-				FeaturedImage: Img{
+				FeaturedImage: &Img{
 					SRC: "https://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg",
 				},
 				IsMain:   false,
@@ -126,32 +166,6 @@ func TestCreateCategoryOpts(t *testing.T) {
 			}`),
 			wantErr: true,
 			err:     []string{"src must be a valid URL"},
-		},
-		{
-			name: "[ERROR] Without thumbnail",
-			json: string(`{
-				"name": "Smartphones",
-				"featured_image": {
-					"src": "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg"
-				},
-				"parent_id": "5e8821fe1108c87837ef2611",
-				"is_main": false
-			}`),
-			wantErr: true,
-			err:     []string{"src is a required field"},
-		},
-		{
-			name: "[ERROR] Without featured image",
-			json: string(`{
-				"name": "Smartphones",
-				"thumbnail": {
-					"src": "http://m.media-amazon.com/images/G/31/img20/Wireless/Apple/iPhone12/RiverImages/IN_r1307_r1306_Marketing_Page_L_FFH-1500_03._CB419228452_.jpg"
-				},
-				"parent_id": "5e8821fe1108c87837ef2611",
-				"is_main": false
-			}`),
-			wantErr: true,
-			err:     []string{"src is a required field"},
 		},
 	}
 
