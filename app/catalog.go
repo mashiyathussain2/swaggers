@@ -83,6 +83,15 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		CreatedAt:   currentTime,
 	}
 
+	c.FeaturedImage = &model.CatalogFeaturedImage{
+		IMG: model.IMG{
+			SRC: opts.FeaturedImage.SRC,
+		},
+	}
+	if err := c.FeaturedImage.IMG.LoadFromURL(); err != nil {
+		return nil, errors.Wrapf(err, "unable to process featured image for catalog")
+	}
+
 	// If variants are passed in the opts then setting variants in catalog model
 	if opts.VariantType != "" {
 		c.VariantType = opts.VariantType
