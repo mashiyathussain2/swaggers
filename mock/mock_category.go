@@ -5,36 +5,37 @@
 package mock
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	schema "go-app/schema"
-	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// MockCategory is a mock of Category interface
+// MockCategory is a mock of Category interface.
 type MockCategory struct {
 	ctrl     *gomock.Controller
 	recorder *MockCategoryMockRecorder
 }
 
-// MockCategoryMockRecorder is the mock recorder for MockCategory
+// MockCategoryMockRecorder is the mock recorder for MockCategory.
 type MockCategoryMockRecorder struct {
 	mock *MockCategory
 }
 
-// NewMockCategory creates a new mock instance
+// NewMockCategory creates a new mock instance.
 func NewMockCategory(ctrl *gomock.Controller) *MockCategory {
 	mock := &MockCategory{ctrl: ctrl}
 	mock.recorder = &MockCategoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockCategory) EXPECT() *MockCategoryMockRecorder {
 	return m.recorder
 }
 
-// CreateCategory mocks base method
+// CreateCategory mocks base method.
 func (m *MockCategory) CreateCategory(arg0 *schema.CreateCategoryOpts) (*schema.CreateCategoryResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCategory", arg0)
@@ -43,13 +44,13 @@ func (m *MockCategory) CreateCategory(arg0 *schema.CreateCategoryOpts) (*schema.
 	return ret0, ret1
 }
 
-// CreateCategory indicates an expected call of CreateCategory
+// CreateCategory indicates an expected call of CreateCategory.
 func (mr *MockCategoryMockRecorder) CreateCategory(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCategory", reflect.TypeOf((*MockCategory)(nil).CreateCategory), arg0)
 }
 
-// EditCategory mocks base method
+// EditCategory mocks base method.
 func (m *MockCategory) EditCategory(arg0 *schema.EditCategoryOpts) (*schema.CreateCategoryResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EditCategory", arg0)
@@ -58,13 +59,13 @@ func (m *MockCategory) EditCategory(arg0 *schema.EditCategoryOpts) (*schema.Crea
 	return ret0, ret1
 }
 
-// EditCategory indicates an expected call of EditCategory
+// EditCategory indicates an expected call of EditCategory.
 func (mr *MockCategoryMockRecorder) EditCategory(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCategory", reflect.TypeOf((*MockCategory)(nil).EditCategory), arg0)
 }
 
-// GetAncestorsByID mocks base method
+// GetAncestorsByID mocks base method.
 func (m *MockCategory) GetAncestorsByID(arg0 primitive.ObjectID) ([]primitive.ObjectID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAncestorsByID", arg0)
@@ -73,13 +74,13 @@ func (m *MockCategory) GetAncestorsByID(arg0 primitive.ObjectID) ([]primitive.Ob
 	return ret0, ret1
 }
 
-// GetAncestorsByID indicates an expected call of GetAncestorsByID
+// GetAncestorsByID indicates an expected call of GetAncestorsByID.
 func (mr *MockCategoryMockRecorder) GetAncestorsByID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAncestorsByID", reflect.TypeOf((*MockCategory)(nil).GetAncestorsByID), arg0)
 }
 
-// GetCategories mocks base method
+// GetCategories mocks base method.
 func (m *MockCategory) GetCategories() ([]schema.GetCategoriesResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCategories")
@@ -88,13 +89,13 @@ func (m *MockCategory) GetCategories() ([]schema.GetCategoriesResp, error) {
 	return ret0, ret1
 }
 
-// GetCategories indicates an expected call of GetCategories
+// GetCategories indicates an expected call of GetCategories.
 func (mr *MockCategoryMockRecorder) GetCategories() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategories", reflect.TypeOf((*MockCategory)(nil).GetCategories))
 }
 
-// GetCategoriesBasic mocks base method
+// GetCategoriesBasic mocks base method.
 func (m *MockCategory) GetCategoriesBasic() ([]schema.GetCategoriesBasicResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCategoriesBasic")
@@ -103,13 +104,13 @@ func (m *MockCategory) GetCategoriesBasic() ([]schema.GetCategoriesBasicResp, er
 	return ret0, ret1
 }
 
-// GetCategoriesBasic indicates an expected call of GetCategoriesBasic
+// GetCategoriesBasic indicates an expected call of GetCategoriesBasic.
 func (mr *MockCategoryMockRecorder) GetCategoriesBasic() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoriesBasic", reflect.TypeOf((*MockCategory)(nil).GetCategoriesBasic))
 }
 
-// GetCategoryPath mocks base method
+// GetCategoryPath mocks base method.
 func (m *MockCategory) GetCategoryPath(arg0 primitive.ObjectID) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCategoryPath", arg0)
@@ -118,13 +119,13 @@ func (m *MockCategory) GetCategoryPath(arg0 primitive.ObjectID) (string, error) 
 	return ret0, ret1
 }
 
-// GetCategoryPath indicates an expected call of GetCategoryPath
+// GetCategoryPath indicates an expected call of GetCategoryPath.
 func (mr *MockCategoryMockRecorder) GetCategoryPath(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryPath", reflect.TypeOf((*MockCategory)(nil).GetCategoryPath), arg0)
 }
 
-// GetMainCategoriesByParentID mocks base method
+// GetMainCategoriesByParentID mocks base method.
 func (m *MockCategory) GetMainCategoriesByParentID(arg0 primitive.ObjectID) ([]schema.GetMainCategoriesByParentIDResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMainCategoriesByParentID", arg0)
@@ -133,13 +134,13 @@ func (m *MockCategory) GetMainCategoriesByParentID(arg0 primitive.ObjectID) ([]s
 	return ret0, ret1
 }
 
-// GetMainCategoriesByParentID indicates an expected call of GetMainCategoriesByParentID
+// GetMainCategoriesByParentID indicates an expected call of GetMainCategoriesByParentID.
 func (mr *MockCategoryMockRecorder) GetMainCategoriesByParentID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMainCategoriesByParentID", reflect.TypeOf((*MockCategory)(nil).GetMainCategoriesByParentID), arg0)
 }
 
-// GetMainCategoriesMap mocks base method
+// GetMainCategoriesMap mocks base method.
 func (m *MockCategory) GetMainCategoriesMap() (map[string]schema.GetMainCategoriesMapResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMainCategoriesMap")
@@ -148,13 +149,13 @@ func (m *MockCategory) GetMainCategoriesMap() (map[string]schema.GetMainCategori
 	return ret0, ret1
 }
 
-// GetMainCategoriesMap indicates an expected call of GetMainCategoriesMap
+// GetMainCategoriesMap indicates an expected call of GetMainCategoriesMap.
 func (mr *MockCategoryMockRecorder) GetMainCategoriesMap() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMainCategoriesMap", reflect.TypeOf((*MockCategory)(nil).GetMainCategoriesMap))
 }
 
-// GetMainParentCategories mocks base method
+// GetMainParentCategories mocks base method.
 func (m *MockCategory) GetMainParentCategories() ([]schema.GetParentCategoriesResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMainParentCategories")
@@ -163,13 +164,13 @@ func (m *MockCategory) GetMainParentCategories() ([]schema.GetParentCategoriesRe
 	return ret0, ret1
 }
 
-// GetMainParentCategories indicates an expected call of GetMainParentCategories
+// GetMainParentCategories indicates an expected call of GetMainParentCategories.
 func (mr *MockCategoryMockRecorder) GetMainParentCategories() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMainParentCategories", reflect.TypeOf((*MockCategory)(nil).GetMainParentCategories))
 }
 
-// GetSubCategoriesByParentID mocks base method
+// GetSubCategoriesByParentID mocks base method.
 func (m *MockCategory) GetSubCategoriesByParentID(arg0 primitive.ObjectID) ([]schema.GetSubCategoriesByParentIDResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubCategoriesByParentID", arg0)
@@ -178,7 +179,7 @@ func (m *MockCategory) GetSubCategoriesByParentID(arg0 primitive.ObjectID) ([]sc
 	return ret0, ret1
 }
 
-// GetSubCategoriesByParentID indicates an expected call of GetSubCategoriesByParentID
+// GetSubCategoriesByParentID indicates an expected call of GetSubCategoriesByParentID.
 func (mr *MockCategoryMockRecorder) GetSubCategoriesByParentID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubCategoriesByParentID", reflect.TypeOf((*MockCategory)(nil).GetSubCategoriesByParentID), arg0)

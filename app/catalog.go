@@ -37,12 +37,14 @@ type KeeperCatalog interface {
 	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) error
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
+	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
-type UserCatalog interface{}
+type UserCatalog interface {
+}
 
 // KeeperCatalogImpl implements keeper related operations
 type KeeperCatalogImpl struct {
@@ -784,7 +786,7 @@ func (kc *KeeperCatalogImpl) GetCatalogBySlug(slug string) (*schema.GetCatalogRe
 	return catalog, nil
 }
 
-func (kc *KeeperCatalogImpl) GetVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
+func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
 
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
@@ -804,19 +806,23 @@ func (kc *KeeperCatalogImpl) GetVariant(cat_id, var_id primitive.ObjectID) (*sch
 	}}
 	lookupStage := bson.D{{
 		Key: "$lookup", Value: bson.M{
-			"from": "discount",
+			"from": model.DiscountColl,
 			"let": bson.M{
 				"variant_id": "$variants._id",
 			},
 			"pipeline": bson.A{
 				bson.M{
 					"$match": bson.M{
-
 						"$expr":     bson.M{"$in": bson.A{"$$variant_id", "$variants_id"}},
 						"is_active": true,
 					}},
 			},
 			"as": "discount_info",
+		},
+	}}
+	unwindStage2 := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$discount_info",
 		},
 	}}
 	projectStage :=
@@ -830,18 +836,19 @@ func (kc *KeeperCatalogImpl) GetVariant(cat_id, var_id primitive.ObjectID) (*sch
 				"discount_info.type":      1,
 				"discount_info.max_value": 1,
 				"variant_type":            1,
-				"variants":                1,
+				"variant":                 "$variants",
 				"featured_image":          1,
 			},
 		}}
 
 	ctx := context.TODO()
 
-	catalogsCursor, err := kc.DB.Collection(model.GroupColl).Aggregate(ctx, mongo.Pipeline{
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
 		matchStage,
 		unwindStage,
 		matchStage2,
 		lookupStage,
+		unwindStage2,
 		projectStage,
 	})
 	if err != nil {

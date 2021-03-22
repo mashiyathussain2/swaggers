@@ -3245,3 +3245,121 @@ func TestKeeperCatalogImpl_GetCatalogBySlug(t *testing.T) {
 		})
 	}
 }
+
+func TestKeeperCatalogImpl_GetCatalogVariant(t *testing.T) {
+	t.Parallel()
+	// opts := schema.GetRandomKeeperSearchCatalog()
+	app := NewTestApp(getTestConfig())
+	// defer CleanTestApp(app)
+	ctx := context.TODO()
+	cat := model.Catalog{
+		ID: primitive.NewObjectID(),
+		Status: &model.Status{
+			Value: "publish",
+		},
+		VariantType: "size",
+		Variants: []model.Variant{
+			{
+				ID: primitive.NewObjectID(),
+			},
+		},
+		Slug: faker.Commerce().ProductName(),
+	}
+	app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName).Collection(model.CatalogColl).InsertOne(ctx, cat)
+	discount := model.Discount{
+		ID:         primitive.NewObjectID(),
+		CatalogID:  cat.ID,
+		VariantsID: []primitive.ObjectID{cat.Variants[0].ID},
+		IsActive:   true,
+		Type:       "flat",
+		Value:      100,
+	}
+	app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName).Collection(model.DiscountColl).InsertOne(ctx, discount)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		cat_id primitive.ObjectID
+		var_id primitive.ObjectID
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.GetCatalogVariantResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockCategory, *mock.MockBrand)
+	}
+	tests := []TC{
+		{
+			name: "[OK]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = cat.ID
+				tt.args.var_id = cat.Variants[0].ID
+
+				tt.want = &schema.GetCatalogVariantResp{
+					ID:          cat.ID,
+					VariantType: cat.VariantType,
+					Variant:     cat.Variants[0],
+					DiscountInfo: schema.DiscountInfo{
+						Type:  "flat",
+						Value: 100,
+					},
+				}
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.KeeperCatalog = kc
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			tt.fields.App.Brand = mockBrand
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Category = mockCategory
+
+			tt.buildStubs(&tt, mockCategory, mockBrand)
+			tt.prepare(&tt)
+
+			// fmt.Println(tt.args.cat_id, tt.args.var_id)
+			resp, err := kc.GetCatalogVariant(tt.args.cat_id, tt.args.var_id)
+			// fmt.Println(resp)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.NotNil(t, resp)
+				assert.Equal(t, tt.want, resp)
+			}
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				// assert.NotNil(t, resp)
+				assert.Equal(t, tt.err.Error(), err.Error())
+
+			}
+		})
+	}
+}

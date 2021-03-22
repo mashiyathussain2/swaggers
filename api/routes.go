@@ -23,6 +23,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/catalog/content/image", a.requestHandler(a.addCatalogContentImage)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog", a.requestHandler(a.getCatalogsByFilter)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/{slug}", a.requestHandler(a.getCatalogBySlug)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}/variant/{variantID}", a.requestHandler(a.getCatalogVariant)).Methods("GET")
 
 	//KEEPER GROUP
 	a.Router.APIRoot.Handle("/keeper/group", a.requestHandler(a.createCatalogGroup)).Methods("POST")
