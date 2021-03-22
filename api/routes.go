@@ -8,10 +8,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/live", a.requestHandler(a.getLiveStreams)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/content", a.requestHandler(a.getContent)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/content/{contentID}", a.requestHandler(a.getContentByID)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestHandler(a.createPebble)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestHandler(a.editPebble)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/content/pebble/process", a.requestHandler(a.processPebble)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/content/{contentID}", a.requestHandler(a.getContentByID)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble/{pebbleID}", a.requestHandler(a.deletePebble)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/keeper/content/catalog/video", a.requestHandler(a.createVideoCatalogContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/catalog/image", a.requestHandler(a.createImageCatalogContent)).Methods("POST")
@@ -26,6 +26,9 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/content/like", a.requestHandler(a.createLike)).Methods("POST")
 	a.Router.APIRoot.Handle("/content/view", a.requestHandler(a.createView)).Methods("POST")
 	a.Router.APIRoot.Handle("/content/comment", a.requestHandler(a.createContentComment)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/pebble", a.requestHandler(a.getPebble)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

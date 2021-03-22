@@ -23,6 +23,13 @@ type Config struct {
 	S3Config            S3Config            `mapstructure:"s3"`
 	IVSConfig           IVSConfig           `mapstructure:"ivs"`
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
+	HypdAPIConfig       HypdAPIConfig       `mapstructure:"hypdAPI"`
+}
+
+// HypdAPIConfig contains other HYPD service apis
+type HypdAPIConfig struct {
+	EntityAPI  string `mapstructure:"entityAPI"`
+	CatalogAPI string `mapstructure:"catalogAPI"`
 }
 
 // ServerConfig has only server specific configuration
@@ -52,6 +59,7 @@ type APPConfig struct {
 	S3Config            S3Config
 	ElasticsearchConfig ElasticsearchConfig
 	IVSConfig           IVSConfig
+	HypdAPIConfig       HypdAPIConfig
 	MediaConfig         ServiceConfig `mapstructure:"media"`
 	ContentConfig       ServiceConfig `mapstructure:"content"`
 	LiveConfig          ServiceConfig `mapstructure:"live"`
@@ -77,8 +85,10 @@ type ContentStreamProcessorConfig struct {
 
 // ElasticsearchConfig contains elasticsearch related configurations
 type ElasticsearchConfig struct {
-	Endpoint   string `mapstructure:"endpoint"`
-	BrandIndex string `mapstructure:"brandIndex"`
+	Endpoint         string `mapstructure:"endpoint"`
+	Username         string `mapstructure:"username"`
+	Password         string `mapstructure:"password"`
+	ContentFullIndex string `mapstructure:"contentFullIndex"`
 }
 
 // ServiceConfig contains app service related config
@@ -174,6 +184,7 @@ type S3Config struct {
 	Region               string        `mapstructure:"region"`
 	AccessKeyID          string        `mapstructure:"accessKeyID"`
 	SecretAccessKey      string        `mapstructure:"secretAccessKey"`
+	ImageCloudfrontURL   string        `mapstructure:"imageCloudfrontUrl"`
 	ImageUploadPath      string        `mapstructure:"imageUploadPath"`
 	ImageUploadBucket    string        `mapstructure:"imageUploadBucket"`
 	VideoUploadPath      string        `mapstructure:"videoUploadPath"`
@@ -268,5 +279,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.S3Config = config.S3Config
 	config.APPConfig.IVSConfig = config.IVSConfig
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
+	config.APPConfig.HypdAPIConfig = config.HypdAPIConfig
 	return config
 }

@@ -55,7 +55,7 @@ func GetRandomVideoMedia() *Video {
 			Height: uint(faker.RandomInt(360, 1080)),
 		},
 		Duration:         float32(faker.RandomInt(1, 1000)),
-		Framerate:        uint(faker.RandomInt(20, 60)),
+		Framerate:        float32(faker.RandomInt(20, 60)),
 		IsPortrait:       false,
 		CloudfrontURL:    faker.Letterify("??????????.cloudfront.net"),
 		ProcessedAt:      time.Now().UTC(),

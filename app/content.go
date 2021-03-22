@@ -3,9 +3,15 @@
 package app
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -15,7 +21,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"syreclabs.com/go/faker"
 )
 
 // Content contains methods to implement and operation pebble(video-only) content
@@ -44,6 +49,9 @@ type Content interface {
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
 	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
+
+	// Elasticsearch
+
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -93,11 +101,16 @@ func (ci *ContentImpl) CreatePebble(opts *schema.CreatePebbleOpts) (*schema.Crea
 		return nil, errors.Wrap(err1, "failed to create pebble document")
 	}
 
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid file type: missing file extension")
+	}
 	// Getting s3 upload token with provided args
 	// This token is then used by frontend to directly upload media to s3
+	fmt.Println(fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType))
 	res0, err0 := ci.App.Media.GenerateVideoUploadToken(
 		&schema.GenerateVideoUploadTokenOpts{
-			FileName: res1.InsertedID.(primitive.ObjectID).Hex(),
+			FileName: fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType),
 		},
 	)
 	if err0 != nil {
@@ -552,7 +565,8 @@ func (ci *ContentImpl) UpdateContentBrandInfo(opts *schema.UpdateContentBrandInf
 			"brand_info.$": opts,
 		},
 	}
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+	queryOpts := options.Update().SetUpsert(true)
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update brand")
 	}
 }
@@ -566,49 +580,112 @@ func (ci *ContentImpl) UpdateContentInfluencerInfo(opts *schema.UpdateContentInf
 			"influencer_info.$": opts,
 		},
 	}
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+	queryOpts := options.Update().SetUpsert(true)
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
 	}
 }
 
 func (ci *ContentImpl) UpdateContentCatalogInfo(opts *schema.UpdateContentCatalogInfoOpts) {
 	filter := bson.M{
-		"catalog_info._id": opts.ID,
+		"catalog_ids": opts.ID,
 	}
 	update := bson.M{
 		"$set": bson.M{
 			"catalog_info.$": opts,
 		},
 	}
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+	queryOpts := options.Update().SetUpsert(true)
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
 	}
 }
 
 func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
-	brandInfo := []model.BrandInfo{}
-	for _, id := range ids {
-		Id, err := primitive.ObjectIDFromHex(id)
-		if err != nil {
-			continue
-		}
-		brandInfo = append(brandInfo, model.BrandInfo{
-			ID:   Id,
-			Name: faker.Company().Name(),
-			Logo: &model.IMG{
-				SRC: faker.Avatar().Url("png", 50, 50),
-			},
-		})
+	var s schema.GetBrandInfoResp
+	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/brand/get"
+	postBody, _ := json.Marshal(map[string][]string{
+		"id": ids,
+	})
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	//Handle Error
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
+		log.Fatalf("An Error Occured %v", err)
 	}
-	return brandInfo, nil
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
+		return nil, errors.New("got success false response from entity")
+	}
+	return s.Payload, nil
 }
 
 func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, error) {
-	influencerInfo := []model.InfluencerInfo{}
-	return influencerInfo, nil
+	var s schema.GetInfluencerInfoResp
+	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/influencer/get"
+	postBody, _ := json.Marshal(map[string][]string{
+		"id": ids,
+	})
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	//Handle Error
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrapf(err, "failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
+		return nil, errors.New("got success false response from entity")
+	}
+	return s.Payload, nil
 }
 
 func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
-	catalogInfo := []model.CatalogInfo{}
-	return catalogInfo, nil
+	var s schema.GetCatalogInfoResp
+	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/catalog/get"
+	postBody, _ := json.Marshal(map[string][]string{
+		"id": ids,
+	})
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	//Handle Error
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrapf(err, "failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
+		return nil, errors.New("got success false response from entity")
+	}
+	return s.Payload, nil
 }

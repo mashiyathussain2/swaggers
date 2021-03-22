@@ -84,5 +84,7 @@ channelType="STANDARD"
     topic="liveComment"
     groupID="liveComment1"
 
-
-
+[elasticsearch]
+endpoint="https://search-hypd-store-v2-dev-hdz3iw7so7oenedrzfgrpxi5ym.ap-south-1.es.amazonaws.com"
+username="admin"
+password="Admin@1234"

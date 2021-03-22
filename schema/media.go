@@ -31,7 +31,7 @@ type CreateVideoOpts struct {
 	ThumbnailBuckets []string  `json:"thumbNails"`
 	IsPortrait       bool      `json:"isPortrait"`
 	Duration         float32   `json:"duration"`
-	Framerate        uint      `json:"framerate"`
+	Framerate        float32   `json:"framerate"`
 	CloudFrontURL    string    `json:"cloudFront"`
 	ProcessedAt      time.Time `json:"endTime"`
 }
@@ -50,7 +50,7 @@ type CreateVideoResp struct {
 	IsPortrait bool              `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
 	Dimensions *model.Dimensions `json:"dimensions,omitempty" bson:"dimensions,omitempty"`
 	Duration   float32           `json:"duration,omitempty" bson:"duration,omitempty"`
-	Framerate  uint              `json:"framerate,omitempty" bson:"framerate,omitempty"`
+	Framerate  float32           `json:"framerate,omitempty" bson:"framerate,omitempty"`
 
 	PlaybackBucket string `json:"hls_playback_bucket,omitempty" bson:"hls_playback_bucket,omitempty"`
 	PlaybackURL    string `json:"hls_playback_url,omitempty" bson:"hls_playback_url,omitempty"`
@@ -74,7 +74,7 @@ type GetMediaResp struct {
 	// Video
 	IsPortrait    bool     `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
 	Duration      float32  `json:"duration,omitempty" bson:"duration,omitempty"`
-	Framerate     uint     `json:"framerate,omitempty" bson:"framerate,omitempty"`
+	Framerate     float32  `json:"framerate,omitempty" bson:"framerate,omitempty"`
 	PlaybackURL   string   `json:"hls_playback_url,omitempty" bson:"hls_playback_url,omitempty"`
 	ThumbnailURLS []string `json:"thumbnail_url,omitempty" bson:"thumbnail_url,omitempty"`
 

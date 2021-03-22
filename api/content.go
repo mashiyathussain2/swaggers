@@ -97,15 +97,18 @@ func (a *API) deletePebble(requestCTX *handler.RequestContext, w http.ResponseWr
 func (a *API) processPebble(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ProcessVideoContentOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
+		a.Logger.Err(err).Msg("invalid json body")
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
 	if errs := a.Validator.Validate(&s); errs != nil {
+		a.Logger.Err(errors.New("invalid json request")).Errs("errs", errs).Msg("failed to validate ProcessVideoContentOpts")
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
 	res, err := a.App.Content.ProcessVideoContent(&s)
 	if err != nil {
+		a.Logger.Err(err).Interface("opts", s).Msg("failed to ProcessVideoContent")
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
@@ -224,5 +227,20 @@ func (a *API) createView(requestCTX *handler.RequestContext, w http.ResponseWrit
 		return
 	}
 	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}
+
+func (a *API) getPebble(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetPebbleFilter
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.GetPebble(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
 	return
 }

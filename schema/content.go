@@ -170,23 +170,23 @@ type CreateLikeOpts struct {
 	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
 }
 
-type ContentAddOpts struct {
-	ID             string                 `json:"_id,omitempty" bson:"_id,omitempty"`
+type ContentUpdateOpts struct {
+	ID             primitive.ObjectID     `json:"_id,omitempty" bson:"_id,omitempty"`
 	Type           string                 `json:"type,omitempty" bson:"type,omitempty"`
 	MediaType      string                 `json:"media_type,omitempty" bson:"media_type,omitempty"`
-	MediaID        string                 `json:"media_id,omitempty" bson:"media_id,omitempty"`
+	MediaID        primitive.ObjectID     `json:"media_id,omitempty" bson:"media_id,omitempty"`
 	MediaInfo      *GetMediaResp          `json:"media_info,omitempty" bson:"media_info,omitempty"`
-	InfluencerIDs  []string               `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
+	InfluencerIDs  []primitive.ObjectID   `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
 	InfluencerInfo []model.InfluencerInfo `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
-	BrandIDs       []string               `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
+	BrandIDs       []primitive.ObjectID   `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
 	BrandInfo      []model.BrandInfo      `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
-	UserID         string                 `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	UserID         primitive.ObjectID     `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	Label          *model.Label           `json:"label,omitempty" bson:"label,omitempty"`
 	IsProcessed    bool                   `json:"is_processed" bson:"is_processed"`
 	IsActive       bool                   `json:"is_active" bson:"is_active"`
 	Caption        string                 `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags       []string               `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
-	CatalogIDs     []string               `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
+	CatalogIDs     []primitive.ObjectID   `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 	CatalogInfo    []model.CatalogInfo    `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
 	CreatedAt      time.Time              `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	ProcessedAt    time.Time              `json:"processed_at,omitempty" bson:"processed_at,omitempty"`
@@ -223,4 +223,50 @@ type UpdateContentCatalogInfoOpts struct {
 	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	BasePrice     *model.Price       `json:"base_price,omitempty" bson:"base_price,omitempty"`
 	RetailPrice   *model.Price       `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+}
+
+type GetPebbleFilter struct {
+	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
+	Interests []string `json:"interests,omitempty" queryparam:"interests"`
+}
+
+type GetPebbleMediaESResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	IsPortrait  bool               `json:"is_portrait,omitempty"`
+	Dimensions  *model.Dimensions  `json:"dimensions,omitempty"`
+	PlaybackURL string             `json:"hls_playback_url,omitempty"`
+	Duration    float32            `json:"duration,omitempty"`
+}
+
+type GetPebbleESResp struct {
+	ID             primitive.ObjectID     `json:"id,omitempty"`
+	Type           string                 `json:"type,omitempty"`
+	MediaType      string                 `json:"media_type,omitempty"`
+	MediaID        primitive.ObjectID     `json:"media_id,omitempty"`
+	MediaInfo      *GetPebbleMediaESResp  `json:"media_info,omitempty"`
+	InfluencerIDs  []primitive.ObjectID   `json:"influencer_ids,omitempty"`
+	InfluencerInfo []model.InfluencerInfo `json:"influencer_info,omitempty"`
+	BrandIDs       []primitive.ObjectID   `json:"brand_ids,omitempty"`
+	BrandInfo      []model.BrandInfo      `json:"brand_info,omitempty"`
+
+	Caption     string               `json:"caption,omitempty"`
+	Hashtags    []string             `json:"hashtags,omitempty"`
+	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty"`
+	CatalogInfo []model.CatalogInfo  `json:"catalog_info,omitempty"`
+	CreatedAt   time.Time            `json:"created_at,omitempty"`
+}
+
+type GetBrandInfoResp struct {
+	Success bool              `json:"success"`
+	Payload []model.BrandInfo `json:"payload"`
+}
+
+type GetInfluencerInfoResp struct {
+	Success bool                   `json:"success"`
+	Payload []model.InfluencerInfo `json:"payload"`
+}
+
+type GetCatalogInfoResp struct {
+	Success bool                `json:"success"`
+	Payload []model.CatalogInfo `json:"payload"`
 }
