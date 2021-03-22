@@ -208,7 +208,7 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 		return nil, errors.Wrap(err, "failed to upload image to cdn")
 	}
 
-	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
+	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
 
 	res, err := mi.DB.Collection(model.MediaColl).InsertOne(context.TODO(), i)
 	if err != nil {
