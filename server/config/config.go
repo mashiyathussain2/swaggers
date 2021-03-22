@@ -33,6 +33,7 @@ type ServerConfig struct {
 	CloseTimeout   time.Duration `mapstructure:"closeTimeout"`
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
 }
 
 // APIConfig contains api package related configurations
@@ -74,6 +75,14 @@ type TokenAuthConfig struct {
 	HashPasswordCost int    `mapstructure:"hashPasswordCost"`
 	JWTSignKey       string `mapstructure:"jwtSignKey"`
 	JWTExpiresAt     int64  `mapstructure:"expiresAt"`
+}
+
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
 }
 
 // KafkaConfig has kafka cluster specific configuration
