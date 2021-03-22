@@ -10,8 +10,8 @@ import (
 type CreateCategoryOpts struct {
 	Name          string             `json:"name" validate:"required"`
 	ParentID      primitive.ObjectID `json:"parent_id"`
-	Thumbnail     Img                `json:"thumbnail" validate:"required"`
-	FeaturedImage Img                `json:"featured_image" validate:"required"`
+	Thumbnail     *Img               `json:"thumbnail"`
+	FeaturedImage *Img               `json:"featured_image"`
 	IsMain        bool               `json:"is_main"`
 }
 

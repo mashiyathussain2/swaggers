@@ -137,7 +137,7 @@ func TestCategoryImpl_CreateCategory(t *testing.T) {
 			wantErr: true,
 			prepare: func(tt *TC) {
 				tt.args.opts.ParentID = primitive.NewObjectIDFromTimestamp(time.Now())
-				tt.err = errors.Errorf("category with id:%s not found", tt.args.opts.ParentID)
+				tt.err = errors.Errorf("category with id:%s not found", tt.args.opts.ParentID.Hex())
 			},
 		},
 		{

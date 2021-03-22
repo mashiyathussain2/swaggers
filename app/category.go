@@ -59,23 +59,27 @@ func InitCategory(opts *CategoryOpts) Category {
 // CreateCategory creates a new category in the db category collection
 func (ci *CategoryImpl) CreateCategory(opts *schema.CreateCategoryOpts) (*schema.CreateCategoryResp, error) {
 	category := model.Category{
-		Name: opts.Name,
-		Slug: UniqueSlug(opts.Name),
-		FeaturedImage: &model.IMG{
-			SRC: opts.FeaturedImage.SRC,
-		},
-		Thumbnail: &model.IMG{
-			SRC: opts.Thumbnail.SRC,
-		},
+		Name:   opts.Name,
+		Slug:   UniqueSlug(opts.Name),
 		IsMain: &opts.IsMain,
 	}
 
-	// Setting featured image and thumbnail from image source
-	if err := category.FeaturedImage.LoadFromURL(); err != nil {
-		return nil, errors.Wrap(err, "invalid featured image url")
+	if opts.FeaturedImage != nil {
+		category.FeaturedImage = &model.IMG{
+			SRC: opts.FeaturedImage.SRC,
+		}
+		// Setting featured image and thumbnail from image source
+		if err := category.FeaturedImage.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "invalid featured image url")
+		}
 	}
-	if err := category.Thumbnail.LoadFromURL(); err != nil {
-		return nil, errors.Wrap(err, "invalid thumbnail url")
+	if opts.Thumbnail != nil {
+		category.Thumbnail = &model.IMG{
+			SRC: opts.Thumbnail.SRC,
+		}
+		if err := category.Thumbnail.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "invalid thumbnail url")
+		}
 	}
 
 	// Verify and setting parentID and ancestors if parentID is passed
