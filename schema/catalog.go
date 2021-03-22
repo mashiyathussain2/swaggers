@@ -26,15 +26,15 @@ type FilterAttribute struct {
 
 // CreateCatalogOpts serialize the create catalog api arguments
 type CreateCatalogOpts struct {
-	Name        string               `json:"name" validate:"required"`
-	CategoryID  []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
-	BrandID     primitive.ObjectID   `json:"brand_id" validate:"required"`
-	Description string               `json:"description" validate:"required"`
-	Keywords    []string             `json:"keywords" validate:"required,gt=0,unique"`
-
-	ETA             *etaOpts          `json:"eta"`
-	Specifications  []specsOpts       `json:"specifications" validate:"dive"`
-	FilterAttribute []FilterAttribute `json:"filter_attr" validate:"dive"`
+	Name            string               `json:"name" validate:"required"`
+	CategoryID      []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
+	BrandID         primitive.ObjectID   `json:"brand_id" validate:"required"`
+	Description     string               `json:"description" validate:"required"`
+	Keywords        []string             `json:"keywords" validate:"required,gt=0,unique"`
+	FeaturedImage   *Img                 `json:"featured_image" validate:"required"`
+	ETA             *etaOpts             `json:"eta"`
+	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
+	FilterAttribute []FilterAttribute    `json:"filter_attr" validate:"dive"`
 
 	HSNCode string `json:"hsn_code" validate:"required,gt=0"`
 

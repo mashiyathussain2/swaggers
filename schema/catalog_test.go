@@ -32,7 +32,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				}
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -44,6 +47,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				HSNCode:     "hsnCode1",
 				BasePrice:   1299,
 				RetailPrice: 1099,
+				FeaturedImage: &Img{
+					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
+				},
 			},
 		},
 		{
@@ -57,6 +63,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
 				"retail_price": 1099,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"filter_attr": [{
 					"name": "Color",
 					"value": "Red"
@@ -78,6 +87,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 						Value: "Red",
 					},
 				},
+				FeaturedImage: &Img{
+					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
+				},
 			},
 		},
 		{
@@ -92,10 +104,14 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"variant_type": "size",
 				"base_price": 1299,
 				"retail_price": 1099,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"variants": [
 					{
 						"sku": "sku1",
-						"attribute": "red"
+						"attribute": "red",
+						"unit":2
 					}
 				]
 			}`),
@@ -114,7 +130,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					{
 						SKU:       "sku1",
 						Attribute: "red",
+						Unit:      2,
 					},
+				},
+				FeaturedImage: &Img{
+					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
 			},
 		},
@@ -128,6 +148,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k1"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"retail_price": 1099
 			}`),
 			wantErr: true,
@@ -144,6 +167,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"hsn_code": "hsnCode1",
 				"variant_type": "size",
 				"base_price": 1299,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"retail_price": 1099
 			}`),
 			wantErr: true,
@@ -161,10 +187,14 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"brand_id": "5e8821fe1108c87837ef2611",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"variants": [
 					{
 						"sku": "sku1",
-						"attribute": "red"
+						"attribute": "red",
+						"unit":2
 					}
 				],
 				"base_price": 1299,
@@ -184,6 +214,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"description": "test description 1",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"base_price": 1299,
 				"retail_price": 1099
 			}`),
@@ -202,6 +235,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"brand_id": "5e8821fe1108c87837ef2611",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
 				"eta": {
 					"min": 1,
 					"max": 7,
@@ -222,6 +258,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 					Min:  1,
 					Max:  7,
 					Unit: "day",
+				},
+				FeaturedImage: &Img{
+					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
 				BasePrice:   1299,
 				RetailPrice: 1099,
@@ -250,7 +289,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"unit": "year"
 					},
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"unit must be one of [hour day month]"},
@@ -272,7 +314,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"Value": "v2"
 					}],
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -284,6 +329,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				HSNCode:     "hsnCode1",
 				BasePrice:   1299,
 				RetailPrice: 1099,
+				FeaturedImage: &Img{
+					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
+				},
 				Specifications: []specsOpts{
 					{
 						Name:  "k1",
@@ -309,6 +357,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"Name": "",
 						"Value": "v2"
 					}],
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					},
 					"base_price": 1299,
 					"retail_price": 1099
 				}`),
@@ -332,7 +383,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"Value": "v2"
 					}],
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"value is a required field"},
@@ -346,7 +400,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"category_id is a required field"},
@@ -360,7 +417,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"brand_id": "5e8821fe1108c87837ef2611",
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than 0"},
@@ -375,7 +435,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
 					"base_price": 999,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than or equal to RetailPrice"},
@@ -389,7 +452,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"brand_id": "5e8821fe1108c87837ef2611",
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
-					"base_price": 1099
+					"base_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -404,7 +470,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
 					"base_price": 1299,
-					"retail_price": 0
+					"retail_price": 0,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -419,12 +488,32 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"keywords":  ["k1", "k2"],
 					"hsn_code": "hsnCode1",
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"category_id must contain more than 0 items"},
 		},
+		{
+			name: "[Error] Without featured image",
+			json: string(`{
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099
+				
+			}`),
+			wantErr: true,
+			err:     []string{"featured_image is a required field"},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var sc CreateCatalogOpts
