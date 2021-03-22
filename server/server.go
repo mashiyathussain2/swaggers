@@ -142,8 +142,8 @@ func (s *Server) InitLoggers() {
 	var kl *logger.KafkaLogWriter
 	var cw, fw io.Writer
 	if s.Config.LoggerConfig.EnableKafkaLogger {
-		conn := goKafka.NewSegmentioKafka(&s.Config.KafkaConfig)
-		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, conn)
+		dialer := goKafka.NewSegmentioKafkaDialer(&s.Config.KafkaConfig)
+		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, dialer, &s.Config.KafkaConfig)
 	}
 	if s.Config.LoggerConfig.EnableFileLogger {
 		fw = logger.NewFileWriter(s.Config.LoggerConfig.FileLoggerConfig.FileName, s.Config.LoggerConfig.FileLoggerConfig.Path, &s.Config.LoggerConfig.FileLoggerConfig)
