@@ -61,22 +61,18 @@ func InitMedia(opts *MediaImplOpts) Media {
 
 // GenerateVideoUploadToken generates an aws s3 presigned upload url to upload video to specified bucket s3 bucket
 func (mi *MediaImpl) GenerateVideoUploadToken(opts *schema.GenerateVideoUploadTokenOpts) (*schema.GenerateVideoUploadTokenResp, error) {
-	fType, err := FileTypeFromFileName(opts.FileName)
-	if err != nil {
-		return nil, err
-	}
 	// sending request to aws s3 bucket to return an upload url with passed filename and filetype
-	token, err := mi.generateS3UploadToken(opts.FileName, fType)
+	token, err := mi.generateS3UploadToken(opts.FileName)
 	if err != nil {
 		return nil, err
 	}
 	return &schema.GenerateVideoUploadTokenResp{Token: token}, nil
 }
 
-func (mi *MediaImpl) generateS3UploadToken(videoID, videoType string) (string, error) {
+func (mi *MediaImpl) generateS3UploadToken(videoID string) (string, error) {
 	url, err := mi.App.S3.GetPutObjectRequestURL(&s3.PutObjectInput{
 		Bucket: aws.String(mi.App.Config.S3Config.VideoUploadBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", mi.App.Config.S3Config.VideoUploadPath, videoID+videoType)),
+		Key:    aws.String(fmt.Sprintf("%s/%s", mi.App.Config.S3Config.VideoUploadPath, videoID)),
 	})
 	if err != nil {
 		mi.Logger.Err(err).Msg("failed to generate presigned upload url")
@@ -182,7 +178,9 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 			Height: uint(img.Conf.Height),
 			Width:  uint(img.Conf.Width),
 		},
-		CreatedAt: time.Now().UTC(),
+		SRCBucket:     mi.App.Config.S3Config.ImageUploadBucket,
+		CloudfrontURL: mi.App.Config.S3Config.ImageCloudfrontURL,
+		CreatedAt:     time.Now().UTC(),
 	}
 
 	var buf bytes.Buffer
@@ -209,6 +207,12 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	}
 
 	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
+	// If cloudfront url is provided then set the url as cloudfront url otherwise s3 bucket url
+	if i.CloudfrontURL != "" {
+		i.URL = fmt.Sprintf("%s/%s", mi.App.Config.S3Config.ImageCloudfrontURL, i.SRCBucket+*params.Key)
+	} else {
+		i.URL = i.SRCBucketURL
+	}
 
 	res, err := mi.DB.Collection(model.MediaColl).InsertOne(context.TODO(), i)
 	if err != nil {

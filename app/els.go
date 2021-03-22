@@ -6,7 +6,6 @@ import (
 	"go-app/schema"
 	"go-app/server/config"
 	"log"
-
 	"os"
 
 	"github.com/olivere/elastic/v7"
@@ -14,66 +13,67 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Elasticsearch contains methods to search for external collections such as
-// catalog, brand, user, influencer
 type Elasticsearch interface {
-	// GetBrand([]string) ([]schema.GetBrandSchema, error)
+	GetPebble(opts *schema.GetPebbleFilter) ([]schema.GetPebbleESResp, error)
 }
 
 type ElasticsearchImpl struct {
+	Client *elastic.Client
 	Config *config.ElasticsearchConfig
-	Es     *elastic.Client
 	Logger *zerolog.Logger
 }
 
-type ElasticsearchImplOpts struct {
-	Logger *zerolog.Logger
+type ElasticsearchOpts struct {
 	Config *config.ElasticsearchConfig
+	Logger *zerolog.Logger
 }
 
-func InitElasticsearch(opts *ElasticsearchImplOpts) Elasticsearch {
-	e := ElasticsearchImpl{
-		Logger: opts.Logger,
-		Config: opts.Config,
-	}
-	client, err := elastic.NewClient(
+func InitElasticsearch(opts *ElasticsearchOpts) Elasticsearch {
+	c, err := elastic.NewClient(
 		elastic.SetURL(opts.Config.Endpoint),
-		// elastic.SetBasicAuth("admin", "Admin@1234"),
+		elastic.SetBasicAuth(opts.Config.Username, opts.Config.Password),
 		elastic.SetHealthcheck(false),
 		elastic.SetSniff(false),
+		elastic.SetTraceLog(opts.Logger),
 	)
 	if err != nil {
-		log.Fatal(err, " failed to load elastic client")
+		log.Fatal(err)
 		os.Exit(1)
 	}
-	e.Es = client
 
-	return e
+	ei := ElasticsearchImpl{
+		Client: c,
+		Config: opts.Config,
+		Logger: opts.Logger,
+	}
+	return &ei
 }
 
-// GetBrand returns brands matching with id
-func (ei *ElasticsearchImpl) GetBrand(ids []string) ([]schema.GetBrandSchema, error) {
-	var brands []schema.GetBrandSchema
-	q := elastic.NewIdsQuery(ids...)
-	res, err := ei.Es.Search().
-		Index(ei.Config.BrandIndex).
-		Query(q).
-		Do(context.TODO())
+// GetPebble returns pebble with matching filter
+func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.GetPebbleESResp, error) {
+	var queries []elastic.Query
+	if len(opts.Genders) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("label.genders", opts.Genders...))
+	}
+	if len(opts.Interests) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("label.interests", opts.Interests...))
+	}
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Do(context.Background())
 	if err != nil {
-		return nil, err
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
 	}
 
-	if res.Hits == nil {
-		return nil, errors.Errorf("brand with id:%s not found", ids)
-	}
-
-	for i, hit := range res.Hits.Hits {
-		var s schema.GetBrandSchema
-		if err := json.Unmarshal(*&hit.Source, &s); err != nil {
-			ei.Logger.Err(err).Interface("hit", hit.Source).Msgf("failed to decode brand with id:%s", ids[i])
-			return nil, errors.Errorf("failed to decode brand with id:%s", ids[i])
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
 		}
-		brands = append(brands, s)
+		resp = append(resp, s)
 	}
-	return brands, nil
+
+	return resp, nil
 }

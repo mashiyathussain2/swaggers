@@ -19,11 +19,11 @@ type Options struct {
 
 // App := contains resources to implement business logic
 type App struct {
-	MongoDB *mongostorage.MongoStorage
-	S3      S3
-	Logger  *zerolog.Logger
-	Config  *config.APPConfig
-	ES      Elasticsearch
+	MongoDB       *mongostorage.MongoStorage
+	Elasticsearch Elasticsearch
+	S3            S3
+	Logger        *zerolog.Logger
+	Config        *config.APPConfig
 
 	// List of services this app is implementing
 	Media   Media
@@ -54,10 +54,7 @@ func NewApp(opts *Options) *App {
 		S3: InitS3(&S3Opts{
 			Config: &opts.Config.S3Config,
 		}),
-		ES: InitElasticsearch(&ElasticsearchImplOpts{
-			Logger: opts.Logger,
-			Config: &opts.Config.ElasticsearchConfig,
-		}),
+		Elasticsearch: InitElasticsearch(&ElasticsearchOpts{Config: &opts.Config.ElasticsearchConfig, Logger: opts.Logger}),
 	}
 }
 

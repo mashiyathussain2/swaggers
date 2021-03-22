@@ -26,7 +26,7 @@ type Dimensions struct {
 // Video contains video content data such as type, url, source-bucket, content meta etc
 type Video struct {
 	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Type string             `json:"type,omitempty" bson:"_type,omitempty"`
+	Type string             `json:"type,omitempty" bson:"type,omitempty"`
 	// GUID: to reference task in aws media processing
 	GUID string `json:"guid,omitempty" bson:"guid,omitempty"`
 
@@ -38,7 +38,7 @@ type Video struct {
 	IsPortrait bool        `json:"is_portrait,omitempty" bson:"is_portrait,omitempty"`
 	Dimensions *Dimensions `json:"dimensions,omitempty" bson:"dimensions,omitempty"`
 	Duration   float32     `json:"duration,omitempty" bson:"duration,omitempty"`
-	Framerate  uint        `json:"framerate,omitempty" bson:"framerate,omitempty"`
+	Framerate  float32     `json:"framerate,omitempty" bson:"framerate,omitempty"`
 
 	PlaybackBucket string `json:"hls_playback_bucket,omitempty" bson:"hls_playback_bucket,omitempty"`
 	PlaybackURL    string `json:"hls_playback_url,omitempty" bson:"hls_playback_url,omitempty"`

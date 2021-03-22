@@ -30,8 +30,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 	}
 
 	type args struct {
-		videoID   string
-		videoType string
+		videoID string
 	}
 
 	type TC struct {
@@ -55,8 +54,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 				Logger: app.Logger,
 			},
 			args: args{
-				videoID:   primitive.NewObjectIDFromTimestamp(time.Now()).Hex(),
-				videoType: ".mp4",
+				videoID: primitive.NewObjectIDFromTimestamp(time.Now()).Hex() + ".mp4",
 			},
 			buildStubs: func(tt *TC, mc *mock.MockS3) {
 				resp := "https://hypd-vod-source-16jim3me9cmrc.s3.ap-south-1.amazonaws.com/5fbb7f1f7f10f60aaffa2598.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA5LCMVADVOIOHO66X%2F20201123%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20201123T092135Z&X-Amz-Expires=1800&X-Amz-SignedHeaders=host&X-Amz-Signature=4ed77bbf055c9dbdfa0f45c6e352859f0ed0cf3dad2175c19469427e0f7c82dd"
@@ -72,8 +70,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 				Logger: app.Logger,
 			},
 			args: args{
-				videoID:   primitive.NewObjectIDFromTimestamp(time.Now()).Hex(),
-				videoType: ".mp4",
+				videoID: primitive.NewObjectIDFromTimestamp(time.Now()).Hex() + ".mp4",
 			},
 			wantErr: true,
 			buildStubs: func(tt *TC, mc *mock.MockS3) {
@@ -98,7 +95,7 @@ func TestContentImpl_generateS3UploadToken(t *testing.T) {
 			tt.fields.App.Media = ci
 			tt.buildStubs(&tt, mockS3)
 
-			got, err := ci.generateS3UploadToken(tt.args.videoID, tt.args.videoType)
+			got, err := ci.generateS3UploadToken(tt.args.videoID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ContentImpl.generateS3UploadToken() error = %v, wantErr %v", err, tt.wantErr)
 				return

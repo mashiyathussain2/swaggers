@@ -2013,6 +2013,82 @@ func TestContentImpl_UpdateContentBrandInfo(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "[Ok] No Brand Info",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.ContentConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			prepare: func(tt *TC) {
+				id := primitive.NewObjectID()
+				var doc []interface{}
+				var docs []model.Content
+				for i := 0; i < 10; i++ {
+					d := model.Content{}
+					d.BrandIDs = append(d.BrandIDs, id)
+					// d.BrandInfo = append(d.BrandInfo, model.BrandInfo{
+					// 	ID:   id,
+					// 	Name: faker.Name().Name(),
+					// 	Logo: &model.IMG{
+					// 		SRC:    faker.Avatar().Url("png", 200, 200),
+					// 		Width:  200,
+					// 		Height: 200,
+					// 	},
+					// })
+					d.BrandInfo = append(d.BrandInfo, model.BrandInfo{})
+					if faker.RandomInt(0, 1) == 1 {
+						id2 := primitive.NewObjectID()
+						d.BrandIDs = append(d.BrandIDs, id2)
+						d.BrandInfo = append(d.BrandInfo, model.BrandInfo{
+							ID:   id2,
+							Name: faker.Name().Name(),
+							Logo: &model.IMG{
+								SRC:    faker.Avatar().Url("png", 200, 200),
+								Width:  200,
+								Height: 200,
+							},
+						})
+					}
+					docs = append(docs, d)
+					doc = append(doc, d)
+				}
+				tt.args.createDocs = docs
+				tt.fields.DB.Collection(model.ContentColl).InsertMany(context.TODO(), doc)
+
+				tt.args.opts = &schema.UpdateContentBrandInfoOpts{
+					ID:   id,
+					Name: faker.Name().Name(),
+					Logo: &model.IMG{
+						SRC:    faker.Avatar().Url("png", 200, 200),
+						Width:  200,
+						Height: 200,
+					},
+				}
+			},
+			validate: func(t *testing.T, tt *TC) {
+				var docs []model.Content
+				cur, err := tt.fields.DB.Collection(model.ContentColl).Find(context.TODO(), bson.M{"brand_ids": tt.args.opts.ID})
+				assert.Nil(t, err)
+				err = cur.All(context.TODO(), &docs)
+				assert.Nil(t, err)
+				assert.Len(t, docs, 10)
+				for i, doc := range docs {
+					assert.Equal(t, tt.args.createDocs[i].BrandIDs, doc.BrandIDs)
+					if len(tt.args.createDocs[i].BrandIDs) == 1 {
+						assert.Len(t, doc.BrandInfo, 1)
+						assert.Len(t, doc.BrandIDs, 1)
+					} else {
+						assert.Len(t, doc.BrandIDs, 2)
+						assert.Len(t, doc.BrandInfo, 2)
+					}
+					assert.Equal(t, tt.args.opts.ID, doc.BrandInfo[0].ID)
+					assert.Equal(t, tt.args.opts.Name, doc.BrandInfo[0].Name)
+					assert.Equal(t, tt.args.opts.Logo, doc.BrandInfo[0].Logo)
+				}
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

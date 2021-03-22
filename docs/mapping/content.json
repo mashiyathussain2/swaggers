@@ -1,0 +1,98 @@
+[
+  {
+    "alias": "stage_content_full",
+    "index": "stage_content_full_1"
+  },
+  {
+    "_comment": [
+      {
+        "name": "How to create index",
+        "comment": ""
+      }
+    ],
+    "mappings": {
+		"properties": {
+			"id": {
+				"type": "keyword"
+			},
+			"type": {
+				"type": "keyword"
+			},
+			"media_type": {
+				"type": "keyword"
+			},
+			"media_id": {
+				"type": "keyword"
+			},
+			"media_info": {
+				"type": "object",
+				"dynamic": true,
+				"enabled": false
+			},
+			"influencer_ids": {
+				"type": "keyword"
+			},
+			"brand_ids": {
+				"type": "keyword"
+			},
+			"user_id": {
+				"type": "keyword"
+			},
+			"catalog_ids": {
+				"type": "keyword",
+				"index": false
+			},
+			"user_info": {
+				"type": "nested",
+				"dynamic": true,
+				"enabled": false
+			},
+			"influencer_info": {
+				"type": "nested",
+				"dynamic": true,
+				"enabled": false
+			},
+			"catalog_info": {
+				"type": "nested",
+				"dynamic": true,
+				"enabled": false
+			},
+			"brand_info": {
+				"type": "nested",
+				"dynamic": true,
+				"enabled": false
+			},
+			"label": {
+				"type": "object",
+				"properties": {
+					"interests": {
+						"type": "keyword"
+					},
+					"age_groups": {
+						"type": "keyword"
+					},
+					"genders": {
+						"type": "keyword"
+					}
+				}
+			},
+			"is_processed": {
+				"type": "boolean"
+			},
+			"is_active": {
+				"type": "boolean"
+			},
+			"caption": {
+				"type": "text",
+				"index": false
+			},
+			"hashtags": {
+				"type": "keyword"
+			},
+			"created_at": {
+				"type": "date"
+			}
+		}
+	}
+  }
+]
