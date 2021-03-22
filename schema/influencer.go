@@ -12,7 +12,7 @@ type CreateInfluencerOpts struct {
 	Name          string             `json:"name" validate:"required"`
 	Bio           string             `json:"bio"`
 	CoverImg      *Img               `json:"cover_img" validate:"required"`
-	ExternalLinks []string           `json:"external_links" validate:"required,min=1"`
+	ExternalLinks []string           `json:"external_links" validate:"required,min=1,dive,min=6"`
 	SocialAccount *SocialAccountOpts `json:"social_account"`
 }
 
@@ -51,7 +51,7 @@ type EditInfluencerResp struct {
 
 // GetInfluencersByIDOpts contains fields and validations required to get multiple influencer by matching id
 type GetInfluencersByIDOpts struct {
-	IDs []primitive.ObjectID `json:"ids" validate:"required,min=1"`
+	IDs []primitive.ObjectID `json:"id" validate:"required,min=1"`
 }
 
 // GetInfluencerResp contains fields to be returned for get influencer function

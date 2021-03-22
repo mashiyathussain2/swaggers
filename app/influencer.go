@@ -38,7 +38,7 @@ type InfluencerImplOpts struct {
 }
 
 // InitInfluencer returns new instance of influencer implementation
-func InitInfluencer(opts *BrandImplOpts) Influencer {
+func InitInfluencer(opts *InfluencerImplOpts) Influencer {
 	ii := InfluencerImpl{
 		App:    opts.App,
 		DB:     opts.DB,
