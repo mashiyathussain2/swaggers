@@ -27,6 +27,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"cover_img": {
 					"src": "https://test.com/cover.png"
 				},
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"external_links": [
 					"https://youtube.com"
 				],
@@ -50,6 +53,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				Bio:           "test bio",
 				ExternalLinks: []string{"https://youtube.com"},
 				CoverImg: &Img{
+					SRC: "https://test.com/cover.png",
+				},
+				ProfileImage: &Img{
 					SRC: "https://test.com/cover.png",
 				},
 				SocialAccount: &SocialAccountOpts{
@@ -78,6 +84,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"external_links": [
 					"https://youtube.com"
 				],
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -97,6 +106,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				Name:          "test brand",
 				ExternalLinks: []string{"https://youtube.com"},
 				CoverImg: &Img{
+					SRC: "https://test.com/cover.png",
+				},
+				ProfileImage: &Img{
 					SRC: "https://test.com/cover.png",
 				},
 				SocialAccount: &SocialAccountOpts{
@@ -120,6 +132,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 			json: string(`{
 				"name": "test brand",
 				"cover_img": {
+					"src": "https://test.com/cover.png"
+				},
+				"profile_image": {
 					"src": "https://test.com/cover.png"
 				},
 				"social_account": {
@@ -150,6 +165,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"external_links": [
 					
 				],
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -178,6 +196,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"external_links": [
 					"https://youtube.com"
 				],
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -193,6 +214,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 			want: CreateInfluencerOpts{
 				Name: "test influencer",
 				CoverImg: &Img{
+					SRC: "https://test.com/cover.png",
+				},
+				ProfileImage: &Img{
 					SRC: "https://test.com/cover.png",
 				},
 				ExternalLinks: []string{"https://youtube.com"},
@@ -220,6 +244,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"external_links": [
 					"https://youtube.com"
 				],
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -238,6 +265,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 			want: CreateInfluencerOpts{
 				Name: "test brand",
 				CoverImg: &Img{
+					SRC: "https://test.com/cover.png",
+				},
+				ProfileImage: &Img{
 					SRC: "https://test.com/cover.png",
 				},
 				ExternalLinks: []string{"https://youtube.com"},
@@ -267,6 +297,9 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 				"external_links": [
 					"https://youtube.com"
 				],
+				"profile_image": {
+					"src": "https://test.com/cover.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -284,6 +317,34 @@ func Test_CreateInfluencerOpts(t *testing.T) {
 			}`),
 			wantErr: true,
 			err:     []string{"followers_count must be 0 or greater"},
+		},
+		{
+			name: "[Error] Without Profile Image",
+			json: string(`{
+				"name": "test brand",
+				"cover_img": {
+					"src": "https://test.com/cover.png"
+				},
+				"external_links": [
+					"https://youtube.com"
+				],
+				"social_account": {
+					"facebook": {
+						"followers_count": 12000
+					},
+					"instagram": {
+						"followers_count": 1
+					},
+					"twitter": {
+						"followers_count": 14000
+					},
+					"youtube": {
+						"followers_count": 15000
+					}
+				}
+			}`),
+			wantErr: true,
+			err:     []string{"profile_image is a required field"},
 		},
 	}
 	for _, tt := range tests {
@@ -327,6 +388,9 @@ func Test_EditInfluencerOpts(t *testing.T) {
 				"external_links": [
 					"https://youtube.com"
 				],
+				"profile_image": {
+					"src": "https://test.com/profile.png"
+				},
 				"social_account": {
 					"facebook": {
 						"followers_count": 12000
@@ -349,6 +413,9 @@ func Test_EditInfluencerOpts(t *testing.T) {
 				ExternalLinks: []string{"https://youtube.com"},
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
+				},
+				ProfileImage: &Img{
+					SRC: "https://test.com/profile.png",
 				},
 				SocialAccount: &SocialAccountOpts{
 					Facebook: &SocialMediaOpts{
