@@ -33,8 +33,8 @@ type KeeperCatalog interface {
 	UpdateCatalogStatus(*schema.UpdateCatalogStatusOpts) ([]schema.UpdateCatalogStatusResp, error)
 	CheckCatalogIDsExists(context.Context, []primitive.ObjectID) (int64, error)
 	GetCatalogByIDs(context.Context, []primitive.ObjectID) ([]schema.GetCatalogResp, error)
-	AddCatalogContent(*schema.AddCatalogContentOpts) (*schema.AddCatalogContentResp, error)
-	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) error
+	AddCatalogContent(*schema.AddCatalogContentOpts) (*schema.PayloadVideo, []error)
+	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) []error
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
@@ -72,15 +72,16 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 
 	currentTime := time.Now().UTC()
 	c := model.Catalog{
-		Name:        opts.Name,
-		LName:       strings.ToLower(opts.Name),
-		Description: opts.Description,
-		Keywords:    opts.Keywords,
-		HSNCode:     opts.HSNCode,
-		Slug:        UniqueSlug(opts.Name),
-		BasePrice:   model.SetINRPrice(float32(opts.BasePrice)),
-		RetailPrice: model.SetINRPrice(float32(opts.RetailPrice)),
-		CreatedAt:   currentTime,
+		Name:          opts.Name,
+		LName:         strings.ToLower(opts.Name),
+		Description:   opts.Description,
+		Keywords:      opts.Keywords,
+		HSNCode:       opts.HSNCode,
+		Slug:          UniqueSlug(opts.Name),
+		BasePrice:     model.SetINRPrice(float32(opts.BasePrice)),
+		RetailPrice:   model.SetINRPrice(float32(opts.RetailPrice)),
+		CreatedAt:     currentTime,
+		TransferPrice: model.SetINRPrice(float32(opts.TransferPrice)),
 	}
 
 	c.FeaturedImage = &model.CatalogFeaturedImage{
@@ -168,6 +169,7 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		Status:          c.Status,
 		ETA:             c.ETA,
 		CreatedAt:       c.CreatedAt,
+		TransferPrice:   *c.TransferPrice,
 	}
 
 	return resp, nil
@@ -221,6 +223,9 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 	if opts.RetailPrice != 0 {
 		c.RetailPrice = model.SetINRPrice(float32(opts.RetailPrice))
 	}
+	if opts.TransferPrice != 0 {
+		c.TransferPrice = model.SetINRPrice(float32(opts.TransferPrice))
+	}
 
 	if reflect.DeepEqual(model.Catalog{}, c) {
 		return nil, errors.New("no fields found to update")
@@ -252,6 +257,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		RetailPrice:     *c.RetailPrice,
 		ETA:             c.ETA,
 		UpdatedAt:       c.UpdatedAt,
+		TransferPrice:   *c.TransferPrice,
 	}, nil
 }
 
@@ -423,14 +429,15 @@ func (kc *KeeperCatalogImpl) KeeperSearchCatalog(keeperSearchCatalogOpts *schema
 	// filter := bson.M{"$text": bson.M{"$search": keeperSearchCatalogOpts.Name}}
 
 	opts := options.Find().SetProjection(bson.M{
-		"catalog_id":    1,
-		"name":          1,
-		"category_path": 1,
-		"base_price":    1,
-		"retail_price":  1,
-		"status":        1,
-		"variants":      1,
-		"variant_type":  1,
+		"catalog_id":     1,
+		"name":           1,
+		"category_path":  1,
+		"base_price":     1,
+		"retail_price":   1,
+		"status":         1,
+		"variants":       1,
+		"variant_type":   1,
+		"transfer_price": 1,
 	}).SetSkip(int64(kc.App.Config.PageSize) * keeperSearchCatalogOpts.Page).SetLimit(int64(kc.App.Config.PageSize))
 
 	cursor, err := kc.DB.Collection(model.CatalogColl).Find(ctx, filter, opts)
@@ -646,66 +653,66 @@ func (kc *KeeperCatalogImpl) GetCatalogByIDs(ctx context.Context, ids []primitiv
 }
 
 //AddCatalogContent takes catalog and content details, and returns token to keeper to upload content
-func (kc *KeeperCatalogImpl) AddCatalogContent(opts *schema.AddCatalogContentOpts) (*schema.AddCatalogContentResp, error) {
+func (kc *KeeperCatalogImpl) AddCatalogContent(opts *schema.AddCatalogContentOpts) (*schema.PayloadVideo, []error) {
 
 	ctx := context.TODO()
 
-	found, err := kc.App.Brand.CheckBrandIDExists(ctx, opts.BrandID)
+	catalogs, err := kc.GetCatalogByIDs(ctx, []primitive.ObjectID{opts.CatalogID})
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
-	if !found {
-		return nil, errors.Errorf("unable to find the brand with id: %s", opts.BrandID.Hex())
+	if len(catalogs) == 0 {
+		return nil, []error{errors.Errorf("unable to find the catalog with id: %s", opts.CatalogID.Hex())}
 	}
-	cnt, err := kc.CheckCatalogIDsExists(ctx, []primitive.ObjectID{opts.CatalogID})
-	if err != nil {
-		return nil, err
-	}
-	if cnt == 0 {
-		return nil, errors.Errorf("unable to find the catalog with id: %s", opts.CatalogID.Hex())
-	}
-
+	opts.BrandID = catalogs[0].BrandID
 	requestByte, _ := json.Marshal(opts)
 	requestReader := bytes.NewReader(requestByte)
 
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/keeper/content/catalog/video", "application/json", requestReader)
+	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/video", "application/json", requestReader)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	var res schema.AddCatalogContentResp
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
+	}
+	if !res.Success {
+		var errs []error
+		for i := 0; i < len(res.Error); i++ {
+			errs = append(errs, errors.Errorf(res.Error[i].Message))
+		}
+		return nil, errs
 	}
 	filter := bson.M{
 		"_id": opts.CatalogID,
 	}
 	updateQuery := bson.M{
 		"$push": bson.M{
-			"catalog_content": res.ID,
+			"catalog_content": res.Payload.ID,
 		},
 	}
 	upRes, err := kc.DB.Collection(model.CatalogColl).UpdateOne(ctx, filter, updateQuery)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	if upRes.ModifiedCount == 0 {
-		return nil, errors.Errorf("error adding content to the catalog")
+		return nil, []error{errors.Errorf("error adding content to the catalog")}
 	}
-	return &res, nil
+	return &res.Payload, nil
 }
 
 //AddCatalogContentImage takes catalog and content details, and returns token to keeper to upload content
-func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogContentImageOpts) error {
+func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogContentImageOpts) []error {
 
 	ctx := context.TODO()
 
 	catalogs, err := kc.GetCatalogByIDs(ctx, []primitive.ObjectID{opts.CatalogID})
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	if len(catalogs) == 0 {
-		return errors.Errorf("unable to find the catalog with id: %s", opts.CatalogID.Hex())
+		return []error{errors.Errorf("unable to find the catalog with id: %s", opts.CatalogID.Hex())}
 	}
 	requestData := map[string]interface{}{
 		"media_id":   opts.MediaID.Hex(),
@@ -717,14 +724,22 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 	requestByte, _ := json.Marshal(requestData)
 	requestReader := bytes.NewReader(requestByte)
 
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/keeper/content/catalog/image", "application/json", requestReader)
+	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/image", "application/json", requestReader)
 	if err != nil {
-		return err
+		return []error{err}
 	}
-	var res schema.AddCatalogContentResp
+	var res schema.AddCatalogContentImageResp
+	// var test interface{}
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		return err
+		return []error{err}
+	}
+	if !res.Success {
+		var errs []error
+		for i := 0; i < len(res.Error); i++ {
+			errs = append(errs, errors.Errorf(res.Error[i].Message))
+		}
+		return errs
 	}
 
 	filter := bson.M{
@@ -732,15 +747,15 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 	}
 	updateQuery := bson.M{
 		"$push": bson.M{
-			"catalog_content": res.ID,
+			"catalog_content": res.Payload.ID,
 		},
 	}
 	upRes, err := kc.DB.Collection(model.CatalogColl).UpdateOne(ctx, filter, updateQuery)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	if upRes.ModifiedCount == 0 {
-		return errors.Errorf("error adding content to the catalog")
+		return []error{errors.Errorf("error adding content to the catalog")}
 	}
 	return nil
 }

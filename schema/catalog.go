@@ -41,8 +41,9 @@ type CreateCatalogOpts struct {
 	VariantType model.VariantType   `json:"variant_type" validate:"required_with_field=Variants"`
 	Variants    []CreateVariantOpts `json:"variants" validate:"dive"`
 
-	BasePrice   uint32 `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
-	RetailPrice uint32 `json:"retail_price" validate:"gt=0"`
+	BasePrice     uint32 `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
+	RetailPrice   uint32 `json:"retail_price" validate:"gt=0"`
+	TransferPrice uint32 `json:"transfer_price" validate:"gt=0"`
 }
 
 // CreateCatalogResp response
@@ -67,8 +68,9 @@ type CreateCatalogResp struct {
 	Variants    []model.Variant   `json:"variants,omitempty" bson:"variants,omitempty"`
 	HSNCode     string            `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 
-	BasePrice   model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	BasePrice     model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
 	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
@@ -117,6 +119,7 @@ type EditCatalogOpts struct {
 	HSNCode         string               `json:"hsn_code"`
 	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtfield=RetailPrice"`
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
+	TransferPrice   uint32               `json:"transfer_price" validate:"isdefault|gt=0"`
 }
 
 // EditCatalogResp contains fields which are returned when a catalog is edited
@@ -134,6 +137,7 @@ type EditCatalogResp struct {
 	RetailPrice     model.Price           `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	TransferPrice   model.Price           `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 }
 
 // GetBasicCatalogFilter contains filter fields for GetCatalog
@@ -164,14 +168,15 @@ type KeeperSearchCatalogOpts struct {
 
 // KeeperSearchCatalogResp contains fields which are returned on catalog search to Keeper
 type KeeperSearchCatalogResp struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
-	Path        []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
-	BasePrice   model.Price        `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
-	Status      *model.Status      `json:"status,omitempty" bson:"status,omitempty"`
-	Variants    []model.Variant    `json:"variants,omitempty" bson:"variants,omitempty"`
-	VariantType model.VariantType  `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
+	Path          []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	BasePrice     model.Price        `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice model.Price        `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	Status        *model.Status      `json:"status,omitempty" bson:"status,omitempty"`
+	Variants      []model.Variant    `json:"variants,omitempty" bson:"variants,omitempty"`
+	VariantType   model.VariantType  `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
 }
 
 // DeleteVariantOpts contains fields which are passed on delete variant from catalog function
@@ -198,9 +203,9 @@ type GetCatalogResp = CreateCatalogResp
 
 //AddCatalogContentOpts contains fields which are passed on add content api
 type AddCatalogContentOpts struct {
-	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
+	BrandID   primitive.ObjectID `json:"brand_id"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	FileName  string             `json:"filename" validate:"required"`
+	FileName  string             `json:"file_name" validate:"required"`
 	Label     *ContentLabel      `json:"label" validate:"required"`
 }
 
@@ -213,8 +218,25 @@ type AddCatalogContentImageOpts struct {
 
 //AddCatalogContentResp contains fields which are received from CMS and passed to Keeper
 type AddCatalogContentResp struct {
+	Success bool         `json:"success"`
+	Payload PayloadVideo `json:"payload"`
+	Error   []ErrorCMS   `json:"error"`
+}
+
+type PayloadImage struct {
+	ID primitive.ObjectID `json:"id"`
+}
+
+type PayloadVideo struct {
 	ID    primitive.ObjectID `json:"id"`
-	Token string             `json:"string"`
+	Token string             `json:"token"`
+}
+
+//AddCatalogContentImageResp contains fields which are received from CMS and passed to Keeper
+type AddCatalogContentImageResp struct {
+	Success bool         `json:"success"`
+	Payload PayloadImage `json:"payload"`
+	Error   []ErrorCMS   `json:"error"`
 }
 
 type ContentLabel struct {
@@ -227,4 +249,11 @@ type ContentLabel struct {
 type GetCatalogsByFilterOpts struct {
 	BrandIDs []primitive.ObjectID `json:"brands"`
 	Status   []string             `json:"status"`
+}
+
+//ErrorCMS contains Error response from CMS
+type ErrorCMS struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+	Type    string `json:"type"`
 }

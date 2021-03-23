@@ -35,18 +35,20 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"retail_price": 1099,
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-				}
+				},
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				BrandID:     bID,
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   1299,
-				RetailPrice: 1099,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				BrandID:       bID,
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
 				FeaturedImage: &Img{
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
@@ -66,6 +68,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"filter_attr": [{
 					"name": "Color",
 					"value": "Red"
@@ -73,14 +76,15 @@ func TestCreateCatalogOpts(t *testing.T) {
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				BrandID:     bID,
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   1299,
-				RetailPrice: 1099,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				BrandID:       bID,
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
 				FilterAttribute: []FilterAttribute{
 					{
 						Name:  "Color",
@@ -107,6 +111,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"variants": [
 					{
 						"sku": "sku1",
@@ -136,6 +141,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				FeaturedImage: &Img{
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -151,6 +157,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"retail_price": 1099
 			}`),
 			wantErr: true,
@@ -170,6 +177,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"retail_price": 1099
 			}`),
 			wantErr: true,
@@ -190,6 +198,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"variants": [
 					{
 						"sku": "sku1",
@@ -217,6 +226,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"base_price": 1299,
 				"retail_price": 1099
 			}`),
@@ -238,6 +248,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
+				"transfer_price":1000,
 				"eta": {
 					"min": 1,
 					"max": 7,
@@ -262,8 +273,9 @@ func TestCreateCatalogOpts(t *testing.T) {
 				FeaturedImage: &Img{
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
-				BasePrice:   1299,
-				RetailPrice: 1099,
+				TransferPrice: 1000,
+				BasePrice:     1299,
+				RetailPrice:   1099,
 				// VariantType: model.SizeType,
 				// Variants: []CreateVariantOpts{
 				// 	{
@@ -292,7 +304,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"unit must be one of [hour day month]"},
@@ -317,7 +330,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -342,6 +356,7 @@ func TestCreateCatalogOpts(t *testing.T) {
 						Value: "v2",
 					},
 				},
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -361,7 +376,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
 					"base_price": 1299,
-					"retail_price": 1099
+					"retail_price": 1099,
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"name is a required field"},
@@ -386,7 +402,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"value is a required field"},
@@ -403,7 +420,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"category_id is a required field"},
@@ -420,7 +438,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than 0"},
@@ -438,7 +457,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than or equal to RetailPrice"},
@@ -455,7 +475,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"base_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -473,7 +494,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 0,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -491,7 +513,8 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1099,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
-					}
+					},
+					"transfer_price":1000
 				}`),
 			wantErr: true,
 			err:     []string{"category_id must contain more than 0 items"},
@@ -506,11 +529,48 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
-				"retail_price": 1099
-				
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"featured_image is a required field"},
+		},
+		{
+			name: "[Error] Without transfer price",
+			json: string(`{
+					"name": "test",
+					"description": "test description 1",
+					"category_id": ["5e8821fe1108c87837ef2612"],
+					"brand_id": "5e8821fe1108c87837ef2611",
+					"keywords":  ["k1", "k2"],
+					"hsn_code": "hsnCode1",
+					"base_price": 1299,
+					"retail_price": 1000,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					}
+				}`),
+			wantErr: true,
+			err:     []string{"transfer_price must be greater than 0"},
+		},
+		{
+			name: "[Error] transfer price = 0",
+			json: string(`{
+					"name": "test",
+					"description": "test description 1",
+					"category_id": ["5e8821fe1108c87837ef2612"],
+					"brand_id": "5e8821fe1108c87837ef2611",
+					"keywords":  ["k1", "k2"],
+					"hsn_code": "hsnCode1",
+					"base_price": 1299,
+					"retail_price": 1000,
+					"featured_image":{
+						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					},
+					"transfer_price":0
+				}`),
+			wantErr: true,
+			err:     []string{"transfer_price must be greater than 0"},
 		},
 	}
 
@@ -546,31 +606,37 @@ func TestCreateVariantOpts(t *testing.T) {
 			name: "[Ok]",
 			json: string(`{
 				"sku": "sku1",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: false,
 			want: CreateVariantOpts{
 				SKU:       "sku1",
 				Attribute: "red",
+				Unit:      2,
 			},
 		},
 		{
 			name: "[Ok] With Attribute",
 			json: string(`{
 				"sku": "sku1",
-				"attribute": "Red"
+				"attribute": "Red",
+				"unit":2
+
 			}`),
 			wantErr: false,
 			want: CreateVariantOpts{
 				SKU:       "sku1",
 				Attribute: "Red",
+				Unit:      2,
 			},
 		},
 		{
 			name: "[Error] Empty SKU",
 			json: string(`{
 				"sku": "",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"sku is a required field"},
@@ -578,7 +644,8 @@ func TestCreateVariantOpts(t *testing.T) {
 		{
 			name: "[Error] No SKU",
 			json: string(`{
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"sku is a required field"},
@@ -586,7 +653,8 @@ func TestCreateVariantOpts(t *testing.T) {
 		{
 			name: "[Error] No Attribute",
 			json: string(`{
-				"sku": "red-1"
+				"sku": "red-1",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"attribute is a required field"},
@@ -595,10 +663,20 @@ func TestCreateVariantOpts(t *testing.T) {
 			name: "[Error] Empty Attribute",
 			json: string(`{
 				"sku": "red-1",
-				"attribute": ""
+				"attribute": "",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"attribute is a required field"},
+		},
+		{
+			name: "[Error] No Units",
+			json: string(`{
+				"sku": "red-1",
+				"attribute":"color"
+			}`),
+			wantErr: true,
+			err:     []string{"unit is a required field"},
 		},
 	}
 	for _, tt := range tests {
@@ -634,13 +712,15 @@ func TestAddVariantOpts(t *testing.T) {
 			json: string(`{
 				"variant_type": "size",
 				"sku": "sku1",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: false,
 			want: AddVariantOpts{
 				VariantType: "size",
 				SKU:         "sku1",
 				Attribute:   "red",
+				Unit:        2,
 			},
 		},
 		{
@@ -648,13 +728,15 @@ func TestAddVariantOpts(t *testing.T) {
 			json: string(`{
 				"sku": "sku1",
 				"variant_type": "size",
-				"attribute": "Red"
+				"attribute": "Red",
+				"unit":2
 			}`),
 			wantErr: false,
 			want: AddVariantOpts{
 				SKU:         "sku1",
 				Attribute:   "Red",
 				VariantType: "size",
+				Unit:        2,
 			},
 		},
 		{
@@ -662,7 +744,8 @@ func TestAddVariantOpts(t *testing.T) {
 			json: string(`{
 				"variant_type": "size",
 				"sku": "",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"sku is a required field"},
@@ -671,7 +754,8 @@ func TestAddVariantOpts(t *testing.T) {
 			name: "[Error] No SKU",
 			json: string(`{
 				"variant_type": "size",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"sku is a required field"},
@@ -680,7 +764,8 @@ func TestAddVariantOpts(t *testing.T) {
 			name: "[Error] No Attribute",
 			json: string(`{
 				"variant_type": "size",
-				"sku": "red-1"
+				"sku": "red-1",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"attribute is a required field"},
@@ -690,7 +775,8 @@ func TestAddVariantOpts(t *testing.T) {
 			json: string(`{
 				"variant_type": "size",
 				"sku": "red-1",
-				"attribute": ""
+				"attribute": "",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"attribute is a required field"},
@@ -700,7 +786,8 @@ func TestAddVariantOpts(t *testing.T) {
 			json: string(`{
 				"variant_type": "",
 				"sku": "red-1",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"variant_type is a required field"},
@@ -709,10 +796,21 @@ func TestAddVariantOpts(t *testing.T) {
 			name: "[Error] No VariantType",
 			json: string(`{
 				"sku": "red-1",
-				"attribute": "red"
+				"attribute": "red",
+				"unit":2
 			}`),
 			wantErr: true,
 			err:     []string{"variant_type is a required field"},
+		},
+		{
+			name: "[Error] Missing unit",
+			json: string(`{
+				"sku": "red-1",
+				"variant_type":"size"
+				"attribute": "red",
+			}`),
+			wantErr: true,
+			err:     []string{"unit is a required field"},
 		},
 	}
 	for _, tt := range tests {
@@ -754,18 +852,20 @@ func TestEditCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   1299,
-				RetailPrice: 1099,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -777,17 +877,19 @@ func TestEditCatalogOpts(t *testing.T) {
 				"description": "test description 1",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
-				"base_price": 1299
+				"base_price": 1299,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   1299,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -799,17 +901,19 @@ func TestEditCatalogOpts(t *testing.T) {
 				"description": "test description 1",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
-				"retail_price": 1299
+				"retail_price": 1299,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				RetailPrice: 1299,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				RetailPrice:   1299,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -821,17 +925,19 @@ func TestEditCatalogOpts(t *testing.T) {
 				"description": "test description 1",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
-				"base_price": 0
+				"base_price": 0,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   0,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     0,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -843,17 +949,19 @@ func TestEditCatalogOpts(t *testing.T) {
 				"description": "test description 1",
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
-				"retail_price": 0
+				"retail_price": 0,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				RetailPrice: 0,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				RetailPrice:   0,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -866,18 +974,20 @@ func TestEditCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"retail_price": 0,
-				"base_price": 1200
+				"base_price": 1200,
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				RetailPrice: 0,
-				BasePrice:   1200,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				RetailPrice:   0,
+				BasePrice:     1200,
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -890,7 +1000,8 @@ func TestEditCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"retail_price": 1400,
-				"base_price": 1200
+				"base_price": 1200,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"Key: 'EditCatalogOpts.base_price' Error:Field validation for 'base_price' failed on the 'isdefault|gtfield=RetailPrice' tag"},
@@ -912,7 +1023,8 @@ func TestEditCatalogOpts(t *testing.T) {
 				},{
 					"Name": "k2",
 					"Value": "v2"
-				}]
+				}],
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
@@ -934,6 +1046,7 @@ func TestEditCatalogOpts(t *testing.T) {
 						Value: "v2",
 					},
 				},
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -953,7 +1066,8 @@ func TestEditCatalogOpts(t *testing.T) {
 				},{
 					"Name": "k2",
 					"Value": "v2"
-				}]
+				}],
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
@@ -975,6 +1089,7 @@ func TestEditCatalogOpts(t *testing.T) {
 						Value: "v2",
 					},
 				},
+				TransferPrice: 1000,
 			},
 		},
 		{
@@ -988,7 +1103,8 @@ func TestEditCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k1"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"keywords must contain unique values"},
@@ -1009,18 +1125,20 @@ func TestEditCatalogOpts(t *testing.T) {
 					"min": 1,
 					"max": 7,
 					"unit": "day"
-				}
+				},
+				"transfer_price":1000
 			}`),
 			wantErr: false,
 			want: EditCatalogOpts{
-				ID:          cID,
-				Name:        "test",
-				CategoryID:  []primitive.ObjectID{cID},
-				Description: "test description 1",
-				Keywords:    []string{"k1", "k2"},
-				HSNCode:     "hsnCode1",
-				BasePrice:   1299,
-				RetailPrice: 1099,
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
 				ETA: &etaOpts{
 					Min:  1,
 					Max:  7,
@@ -1044,7 +1162,8 @@ func TestEditCatalogOpts(t *testing.T) {
 					"min": 1,
 					"max": 7,
 					"unit": "year"
-				}
+				},
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"unit must be one of [hour day month]"},
@@ -1064,7 +1183,8 @@ func TestEditCatalogOpts(t *testing.T) {
 					"Value": "v2"
 				}],
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"name is a required field"},
@@ -1087,7 +1207,8 @@ func TestEditCatalogOpts(t *testing.T) {
 					"Value": "v2"
 				}],
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"value is a required field"},
@@ -1101,10 +1222,35 @@ func TestEditCatalogOpts(t *testing.T) {
 				"keywords":  ["k1", "k2"],
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"transfer_price":1000
 			}`),
 			wantErr: true,
 			err:     []string{"id is a required field"},
+		},
+		{
+			name: "[Ok] Without Transfer Price",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:          cID,
+				Name:        "test",
+				CategoryID:  []primitive.ObjectID{cID},
+				Description: "test description 1",
+				Keywords:    []string{"k1", "k2"},
+				HSNCode:     "hsnCode1",
+				BasePrice:   1299,
+				RetailPrice: 1099,
+			},
 		},
 	}
 	for _, tt := range tests {

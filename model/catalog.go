@@ -96,9 +96,10 @@ type Catalog struct {
 	Status        *Status  `json:"status,omitempty" bson:"status,omitempty"`
 	StatusHistory []Status `json:"status_history,omitempty" bson:"status_history,omitempty"`
 
-	HSNCode     string `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
-	BasePrice   *Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice *Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	HSNCode       string `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
+	BasePrice     *Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   *Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice *Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
 	CatalogContent []string `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 

@@ -133,9 +133,9 @@ func (a *API) addCatalogContent(requestCTX *handler.RequestContext, w http.Respo
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.KeeperCatalog.AddCatalogContent(&s)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
+	resp, errs := a.App.KeeperCatalog.AddCatalogContent(&s)
+	if errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
 
@@ -152,9 +152,9 @@ func (a *API) addCatalogContentImage(requestCTX *handler.RequestContext, w http.
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	err := a.App.KeeperCatalog.AddCatalogContentImage(&s)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
+	errs := a.App.KeeperCatalog.AddCatalogContentImage(&s)
+	if errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
 
