@@ -2867,7 +2867,6 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 		name       string
 		fields     fields
 		args       args
-		want       error
 		wantErr    bool
 		err        error
 		prepare    func(*TC)
@@ -2886,33 +2885,12 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 			args: args{},
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
 				// colors := []string{"red", "blue", "green"}
-				b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
 			},
 			prepare: func(tt *TC) {
 				tt.args.opts = &schema.AddCatalogContentOpts{
 					CatalogID: primitive.NewObjectID(),
 				}
 				tt.err = errors.Errorf("unable to find the catalog with id: %s", tt.args.opts.CatalogID.Hex())
-			},
-			wantErr: true,
-		},
-		{
-			name: "[Error] BrandID not found",
-			fields: fields{
-				App:    app,
-				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
-				Logger: app.Logger,
-			},
-			args: args{},
-			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
-				// colors := []string{"red", "blue", "green"}
-				b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(false, nil)
-			},
-			prepare: func(tt *TC) {
-				tt.args.opts = &schema.AddCatalogContentOpts{
-					BrandID: primitive.NewObjectID(),
-				}
-				tt.err = errors.Errorf("unable to find the brand with id: %s", tt.args.opts.BrandID.Hex())
 			},
 			wantErr: true,
 		},
@@ -2948,7 +2926,7 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 			if tt.wantErr {
 				assert.NotNil(t, err)
 				// assert.NotNil(t, resp)
-				assert.Equal(t, tt.err.Error(), err.Error())
+				assert.Equal(t, tt.err.Error(), err[0].Error())
 
 			}
 		})
