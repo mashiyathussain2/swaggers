@@ -2,7 +2,11 @@ package api
 
 // InitRoutes initializes all the endpoints
 func (a *API) InitRoutes() {
+
 	a.Router.APIRoot.Handle("/me", a.requestWithAuthHandler(a.me)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/user/get", a.requestHandler(a.getUserInfoByID)).Methods("POST")
+
 	a.Router.APIRoot.Handle("/user/forgot-password", a.requestHandler(a.forgotPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email", a.requestHandler(a.verifyEmail)).Methods("POST")

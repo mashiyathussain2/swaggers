@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"fmt"
+
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/auth"
@@ -29,6 +30,7 @@ import (
 type User interface {
 	CreateUser(*schema.CreateUserOpts) (*schema.CreateUserResp, error)
 	GetUserByEMail(string) (*schema.GetUserResp, error)
+	GetUserInfoByID(*schema.GetUserInfoByIDOpts) (bson.M, error)
 	EmailLoginCustomerUser(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	VerifyEmail(*schema.VerifyEmailOpts) (bool, error)
 	ResendConfirmationEmail(*schema.ResendVerificationEmailOpts) (bool, error)
@@ -303,7 +305,6 @@ func (ui *UserImpl) ResendConfirmationEmail(opts *schema.ResendVerificationEmail
 func (ui *UserImpl) EmailLoginCustomerUser(opts *schema.EmailLoginCustomerOpts) (auth.Claim, error) {
 	var user model.User
 	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), bson.M{"email": opts.Email}).Decode(&user); err != nil {
-		fmt.Println(err)
 		return nil, errors.Wrapf(err, "user with email:%s not found", opts.Email)
 	}
 	if !CheckPasswordHash(opts.Password, user.Password) {
@@ -441,7 +442,6 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		return false, errors.Wrapf(err, "failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
 	otp, _ := GenerateOTP(6)
-	fmt.Println(otp)
 	switch count {
 	// When no user exists thus creating a new one
 	case 0:
@@ -603,4 +603,74 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 
 	claim := ui.getUserClaim(&user, &customer)
 	return claim, nil
+}
+
+func (ui *UserImpl) GetUserInfoByID(opts *schema.GetUserInfoByIDOpts) (bson.M, error) {
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"_id": opts.ID,
+			},
+		},
+	}
+
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.CustomerColl,
+				"localField":   "_id",
+				"foreignField": "user_id",
+				"as":           "customer_info",
+			},
+		},
+	}
+
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"customer_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$customer_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	projectStage := bson.D{
+		{
+			Key: "$project",
+			Value: bson.M{
+				"email":    1,
+				"phone_no": 1,
+				"username": 1,
+				"type":     1,
+
+				"id":            "$_id",
+				"customer_id":   "$customer_info._id",
+				"full_name":     "$customer_info.full_name",
+				"profile_image": "$customer_info.profile_image",
+			},
+		},
+	}
+
+	var res []bson.M
+	ctx := context.TODO()
+	cur, err := ui.DB.Collection(model.UserColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, setStage, projectStage})
+	if err != nil {
+		return nil, errors.Wrapf(err, "query failed to find user by id: %", opts.ID.Hex())
+	}
+
+	if err := cur.All(ctx, &res); err != nil {
+		return nil, errors.Wrapf(err, "failed to find user by id: %s", opts.ID.Hex())
+	}
+
+	if len(res) == 0 {
+		return nil, errors.Errorf("user with id: %s not found", opts.ID.Hex())
+	}
+	return res[0], nil
 }
