@@ -1,13 +1,36 @@
 package model
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"image"
+	"net/http"
+
+	"github.com/pkg/errors"
+)
 
 // IMG contains image url, src, height and id
 type IMG struct {
-	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	SRC    string             `json:"src" bson:"src"`
-	Height int                `json:"height" bson:"height"`
-	Width  int                `json:"width" bson:"width"`
+	SRC    string `json:"src" bson:"src"`
+	Height int    `json:"height" bson:"height"`
+	Width  int    `json:"width" bson:"width"`
+}
+
+// LoadFromURL loads the image from url and sets the width and height
+func (i *IMG) LoadFromURL() error {
+	resp, err := http.Get(i.SRC)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	m, _, err := image.Decode(resp.Body)
+	if err != nil {
+		return errors.Wrapf(err, "failed to decode img src: %s", i.SRC)
+	}
+
+	i.Height = m.Bounds().Dy()
+	i.Width = m.Bounds().Dx()
+
+	return nil
 }
 
 // CurrencyISO iso representation of currency
@@ -25,6 +48,6 @@ type Price struct {
 }
 
 // SetINRPrice sets INR and passed value returns the price struct
-func SetINRPrice(v float32) Price {
-	return Price{CurrencyISO: INR, Value: v}
+func SetINRPrice(v float32) *Price {
+	return &Price{CurrencyISO: INR, Value: v}
 }

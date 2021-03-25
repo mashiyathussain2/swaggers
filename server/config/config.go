@@ -31,6 +31,16 @@ type ServerConfig struct {
 	CloseTimeout   time.Duration `mapstructure:"closeTimeout"`
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
+	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
+}
+
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
 }
 
 // APIConfig contains api package related configurations
@@ -40,18 +50,39 @@ type APIConfig struct {
 	EnableMediaRoute   bool   `mapstructure:"enableMediaRoute"`
 	EnableStaticRoute  bool   `mapstructure:"enableStaticRoute"`
 	MaxRequestDataSize int    `mapstructure:"maxRequestDataSize"`
+	HypdApiConfig      HypdApiConfig
 }
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
 	DatabaseConfig      DatabaseConfig
-	ExampleConfig       ServiceConfig `mapstructure:"example"`
 	KeeperCatalogConfig ServiceConfig `mapstructure:"keeperCatalog"`
+	CategoryConfig      ServiceConfig `mapstructure:"category"`
+	BrandConfig         ServiceConfig `mapstructure:"brand"`
+	DiscountConfig      ServiceConfig `mapstructure:"discount"`
+	GroupConfig         ServiceConfig `mapstructure:"group"`
+	CollectionConfig    ServiceConfig `mapstructure:"collection"`
+	InventoryConfig     ServiceConfig `mapstructure:"inventory"`
+	PageSize            int           `mapstructure:"pageSize"`
+	HypdApiConfig       HypdApiConfig
+}
+
+type HypdApiConfig struct {
+	CmsApi    string `mapstructure:"cmsApi"`
+	EntityApi string `mapstructure:"entityApi"`
 }
 
 // ServiceConfig contains app service related config
 type ServiceConfig struct {
-	DBName string `mapstructure:"dbName"`
+	DBName            string `mapstructure:"dbName"`
+	CatalogContentURL string `mapstructure:"catalogContentUrl"`
+}
+
+// ListenerConfig contains app kafka topic listener related config
+type ListenerConfig struct {
+	GroupID string   `mapstructure:"groupId"`
+	Brokers []string `mapstructure:"brokers"`
+	Topic   string   `mapstructure:"topic"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
@@ -117,7 +148,7 @@ func (d *DatabaseConfig) ConnectionURL() string {
 	}
 	url += fmt.Sprintf("%s", d.Host)
 	if d.ReplicaSet != "" {
-		url += fmt.Sprintf("?replicaSet=%s", d.ReplicaSet)
+		url += fmt.Sprintf("/?replicaSet=%s", d.ReplicaSet)
 	}
 	return url
 }
@@ -182,5 +213,7 @@ func GetConfigFromFile(fileName string) *Config {
 		fmt.Printf("couldn't read config: %s", err)
 		os.Exit(1)
 	}
+	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	return config
 }
