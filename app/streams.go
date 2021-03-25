@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -10,6 +11,7 @@ import (
 	"github.com/rs/zerolog"
 	segKafka "github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ContentUpdateProcessor struct {
@@ -135,6 +137,16 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		return
 	}
 
+	// If delete operation is performed then removing the document from index as well
+	if s.Meta.Operation == "d" {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.ContentFullProducer.Publish(m)
+		return
+	}
+
 	// When content is added/updated it will be sync with %content_full topic.
 	var wg sync.WaitGroup
 	var contentSchema schema.ContentUpdateOpts
@@ -148,12 +160,11 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		return
 	}
 
+	// Removing content from index if is active set to false
 	if !contentSchema.IsActive {
-		csp.Logger.Info().Interface("data", s.Data).Msg("skipping sync as content is set is_active=false")
 		return
 	}
 
-	contentSchema.BrandInfo = []model.BrandInfo{}
 	if len(contentSchema.BrandIDs) > 0 {
 		wg.Add(1)
 		go func() {
@@ -172,7 +183,6 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		}()
 	}
 
-	contentSchema.InfluencerInfo = []model.InfluencerInfo{}
 	if len(contentSchema.InfluencerIDs) > 0 {
 		wg.Add(1)
 		go func() {
@@ -191,7 +201,6 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		}()
 	}
 
-	contentSchema.CatalogInfo = []model.CatalogInfo{}
 	if len(contentSchema.CatalogIDs) > 0 {
 		wg.Add(1)
 		go func() {
@@ -239,12 +248,17 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		Type:           contentSchema.Type,
 		MediaType:      contentSchema.MediaType,
 		MediaID:        contentSchema.MediaID,
+		MediaInfo:      contentSchema.MediaInfo,
 		BrandIDs:       contentSchema.BrandIDs,
 		BrandInfo:      contentSchema.BrandInfo,
 		InfluencerIDs:  contentSchema.InfluencerIDs,
 		InfluencerInfo: contentSchema.InfluencerInfo,
 		CatalogIDs:     contentSchema.CatalogIDs,
 		CatalogInfo:    contentSchema.CatalogInfo,
+		LikeCount:      contentSchema.LikeCount,
+		LikeIDs:        contentSchema.LikeIDs,
+		CommentCount:   contentSchema.CommentCount,
+		ViewCount:      contentSchema.ViewCount,
 		Label:          contentSchema.Label,
 		IsProcessed:    contentSchema.IsProcessed,
 		IsActive:       contentSchema.IsActive,
@@ -262,4 +276,87 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 	}
 	csp.App.ContentFullProducer.Publish(m)
 	return
+}
+
+func (csp *ContentUpdateProcessor) ProcessLike(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	fmt.Println("processing like")
+	fmt.Println(message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+	fmt.Println(s)
+	// creating a like
+	if s.Meta.Operation == "i" {
+		var likeSchema schema.ProcessLikeOpts
+		commentByteData, err := json.Marshal(s.Data)
+		if err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode comment update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(commentByteData, &likeSchema); err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		csp.App.Content.AddContentLike(&likeSchema)
+		return
+	}
+	// unliking
+	if s.Meta.Operation == "d" {
+		likeSchema := schema.ProcessLikeOpts{
+			ID: s.Meta.ID.(primitive.ObjectID),
+		}
+		csp.App.Content.DeleteContentLike(&likeSchema)
+		return
+	}
+}
+
+func (csp *ContentUpdateProcessor) ProcessComment(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	// creating a comment
+	if s.Meta.Operation == "i" {
+		var commentSchema schema.ProcessCommentOpts
+		commentByteData, err := json.Marshal(s.Data)
+		if err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode comment update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(commentByteData, &commentSchema); err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		csp.App.Content.AddContentComment(&commentSchema)
+	}
+}
+
+func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	// creating a view
+	if s.Meta.Operation == "i" {
+		var viewSchema schema.ProcessViewOpts
+		viewByteData, err := json.Marshal(s.Data)
+		if err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode view update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(viewByteData, &viewSchema); err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		csp.App.Content.AddContentView(&viewSchema)
+	}
 }

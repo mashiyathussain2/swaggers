@@ -148,10 +148,10 @@ type CreateCommentOpts struct {
 
 type CreateCommentResp struct {
 	ID           primitive.ObjectID `json:"id"`
-	ResourceType string             `json:"resource_type" validate:"required,oneof=live pebble"`
-	ResourceID   primitive.ObjectID `json:"resource_id" validate:"required"`
-	Description  string             `json:"description" validate:"required"`
-	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+	ResourceType string             `json:"resource_type"`
+	ResourceID   primitive.ObjectID `json:"resource_id"`
+	Description  string             `json:"description"`
+	UserID       primitive.ObjectID `json:"user_id"`
 	CreatedAt    time.Time          `json:"created_at"`
 }
 
@@ -184,6 +184,10 @@ type ContentUpdateOpts struct {
 	Label          *model.Label           `json:"label,omitempty" bson:"label,omitempty"`
 	IsProcessed    bool                   `json:"is_processed" bson:"is_processed"`
 	IsActive       bool                   `json:"is_active" bson:"is_active"`
+	ViewCount      uint                   `json:"view_count" bson:"view_count"`
+	LikeCount      uint                   `json:"like_count" bson:"like_count"`
+	LikeIDs        []primitive.ObjectID   `json:"like_ids" bson:"like_ids"`
+	CommentCount   uint                   `json:"comment_count" bson:"comment_count"`
 	Caption        string                 `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags       []string               `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
 	CatalogIDs     []primitive.ObjectID   `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
@@ -248,6 +252,9 @@ type GetPebbleESResp struct {
 	InfluencerInfo []model.InfluencerInfo `json:"influencer_info,omitempty"`
 	BrandIDs       []primitive.ObjectID   `json:"brand_ids,omitempty"`
 	BrandInfo      []model.BrandInfo      `json:"brand_info,omitempty"`
+	LikeCount      int                    `json:"like_count,omitempty"`
+	CommentCount   int                    `json:"comment_count,omitempty"`
+	ViewCount      int                    `json:"view_count,omitempty"`
 
 	Caption     string               `json:"caption,omitempty"`
 	Hashtags    []string             `json:"hashtags,omitempty"`
@@ -269,4 +276,30 @@ type GetInfluencerInfoResp struct {
 type GetCatalogInfoResp struct {
 	Success bool                `json:"success"`
 	Payload []model.CatalogInfo `json:"payload"`
+}
+
+type ProcessLikeOpts struct {
+	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type ProcessViewOpts struct {
+	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	Duration     time.Duration      `json:"duration,omitempty" bson:"duration,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type ProcessCommentOpts struct {
+	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
+	Description  string             `json:"description,omitempty" bson:"description,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }

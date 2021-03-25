@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"go-app/model"
 	"go-app/schema"
 	"go-app/server/config"
 	"log"
@@ -58,6 +59,9 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 	if len(opts.Interests) > 0 {
 		queries = append(queries, elastic.NewTermsQueryFromStrings("label.interests", opts.Interests...))
 	}
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
 	boolQuery := elastic.NewBoolQuery().Must(queries...)
 	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Do(context.Background())
 	if err != nil {

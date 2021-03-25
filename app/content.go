@@ -44,6 +44,10 @@ type Content interface {
 	UpdateContentBrandInfo(*schema.UpdateContentBrandInfoOpts)
 	UpdateContentInfluencerInfo(*schema.UpdateContentInfluencerInfoOpts)
 	UpdateContentCatalogInfo(*schema.UpdateContentCatalogInfoOpts)
+	AddContentComment(opts *schema.ProcessCommentOpts)
+	DeleteContentLike(opts *schema.ProcessLikeOpts)
+	AddContentLike(opts *schema.ProcessLikeOpts)
+	AddContentView(opts *schema.ProcessViewOpts)
 
 	// External API functions
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
@@ -559,45 +563,134 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 func (ci *ContentImpl) UpdateContentBrandInfo(opts *schema.UpdateContentBrandInfoOpts) {
 	filter := bson.M{
 		"brand_ids": opts.ID,
+		"is_active": true,
+		"type":      model.PebbleType,
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"brand_info.$": opts,
+			"last_sync": time.Now().UTC(),
 		},
 	}
-	queryOpts := options.Update().SetUpsert(true)
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
-		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update brand")
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update brand last sync")
+		return
 	}
 }
 
 func (ci *ContentImpl) UpdateContentInfluencerInfo(opts *schema.UpdateContentInfluencerInfoOpts) {
 	filter := bson.M{
 		"influencer_ids": opts.ID,
+		"is_active":      true,
+		"type":           model.PebbleType,
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"influencer_info.$": opts,
+			"last_sync": time.Now().UTC(),
 		},
 	}
-	queryOpts := options.Update().SetUpsert(true)
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
-		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer last sync")
 	}
 }
 
 func (ci *ContentImpl) UpdateContentCatalogInfo(opts *schema.UpdateContentCatalogInfoOpts) {
 	filter := bson.M{
 		"catalog_ids": opts.ID,
+		"is_active":   true,
+		"type":        model.PebbleType,
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"catalog_info.$": opts,
+			"last_sync": time.Now().UTC(),
 		},
 	}
-	queryOpts := options.Update().SetUpsert(true)
-	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
-		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer")
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update influencer last sync")
+	}
+}
+
+func (ci *ContentImpl) AddContentLike(opts *schema.ProcessLikeOpts) {
+	var resourceColl string
+	switch opts.ResourceType {
+	case model.PebbleType:
+		resourceColl = model.ContentColl
+	case model.LiveType:
+		resourceColl = model.LiveColl
+	default:
+		ci.Logger.Err(errors.New("invalid resource type")).Interface("opts", opts).Msg("failed to add like")
+		return
+	}
+	filter := bson.M{
+		"_id": opts.ResourceID,
+	}
+	update := bson.M{
+		"$push": bson.M{
+			"like_ids": opts.ID,
+		},
+		"$inc": bson.M{
+			"like_count": 1,
+		},
+	}
+	if _, err := ci.DB.Collection(resourceColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
+	}
+}
+
+func (ci *ContentImpl) AddContentView(opts *schema.ProcessViewOpts) {
+	var resourceColl string
+	switch opts.ResourceType {
+	case model.PebbleType:
+		resourceColl = model.ContentColl
+	case model.LiveType:
+		resourceColl = model.LiveColl
+	}
+	filter := bson.M{
+		"_id": opts.ResourceID,
+	}
+	update := bson.M{
+		"$inc": bson.M{
+			"view_count": 1,
+		},
+	}
+	if _, err := ci.DB.Collection(resourceColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add view")
+	}
+}
+
+func (ci *ContentImpl) DeleteContentLike(opts *schema.ProcessLikeOpts) {
+	filter := bson.M{
+		"like_ids": opts.ID,
+	}
+	update := bson.M{
+		"$pull": bson.M{"like_ids": bson.M{"$in": bson.A{opts.ID}}},
+		"$inc": bson.M{
+			"like_count": -1,
+		},
+	}
+	// { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } },
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to delete like")
+	}
+}
+
+func (ci *ContentImpl) AddContentComment(opts *schema.ProcessCommentOpts) {
+	var resourceColl string
+	switch opts.ResourceType {
+	case model.PebbleType:
+		resourceColl = model.ContentColl
+	case model.LiveType:
+		resourceColl = model.LiveColl
+	}
+	filter := bson.M{
+		"_id": opts.ResourceID,
+	}
+	update := bson.M{
+		"$inc": bson.M{
+			"comment_count": 1,
+		},
+	}
+	if _, err := ci.DB.Collection(resourceColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update like count")
 	}
 }
 

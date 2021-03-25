@@ -67,6 +67,9 @@ type APPConfig struct {
 	LiveCommentProducerConfig ProducerConfig `mapstructure:"liveCommentProducer"`
 	ContentFullProducerConfig ProducerConfig `mapstructure:"contentFullProducer"`
 
+	LikeChangeConfig         ListenerConfig `mapstructure:"likeChangesConsumer"`
+	CommentChangeConfig      ListenerConfig `mapstructure:"commentChangesConsumer"`
+	ViewChangeConfig         ListenerConfig `mapstructure:"viewChangesConsumer"`
 	BrandChangesConfig       ListenerConfig `mapstructure:"brandChangesConsumer"`
 	InfluencerChangesConfig  ListenerConfig `mapstructure:"influencerChangesConsumer"`
 	CatalogChangesConfig     ListenerConfig `mapstructure:"catalogChangesConsumer"`
@@ -185,7 +188,6 @@ type S3Config struct {
 	AccessKeyID          string        `mapstructure:"accessKeyID"`
 	SecretAccessKey      string        `mapstructure:"secretAccessKey"`
 	ImageCloudfrontURL   string        `mapstructure:"imageCloudfrontUrl"`
-	ImageUploadPath      string        `mapstructure:"imageUploadPath"`
 	ImageUploadBucket    string        `mapstructure:"imageUploadBucket"`
 	VideoUploadPath      string        `mapstructure:"videoUploadPath"`
 	VideoUploadBucket    string        `mapstructure:"videoUploadBucket"`

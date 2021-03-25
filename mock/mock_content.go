@@ -35,6 +35,42 @@ func (m *MockContent) EXPECT() *MockContentMockRecorder {
 	return m.recorder
 }
 
+// AddContentComment mocks base method
+func (m *MockContent) AddContentComment(arg0 *schema.ProcessCommentOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddContentComment", arg0)
+}
+
+// AddContentComment indicates an expected call of AddContentComment
+func (mr *MockContentMockRecorder) AddContentComment(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddContentComment", reflect.TypeOf((*MockContent)(nil).AddContentComment), arg0)
+}
+
+// AddContentLike mocks base method
+func (m *MockContent) AddContentLike(arg0 *schema.ProcessLikeOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddContentLike", arg0)
+}
+
+// AddContentLike indicates an expected call of AddContentLike
+func (mr *MockContentMockRecorder) AddContentLike(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddContentLike", reflect.TypeOf((*MockContent)(nil).AddContentLike), arg0)
+}
+
+// AddContentView mocks base method
+func (m *MockContent) AddContentView(arg0 *schema.ProcessViewOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddContentView", arg0)
+}
+
+// AddContentView indicates an expected call of AddContentView
+func (mr *MockContentMockRecorder) AddContentView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddContentView", reflect.TypeOf((*MockContent)(nil).AddContentView), arg0)
+}
+
 // CreateCatalogImageContent mocks base method
 func (m *MockContent) CreateCatalogImageContent(arg0 *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
 	m.ctrl.T.Helper()
@@ -121,6 +157,18 @@ func (m *MockContent) CreateView(arg0 *schema.CreateViewOpts) error {
 func (mr *MockContentMockRecorder) CreateView(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateView", reflect.TypeOf((*MockContent)(nil).CreateView), arg0)
+}
+
+// DeleteContentLike mocks base method
+func (m *MockContent) DeleteContentLike(arg0 *schema.ProcessLikeOpts) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteContentLike", arg0)
+}
+
+// DeleteContentLike indicates an expected call of DeleteContentLike
+func (mr *MockContentMockRecorder) DeleteContentLike(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteContentLike", reflect.TypeOf((*MockContent)(nil).DeleteContentLike), arg0)
 }
 
 // DeletePebble mocks base method

@@ -198,7 +198,7 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	params := s3.PutObjectInput{
 		Body:   bytes.NewReader(buf.Bytes()),
 		Bucket: aws.String(mi.App.Config.S3Config.ImageUploadBucket),
-		Key:    aws.String("/assets/catalog/img/" + i.FileName),
+		Key:    aws.String("/assets/img/" + i.FileName),
 	}
 
 	_, err := mi.App.S3.PutObject(&params)
@@ -209,7 +209,7 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
 	// If cloudfront url is provided then set the url as cloudfront url otherwise s3 bucket url
 	if i.CloudfrontURL != "" {
-		i.URL = fmt.Sprintf("%s/%s", mi.App.Config.S3Config.ImageCloudfrontURL, i.SRCBucket+*params.Key)
+		i.URL = fmt.Sprintf("%s/%s", mi.App.Config.S3Config.ImageCloudfrontURL, *params.Key)
 	} else {
 		i.URL = i.SRCBucketURL
 	}
@@ -221,11 +221,13 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	}
 
 	resp := schema.CreateImageMediaResp{
-		ID:         res.InsertedID.(primitive.ObjectID),
-		FileType:   i.FileType,
-		FileName:   i.FileName,
-		Dimensions: i.Dimensions,
-		URL:        i.SRCBucketURL,
+		ID:            res.InsertedID.(primitive.ObjectID),
+		FileType:      i.FileType,
+		FileName:      i.FileName,
+		Dimensions:    i.Dimensions,
+		SRCBucketURL:  i.SRCBucketURL,
+		CloudfrontURL: i.CloudfrontURL,
+		URL:           i.URL,
 	}
 
 	return &resp, nil

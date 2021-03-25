@@ -39,6 +39,24 @@ func InitConsumer(a *App) {
 	})
 	go a.ContentChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessage)
 
+	a.LikeChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.LikeChangeConfig,
+	})
+	go a.LikeChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessLike)
+
+	a.ViewChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.ViewChangeConfig,
+	})
+	go a.ViewChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessView)
+
+	a.CommentChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CommentChangeConfig,
+	})
+	go a.CommentChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessComment)
+
 }
 
 // CloseConsumer close all consumer connections
@@ -46,6 +64,9 @@ func CloseConsumer(a *App) {
 	a.LiveComments.Close()
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
+	a.LikeChanges.Close()
+	a.CommentChanges.Close()
+	a.ViewChanges.Close()
 	// a.CatalogChanges.Close()
 	a.ContentChanges.Close()
 }
