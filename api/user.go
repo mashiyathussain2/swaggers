@@ -167,3 +167,21 @@ func (a *API) confirmLoginViaMobileOTP(requestCTX *handler.RequestContext, w htt
 	}
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
+
+func (a *API) getUserInfoByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetUserInfoByIDOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.User.GetUserInfoByID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}

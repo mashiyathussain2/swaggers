@@ -29,3 +29,76 @@ func GetRandomEmailLoginCustomerOpts() *EmailLoginCustomerOpts {
 	}
 	return &s
 }
+
+// GetRandomCreateBrandOpts returns CreateBrandOpts with random data
+func GetRandomCreateBrandOpts() *CreateBrandOpts {
+	b := CreateBrandOpts{
+		Name:             faker.Company().String(),
+		RegisteredName:   faker.Company().Name(),
+		FulfillmentEmail: faker.Internet().FreeEmail(),
+		FulfillmentCCEmail: []string{
+			faker.Internet().FreeEmail(),
+			faker.Internet().FreeEmail(),
+		},
+		Domain:  faker.Internet().DomainName(),
+		Website: faker.Internet().Url(),
+		Logo: &Img{
+			SRC: faker.Avatar().Url("png", 200, 200),
+		},
+		CoverImg: &Img{
+			SRC: faker.Avatar().Url("png", 200, 400),
+		},
+		Bio: faker.Lorem().Sentence(3),
+	}
+
+	if faker.RandomInt(0, 1) == 1 {
+		b.SocialAccount = &SocialAccountOpts{
+			Facebook: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Youtube: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Instagram: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Twitter: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+		}
+	}
+	return &b
+}
+
+// GetRandomCreateInfluencerOpts returns CreateInfluencerOpts with random data
+func GetRandomCreateInfluencerOpts() *CreateInfluencerOpts {
+	c := CreateInfluencerOpts{
+		Name: faker.Company().String(),
+		CoverImg: &Img{
+			SRC: faker.Avatar().Url("png", 200, 400),
+		},
+		ProfileImage: &Img{
+			SRC: faker.Avatar().Url("png", 200, 400),
+		},
+		ExternalLinks: []string{faker.Internet().Url()},
+		Bio:           faker.Lorem().Sentence(3),
+	}
+
+	if faker.RandomInt(0, 1) == 1 {
+		c.SocialAccount = &SocialAccountOpts{
+			Facebook: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Youtube: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Instagram: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+			Twitter: &SocialMediaOpts{
+				FollowersCount: faker.RandomInt(0, 10000000),
+			},
+		}
+	}
+	return &c
+}

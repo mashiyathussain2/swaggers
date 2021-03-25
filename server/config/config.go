@@ -33,6 +33,7 @@ type ServerConfig struct {
 	CloseTimeout   time.Duration `mapstructure:"closeTimeout"`
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
 }
 
 // APIConfig contains api package related configurations
@@ -76,6 +77,14 @@ type TokenAuthConfig struct {
 	JWTExpiresAt     int64  `mapstructure:"expiresAt"`
 }
 
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
+}
+
 // KafkaConfig has kafka cluster specific configuration
 type KafkaConfig struct {
 	EnableKafka bool     `mapstructure:"enableKafka"`
@@ -83,6 +92,8 @@ type KafkaConfig struct {
 	BrokerURL   string   `mapstructure:"brokerUrl"`
 	BrokerPort  string   `mapstructure:"brokerPort"`
 	Brokers     []string `mapstructure:"brokers"`
+	Username    string   `mapstructure:"username"`
+	Password    string   `mapstructure:"password"`
 }
 
 // LoggerConfig contains different logger configurations
@@ -147,7 +158,7 @@ func (d *DatabaseConfig) ConnectionURL() string {
 	}
 	url += fmt.Sprintf("%s", d.Host)
 	if d.ReplicaSet != "" {
-		url += fmt.Sprintf("?replicaSet=%s", d.ReplicaSet)
+		url += fmt.Sprintf("/?replicaSet=%s", d.ReplicaSet)
 	}
 	return url
 }

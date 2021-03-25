@@ -7,15 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// CreateOrUpdateCustomerOpts contains fields and validations required to create a new customer or update existing customer
-type CreateOrUpdateCustomerOpts struct {
-	UserID       primitive.ObjectID `json:"id" validate:"required"`
-	FullName     string             `json:"full_name" validate:"required"`
-	DOB          time.Time          `json:"dob" validate:"required"`
-	Gender       string             `json:"gender" validate:"required,oneof=M F O"`
-	ProfileImage *Img               `json:"profile_image" validate:"required"`
-}
-
 // GetCustomerInfoResp contains fields to be returned in response to get customer
 type GetCustomerInfoResp struct {
 	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`

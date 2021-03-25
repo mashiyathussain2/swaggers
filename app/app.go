@@ -21,10 +21,12 @@ type App struct {
 	Config  *config.APPConfig
 
 	// List of services this app is implementing
-	SNS      SNS
-	SES      SES
-	User     User
-	Customer Customer
+	SNS        SNS
+	SES        SES
+	User       User
+	Customer   Customer
+	Brand      Brand
+	Influencer Influencer
 }
 
 // NewApp returns new app instance
