@@ -48,6 +48,7 @@ type Content struct {
 	Type           string               `json:"type,omitempty" bson:"type,omitempty"`
 	MediaType      string               `json:"media_type,omitempty" bson:"media_type,omitempty"`
 	MediaID        primitive.ObjectID   `json:"media_id,omitempty" bson:"media_id,omitempty"`
+	MediaInfo      interface{}          `json:"media_info,omitempty" bson:"media_info,omitempty"`
 	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
 	InfluencerInfo []InfluencerInfo     `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
 	BrandIDs       []primitive.ObjectID `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
@@ -60,12 +61,17 @@ type Content struct {
 	// Flag to toggle content visibility
 	IsActive bool `json:"is_active" bson:"is_active"`
 
+	ViewCount    uint                 `json:"view_count" bson:"view_count"`
+	LikeCount    uint                 `json:"like_count" bson:"like_count"`
+	LikeIDs      []primitive.ObjectID `json:"like_ids,omitempty" bson:"like_ids,omitempty"`
+	CommentCount uint                 `json:"comment_count" bson:"comment_count"`
+
 	Caption  string   `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags []string `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
 
 	//Catalog Linking
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
-	CatalogInfo []CatalogInfo        `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	CatalogInfo []CatalogInfo        `json:"catalog_info" bson:"catalog_info"`
 
 	CreatedAt   time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	ProcessedAt time.Time `json:"processed_at,omitempty" bson:"processed_at,omitempty"`

@@ -26,12 +26,17 @@ const (
 
 // Live contains hypd live stream data.
 type Live struct {
-	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
-	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
-	Slug           string               `json:"slug,omitempty" bson:"slug,omitempty"`
-	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids" bson:"influencer_ids,omitempty"`
-	Status         *StreamStatus        `json:"status,omitempty" bson:"status,omitempty"`
-	StatusHistory  []StreamStatus       `json:"status_history,omitempty" bson:"status_history,omitempty"`
+	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	Slug          string               `json:"slug,omitempty" bson:"slug,omitempty"`
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids" bson:"influencer_ids,omitempty"`
+	Status        *StreamStatus        `json:"status,omitempty" bson:"status,omitempty"`
+	StatusHistory []StreamStatus       `json:"status_history,omitempty" bson:"status_history,omitempty"`
+
+	LikeCount    uint                 `json:"like_count" bson:"like_count"`
+	LikeIDs      []primitive.ObjectID `json:"like_ids" bson:"like_ids"`
+	CommentCount uint                 `json:"comment_count" bson:"comment_count"`
+
 	CatalogIDs     []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 	FeaturedImage  *IMG                 `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	StreamEndImage *IMG                 `json:"stream_end_image,omitempty" bson:"stream_end_image,omitempty"`

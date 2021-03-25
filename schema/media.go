@@ -91,9 +91,11 @@ type CreateImageMediaOpts struct {
 
 // CreateImageMediaResp contains fields to be returned for image upload
 type CreateImageMediaResp struct {
-	ID         primitive.ObjectID `json:"id"`
-	FileName   string             `json:"file_name"`
-	FileType   string             `json:"file_type"`
-	Dimensions *model.Dimensions  `json:"dimensions"`
-	URL        string             `json:"url"`
+	ID            primitive.ObjectID `json:"id"`
+	FileName      string             `json:"file_name"`
+	FileType      string             `json:"file_type"`
+	Dimensions    *model.Dimensions  `json:"dimensions"`
+	SRCBucketURL  string             `json:"src_bucket_url"`
+	CloudfrontURL string             `json:"cloudfront_url"`
+	URL           string             `json:"url"`
 }

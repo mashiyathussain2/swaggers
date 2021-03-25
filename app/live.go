@@ -350,10 +350,20 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 
 func (li *LiveImpl) ConsumeComment(m kafka.Message) {
 	message := m.(segKafka.Message).Value
-	var s schema.CreateLiveCommentOpts
-	err := json.Unmarshal(message, &s)
-	if err != nil {
+	var opts schema.CreateLiveCommentOpts
+	if err := json.Unmarshal(message, &opts); err != nil {
 		li.Logger.Err(err).RawJSON("message", message).Msg("failed to read live comment data")
+		return
+	}
+	doc := model.Comment{
+		ResourceType: model.LiveColl,
+		ResourceID:   opts.LiveID,
+		Description:  opts.Description,
+		UserID:       opts.UserID,
+		CreatedAt:    opts.CreatedAt,
+	}
+	if _, err := li.DB.Collection(model.CommentColl).InsertOne(context.TODO(), &doc); err != nil {
+		li.Logger.Err(err).Interface("opts", opts).Msg("failed to push comment")
 		return
 	}
 	li.App.LiveComments.Commit(context.Background(), m)
