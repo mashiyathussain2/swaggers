@@ -80,9 +80,25 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		Slug:          UniqueSlug(opts.Name),
 		BasePrice:     model.SetINRPrice(float32(opts.BasePrice)),
 		RetailPrice:   model.SetINRPrice(float32(opts.RetailPrice)),
-		CreatedAt:     currentTime,
 		TransferPrice: model.SetINRPrice(float32(opts.TransferPrice)),
+		CreatedAt:     currentTime,
 	}
+
+	tax := &model.Tax{
+		Type: opts.Tax.Type,
+	}
+	if opts.Tax.Type == model.SingleTax {
+		if opts.Tax.Rate == 0 {
+			return nil, errors.Errorf("tax rate cannot be 0")
+		}
+		tax.Rate = opts.Tax.Rate
+	} else {
+		if len(opts.Tax.TaxRanges) == 0 {
+			return nil, errors.Errorf("tax range cannot be empty")
+		}
+		tax.TaxRanges = opts.Tax.TaxRanges
+	}
+	c.Tax = tax
 
 	c.FeaturedImage = &model.CatalogFeaturedImage{
 		IMG: model.IMG{
@@ -165,11 +181,12 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		Variants:        c.Variants,
 		BasePrice:       *c.BasePrice,
 		RetailPrice:     *c.RetailPrice,
+		TransferPrice:   *c.TransferPrice,
+		Tax:             c.Tax,
 		HSNCode:         c.HSNCode,
 		Status:          c.Status,
 		ETA:             c.ETA,
 		CreatedAt:       c.CreatedAt,
-		TransferPrice:   *c.TransferPrice,
 	}
 
 	return resp, nil
@@ -226,6 +243,26 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 	if opts.TransferPrice != 0 {
 		c.TransferPrice = model.SetINRPrice(float32(opts.TransferPrice))
 	}
+	if opts.Tax != nil {
+		c.Tax = &model.Tax{
+			Type: opts.Tax.Type,
+		}
+		if opts.Tax.Type == model.SingleTax {
+			if opts.Tax.Rate == 0 {
+				return nil, errors.Errorf("rate cannot be 0")
+			}
+			c.Tax.Rate = opts.Tax.Rate
+			c.Tax.TaxRanges = []model.TaxRange{}
+		}
+		if opts.Tax.Type == model.MultipleTax {
+			if len(opts.Tax.TaxRanges) == 0 {
+				return nil, errors.Errorf("tax ranges cannot be empty")
+			}
+			c.Tax.TaxRanges = opts.Tax.TaxRanges
+			c.Tax.Rate = 0
+		}
+
+	}
 
 	if reflect.DeepEqual(model.Catalog{}, c) {
 		return nil, errors.New("no fields found to update")
@@ -255,9 +292,10 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		HSNCode:         c.HSNCode,
 		BasePrice:       *c.BasePrice,
 		RetailPrice:     *c.RetailPrice,
+		TransferPrice:   *c.TransferPrice,
 		ETA:             c.ETA,
 		UpdatedAt:       c.UpdatedAt,
-		TransferPrice:   *c.TransferPrice,
+		Tax:             *c.Tax,
 	}, nil
 }
 
