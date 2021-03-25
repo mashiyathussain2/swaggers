@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"net/http"
@@ -801,6 +802,8 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 //GetCatalogsByFilter returns catalogs based on the filters entered
 func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 
+	var cur *mongo.Cursor
+	var err error
 	ctx := context.TODO()
 	var filterQuery bson.D
 	if len(opts.BrandIDs) > 0 {
@@ -819,10 +822,28 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		}
 		filterQuery = append(filterQuery, sQuery)
 	}
+	if opts.Name != "" {
+		nQuery := bson.E{
+			Key: "lname", Value: bson.M{
+				"$regex": strings.ToLower(opts.Name),
+			},
+		}
+		filterQuery = append(filterQuery, nQuery)
+	}
+	// filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
 
 	var catalogs []schema.GetCatalogResp
 
-	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery)
+	pageSize := kc.App.Config.PageSize
+	skip := int64(pageSize * opts.Page)
+	limit := int64(pageSize)
+	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
+	fmt.Println(len(filterQuery))
+	if len(filterQuery) == 0 {
+		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{}, findOpts)
+	} else {
+		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery, findOpts)
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "error finding catalogs")
 	}

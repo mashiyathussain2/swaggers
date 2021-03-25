@@ -259,8 +259,10 @@ type ContentLabel struct {
 
 //GetCatalogsByFilterOpts contains fields which are used to filter catalogs
 type GetCatalogsByFilterOpts struct {
+	Page     int                  `json:"page" validate:"gte=0"`
 	BrandIDs []primitive.ObjectID `json:"brands"`
 	Status   []string             `json:"status"`
+	Name     string               `json:"name"`
 }
 
 //ErrorCMS contains Error response from CMS
