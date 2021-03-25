@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
 )
@@ -61,9 +62,6 @@ func NewServer() *Server {
 	}
 
 	server.InitLoggers()
-	if c.KafkaConfig.EnableKafka {
-		server.InitKafka()
-	}
 
 	if c.ServerConfig.UseMemoryStore {
 		server.Redis = memorystorage.NewMemoryStorage()
@@ -83,6 +81,7 @@ func NewServer() *Server {
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
 	app.InitService(server.API.App)
+	app.InitConsumer(server.API.App)
 	return server
 }
 
@@ -94,7 +93,13 @@ func (s *Server) StartServer() {
 	if s.Config.MiddlewareConfig.EnableRequestLog {
 		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
 	}
-
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   s.Config.ServerConfig.CORSConfig.AllowedOrigins,
+		AllowedMethods:   s.Config.ServerConfig.CORSConfig.AllowedMethods,
+		AllowCredentials: s.Config.ServerConfig.CORSConfig.AllowCredentials,
+		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
+	})
+	n.Use(cors)
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
@@ -137,8 +142,8 @@ func (s *Server) InitLoggers() {
 	var kl *logger.KafkaLogWriter
 	var cw, fw io.Writer
 	if s.Config.LoggerConfig.EnableKafkaLogger {
-		conn := goKafka.NewSegmentioKafka(&s.Config.KafkaConfig)
-		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, conn)
+		dialer := goKafka.NewSegmentioKafkaDialer(&s.Config.KafkaConfig)
+		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, dialer, &s.Config.KafkaConfig)
 	}
 	if s.Config.LoggerConfig.EnableFileLogger {
 		fw = logger.NewFileWriter(s.Config.LoggerConfig.FileLoggerConfig.FileName, s.Config.LoggerConfig.FileLoggerConfig.Path, &s.Config.LoggerConfig.FileLoggerConfig)
@@ -150,12 +155,4 @@ func (s *Server) InitLoggers() {
 
 	// Setting logger
 	s.Log = l
-}
-
-// InitKafka initializes sarama kafka
-func (s *Server) InitKafka() {
-	k := goKafka.NewSaramaKafka(&s.Config.KafkaConfig)
-
-	// Setting up kafka
-	s.Kafka = k
 }

@@ -8,6 +8,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	schema "go-app/schema"
 	auth "go-app/server/auth"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
 )
 
@@ -107,6 +108,21 @@ func (m *MockUser) GetUserByEMail(arg0 string) (*schema.GetUserResp, error) {
 func (mr *MockUserMockRecorder) GetUserByEMail(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEMail", reflect.TypeOf((*MockUser)(nil).GetUserByEMail), arg0)
+}
+
+// GetUserInfoByID mocks base method
+func (m *MockUser) GetUserInfoByID(arg0 *schema.GetUserInfoByIDOpts) (primitive.M, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserInfoByID", arg0)
+	ret0, _ := ret[0].(primitive.M)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserInfoByID indicates an expected call of GetUserInfoByID
+func (mr *MockUserMockRecorder) GetUserInfoByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfoByID", reflect.TypeOf((*MockUser)(nil).GetUserInfoByID), arg0)
 }
 
 // LoginWithSocial mocks base method

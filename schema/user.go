@@ -52,6 +52,19 @@ type GetUserResp struct {
 	UpdatedAt     time.Time          `json:"updated_at,omitempty"`
 }
 
+type GetUserInfoResp struct {
+	ID            primitive.ObjectID `json:"id"`
+	CustomerID    primitive.ObjectID `json:"customer_id"`
+	Type          string             `json:"type"`
+	FullName      string             `json:"full_name"`
+	ProfileImage  *model.IMG         `json:"profile_image"`
+	Email         string             `json:"email"`
+	PhoneNo       *model.PhoneNumber `json:"phone_no"`
+	Username      string             `json:"username"`
+	EmailVerified bool               `json:"email_verified"`
+	PhoneVerified bool               `json:"phone_verified"`
+}
+
 //ForgotPasswordOpts contains fields and validations required to send otp to email to reset password
 type ForgotPasswordOpts struct {
 	Email string `json:"email" validate:"required,email"`
@@ -87,4 +100,8 @@ type LoginWithSocial struct {
 	Email        string `json:"email" validate:"required,email"`
 	FullName     string `json:"full_name" validate:"required"`
 	ProfileImage *Img   `json:"profile_image" validate:"required"`
+}
+
+type GetUserInfoByIDOpts struct {
+	ID primitive.ObjectID `json:"id" validate:"required"`
 }
