@@ -40,10 +40,12 @@ type CreateDiscountResp struct {
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
+//TODO: Add Gender validation test
 // CreateSaleOpts validates schema for creating a new sale
 type CreateSaleOpts struct {
 	Name        string    `json:"name" validate:"required"`
 	Banner      Img       `json:"banner" validate:"required"`
+	Genders     []string  `json:"genders" validate:"required,oneof=M F O"`
 	ValidAfter  time.Time `json:"valid_after" validate:"required"`
 	ValidBefore time.Time `json:"valid_before" validate:"required,gtfield=ValidAfter"`
 }
