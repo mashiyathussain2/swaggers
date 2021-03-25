@@ -2942,7 +2942,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 	bIDs := []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID()}
 	status := []string{model.Archive, model.Publish, model.Draft, model.Unlist}
 	var catalogs []model.Catalog
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		cat := model.Catalog{
 			ID:      primitive.NewObjectID(),
 			BrandID: bIDs[faker.RandomInt(0, 2)],
@@ -2994,7 +2994,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					BrandIDs: []primitive.ObjectID{bIDs[1], bIDs[2]},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if (catalogs[i].Status.Value == model.Publish || catalogs[i].Status.Value == model.Archive) && (catalogs[i].BrandID == bIDs[1] || catalogs[i].BrandID == bIDs[2]) {
 						catalogResp = append(catalogResp, schema.CreateCatalogResp{
 							ID:      catalogs[i].ID,
@@ -3023,7 +3023,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					BrandIDs: []primitive.ObjectID{bIDs[1]},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if catalogs[i].BrandID == bIDs[1] {
 						catalogResp = append(catalogResp, schema.CreateCatalogResp{
 							ID:      catalogs[i].ID,
@@ -3052,7 +3052,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					Status: []string{model.Publish},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if catalogs[i].Status.Value == model.Publish {
 						catalogResp = append(catalogResp, schema.CreateCatalogResp{
 							ID:      catalogs[i].ID,
@@ -3060,6 +3060,62 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 							Status:  catalogs[i].Status,
 						})
 					}
+				}
+				tt.want = catalogResp
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK] page 0",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.GetCatalogsByFilterOpts{
+					Page: 0,
+				}
+				var catalogResp []schema.GetCatalogResp
+				for i := 0; i < 10; i++ {
+					catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						ID:      catalogs[i].ID,
+						BrandID: catalogs[i].BrandID,
+						Status:  catalogs[i].Status,
+					})
+
+				}
+				tt.want = catalogResp
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK] page 1",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.GetCatalogsByFilterOpts{
+					Page: 1,
+				}
+				var catalogResp []schema.GetCatalogResp
+				for i := 10; i < 20; i++ {
+					catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						ID:      catalogs[i].ID,
+						BrandID: catalogs[i].BrandID,
+						Status:  catalogs[i].Status,
+					})
+
 				}
 				tt.want = catalogResp
 			},

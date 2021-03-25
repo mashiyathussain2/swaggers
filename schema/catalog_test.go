@@ -1749,3 +1749,95 @@ func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCatalogsByFilter(t *testing.T) {
+	t.Parallel()
+	brandID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
+	status := []string{model.Publish}
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    GetCatalogsByFilterOpts
+	}{
+		{
+			name: "[OK]",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":1,
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     1,
+				Status:   status,
+			},
+		},
+		{
+			name: "[OK] brands missing",
+			json: string(`{
+				"page":1,
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				Page:   1,
+				Status: status,
+			},
+		},
+		{
+			name: "[OK] page missing",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     0,
+				Status:   status,
+			},
+		},
+		{
+			name: "[OK] Status missing",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":1
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     1,
+			},
+		},
+		{
+			name: "[Error] page < 0",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":-1,
+				"status":["publish"]
+				}`),
+			wantErr: true,
+			err:     []string{"page must be 0 or greater"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc GetCatalogsByFilterOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
