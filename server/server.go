@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
 )
@@ -96,6 +97,13 @@ func (s *Server) StartServer() {
 		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
 	}
 
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   s.Config.ServerConfig.CORSConfig.AllowedOrigins,
+		AllowedMethods:   s.Config.ServerConfig.CORSConfig.AllowedMethods,
+		AllowCredentials: s.Config.ServerConfig.CORSConfig.AllowCredentials,
+		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
+	})
+	n.Use(cors)
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
@@ -126,6 +134,7 @@ func (s *Server) StopServer() {
 	if s.Redis != nil {
 		s.Redis.Close()
 	}
+	s.API.App.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	s.httpServer.Shutdown(ctx)

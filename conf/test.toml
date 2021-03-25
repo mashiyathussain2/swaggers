@@ -58,9 +58,27 @@ username=""
 enableRequestLog=false
 
 [app]
-
+pageSize=10
     [app.example]
     dbName = "test_example"
 
     [app.keeperCatalog]
+    dbName = "test_catalog"
+
+    [app.brand]
+    dbName = "test_brand"
+
+    [app.category]
+    dbName = "test_category"
+
+    [app.discount]
+    dbName = "test_discount"
+    
+    [app.group]
+    dbName = "test_catalog"
+
+    [app.collection]
+    dbName = "test_catalog"
+
+    [app.inventory]
     dbName = "test_catalog"

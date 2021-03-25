@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"go-app/server/config"
 )
 
 // Kafka used by server to implement Kafka.
@@ -14,10 +15,10 @@ type Message interface{}
 
 // Consumer defines how a kafka consumer should be implemented
 type Consumer interface {
-	Init(*Kafka)
-	Consume(context.Context, func(*Message))
-	Commit(context.Context, *Message)
-	ConsumeAndCommit(context.Context, func(*Message))
+	Init(*config.ListenerConfig)
+	Consume(context.Context, func(Message))
+	Commit(context.Context, Message)
+	ConsumeAndCommit(context.Context, func(Message))
 	Close()
 }
 

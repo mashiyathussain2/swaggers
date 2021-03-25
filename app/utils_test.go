@@ -24,7 +24,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 		err     error
 	}{
 		{
-			name: "Empty base64 string",
+			name: "[Error] Empty base64 string",
 			args: args{
 				b64Str: "",
 			},
@@ -32,7 +32,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 			err:     goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil),
 		},
 		{
-			name: "Only meta png data",
+			name: "[Error] Only meta png data",
 			args: args{
 				b64Str: "data:image/png;base64",
 			},
@@ -40,7 +40,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 			err:     goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil),
 		},
 		{
-			name: "Only meta jpeg data",
+			name: "[Error] Only meta jpeg data",
 			args: args{
 				b64Str: "data:image/jpeg;base64",
 			},
@@ -48,7 +48,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 			err:     goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil),
 		},
 		{
-			name: "Only meta png data",
+			name: "[Error] Only meta png data",
 			args: args{
 				b64Str: "data:image/png;base64",
 			},
@@ -56,7 +56,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 			err:     goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil),
 		},
 		{
-			name: "empty image jpeg data",
+			name: "[Error] empty image jpeg data",
 			args: args{
 				b64Str: "data:image/jpeg;base64,",
 			},
@@ -64,7 +64,7 @@ func TestIMG_DecodeBase64StrToIMG(t *testing.T) {
 			err:     goerror.New("invalid base64 image string [format should be`data:image/(jpeg/png);base64,/9j/4AAQSkZJRgABAQE....`]", nil),
 		},
 		{
-			name: "Ok",
+			name: "[Ok]",
 			args: args{
 				b64Str: imgJpeg,
 			},
