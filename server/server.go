@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
 )
@@ -40,7 +41,6 @@ type Server struct {
 	Router     *mux.Router
 	Log        *zerolog.Logger
 	Config     *config.Config
-	Kafka      goKafka.Kafka
 	MongoDB    storage.DB
 	Redis      storage.Redis
 
@@ -61,9 +61,6 @@ func NewServer() *Server {
 	}
 
 	server.InitLoggers()
-	if c.KafkaConfig.EnableKafka {
-		server.InitKafka()
-	}
 
 	if c.ServerConfig.UseMemoryStore {
 		server.Redis = memorystorage.NewMemoryStorage()
@@ -79,11 +76,13 @@ func NewServer() *Server {
 		TokenAuth:  auth.NewTokenAuthentication(&c.TokenAuthConfig),
 		Validator:  validator.NewValidation(),
 	})
-
 	// Initializing app and services
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
 	app.InitService(server.API.App)
+	app.InitProcessor(server.API.App)
+	app.InitConsumer(server.API.App)
+	app.InitProducer(server.API.App)
 	return server
 }
 
@@ -96,6 +95,13 @@ func (s *Server) StartServer() {
 		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
 	}
 
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   s.Config.ServerConfig.CORSConfig.AllowedOrigins,
+		AllowedMethods:   s.Config.ServerConfig.CORSConfig.AllowedMethods,
+		AllowCredentials: s.Config.ServerConfig.CORSConfig.AllowCredentials,
+		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
+	})
+	n.Use(cors)
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
@@ -117,9 +123,6 @@ func (s *Server) StartServer() {
 
 // StopServer closes all the connection and shutdown the server
 func (s *Server) StopServer() {
-	if s.Kafka != nil {
-		s.Kafka.Close()
-	}
 	if s.MongoDB != nil {
 		s.MongoDB.Close()
 	}
@@ -138,8 +141,8 @@ func (s *Server) InitLoggers() {
 	var kl *logger.KafkaLogWriter
 	var cw, fw io.Writer
 	if s.Config.LoggerConfig.EnableKafkaLogger {
-		conn := goKafka.NewSegmentioKafka(&s.Config.KafkaConfig)
-		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, conn)
+		dialer := goKafka.NewSegmentioKafkaDialer(&s.Config.KafkaConfig)
+		kl = logger.NewKafkaLogWriter(s.Config.LoggerConfig.KafkaLoggerConfig.KafkaTopic, dialer, &s.Config.KafkaConfig)
 	}
 	if s.Config.LoggerConfig.EnableFileLogger {
 		fw = logger.NewFileWriter(s.Config.LoggerConfig.FileLoggerConfig.FileName, s.Config.LoggerConfig.FileLoggerConfig.Path, &s.Config.LoggerConfig.FileLoggerConfig)
@@ -148,15 +151,6 @@ func (s *Server) InitLoggers() {
 		cw = logger.NewZeroLogConsoleWriter(logger.NewStandardConsoleWriter())
 	}
 	l := logger.NewLogger(kl, cw, fw)
-
 	// Setting logger
 	s.Log = l
-}
-
-// InitKafka initializes sarama kafka
-func (s *Server) InitKafka() {
-	k := goKafka.NewSaramaKafka(&s.Config.KafkaConfig)
-
-	// Setting up kafka
-	s.Kafka = k
 }

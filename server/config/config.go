@@ -11,16 +11,25 @@ import (
 
 // Config struct stores entire project configurations
 type Config struct {
-	ServerConfig     ServerConfig     `mapstructure:"server"`
-	APIConfig        APIConfig        `mapstructure:"api"`
-	APPConfig        APPConfig        `mapstructure:"app"`
-	KafkaConfig      KafkaConfig      `mapstructure:"kafka"`
-	LoggerConfig     LoggerConfig     `mapstructure:"logger"`
-	DatabaseConfig   DatabaseConfig   `mapstructure:"database"`
-	RedisConfig      RedisConfig      `mapstructure:"redis"`
-	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
-	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
-	S3Config         S3Config         `mapstructure:"s3"`
+	ServerConfig        ServerConfig        `mapstructure:"server"`
+	APIConfig           APIConfig           `mapstructure:"api"`
+	APPConfig           APPConfig           `mapstructure:"app"`
+	KafkaConfig         KafkaConfig         `mapstructure:"kafka"`
+	LoggerConfig        LoggerConfig        `mapstructure:"logger"`
+	DatabaseConfig      DatabaseConfig      `mapstructure:"database"`
+	RedisConfig         RedisConfig         `mapstructure:"redis"`
+	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
+	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
+	S3Config            S3Config            `mapstructure:"s3"`
+	IVSConfig           IVSConfig           `mapstructure:"ivs"`
+	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
+	HypdAPIConfig       HypdAPIConfig       `mapstructure:"hypdAPI"`
+}
+
+// HypdAPIConfig contains other HYPD service apis
+type HypdAPIConfig struct {
+	EntityAPI  string `mapstructure:"entityAPI"`
+	CatalogAPI string `mapstructure:"catalogAPI"`
 }
 
 // ServerConfig has only server specific configuration
@@ -32,6 +41,7 @@ type ServerConfig struct {
 	CloseTimeout   time.Duration `mapstructure:"closeTimeout"`
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
+	CORSConfig     CORSConfig    `mapstructure:"cors"`
 }
 
 // APIConfig contains api package related configurations
@@ -45,10 +55,43 @@ type APIConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig DatabaseConfig
-	S3Config       S3Config
-	ContentConfig  ServiceConfig `mapstructure:"content"`
-	PebbleConfig   ServiceConfig `mapstructure:"pebble"`
+	DatabaseConfig      DatabaseConfig
+	S3Config            S3Config
+	ElasticsearchConfig ElasticsearchConfig
+	IVSConfig           IVSConfig
+	HypdAPIConfig       HypdAPIConfig
+	MediaConfig         ServiceConfig `mapstructure:"media"`
+	ContentConfig       ServiceConfig `mapstructure:"content"`
+	LiveConfig          ServiceConfig `mapstructure:"live"`
+
+	LiveCommentProducerConfig ProducerConfig `mapstructure:"liveCommentProducer"`
+	ContentFullProducerConfig ProducerConfig `mapstructure:"contentFullProducer"`
+
+	LikeChangeConfig         ListenerConfig `mapstructure:"likeChangesConsumer"`
+	CommentChangeConfig      ListenerConfig `mapstructure:"commentChangesConsumer"`
+	ViewChangeConfig         ListenerConfig `mapstructure:"viewChangesConsumer"`
+	BrandChangesConfig       ListenerConfig `mapstructure:"brandChangesConsumer"`
+	InfluencerChangesConfig  ListenerConfig `mapstructure:"influencerChangesConsumer"`
+	CatalogChangesConfig     ListenerConfig `mapstructure:"catalogChangesConsumer"`
+	ContentChangesConfig     ListenerConfig `mapstructure:"contentChangesConsumer"`
+	LiveCommentChangesConfig ListenerConfig `mapstructure:"liveCommentChangesConsumer"`
+}
+
+type ContentStreamProcessorConfig struct {
+	TopicProcessorName    string   `mapstructure:"topicProcessorName"`
+	InputTopics           []string `mapstructure:"inputTopics"`
+	InputPartitions       []int    `mapstructure:"inputPartitions"`
+	CatalogTopicStream    string   `mapstructure:"catalogTopicStream"`
+	BrandTopicStream      string   `mapstructure:"brandTopicStream"`
+	InfluencerTopicStream string   `mapstructure:"influencerTopicStream"`
+}
+
+// ElasticsearchConfig contains elasticsearch related configurations
+type ElasticsearchConfig struct {
+	Endpoint         string `mapstructure:"endpoint"`
+	Username         string `mapstructure:"username"`
+	Password         string `mapstructure:"password"`
+	ContentFullIndex string `mapstructure:"contentFullIndex"`
 }
 
 // ServiceConfig contains app service related config
@@ -58,9 +101,20 @@ type ServiceConfig struct {
 
 // ListenerConfig contains app kafka topic listener related config
 type ListenerConfig struct {
-	GroupID string   `mapstructure:"groupId"`
-	Brokers []string `mapstructure:"brokers"`
-	Topic   string   `mapstructure:"topic"`
+	GroupID  string   `mapstructure:"groupId"`
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+}
+
+// ListenerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
@@ -76,6 +130,16 @@ type KafkaConfig struct {
 	BrokerURL   string   `mapstructure:"brokerUrl"`
 	BrokerPort  string   `mapstructure:"brokerPort"`
 	Brokers     []string `mapstructure:"brokers"`
+	Username    string   `mapstructure:"username"`
+	Password    string   `mapstructure:"password"`
+}
+
+// CORSConfig contains cors related config
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowedOrigins"`
+	AllowedMethods   []string `mapstructure:"allowedMethods"`
+	AllowCredentials bool     `mapstructure:"allowCredentials"`
+	AllowedHeaders   []string `mapstructure:"allowedHeaders"`
 }
 
 // LoggerConfig contains different logger configurations
@@ -120,15 +184,25 @@ type DatabaseConfig struct {
 
 // S3Config stores s3 configurations
 type S3Config struct {
-	BucketName              string        `mapstructure:"bucketName"`
-	Region                  string        `mapstructure:"region"`
-	AccessKeyID             string        `mapstructure:"accessKeyID"`
-	SecretAccessKey         string        `mapstructure:"secretAccessKey"`
-	S3UploadAccessKeyID     string        `mapstructure:"s3VideoUploadAccessKeyId"`
-	S3UploadSecretAccessKey string        `mapstructure:"s3VideoUploadSecretAccessKey"`
-	S3VideoUploadBucket     string        `mapstructure:"s3VideoUploadBucket"`
-	S3VideoUploadKey        string        `mapstructure:"s3VideoUploadKey"`
-	PresignedURLValidity    time.Duration `mapstructure:"presignedURLValidity"`
+	Region               string        `mapstructure:"region"`
+	AccessKeyID          string        `mapstructure:"accessKeyID"`
+	SecretAccessKey      string        `mapstructure:"secretAccessKey"`
+	ImageCloudfrontURL   string        `mapstructure:"imageCloudfrontUrl"`
+	ImageUploadBucket    string        `mapstructure:"imageUploadBucket"`
+	VideoUploadPath      string        `mapstructure:"videoUploadPath"`
+	VideoUploadBucket    string        `mapstructure:"videoUploadBucket"`
+	PresignedURLValidity time.Duration `mapstructure:"presignedURLValidity"`
+}
+
+// IVSConfig contains aws ivs related configuration
+type IVSConfig struct {
+	Region           string `mapstructure:"region"`
+	ARN              string `mapstructure:"arn"`
+	AccessKeyID      string `mapstructure:"accessKeyId"`
+	SecretAccessKey  string `mapstructure:"secretAccessKey"`
+	AuthorizeChannel bool   `mapstructure:"authorizeChannel"`
+	LatencyMode      string `mapstructure:"latencyMode"`
+	ChannelType      string `mapstructure:"channelType"`
 }
 
 // ConnectionURL returns connection string to of mongodb storage
@@ -139,7 +213,7 @@ func (d *DatabaseConfig) ConnectionURL() string {
 	}
 	url += fmt.Sprintf("%s", d.Host)
 	if d.ReplicaSet != "" {
-		url += fmt.Sprintf("?replicaSet=%s", d.ReplicaSet)
+		url += fmt.Sprintf("/?replicaSet=%s", d.ReplicaSet)
 	}
 	return url
 }
@@ -204,5 +278,9 @@ func GetConfigFromFile(fileName string) *Config {
 		fmt.Printf("couldn't read config: %s", err)
 		os.Exit(1)
 	}
+	config.APPConfig.S3Config = config.S3Config
+	config.APPConfig.IVSConfig = config.IVSConfig
+	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
+	config.APPConfig.HypdAPIConfig = config.HypdAPIConfig
 	return config
 }

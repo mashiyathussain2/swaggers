@@ -26,6 +26,7 @@ func NewTestApp(c *config.Config) *App {
 
 // CleanTestApp drops the test database
 func CleanTestApp(a *App) {
+	a.Logger.Log().Msg("hereeeee")
 	ctx := context.Background()
 	dbs, _ := a.MongoDB.Client.ListDatabases(ctx, bson.M{"name": bson.M{"$regex": primitive.Regex{Pattern: "^test_*", Options: "i"}}})
 	for _, db := range dbs.Databases {
