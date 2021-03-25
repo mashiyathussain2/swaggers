@@ -11,6 +11,12 @@ const (
 	CatalogColl = "catalog"
 )
 
+// list of tax type
+const (
+	SingleTax   = "single"
+	MultipleTax = "multiple"
+)
+
 // CatalogFeaturedImage has one featured image for a catalog in landscape, portrait, and square.
 type CatalogFeaturedImage struct {
 	ID  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -101,10 +107,23 @@ type Catalog struct {
 	RetailPrice   *Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	TransferPrice *Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
-	CatalogContent []string `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
+	Tax *Tax `json:"tax,omitempty" bson:"tax,omitempty"`
+
+	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+type Tax struct {
+	Type      string     `json:"type,omitempty" bson:"type,omitempty"`
+	Rate      float32    `json:"rate,omitempty" bson:"rate,omitempty"`
+	TaxRanges []TaxRange `json:"tax_ranges,omitempty" bson:"tax_ranges,omitempty"`
+}
+type TaxRange struct {
+	MinValue int     `json:"min_value" bson:"min_value"`
+	MaxValue int     `json:"max_value,omitempty" bson:"max_value,omitempty"`
+	Rate     float32 `json:"rate,omitempty" bson:"rate,omitempty"`
 }
 
 // VariantType is a paramater which defines the variant classification for a particular catalog such as size or color or design etc.

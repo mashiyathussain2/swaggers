@@ -36,7 +36,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"featured_image":{
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
-				"transfer_price":1000
+				"transfer_price":1000,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -51,6 +55,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 				TransferPrice: 1000,
 				FeaturedImage: &Img{
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
+				},
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 5,
 				},
 			},
 		},
@@ -72,7 +80,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"filter_attr": [{
 					"name": "Color",
 					"value": "Red"
-				}]
+				}],
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -93,6 +105,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 				},
 				FeaturedImage: &Img{
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
+				},
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 5,
 				},
 			},
 		},
@@ -118,7 +134,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 						"attribute": "red",
 						"unit":2
 					}
-				]
+				],
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -142,6 +162,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					SRC: "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31",
 				},
 				TransferPrice: 1000,
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 5,
+				},
 			},
 		},
 		{
@@ -158,7 +182,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
 				"transfer_price":1000,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: true,
 			err:     []string{"keywords must contain unique values"},
@@ -178,7 +206,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 				},
 				"transfer_price":1000,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: true,
 			err: []string{
@@ -207,7 +239,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					}
 				],
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: true,
 			err: []string{
@@ -228,7 +264,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 				},
 				"transfer_price":1000,
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: true,
 			err: []string{
@@ -255,7 +295,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"unit": "day"
 				},
 				"base_price": 1299,
-				"retail_price": 1099
+				"retail_price": 1099,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -276,6 +320,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 				TransferPrice: 1000,
 				BasePrice:     1299,
 				RetailPrice:   1099,
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 5,
+				},
 				// VariantType: model.SizeType,
 				// Variants: []CreateVariantOpts{
 				// 	{
@@ -305,7 +353,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"unit must be one of [hour day month]"},
@@ -331,7 +383,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: false,
 			want: CreateCatalogOpts{
@@ -357,6 +413,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					},
 				},
 				TransferPrice: 1000,
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 5,
+				},
 			},
 		},
 		{
@@ -377,7 +437,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					},
 					"base_price": 1299,
 					"retail_price": 1099,
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"name is a required field"},
@@ -403,7 +467,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"value is a required field"},
@@ -421,7 +489,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"category_id is a required field"},
@@ -439,7 +511,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than 0"},
@@ -458,7 +534,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"base_price must be greater than or equal to RetailPrice"},
@@ -476,7 +556,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -495,7 +579,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"retail_price must be greater than 0"},
@@ -514,7 +602,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":1000
+					"transfer_price":1000,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"category_id must contain more than 0 items"},
@@ -530,7 +622,11 @@ func TestCreateCatalogOpts(t *testing.T) {
 				"hsn_code": "hsnCode1",
 				"base_price": 1299,
 				"retail_price": 1099,
-				"transfer_price":1000
+				"transfer_price":1000,
+				"tax":{
+					"type":"single",
+					"rate":5
+				}
 			}`),
 			wantErr: true,
 			err:     []string{"featured_image is a required field"},
@@ -548,6 +644,10 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"retail_price": 1000,
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+					},
+					"tax":{
+						"type":"single",
+						"rate":5
 					}
 				}`),
 			wantErr: true,
@@ -567,10 +667,34 @@ func TestCreateCatalogOpts(t *testing.T) {
 					"featured_image":{
 						"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
 					},
-					"transfer_price":0
+					"transfer_price":0,
+					"tax":{
+						"type":"single",
+						"rate":5
+					}
 				}`),
 			wantErr: true,
 			err:     []string{"transfer_price must be greater than 0"},
+		},
+		{
+			name: "[Error] Tax Missing",
+			json: string(`{
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"brand_id": "5e8821fe1108c87837ef2611",
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"featured_image":{
+					"src":"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31"
+				},
+				"transfer_price":1000
+				
+			}`),
+			wantErr: true,
+			err:     []string{"tax is a required field"},
 		},
 	}
 
@@ -1250,6 +1374,86 @@ func TestEditCatalogOpts(t *testing.T) {
 				HSNCode:     "hsnCode1",
 				BasePrice:   1299,
 				RetailPrice: 1099,
+			},
+		},
+		{
+			name: "[Ok] Tax",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"transfer_price":1000,
+				"tax":{
+					"type":"single",
+					"rate":20
+				}
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
+				Tax: &TaxOpts{
+					Type: model.SingleTax,
+					Rate: 20,
+				},
+			},
+		},
+		{
+			name: "[Ok] Tax Multiple",
+			json: string(`{
+				"id": "5e8821fe1108c87837ef2612",
+				"name": "test",
+				"category_id": ["5e8821fe1108c87837ef2612"],
+				"description": "test description 1",
+				"keywords":  ["k1", "k2"],
+				"hsn_code": "hsnCode1",
+				"base_price": 1299,
+				"retail_price": 1099,
+				"transfer_price":1000,
+				"tax":{
+					"type":"multiple",
+					"tax_ranges":[
+						{
+							"min_value":0,
+							"max_value":1000,
+							"rate":10
+						}
+					]
+				}
+			}`),
+			wantErr: false,
+			want: EditCatalogOpts{
+				ID:            cID,
+				Name:          "test",
+				CategoryID:    []primitive.ObjectID{cID},
+				Description:   "test description 1",
+				Keywords:      []string{"k1", "k2"},
+				HSNCode:       "hsnCode1",
+				BasePrice:     1299,
+				RetailPrice:   1099,
+				TransferPrice: 1000,
+				Tax: &TaxOpts{
+					Type: model.MultipleTax,
+					TaxRanges: []model.TaxRange{
+						{
+							MinValue: 0,
+							MaxValue: 1000,
+							Rate:     10,
+						},
+					},
+				},
 			},
 		},
 	}

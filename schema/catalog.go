@@ -24,6 +24,12 @@ type FilterAttribute struct {
 	Value string `json:"value" validate:"required"`
 }
 
+type TaxOpts struct {
+	Type      string           `json:"type,omitempty" validate:"required,oneof=single multiple"`
+	Rate      float32          `json:"rate,omitempty"`
+	TaxRanges []model.TaxRange `json:"tax_ranges,omitempty" validate:"required_without=Rate" `
+}
+
 // CreateCatalogOpts serialize the create catalog api arguments
 type CreateCatalogOpts struct {
 	Name            string               `json:"name" validate:"required"`
@@ -44,6 +50,8 @@ type CreateCatalogOpts struct {
 	BasePrice     uint32 `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
 	RetailPrice   uint32 `json:"retail_price" validate:"gt=0"`
 	TransferPrice uint32 `json:"transfer_price" validate:"gt=0"`
+
+	Tax *TaxOpts `json:"tax" validate:"required"`
 }
 
 // CreateCatalogResp response
@@ -77,6 +85,8 @@ type CreateCatalogResp struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+
+	Tax *model.Tax `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
 // CreateVariantOpts contains create variant arguments
@@ -120,6 +130,7 @@ type EditCatalogOpts struct {
 	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtfield=RetailPrice"`
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
 	TransferPrice   uint32               `json:"transfer_price" validate:"isdefault|gt=0"`
+	Tax             *TaxOpts             `json:"tax"`
 }
 
 // EditCatalogResp contains fields which are returned when a catalog is edited
@@ -138,6 +149,7 @@ type EditCatalogResp struct {
 	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	TransferPrice   model.Price           `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	Tax             model.Tax             `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
 // GetBasicCatalogFilter contains filter fields for GetCatalog
