@@ -25,6 +25,7 @@ type Collection interface {
 	UpdateSubCollectionImage(opts *schema.UpdateSubCollectionImageOpts) error
 	AddCatalogsToSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
 	RemoveCatalogsFromSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
+	GetCollections(int) ([]schema.CreateCollectionResp, error)
 }
 
 // CollectionImpl implements collection related operations
@@ -76,13 +77,14 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		})
 	}
 	collection := model.Collection{
-		Name:          UniqueSlug(opts.Title),
-		Type:          opts.Type,
-		Genders:       opts.Genders,
-		Title:         opts.Title,
-		SubCollection: subCollections,
-		CreatedAt:     t,
-		Status:        model.Publish,
+		Name:           UniqueSlug(opts.Title),
+		Type:           opts.Type,
+		Genders:        opts.Genders,
+		Title:          opts.Title,
+		SubCollections: subCollections,
+		CreatedAt:      t,
+		Status:         model.Publish,
+		Order:          -1,
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).InsertOne(ctx, collection)
 
@@ -91,12 +93,13 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 	}
 
 	collectionResp := schema.CreateCollectionResp{
-		ID:            res.InsertedID.(primitive.ObjectID),
-		Name:          collection.Name,
-		Type:          collection.Type,
-		Genders:       collection.Genders,
-		Title:         collection.Title,
-		SubCollection: collection.SubCollection,
+		ID:             res.InsertedID.(primitive.ObjectID),
+		Name:           collection.Name,
+		Type:           collection.Type,
+		Genders:        collection.Genders,
+		Title:          collection.Title,
+		SubCollections: collection.SubCollections,
+		Order:          -1,
 	}
 
 	return &collectionResp, nil
@@ -159,12 +162,12 @@ func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*
 	}
 
 	collection := schema.CreateCollectionResp{
-		ID:            collectionModel.ID,
-		Type:          collectionModel.Type,
-		Name:          collectionModel.Name,
-		Genders:       collectionModel.Genders,
-		Title:         collectionModel.Title,
-		SubCollection: collectionModel.SubCollection,
+		ID:             collectionModel.ID,
+		Type:           collectionModel.Type,
+		Name:           collectionModel.Name,
+		Genders:        collectionModel.Genders,
+		Title:          collectionModel.Title,
+		SubCollections: collectionModel.SubCollections,
 	}
 	return &collection, nil
 }
@@ -200,6 +203,10 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 	if opts.Genders != nil {
 		collection.Genders = opts.Genders
 	}
+	if opts.Order != 0 {
+		collection.Order = opts.Order
+	}
+
 	if reflect.DeepEqual(model.Collection{}, collection) {
 		return nil, errors.New("no fields found to update")
 	}
@@ -218,18 +225,13 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 	}
 
 	collectionResp := &schema.CreateCollectionResp{
-		ID:            collection.ID,
-		Title:         collection.Title,
-		Type:          collection.Type,
-		Name:          collection.Name,
-		Genders:       collection.Genders,
-		SubCollection: collection.SubCollection,
-	}
-	if opts.Genders != nil {
-		collectionResp.Genders = collection.Genders
-	}
-	if opts.Title != "" {
-		collection.Title = opts.Title
+		ID:             collection.ID,
+		Title:          collection.Title,
+		Type:           collection.Type,
+		Name:           collection.Name,
+		Genders:        collection.Genders,
+		SubCollections: collection.SubCollections,
+		Order:          collection.Order,
 	}
 
 	return collectionResp, nil
@@ -337,4 +339,23 @@ func (ci *CollectionImpl) checkCatalogs(opts []primitive.ObjectID) []error {
 		}
 	}
 	return errorRes
+}
+
+func (ci *CollectionImpl) GetCollections(page int) ([]schema.CreateCollectionResp, error) {
+
+	ctx := context.TODO()
+	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "order", Value: 1}})
+	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, bson.M{}, opts)
+	if err != nil {
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return nil, errors.Errorf("no collections found")
+		}
+		return nil, errors.Wrapf(err, "error querying the database")
+	}
+	var collectionResp []schema.CreateCollectionResp
+	if err := cur.All(ctx, &collectionResp); err != nil {
+		return nil, err
+	}
+
+	return collectionResp, nil
 }

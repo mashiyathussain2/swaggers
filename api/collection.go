@@ -146,3 +146,16 @@ func (a *API) removeCatalogsFromSubCollection(requestCTX *handler.RequestContext
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
+
+func (a *API) getCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	page := GetPageValue(r)
+
+	resp, err := a.App.Collection.GetCollections(page)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+
+}

@@ -9,7 +9,7 @@ import (
 //SubCollectionOpts specifies the data for SubCollectionOpts to be inputted
 type SubCollectionOpts struct {
 	Name       string               `json:"name" validate:"required"`
-	Image      string               `json:"image" `
+	Image      string               `json:"image"`
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids" validate:"required"`
 }
 
@@ -23,12 +23,13 @@ type CreateCollectionOpts struct {
 
 // CreateCollectionResp serialize the create collection api response
 type CreateCollectionResp struct {
-	ID            primitive.ObjectID    `json:"id" validate:"required"`
-	Type          string                `json:"type" validate:"required"`
-	Name          string                `json:"name" validate:"required"`
-	Genders       []string              `json:"genders" validate:"required"`
-	Title         string                `json:"title" validate:"required"`
-	SubCollection []model.SubCollection `json:"sub_collection" validate:"required"`
+	ID             primitive.ObjectID    `json:"id" bson:"_id"`
+	Type           string                `json:"type" bson:"type"`
+	Name           string                `json:"name" bson:"name"`
+	Genders        []string              `json:"genders" bson:"genders"`
+	Title          string                `json:"title" bson:"title"`
+	SubCollections []model.SubCollection `json:"sub_collections" bson:"sub_collections"`
+	Order          int                   `json:"order" bson:"order"`
 }
 
 // EditCollectionOpts serialize the edit collection api arguments
@@ -36,6 +37,7 @@ type EditCollectionOpts struct {
 	ID      primitive.ObjectID `json:"id" validate:"required"`
 	Genders []string           `json:"genders"`
 	Title   string             `json:"title"`
+	Order   int                `json:"order"`
 }
 
 // AddSubCollectionOpts serialize the add sub collection api arguments

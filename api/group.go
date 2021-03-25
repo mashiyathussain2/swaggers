@@ -179,3 +179,21 @@ func (a *API) getGroupsByCatalogName(requestCTX *handler.RequestContext, w http.
 	requestCTX.SetAppResponse(res, http.StatusOK)
 
 }
+
+func (a *API) updateGroupStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.UpdateGroupStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.Group.UpdateGroupStatus(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}

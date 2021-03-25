@@ -25,6 +25,7 @@ type Group interface {
 	AddCatalogsInTheGroup(opts *schema.AddCatalogsInTheGroupOpts) (bool, []error)
 	EditGroup(*schema.EditGroupOpts) (*schema.EditGroupResp, []error)
 	GetGroupsByCatalogName(string, int) ([]schema.GetGroupsByCatalogNameResp, error)
+	UpdateGroupStatus(*schema.UpdateGroupStatusOpts) error
 }
 
 // GroupImpl implements group related operations
