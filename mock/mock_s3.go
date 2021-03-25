@@ -47,3 +47,18 @@ func (mr *MockS3MockRecorder) GetPutObjectRequestURL(arg0 interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPutObjectRequestURL", reflect.TypeOf((*MockS3)(nil).GetPutObjectRequestURL), arg0)
 }
+
+// PutObject mocks base method
+func (m *MockS3) PutObject(arg0 *s3.PutObjectInput) (*s3.PutObjectOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PutObject", arg0)
+	ret0, _ := ret[0].(*s3.PutObjectOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutObject indicates an expected call of PutObject
+func (mr *MockS3MockRecorder) PutObject(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutObject", reflect.TypeOf((*MockS3)(nil).PutObject), arg0)
+}

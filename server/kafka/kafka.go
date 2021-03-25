@@ -1,3 +1,5 @@
+//go:generate $GOPATH/bin/mockgen -destination=../../mock/mock_producer.go -package=mock go-app/server/kafka Producer
+
 package kafka
 
 import (
@@ -24,7 +26,7 @@ type Consumer interface {
 
 // Producer defines how kafka producer should be implemented
 type Producer interface {
-	Init(*Kafka)
-	Publish(*Kafka)
+	Init(*config.ProducerConfig)
+	Publish(Message)
 	Close()
 }

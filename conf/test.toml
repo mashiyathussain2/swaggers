@@ -41,11 +41,11 @@ brokerPort="29092"
     compress=true #disabled by default
 
 [database]
-scheme="mongodb"
-username=""
-password=""
-host="localhost:27017"
-replicaSet=""
+scheme="mongodb+srv"
+username="vasu"
+password="admin123"
+host="cluster0-tyaml.mongodb.net"
+replicaSet="Cluster0-shard-0"
 
 [redis]
 network="tcp"
@@ -57,10 +57,34 @@ username=""
 [middleware]
 enableRequestLog=false
 
+[ivs]
+region="eu-west-1"
+authorizeChannel=false
+latencyMode="LOW"
+channelType="STANDARD"
+
 [app]
 
-    [app.content]
-    dbName = "test_content"
+    [app.media]
+    dbName="test_content"
 
-    [app.pebble]
-    dbName = "test_pebble"
+    [app.content]
+    dbName="test_content"
+
+    [app.live]
+    dbName="test_content"
+
+    [app.liveCommentProducer]
+    brokers=["localhost:9092"]
+    topic="liveComment"
+    async=false
+
+    [app.liveCommentConsumer]
+    brokers=["localhost:9092"]
+    topic="liveComment"
+    groupID="liveComment1"
+
+[elasticsearch]
+endpoint="https://search-hypd-store-v2-dev-hdz3iw7so7oenedrzfgrpxi5ym.ap-south-1.es.amazonaws.com"
+username="admin"
+password="Admin@1234"
