@@ -30,6 +30,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/groups", a.requestHandler(a.getGroups)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/groups/catalog", a.requestHandler(a.keeperGetGroupsByCatalogID)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/group/catalogs", a.requestHandler(a.addCatalogsInTheGroup)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/group", a.requestHandler(a.editGroup)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/groups/catalog-name", a.requestHandler(a.getGroupsByCatalogName)).Methods("GET")
 
 	//KEEPER INVENTORY
 	a.Router.APIRoot.Handle("/keeper/inventory", a.requestHandler(a.updateInventory)).Methods("POST")

@@ -112,9 +112,8 @@ func GetStatusValue(r *http.Request) string {
 	var val string
 	if r.URL.Query().Get("status") != "" {
 		val = r.URL.Query().Get("status")
-		if val == "" {
-			val = model.Publish
-		}
+	} else {
+		val = model.Publish
 	}
 	return val
 }

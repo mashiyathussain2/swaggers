@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Group service allows `Group` to execute admin operations.
@@ -22,6 +23,8 @@ type Group interface {
 	GetGroupsByCatalogID(*schema.GetGroupsByCatalogIDOpts) ([]schema.GetGroupsByCatalogIDResp, error)
 	KeeperGetGroupsByCatalogID(*schema.KeeperGetGroupsByCatalogIDOpts) ([]schema.GroupResp, error)
 	AddCatalogsInTheGroup(opts *schema.AddCatalogsInTheGroupOpts) (bool, []error)
+	EditGroup(*schema.EditGroupOpts) (*schema.EditGroupResp, []error)
+	GetGroupsByCatalogName(string, int) ([]schema.GetGroupsByCatalogNameResp, error)
 }
 
 // GroupImpl implements group related operations
@@ -199,7 +202,7 @@ func (gi *GroupImpl) GetGroups(opts *schema.GetGroupsOpts) ([]schema.GroupResp, 
 
 	ctx := context.TODO()
 	var pipeline mongo.Pipeline
-	if opts.Status != "" {
+	if opts.Status != "all" {
 		pipeline = append(pipeline, matchStage)
 	}
 	pipeline = append(pipeline, mongo.Pipeline{skipStage, limitStage, lookupStage, setStage}...)
@@ -214,7 +217,6 @@ func (gi *GroupImpl) GetGroups(opts *schema.GetGroupsOpts) ([]schema.GroupResp, 
 	}
 
 	return groupsResp, nil
-
 }
 
 //GetGroupsByCatalogID returns List of groups containing that catalog ID.
@@ -435,4 +437,154 @@ func (gi *GroupImpl) UpdateGroupStatus(opts *schema.UpdateGroupStatusOpts) error
 		return errors.Wrap(err, "fail to update Status")
 	}
 	return nil
+}
+
+//GetGroupsByCatalogName gets the group info and catalogs, based on catalog name
+func (gi *GroupImpl) GetGroupsByCatalogName(name string, page int) ([]schema.GetGroupsByCatalogNameResp, error) {
+
+	fmt.Println(name)
+	fmt.Println(page)
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"lname": bson.M{
+				"$regex": name,
+			},
+		},
+	}}
+
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "group",
+			"localField":   "_id",
+			"foreignField": "catalog_ids",
+			"as":           "group_info",
+		},
+	}}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"group_info": 1,
+			"_id":        0,
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$group_info",
+		},
+	}}
+
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$group_info._id",
+			"group_info": bson.M{
+				"$first": "$group_info",
+			},
+		},
+	}}
+	limitStage := bson.D{
+		{Key: "$limit", Value: gi.App.Config.PageSize},
+	}
+	skipStage := bson.D{
+		{Key: "$skip", Value: gi.App.Config.PageSize * page},
+	}
+	lookupStage2 := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "catalog",
+			"localField":   "group_info.catalog_ids",
+			"foreignField": "_id",
+			"as":           "catalog_info",
+		},
+	}}
+
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"minimum": bson.M{
+				"$min": "$catalog_info.retail_price.value",
+			},
+			"maximum": bson.M{
+				"$max": "$catalog_info.retail_price.value",
+			},
+		},
+	}}
+
+	projectStage2 := bson.D{{
+		Key: "$project", Value: bson.M{
+			"group_status": "$group_info.status",
+			"minimum":      1,
+			"maximum":      1,
+			"catalog_info": bson.M{
+				"$slice": bson.A{"$catalog_info", 3},
+			},
+			"count": bson.M{
+				"$size": "$catalog_info",
+			}},
+	}}
+
+	ctx := context.TODO()
+	var pipeline mongo.Pipeline
+
+	pipeline = append(pipeline, mongo.Pipeline{matchStage, lookupStage, projectStage, unwindStage, groupStage, skipStage, limitStage, lookupStage2, setStage, projectStage2}...)
+
+	cur, err := gi.DB.Collection(model.CatalogColl).Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	var groupsResp []schema.GetGroupsByCatalogNameResp
+	if err := cur.All(ctx, &groupsResp); err != nil {
+		return nil, err
+	}
+
+	return groupsResp, nil
+}
+
+//EditGroup adds catalogs to the group with the given group id
+func (gi *GroupImpl) EditGroup(opts *schema.EditGroupOpts) (*schema.EditGroupResp, []error) {
+
+	ctx := context.TODO()
+	var errorResp []error
+	group := model.Group{}
+	catalogs, err := gi.App.KeeperCatalog.GetCatalogByIDs(ctx, opts.CatalogIDs)
+	if err != nil {
+		return nil, []error{errors.Wrap(err, "unable to fetch catalogs by ids")}
+	}
+	catalogMap := make(map[primitive.ObjectID]schema.GetCatalogResp)
+	for i := 0; i < len(catalogs); i++ {
+		catalogMap[catalogs[i].ID] = catalogs[i]
+	}
+
+	if len(catalogs) != len(opts.CatalogIDs) {
+		for i := 0; i < len(opts.CatalogIDs); i++ {
+			_, ok := catalogMap[opts.CatalogIDs[i]]
+			if !ok {
+				errorResp = append(errorResp, errors.Errorf("catalog with id: %s not found", opts.CatalogIDs[i].Hex()))
+			}
+		}
+		return nil, errorResp
+	}
+
+	if opts.Basis != "" {
+		group.Basis = opts.Basis
+	}
+	if len(opts.CatalogIDs) != 0 {
+		group.CatalogIDs = opts.CatalogIDs
+	}
+	updateQuery := bson.M{
+		"$set": group,
+	}
+	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	err = gi.DB.Collection(model.GroupColl).FindOneAndUpdate(ctx, bson.M{"_id": opts.ID}, updateQuery, qOpts).Decode(&group)
+	if err != nil {
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return nil, []error{errors.Errorf("catalog with id:%s not found", opts.ID.Hex())}
+		}
+		return nil, []error{errors.Wrap(err, "unable to replace catalogs to group")}
+	}
+
+	return &schema.EditGroupResp{
+		ID:         group.ID,
+		Basis:      group.Basis,
+		Status:     *group.Status,
+		CatalogIDs: group.CatalogIDs,
+	}, nil
 }
