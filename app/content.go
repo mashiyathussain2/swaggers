@@ -320,21 +320,24 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 		pipeline = append(pipeline, matchStage)
 	}
 
-	skipStage := bson.D{
-		{
-			Key:   "$skip",
-			Value: 10 * filterOpts.Page,
-		},
-	}
-	pipeline = append(pipeline, skipStage)
+	// when page is set == 999 will return all the matching documents and skip pagination
+	if filterOpts.Page != 999 {
+		skipStage := bson.D{
+			{
+				Key:   "$skip",
+				Value: 10 * filterOpts.Page,
+			},
+		}
+		pipeline = append(pipeline, skipStage)
 
-	limitStage := bson.D{
-		{
-			Key:   "$limit",
-			Value: 10,
-		},
+		limitStage := bson.D{
+			{
+				Key:   "$limit",
+				Value: 10,
+			},
+		}
+		pipeline = append(pipeline, limitStage)
 	}
-	pipeline = append(pipeline, limitStage)
 
 	lookupStage := bson.D{
 		{
