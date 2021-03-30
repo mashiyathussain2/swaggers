@@ -889,10 +889,10 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		pipeline = append(pipeline, nMatchStage)
 	}
 	limitStage := bson.D{
-		{Key: "$limit", Value: gi.App.Config.PageSize},
+		{Key: "$limit", Value: kc.App.Config.PageSize},
 	}
 	skipStage := bson.D{
-		{Key: "$skip", Value: gi.App.Config.PageSize * page},
+		{Key: "$skip", Value: kc.App.Config.PageSize * opts.Page},
 	}
 
 	unwindStage := bson.D{{
