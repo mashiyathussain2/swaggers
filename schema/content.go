@@ -85,19 +85,19 @@ type GetContentResp struct {
 
 // GetContentFilter contains list of supported filter to be applied while fetching content from DB
 type GetContentFilter struct {
-	IsActive    *bool                `json:"is_active"`
-	IsProcessed *bool                `json:"is_processed"`
-	MediaType   string               `json:"media_type" validate:"oneof=image video"`
-	Type        string               `json:"type" validate:"oneof=pebble catalog_content"`
-	BrandIDs    []primitive.ObjectID `json:"brand_ids"`
-	CatalogIDs  []primitive.ObjectID `json:"catalog_ids"`
-	Hashtags    []string             `json:"hashtags"`
+	IsActive    *bool                `qs:"is_active"`
+	IsProcessed *bool                `qs:"is_processed"`
+	MediaType   string               `qs:"media_type" validate:"oneof=image video"`
+	Type        string               `qs:"type" validate:"oneof=pebble catalog_content"`
+	BrandIDs    []primitive.ObjectID `qs:"brand_ids"`
+	CatalogIDs  []primitive.ObjectID `qs:"catalog_ids"`
+	Hashtags    []string             `qs:"hashtags"`
 
 	// Date range filter applied on CreatedAt field
-	From time.Time `json:"from"`
-	To   time.Time `json:"to" validate:"gtefield=From"`
+	From time.Time `qs:"from"`
+	To   time.Time `qs:"to" validate:"gtefield=From"`
 
-	Page uint `json:"page"`
+	Page uint `qs:"page"`
 }
 
 // CreateVideoCatalogContentOpts contains and validates args required to create a catalog video-content

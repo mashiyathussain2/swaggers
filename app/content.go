@@ -10,7 +10,6 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -707,13 +706,14 @@ func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
-		log.Fatalf("An Error Occured %v", err)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	defer resp.Body.Close()
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	if err := json.Unmarshal(body, &s); err != nil {
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
