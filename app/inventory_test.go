@@ -575,3 +575,155 @@ func TestInventoryImpl_SetOutOfStock(t *testing.T) {
 		})
 	}
 }
+
+func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
+	// t.Parallel()
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	inventory := model.Inventory{
+		ID:          primitive.NewObjectID(),
+		CatalogID:   primitive.NewObjectID(),
+		VariantID:   primitive.NewObjectID(),
+		UnitInStock: 10,
+		Status: &model.InventoryStatus{
+			Value: model.InStockStatus,
+		},
+	}
+	inventoryDB := app.MongoDB.Client.Database(app.Config.InventoryConfig.DBName)
+	inventoryDB.Collection(model.InventoryColl).InsertOne(context.TODO(), inventory)
+
+	inventoryOS := model.Inventory{
+		ID:          primitive.NewObjectID(),
+		CatalogID:   primitive.NewObjectID(),
+		VariantID:   primitive.NewObjectID(),
+		UnitInStock: 0,
+		Status: &model.InventoryStatus{
+			Value: model.OutOfStockStatus,
+		},
+	}
+	inventoryDB.Collection(model.InventoryColl).InsertOne(context.TODO(), inventoryOS)
+
+	type args struct {
+		cat_id primitive.ObjectID
+		var_id primitive.ObjectID
+	}
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		wantErr    bool
+		want       bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(tt *TC, kc *mock.MockKeeperCatalog)
+	}
+	tests := []TC{
+		{
+			name: "[Ok]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = inventory.CatalogID
+				tt.args.var_id = inventory.VariantID
+			},
+			wantErr: false,
+			want:    true,
+		},
+		{
+			name: "[Ok] with no inventory",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = inventoryOS.CatalogID
+				tt.args.var_id = inventoryOS.VariantID
+			},
+			wantErr: false,
+			want:    false,
+		},
+		{
+			name: "[Error] category ID doesn't exist ",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = primitive.NewObjectID()
+				tt.args.var_id = inventory.VariantID
+				tt.err = errors.Errorf("inventory not found")
+			},
+			wantErr: true,
+		},
+		{
+			name: "[Error] variant ID doesn't exist ",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = inventory.CatalogID
+				tt.args.var_id = primitive.NewObjectID()
+				tt.err = errors.Errorf("inventory not found")
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			ii := &InventoryImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			mockKeeperCatalog := mock.NewMockKeeperCatalog(ctrl)
+			tt.fields.App.KeeperCatalog = mockKeeperCatalog
+			tt.buildStubs(&tt, mockKeeperCatalog)
+			tt.prepare(&tt)
+
+			found, err := ii.CheckInventoryExists(tt.args.cat_id, tt.args.var_id)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.Equal(t, found, tt.want)
+			}
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+				assert.False(t, found)
+			}
+		})
+	}
+}

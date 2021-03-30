@@ -20,6 +20,7 @@ type Inventory interface {
 	CreateInventory(*schema.CreateInventoryOpts) (primitive.ObjectID, error)
 	UpdateInventory(*schema.UpdateInventoryOpts) error
 	SetOutOfStock(primitive.ObjectID) error
+	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID) (bool, error)
 }
 
 // InventoryImpl implements Inventory related operations
@@ -203,4 +204,25 @@ func (ii *InventoryImpl) SetOutOfStock(id primitive.ObjectID) error {
 		return errors.Errorf("unable to find inventory with id: %s", id.Hex())
 	}
 	return nil
+}
+
+func (ii *InventoryImpl) CheckInventoryExists(cat_id, var_id primitive.ObjectID) (bool, error) {
+	ctx := context.TODO()
+
+	filter := bson.M{
+		"catalog_id": cat_id,
+		"variant_id": var_id,
+	}
+	var inventory model.Inventory
+	err := ii.DB.Collection(model.InventoryColl).FindOne(ctx, filter).Decode(&inventory)
+	if err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return false, errors.Errorf("inventory not found")
+		}
+		return false, errors.Errorf("unable to query for document")
+	}
+	if inventory.UnitInStock == 0 || inventory.Status.Value == model.OutOfStockStatus {
+		return false, nil
+	}
+	return true, nil
 }

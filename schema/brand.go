@@ -29,3 +29,16 @@ type CreateBrandResp struct {
 	WebsiteLink string             `json:"website_link,omitempty" bson:"website_link,omitempty"`
 	Fulfillment *model.Fulfillment `json:"fulfillment,omitempty" bson:"fulfillment,omitempty"`
 }
+
+type BrandInfoResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	Name        string             `json:"name,omitempty"`
+	Slug        string             `json:"slug,omitempty"`
+	Description string             `json:"description,omitempty"`
+	Logo        *model.IMG         `json:"logo"`
+}
+
+type GetBrandInfoResp struct {
+	Success bool            `json:"success"`
+	Payload []BrandInfoResp `json:"payload"`
+}

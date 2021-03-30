@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -38,6 +40,7 @@ type KeeperCatalog interface {
 	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) []error
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
+	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
@@ -865,4 +868,199 @@ func (kc *KeeperCatalogImpl) GetCatalogBySlug(slug string) (*schema.GetCatalogRe
 		return nil, err
 	}
 	return catalog, nil
+}
+
+func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error) {
+	var wg sync.WaitGroup
+	var contentInfo []schema.CatalogContentInfoResp
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": id,
+		},
+	}}
+	lookupGroupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         model.GroupColl,
+			"localField":   "_id",
+			"foreignField": "catalog_ids",
+			"as":           "group_info",
+		},
+	}}
+	lookupDiscountStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         model.DiscountColl,
+			"localField":   "_id",
+			"foreignField": "catalog_id",
+			"as":           "discount_info",
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path":                       "$variants",
+			"preserveNullAndEmptyArrays": true,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"variants.inventory_info": bson.M{
+				"$first": "$inventory_info",
+			},
+		},
+	}}
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$_id",
+			"catalogs": bson.M{
+				"$push": "$$ROOT",
+			},
+			"variants": bson.M{
+				"$push": "$variants",
+			},
+		},
+	}}
+
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"catalog": bson.M{
+				"$arrayElemAt": bson.A{
+					"$catalogs",
+					0,
+				},
+			},
+		},
+	}}
+
+	setStage2 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"catalog.variants": "$variants",
+		},
+	}}
+
+	replaceRootStage := bson.D{{
+		Key: "$replaceRoot", Value: bson.M{
+			"newRoot": "$catalog",
+		},
+	}}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		info, err := kc.GetCatalogContent(id)
+		if err != nil {
+			kc.App.Logger.Err(err).Msgf("failed to get catalog content for id: %s", id.Hex())
+			return
+		}
+		contentInfo = info
+	}()
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupDiscountStage,
+		lookupGroupStage,
+		unwindStage,
+		lookupStage,
+		setStage,
+		groupStage,
+		addFieldsStage,
+		setStage2,
+		replaceRootStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id:%s", id.Hex())
+	}
+
+	var catalog []schema.GetAllCatalogInfoResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+
+	wg.Wait()
+	if len(catalog) != 0 {
+		var brandInfo *schema.BrandInfoResp
+		brandInfo, err = kc.GetBrandInfo(catalog[0].BrandID.Hex())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get brand-info")
+		}
+		catalog[0].ContentInfo = contentInfo
+		catalog[0].BrandInfo = brandInfo
+		return &catalog[0], nil
+	}
+
+	return nil, errors.Errorf("unable to find info for catalog with id: %s", id.Hex())
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content"
+	data, err := json.Marshal(map[string]interface{}{
+		"is_active":   true,
+		"type":        "catalog_content",
+		"catalog_ids": []string{id.Hex()},
+		"page":        999,
+	})
+	if err != nil {
+		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
+		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+
+	defer resp.Body.Close()
+	//Read the response body
+
+	var s schema.GetCatalogContentInfoResp
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		kc.Logger.Err(errors.New("success false from cms")).Str("body", string(body)).Msg("got success false response from cms")
+		return nil, errors.New("got success false response from cms")
+	}
+	return s.Payload, nil
+}
+
+func (kc *KeeperCatalogImpl) GetBrandInfo(id string) (*schema.BrandInfoResp, error) {
+	var s schema.GetBrandInfoResp
+	url := kc.App.Config.HypdApiConfig.EntityApi + "/api/keeper/brand/get"
+	postBody, _ := json.Marshal(map[string][]string{
+		"id": []string{id},
+	})
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	//Handle Error
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		kc.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
+		return nil, errors.New("got success false response from entity")
+	}
+	return &s.Payload[0], nil
 }
