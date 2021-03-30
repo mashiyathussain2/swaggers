@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/handler"
 	"net/http"
@@ -17,6 +18,7 @@ func (a *API) getLiveStreams(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(r.URL.Query().Encode())
 	res, err := a.App.Live.GetLiveStreams(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)

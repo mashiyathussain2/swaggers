@@ -365,6 +365,7 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 		},
 	}
 	pipeline = append(pipeline, setStage)
+	fmt.Println(pipeline)
 
 	ctx := context.TODO()
 	var res []schema.GetContentResp
