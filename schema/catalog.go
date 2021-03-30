@@ -242,6 +242,7 @@ type GetCatalogVariantResp struct {
 }
 
 type DiscountInfo struct {
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Type     model.DiscountType `json:"type,omitempty" bson:"type,omitempty"`
 	Value    uint               `json:"value,omitempty" bson:"value,omitempty"`
 	MaxValue uint               `json:"max_value,omitempty" bson:"max_value,omitempty"`
