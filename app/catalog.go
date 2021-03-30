@@ -832,6 +832,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 				"name":                    1,
 				"base_price":              1,
 				"retail_price":            1,
+				"discount_info._id":       1,
 				"discount_info.value":     1,
 				"discount_info.type":      1,
 				"discount_info.max_value": 1,
