@@ -888,6 +888,12 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		}}
 		pipeline = append(pipeline, nMatchStage)
 	}
+	limitStage := bson.D{
+		{Key: "$limit", Value: gi.App.Config.PageSize},
+	}
+	skipStage := bson.D{
+		{Key: "$skip", Value: gi.App.Config.PageSize * page},
+	}
 
 	unwindStage := bson.D{{
 		Key: "$unwind", Value: bson.M{
@@ -945,6 +951,8 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 	}}
 
 	pipeline = append(pipeline, mongo.Pipeline{
+		skipStage,
+		limitStage,
 		unwindStage,
 		lookupStage,
 		setStage,
