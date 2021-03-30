@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"net/http"
@@ -800,58 +799,169 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 }
 
 //GetCatalogsByFilter returns catalogs based on the filters entered
-func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
+// func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 
-	var cur *mongo.Cursor
+// 	var cur *mongo.Cursor
+// 	var err error
+// 	ctx := context.TODO()
+// 	var filterQuery bson.D
+// 	if len(opts.BrandIDs) > 0 {
+// 		bQuery := bson.E{
+// 			Key: "brand_id", Value: bson.M{
+// 				"$in": opts.BrandIDs,
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, bQuery)
+// 	}
+// 	if len(opts.Status) > 0 {
+// 		sQuery := bson.E{
+// 			Key: "status.value", Value: bson.M{
+// 				"$in": opts.Status,
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, sQuery)
+// 	}
+// 	if opts.Name != "" {
+// 		nQuery := bson.E{
+// 			Key: "lname", Value: bson.M{
+// 				"$regex": strings.ToLower(opts.Name),
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, nQuery)
+// 	}
+// 	// filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
+
+// 	var catalogs []schema.GetCatalogResp
+
+// 	pageSize := kc.App.Config.PageSize
+// 	skip := int64(pageSize * opts.Page)
+// 	limit := int64(pageSize)
+// 	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
+// 	fmt.Println(len(filterQuery))
+// 	if len(filterQuery) == 0 {
+// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{}, findOpts)
+// 	} else {
+// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery, findOpts)
+// 	}
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "error finding catalogs")
+// 	}
+// 	if err := cur.All(ctx, &catalogs); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return catalogs, nil
+// }
+
+func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 	var err error
 	ctx := context.TODO()
-	var filterQuery bson.D
+
+	pipeline := mongo.Pipeline{}
 	if len(opts.BrandIDs) > 0 {
-		bQuery := bson.E{
-			Key: "brand_id", Value: bson.M{
-				"$in": opts.BrandIDs,
+		bMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"brand_id": bson.M{
+					"$in": opts.BrandIDs,
+				},
 			},
-		}
-		filterQuery = append(filterQuery, bQuery)
+		}}
+		pipeline = append(pipeline, bMatchStage)
 	}
 	if len(opts.Status) > 0 {
-		sQuery := bson.E{
-			Key: "status.value", Value: bson.M{
-				"$in": opts.Status,
+		sMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"status.value": bson.M{
+					"$in": opts.Status,
+				},
 			},
-		}
-		filterQuery = append(filterQuery, sQuery)
+		}}
+		pipeline = append(pipeline, sMatchStage)
 	}
 	if opts.Name != "" {
-		nQuery := bson.E{
-			Key: "lname", Value: bson.M{
-				"$regex": strings.ToLower(opts.Name),
+		nMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"lname": bson.M{
+					"$regex": strings.ToLower(opts.Name),
+				},
 			},
-		}
-		filterQuery = append(filterQuery, nQuery)
+		}}
+		pipeline = append(pipeline, nMatchStage)
 	}
-	// filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
 
-	var catalogs []schema.GetCatalogResp
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$variants",
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"variants.inventory_info": bson.M{
+				"$first": "$inventory_info",
+			},
+		},
+	}}
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$_id",
+			"catalogs": bson.M{
+				"$push": "$$ROOT",
+			},
+			"variants": bson.M{
+				"$push": "$variants",
+			},
+		},
+	}}
 
-	pageSize := kc.App.Config.PageSize
-	skip := int64(pageSize * opts.Page)
-	limit := int64(pageSize)
-	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
-	fmt.Println(len(filterQuery))
-	if len(filterQuery) == 0 {
-		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{}, findOpts)
-	} else {
-		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery, findOpts)
-	}
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"catalog": bson.M{
+				"$arrayElemAt": bson.A{
+					"$catalogs",
+					0,
+				},
+			},
+		},
+	}}
+
+	setStage2 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"catalog.variants": "$variants",
+		},
+	}}
+
+	replaceRootStage := bson.D{{
+		Key: "$replaceRoot", Value: bson.M{
+			"newRoot": "$catalog",
+		},
+	}}
+
+	pipeline = append(pipeline, mongo.Pipeline{
+		unwindStage,
+		lookupStage,
+		setStage,
+		groupStage,
+		addFieldsStage,
+		setStage2,
+		replaceRootStage}...)
+	cur, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, errors.Wrap(err, "error finding catalogs")
+		return nil, err
 	}
-	if err := cur.All(ctx, &catalogs); err != nil {
+	var catalogResp []schema.GetCatalogResp
+	if err := cur.All(ctx, &catalogResp); err != nil {
 		return nil, err
 	}
 
-	return catalogs, nil
+	return catalogResp, nil
 }
 
 //GetCatalogBySlug finds and return the catalog with given slug

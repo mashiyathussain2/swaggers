@@ -138,11 +138,12 @@ const (
 
 // Variant contains variants based on one property (size, color)
 type Variant struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Attribute   string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
-	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
-	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
-	IsDeleted   bool               `json:"is_deleted" bson:"is_deleted"`
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Attribute     string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
+	InventoryID   primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
+	SKU           string             `json:"sku,omitempty" bson:"sku,omitempty"`
+	IsDeleted     bool               `json:"is_deleted" bson:"is_deleted"`
+	InventoryInfo Inventory          `json:"inventory_info,omitempty" bson:"inventory_info,omitempty"`
 }
 
 // Defining the type of Catalog Status
