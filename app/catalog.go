@@ -868,6 +868,7 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		}}
 		pipeline = append(pipeline, bMatchStage)
 	}
+
 	if len(opts.Status) > 0 {
 		sMatchStage := bson.D{{
 			Key: "$match", Value: bson.M{
@@ -897,7 +898,8 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 
 	unwindStage := bson.D{{
 		Key: "$unwind", Value: bson.M{
-			"path": "$variants",
+			"path":                       "$variants",
+			"preserveNullAndEmptyArrays": true,
 		},
 	}}
 	lookupStage := bson.D{{
