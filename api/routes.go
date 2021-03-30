@@ -13,16 +13,18 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/category/{categoryID}/ancestors", a.requestHandler(a.getAncestorsByID)).Methods("GET")
 
 	//KEEPER CATALOG
+	a.Router.APIRoot.Handle("/keeper/catalog", a.requestHandler(a.getCatalogsByFilter)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog", a.requestHandler(a.createCatalog)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog", a.requestHandler(a.editCatalog)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/catalog/variant", a.requestHandler(a.addVariants)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/status", a.requestHandler(a.updateCatalogStatus)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/variant", a.requestHandler(a.deleteVariant)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/keeper/catalog/search", a.requestHandler(a.keeperSearchCatalog)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/catalog/get", a.requestHandler(a.getCatalogsByFilter)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}", a.requestHandler(a.getAllCatalogInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/content/video", a.requestHandler(a.addCatalogContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/content/image", a.requestHandler(a.addCatalogContentImage)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/catalog/get", a.requestHandler(a.getCatalogsByFilter)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/catalog/{slug}", a.requestHandler(a.getCatalogBySlug)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/catalog/slug/{slug}", a.requestHandler(a.getCatalogBySlug)).Methods("GET")
 
 	//KEEPER GROUP
 	a.Router.APIRoot.Handle("/keeper/group", a.requestHandler(a.createCatalogGroup)).Methods("POST")
@@ -37,6 +39,7 @@ func (a *API) InitRoutes() {
 	//KEEPER INVENTORY
 	a.Router.APIRoot.Handle("/keeper/inventory", a.requestHandler(a.updateInventory)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/outofstock", a.requestHandler(a.setOutOfStock)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}", a.requestHandler(a.checkInventoryExists)).Methods("POST")
 
 	//KEEPER COLLECTION
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestHandler(a.createCollection)).Methods("POST")

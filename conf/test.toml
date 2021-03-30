@@ -66,13 +66,13 @@ pageSize=10
     dbName = "test_catalog"
 
     [app.brand]
-    dbName = "test_brand"
+    dbName = "test_catalog"
 
     [app.category]
-    dbName = "test_category"
+    dbName = "test_catalog"
 
     [app.discount]
-    dbName = "test_discount"
+    dbName = "test_catalog"
     
     [app.group]
     dbName = "test_catalog"

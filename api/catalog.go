@@ -1,11 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/handler"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/vasupal1996/goerror"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (a *API) createCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -216,4 +219,19 @@ func (a *API) getCatalogFilter(requestCTX *handler.RequestContext, w http.Respon
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getAllCatalogInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	cat_id, err := primitive.ObjectIDFromHex(mux.Vars(r)["catalogID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.KeeperCatalog.GetAllCatalogInfo(cat_id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+
 }
