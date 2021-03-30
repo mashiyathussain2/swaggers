@@ -41,12 +41,14 @@ type KeeperCatalog interface {
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
+	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
-type UserCatalog interface{}
+type UserCatalog interface {
+}
 
 // KeeperCatalogImpl implements keeper related operations
 type KeeperCatalogImpl struct {
@@ -1039,7 +1041,7 @@ func (kc *KeeperCatalogImpl) GetBrandInfo(id string) (*schema.BrandInfoResp, err
 	var s schema.GetBrandInfoResp
 	url := kc.App.Config.HypdApiConfig.EntityApi + "/api/keeper/brand/get"
 	postBody, _ := json.Marshal(map[string][]string{
-		"id": []string{id},
+		"id": {id},
 	})
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
 	//Handle Error
@@ -1063,4 +1065,80 @@ func (kc *KeeperCatalogImpl) GetBrandInfo(id string) (*schema.BrandInfoResp, err
 		return nil, errors.New("got success false response from entity")
 	}
 	return &s.Payload[0], nil
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id":          cat_id,
+			"variants._id": var_id,
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$variants",
+		},
+	}}
+	matchStage2 := bson.D{{
+		Key: "$match", Value: bson.M{
+			"variants._id": var_id,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from": model.DiscountColl,
+			"let": bson.M{
+				"variant_id": "$variants._id",
+			},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr":     bson.M{"$in": bson.A{"$$variant_id", "$variants_id"}},
+						"is_active": true,
+					}},
+			},
+			"as": "discount_info",
+		},
+	}}
+	unwindStage2 := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$discount_info",
+		},
+	}}
+	projectStage :=
+		bson.D{{
+			Key: "$project", Value: bson.M{
+				"_id":                     1,
+				"name":                    1,
+				"base_price":              1,
+				"retail_price":            1,
+				"discount_info._id":       1,
+				"discount_info.value":     1,
+				"discount_info.type":      1,
+				"discount_info.max_value": 1,
+				"variant_type":            1,
+				"variant":                 "$variants",
+				"featured_image":          1,
+			},
+		}}
+
+	ctx := context.TODO()
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		unwindStage,
+		matchStage2,
+		lookupStage,
+		unwindStage2,
+		projectStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id:%s", cat_id.Hex())
+	}
+	var catalog []schema.GetCatalogVariantResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+	return &catalog[0], nil
 }
