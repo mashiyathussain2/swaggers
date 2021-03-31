@@ -329,3 +329,22 @@ type GetCatalogContentInfoResp struct {
 	Success bool                     `json:"success"`
 	Payload []CatalogContentInfoResp `json:"payload"`
 }
+
+//GetCatalogVariantResp contains fields which are returned to get variant
+type GetCatalogVariantResp struct {
+	ID            primitive.ObjectID          `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string                      `json:"name,omitempty" bson:"name,omitempty"`
+	BasePrice     model.Price                 `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price                 `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	VariantType   model.VariantType           `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	Variant       model.Variant               `json:"variant,omitempty" bson:"variant,omitempty"`
+	DiscountInfo  DiscountInfo                `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+}
+
+type DiscountInfo struct {
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Type     model.DiscountType `json:"type,omitempty" bson:"type,omitempty"`
+	Value    uint               `json:"value,omitempty" bson:"value,omitempty"`
+	MaxValue uint               `json:"max_value,omitempty" bson:"max_value,omitempty"`
+}
