@@ -77,6 +77,7 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 
 	currentTime := time.Now().UTC()
 	c := model.Catalog{
+		ID:            primitive.NewObjectID(),
 		Name:          opts.Name,
 		LName:         strings.ToLower(opts.Name),
 		Description:   opts.Description,
@@ -118,7 +119,11 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 	if opts.VariantType != "" {
 		c.VariantType = opts.VariantType
 		for _, variant := range opts.Variants {
-			c.Variants = append(c.Variants, *kc.createVariant(&variant))
+			v, err := kc.createVariant(c.ID, &variant)
+			if err != nil {
+				return nil, err
+			}
+			c.Variants = append(c.Variants, *v)
 		}
 	}
 
@@ -311,12 +316,24 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 	}, nil
 }
 
-func (kc *KeeperCatalogImpl) createVariant(opts *schema.CreateVariantOpts) *model.Variant {
-	return &model.Variant{
-		ID:        primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
+func (kc *KeeperCatalogImpl) createVariant(id primitive.ObjectID, opts *schema.CreateVariantOpts) (*model.Variant, error) {
+
+	cOpts := schema.CreateInventoryOpts{
+		CatalogID: id,
+		VariantID: primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
 		SKU:       opts.SKU,
-		Attribute: opts.Attribute,
+		Unit:      opts.Unit,
 	}
+	inv, err := kc.App.Inventory.CreateInventory(&cOpts)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to create inventory")
+	}
+	return &model.Variant{
+		ID:          cOpts.VariantID,
+		SKU:         opts.SKU,
+		Attribute:   opts.Attribute,
+		InventoryID: inv,
+	}, nil
 }
 
 // AddVariant adds a new variant to an existing catalog
