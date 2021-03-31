@@ -105,7 +105,6 @@ type CreateVideoCatalogContentOpts struct {
 	FileName  string             `json:"file_name" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateImageCatalogContentOpts contains and validates args required to create an image content
@@ -113,7 +112,6 @@ type CreateImageCatalogContentOpts struct {
 	MediaID   primitive.ObjectID `json:"media_id" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateVideoCatalogContentResp returns content id and video upload token

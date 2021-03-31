@@ -387,12 +387,7 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		MediaType:  model.VideoType,
 		BrandIDs:   []primitive.ObjectID{opts.BrandID},
 		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
-		CreatedAt: time.Now().UTC(),
+		CreatedAt:  time.Now().UTC(),
 	}
 
 	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
@@ -460,16 +455,11 @@ func (ci *ContentImpl) EditCatalogContent(opts *schema.EditCatalogContentOpts) (
 
 func (ci *ContentImpl) CreateCatalogImageContent(opts *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
 	cc := model.Content{
-		Type:       model.CatalogContentType,
-		MediaType:  model.ImageType,
-		MediaID:    opts.MediaID,
-		BrandIDs:   []primitive.ObjectID{opts.BrandID},
-		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
+		Type:        model.CatalogContentType,
+		MediaType:   model.ImageType,
+		MediaID:     opts.MediaID,
+		BrandIDs:    []primitive.ObjectID{opts.BrandID},
+		CatalogIDs:  []primitive.ObjectID{opts.CatalogID},
 		IsProcessed: true,
 		CreatedAt:   time.Now().UTC(),
 	}
