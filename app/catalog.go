@@ -658,6 +658,13 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 				Field:   "Retail Price",
 			})
 		}
+		if len(catalog.CatalogContent) == 0 {
+			resp = append(resp, schema.UpdateCatalogStatusResp{
+				Type:    "Field Missing",
+				Message: "At least one Catalog Content is required",
+				Field:   "Catalog Content",
+			})
+		}
 
 	}
 	if len(resp) > 0 {
