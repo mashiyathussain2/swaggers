@@ -45,7 +45,7 @@ type CreateDiscountResp struct {
 type CreateSaleOpts struct {
 	Name        string    `json:"name" validate:"required"`
 	Banner      Img       `json:"banner" validate:"required"`
-	Genders     []string  `json:"genders" validate:"required,oneof=M F O"`
+	Genders     []string  `json:"genders" validate:"required,dive,oneof=M F O"`
 	ValidAfter  time.Time `json:"valid_after" validate:"required"`
 	ValidBefore time.Time `json:"valid_before" validate:"required,gtfield=ValidAfter"`
 }

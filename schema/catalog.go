@@ -323,8 +323,9 @@ type GetAllCatalogInfoResp struct {
 	Variants    []VariantInfo     `json:"variants,omitempty" bson:"variants,omitempty"`
 	HSNCode     string            `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 
-	BasePrice   model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	BasePrice     model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
 	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
