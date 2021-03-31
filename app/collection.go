@@ -83,7 +83,7 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		Title:          opts.Title,
 		SubCollections: subCollections,
 		CreatedAt:      t,
-		Status:         model.Publish,
+		Status:         model.Draft,
 		Order:          -1,
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).InsertOne(ctx, collection)
