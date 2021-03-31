@@ -160,6 +160,13 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		}
 		c.Paths = append(c.Paths, path)
 	}
+	c.StatusHistory = []model.Status{
+		{
+			Name:      "Draft",
+			Value:     model.Draft,
+			CreatedAt: currentTime,
+		},
+	}
 
 	// Inserting the document in the DB
 	res, err := kc.DB.Collection(model.CatalogColl).InsertOne(context.Background(), c)
@@ -756,7 +763,6 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 		"media_id":   opts.MediaID.Hex(),
 		"brand_id":   catalogs[0].BrandID.Hex(),
 		"catalog_id": opts.CatalogID.Hex(),
-		"label":      opts.Label,
 	}
 
 	requestByte, _ := json.Marshal(requestData)

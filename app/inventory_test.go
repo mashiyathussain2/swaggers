@@ -25,7 +25,7 @@ func TestInventoryImpl_CreateInventory(t *testing.T) {
 
 	catalog := schema.GetCatalogResp{
 		ID: primitive.NewObjectID(),
-		Variants: []model.Variant{
+		Variants: []schema.VariantInfo{
 			{
 				ID: primitive.NewObjectID(),
 			},
@@ -40,7 +40,7 @@ func TestInventoryImpl_CreateInventory(t *testing.T) {
 	}
 	catWithInv := schema.GetCatalogResp{
 		ID: inventory.CatalogID,
-		Variants: []model.Variant{
+		Variants: []schema.VariantInfo{
 			{
 				ID: inventory.VariantID,
 			},

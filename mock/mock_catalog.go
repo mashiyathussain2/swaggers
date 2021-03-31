@@ -155,10 +155,10 @@ func (mr *MockKeeperCatalogMockRecorder) GetBasicCatalogInfo(arg0 interface{}) *
 }
 
 // GetCatalogByIDs mocks base method.
-func (m *MockKeeperCatalog) GetCatalogByIDs(arg0 context.Context, arg1 []primitive.ObjectID) ([]schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogByIDs(arg0 context.Context, arg1 []primitive.ObjectID) ([]schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogByIDs", arg0, arg1)
-	ret0, _ := ret[0].([]schema.CreateCatalogResp)
+	ret0, _ := ret[0].([]schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -170,10 +170,10 @@ func (mr *MockKeeperCatalogMockRecorder) GetCatalogByIDs(arg0, arg1 interface{})
 }
 
 // GetCatalogBySlug mocks base method.
-func (m *MockKeeperCatalog) GetCatalogBySlug(arg0 string) (*schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogBySlug(arg0 string) (*schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogBySlug", arg0)
-	ret0, _ := ret[0].(*schema.CreateCatalogResp)
+	ret0, _ := ret[0].(*schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -200,10 +200,10 @@ func (mr *MockKeeperCatalogMockRecorder) GetCatalogFilter() *gomock.Call {
 }
 
 // GetCatalogsByFilter mocks base method.
-func (m *MockKeeperCatalog) GetCatalogsByFilter(arg0 *schema.GetCatalogsByFilterOpts) ([]schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogsByFilter(arg0 *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogsByFilter", arg0)
-	ret0, _ := ret[0].([]schema.CreateCatalogResp)
+	ret0, _ := ret[0].([]schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

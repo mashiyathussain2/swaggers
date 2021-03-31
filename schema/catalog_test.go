@@ -1695,11 +1695,7 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
 	bID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
 	fName := "fake file"
-	label := ContentLabel{
-		Interests: []string{"A", "B"},
-		AgeGroup:  []string{"25-30"},
-		Gender:    []string{"M", "F"},
-	}
+
 	tv := validator.NewValidation()
 	tests := []struct {
 		name    string
@@ -1725,7 +1721,6 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 				BrandID:   bID,
 				CatalogID: cID,
 				FileName:  fName,
-				Label:     &label,
 			},
 		},
 		{
@@ -1835,11 +1830,7 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 	t.Parallel()
 	mediaID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
-	label := ContentLabel{
-		Interests: []string{"A", "B"},
-		AgeGroup:  []string{"25-30"},
-		Gender:    []string{"M", "F"},
-	}
+
 	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
 	tv := validator.NewValidation()
 	tests := []struct {
@@ -1864,7 +1855,6 @@ func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 			want: AddCatalogContentImageOpts{
 				CatalogID: cID,
 				MediaID:   mediaID,
-				Label:     &label,
 			},
 		},
 		{
