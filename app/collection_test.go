@@ -463,7 +463,7 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -778,11 +778,11 @@ func TestCollectionImpl_EditCollection(t *testing.T) {
 					collection.Title = tt.args.opts.Title
 				}
 				want := &schema.CreateCollectionResp{
-					ID:            collection.ID,
-					Type:          collection.Type,
-					Genders:       collection.Genders,
-					Title:         collection.Title,
-					Name:          collection.Name,
+					ID:             collection.ID,
+					Type:           collection.Type,
+					Genders:        collection.Genders,
+					Title:          collection.Title,
+					Name:           collection.Name,
 					SubCollections: collection.SubCollections,
 				}
 				tt.want = want
@@ -814,11 +814,11 @@ func TestCollectionImpl_EditCollection(t *testing.T) {
 					collection.Title = tt.args.opts.Title
 				}
 				want := &schema.CreateCollectionResp{
-					ID:            collection.ID,
-					Type:          collection.Type,
-					Genders:       collection.Genders,
-					Title:         collection.Title,
-					Name:          collection.Name,
+					ID:             collection.ID,
+					Type:           collection.Type,
+					Genders:        collection.Genders,
+					Title:          collection.Title,
+					Name:           collection.Name,
 					SubCollections: collection.SubCollections,
 				}
 				tt.want = want
@@ -1146,7 +1146,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[11], catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[11], catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1170,7 +1170,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[14]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[14]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1194,7 +1194,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1221,7 +1221,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1248,7 +1248,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1273,7 +1273,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1415,7 +1415,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1439,7 +1439,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[3], catalogs[14]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[3], catalogs[14]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1463,7 +1463,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[11], catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[11], catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1490,7 +1490,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1517,7 +1517,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1542,7 +1542,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
