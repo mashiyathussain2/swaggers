@@ -2996,7 +2996,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 				var catalogResp []schema.GetCatalogResp
 				for i := 0; i < 20; i++ {
 					if (catalogs[i].Status.Value == model.Publish || catalogs[i].Status.Value == model.Archive) && (catalogs[i].BrandID == bIDs[1] || catalogs[i].BrandID == bIDs[2]) {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
@@ -3025,7 +3025,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 				var catalogResp []schema.GetCatalogResp
 				for i := 0; i < 20; i++ {
 					if catalogs[i].BrandID == bIDs[1] {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
@@ -3054,7 +3054,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 				var catalogResp []schema.GetCatalogResp
 				for i := 0; i < 20; i++ {
 					if catalogs[i].Status.Value == model.Publish {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
@@ -3082,7 +3082,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 				}
 				var catalogResp []schema.GetCatalogResp
 				for i := 0; i < 10; i++ {
-					catalogResp = append(catalogResp, schema.CreateCatalogResp{
+					catalogResp = append(catalogResp, schema.GetCatalogResp{
 						ID:      catalogs[i].ID,
 						BrandID: catalogs[i].BrandID,
 						Status:  catalogs[i].Status,
@@ -3110,7 +3110,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 				}
 				var catalogResp []schema.GetCatalogResp
 				for i := 10; i < 20; i++ {
-					catalogResp = append(catalogResp, schema.CreateCatalogResp{
+					catalogResp = append(catalogResp, schema.GetCatalogResp{
 						ID:      catalogs[i].ID,
 						BrandID: catalogs[i].BrandID,
 						Status:  catalogs[i].Status,
