@@ -609,13 +609,13 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 				Field:   "Featured Image",
 			})
 		}
-		if catalog.FilterAttribute == nil {
-			resp = append(resp, schema.UpdateCatalogStatusResp{
-				Type:    "Field Missing",
-				Message: "Filter Attribute" + isRequiredString,
-				Field:   "Filter Attribute",
-			})
-		}
+		// if catalog.FilterAttribute == nil {
+		// 	resp = append(resp, schema.UpdateCatalogStatusResp{
+		// 		Type:    "Field Missing",
+		// 		Message: "Filter Attribute" + isRequiredString,
+		// 		Field:   "Filter Attribute",
+		// 	})
+		// }
 		if len(catalog.Variants) == 0 {
 			resp = append(resp, schema.UpdateCatalogStatusResp{
 				Type:    "Field Missing",
