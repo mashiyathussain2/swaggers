@@ -395,12 +395,16 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		return nil, errors.Wrap(err, "failed to create catalog content")
 	}
 	cc.ID = res.InsertedID.(primitive.ObjectID)
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get video file extension")
+	}
 
 	// Getting s3 upload token with provided args
 	// This token is then used by frontend to directly upload media to s3
 	res1, err1 := ci.App.Media.GenerateVideoUploadToken(
 		&schema.GenerateVideoUploadTokenOpts{
-			FileName: cc.ID.Hex(),
+			FileName: fmt.Sprintf("%s.%s", cc.ID.Hex(), fType),
 		},
 	)
 	if err1 != nil {
