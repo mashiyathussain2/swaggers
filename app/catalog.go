@@ -40,6 +40,9 @@ type KeeperCatalog interface {
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
+	GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
+	SyncCatalog(id primitive.ObjectID)
+	SyncCatalogContent(id primitive.ObjectID)
 	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
@@ -1040,11 +1043,30 @@ func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.G
 		},
 	}}
 	lookupDiscountStage := bson.D{{
-		Key: "$lookup", Value: bson.M{
-			"from":         model.DiscountColl,
-			"localField":   "_id",
-			"foreignField": "catalog_id",
-			"as":           "discount_info",
+		Key: "$lookup",
+		Value: bson.M{
+			"from": "discount",
+			"let":  bson.M{"catalog_id": "$_id"},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr": bson.M{
+							"$and": bson.A{
+								bson.M{"$eq": bson.A{"$catalog_id", "$$catalog_id"}},
+								bson.M{"$eq": bson.A{"$is_active", true}},
+							},
+						},
+					},
+				},
+			},
+			"as": "discount_info",
+		},
+	}}
+	setStage0 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"discount_info": bson.M{
+				"$first": "$discount_info",
+			},
 		},
 	}}
 	unwindStage := bson.D{{
@@ -1061,7 +1083,7 @@ func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.G
 			"as":           "inventory_info",
 		},
 	}}
-	setStage := bson.D{{
+	setStage1 := bson.D{{
 		Key: "$set", Value: bson.M{
 			"variants.inventory_info": bson.M{
 				"$first": "$inventory_info",
@@ -1117,10 +1139,11 @@ func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.G
 	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
 		matchStage,
 		lookupDiscountStage,
+		setStage0,
 		lookupGroupStage,
 		unwindStage,
 		lookupStage,
-		setStage,
+		setStage1,
 		groupStage,
 		addFieldsStage,
 		setStage2,
@@ -1136,12 +1159,14 @@ func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.G
 	}
 
 	wg.Wait()
+
 	if len(catalog) != 0 {
 		var brandInfo *schema.BrandInfoResp
-		brandInfo, err = kc.GetBrandInfo(catalog[0].BrandID.Hex())
+		brandInfo, err = kc.App.Brand.GetBrandInfo([]string{catalog[0].BrandID.Hex()})
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get brand-info")
 		}
+
 		catalog[0].ContentInfo = contentInfo
 		catalog[0].BrandInfo = brandInfo
 		return &catalog[0], nil
@@ -1187,34 +1212,99 @@ func (kc *KeeperCatalogImpl) GetCatalogContent(id primitive.ObjectID) ([]schema.
 	return s.Payload, nil
 }
 
-func (kc *KeeperCatalogImpl) GetBrandInfo(id string) (*schema.BrandInfoResp, error) {
-	var s schema.GetBrandInfoResp
-	url := kc.App.Config.HypdApiConfig.EntityApi + "/api/keeper/brand/get"
-	postBody, _ := json.Marshal(map[string][]string{
-		"id": {id},
+func (kc *KeeperCatalogImpl) SyncCatalog(id primitive.ObjectID) {
+	filter := bson.M{
+		"_id":          id,
+		"status.value": model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog")
+	}
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalogContent(id primitive.ObjectID) {
+	filter := bson.M{
+		"catalog_content": id,
+		"status.value":    model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog content")
+	}
+}
+
+func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": bson.M{
+				"$in": ids,
+			},
+		},
+	}}
+	lookupDiscountStage := bson.D{{
+		Key: "$lookup",
+		Value: bson.M{
+			"from": "discount",
+			"let":  bson.M{"catalog_id": "$_id"},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr": bson.M{
+							"$and": bson.A{
+								bson.M{"$eq": bson.A{"$catalog_id", "$$catalog_id"}},
+								bson.M{"$eq": bson.A{"$is_active", true}},
+							},
+						},
+					},
+				},
+			},
+			"as": "discount_info",
+		},
+	}}
+	setStage0 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"discount_info": bson.M{
+				"$first": "$discount_info",
+			},
+		},
+	}}
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupDiscountStage,
+		setStage0,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
-	//Handle Error
 	if err != nil {
-		kc.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
-		return nil, errors.Wrap(err, "failed to get brandinfo")
+		return nil, errors.Wrapf(err, "failed to query for catalog with id")
 	}
-	defer resp.Body.Close()
-	//Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		kc.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
-		return nil, errors.Wrap(err, "failed to get brandinfo")
+
+	var catalogs []schema.GetAllCatalogInfoResp
+	if err := catalogsCursor.All(ctx, &catalogs); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
 	}
-	if err := json.Unmarshal(body, &s); err != nil {
-		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
-		return nil, errors.Wrap(err, "failed to decode body into struct")
+
+	if len(catalogs) == 0 {
+		return nil, errors.Errorf("unable to find info for catalog for collection")
 	}
-	if !s.Success {
-		kc.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
-		return nil, errors.New("got success false response from entity")
+	for i, catalog := range catalogs {
+		bi, err := kc.App.Brand.GetBrandInfo([]string{catalog.BrandID.Hex()})
+		if err != nil {
+			kc.Logger.Err(err).Msgf("failed to get brand info for catalog with brand-id: %s", catalog.BrandID.Hex())
+			continue
+		}
+		catalogs[i].BrandInfo = bi
 	}
-	return &s.Payload[0], nil
+	return catalogs, nil
 }
 
 func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {

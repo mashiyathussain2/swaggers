@@ -55,22 +55,22 @@ func TestCollectionImpl_CreateCollection(t *testing.T) {
 	subCollections := []schema.SubCollectionOpts{
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[0:5],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[5:10],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[10:15],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[15:20],
 		},
 	}
@@ -403,7 +403,7 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 					ID: collection.ID,
 					SubCollection: &schema.SubCollectionOpts{
 						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
+						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 						CatalogIDs: catalogIDs[15:20],
 					},
 				},
@@ -429,7 +429,7 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 					ID: primitive.NewObjectID(),
 					SubCollection: &schema.SubCollectionOpts{
 						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
+						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 						CatalogIDs: catalogIDs[15:20],
 					},
 				},
@@ -456,7 +456,7 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 					ID: primitive.NewObjectID(),
 					SubCollection: &schema.SubCollectionOpts{
 						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
+						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 						CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[12]},
 					},
 				},

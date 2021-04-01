@@ -33,7 +33,7 @@ type Collection struct {
 	Order          int                `json:"order,omitempty" bson:"order,omitempty"`
 }
 
-//SubCollection contains SubCollection specific data such as Name, Image and CatalogIDs
+// SubCollection contains SubCollection specific data such as Name, Image and CatalogIDs
 type SubCollection struct {
 	ID         primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name       string               `json:"name,omitempty" bson:"name,omitempty"`

@@ -26,6 +26,11 @@ type Collection interface {
 	AddCatalogsToSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
 	RemoveCatalogsFromSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
 	GetCollections(int) ([]schema.CreateCollectionResp, error)
+
+	AddCatalogInfoToCollection(id primitive.ObjectID)
+	UpdateCollectionCatalogInfo(id primitive.ObjectID)
+
+	// GetActiveCollections()
 }
 
 // CollectionImpl implements collection related operations
@@ -62,19 +67,23 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		if err != nil && len(err) > 0 {
 			return nil, err
 		}
-		image := model.IMG{
-			SRC: sc.Image,
-		}
-		if err := image.LoadFromURL(); err != nil {
-			return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", sc.Name)}
-		}
-		subCollections = append(subCollections, model.SubCollection{
+		subCollection := model.SubCollection{
 			ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
 			Name:       sc.Name,
-			Image:      &image,
 			CatalogIDs: sc.CatalogIDs,
 			CreatedAt:  t,
-		})
+		}
+		if sc.Image != nil {
+			image := model.IMG{
+				SRC: sc.Image.SRC,
+			}
+			if err := image.LoadFromURL(); err != nil {
+				return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", sc.Name)}
+			}
+			subCollection.Image = &image
+		}
+		subCollections = append(subCollections, subCollection)
+
 	}
 	collection := model.Collection{
 		Name:           UniqueSlug(opts.Title),
@@ -103,7 +112,6 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 	}
 
 	return &collectionResp, nil
-
 }
 
 //DeleteCollection deletes the collection from the database with given collectionID
@@ -131,25 +139,29 @@ func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*
 	if err != nil && len(err) > 0 {
 		return nil, err
 	}
-	image := model.IMG{
-		SRC: opts.SubCollection.Image,
-	}
-	if err := image.LoadFromURL(); err != nil {
-		return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", opts.SubCollection.Name)}
-	}
 
 	subCollection := model.SubCollection{
 		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
 		Name:       opts.SubCollection.Name,
-		Image:      &image,
 		CatalogIDs: opts.SubCollection.CatalogIDs,
 		CreatedAt:  time.Now(),
 	}
+
+	if opts.SubCollection.Image != nil {
+		image := model.IMG{
+			SRC: opts.SubCollection.Image.SRC,
+		}
+		if err := image.LoadFromURL(); err != nil {
+			return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", opts.SubCollection.Name)}
+		}
+		subCollection.Image = &image
+	}
+
 	var collectionModel model.Collection
 	findQuery := bson.M{"_id": opts.ID}
 	updateQuery := bson.M{
 		"$push": bson.M{
-			"sub_collection": subCollection,
+			"sub_collections": subCollection,
 		},
 	}
 	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
@@ -177,7 +189,7 @@ func (ci *CollectionImpl) DeleteSubCollection(collID primitive.ObjectID, subID p
 	filter := bson.M{"_id": collID}
 	query := bson.M{
 		"$pull": bson.M{
-			"sub_collection": bson.M{"_id": subID},
+			"sub_collections": bson.M{"_id": subID},
 		},
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).UpdateOne(context.TODO(), filter, query)
@@ -358,4 +370,67 @@ func (ci *CollectionImpl) GetCollections(page int) ([]schema.CreateCollectionRes
 	}
 
 	return collectionResp, nil
+}
+
+func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
+	var collection model.Collection
+	ctx := context.TODO()
+	filter := bson.M{
+		"_id": id,
+	}
+	if err := ci.DB.Collection(model.CollectionColl).FindOne(ctx, filter).Decode(&collection); err != nil {
+		ci.Logger.Err(err).Msgf("failed to collection with id: %s", id.Hex())
+		return
+	}
+
+	if collection.Type != model.ProductCollection {
+		return
+	}
+
+	var operations []mongo.WriteModel
+	for _, subColl := range collection.SubCollections {
+		operation := mongo.NewUpdateOneModel()
+		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
+		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
+		if err != nil {
+			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
+			return
+		}
+		operation.SetUpdate(bson.M{
+			"$set": bson.M{
+				"sub_collections.$.catalog_info": catalogInfo,
+			},
+		})
+		operations = append(operations, operation)
+	}
+
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	_, err := ci.DB.Collection(model.CollectionColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to add catalog info inside collection with id:%s", id.Hex())
+	}
+}
+
+func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
+	filter := bson.M{
+		"sub_collections.catalog_ids": id,
+	}
+
+	catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo([]primitive.ObjectID{id})
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to find catalog with id: %s", id.Hex())
+		return
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"sub_collections.catalog_info.$": catalogInfo[0],
+		},
+	}
+
+	if _, err = ci.DB.Collection(model.CollectionColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Msgf("failed to update catalog info for catalog id:%s", id.Hex())
+		return
+	}
 }
