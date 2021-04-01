@@ -159,3 +159,13 @@ func (a *API) getCollections(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 
 }
+
+func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	resp, err := a.App.Elasticsearch.GetActiveCollections()
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+
+}

@@ -20,6 +20,8 @@ type Discount interface {
 	CreateSale(*schema.CreateSaleOpts) (*schema.CreateSaleResp, error)
 	EditSale(*schema.EditSaleOpts) (*schema.EditSaleResp, error)
 	EditSaleStatus(*schema.EditSaleStatusOpts) error
+
+	GetActiveDiscountByCatalogID(catalogID primitive.ObjectID) (*schema.DiscountInfoResp, error)
 }
 
 // DiscountImpl implements Discount service methods
@@ -436,4 +438,21 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t_low, t_high ti
 		return err
 	}
 	return nil
+}
+
+func (di *DiscountImpl) GetActiveDiscountByCatalogID(catalogID primitive.ObjectID) (*schema.DiscountInfoResp, error) {
+	var s schema.DiscountInfoResp
+
+	filter := bson.M{
+		"catalog_id": catalogID,
+		"is_active":  true,
+	}
+	if err := di.DB.Collection(model.CollectionColl).FindOne(context.TODO(), filter).Decode(&s); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, errors.Wrapf(err, "active discount with catalogID:%s not found", catalogID.Hex())
+		}
+		return nil, errors.Wrapf(err, "failed to find active discount for catalogID:%s", catalogID.Hex())
+	}
+
+	return &s, nil
 }

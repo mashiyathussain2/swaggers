@@ -303,8 +303,9 @@ type ErrorCMS struct {
 }
 
 type GetAllCatalogInfoResp struct {
-	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	BrandID primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	BrandID    primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	DiscountID primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
 
 	Paths []model.Path `json:"category_path,omitempty" bson:"category_path,omitempty"`
 
@@ -333,9 +334,41 @@ type GetAllCatalogInfoResp struct {
 	CreatedAt    time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt    time.Time                `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	GroupInfo    []model.Group            `json:"group_info,omitempty" bson:"group_info,omitempty"`
-	DiscountInfo []model.Discount         `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	DiscountInfo *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	ContentInfo  []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
 	BrandInfo    *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+}
+
+type CatalogKafkaMessage struct {
+	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	BrandID    primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	DiscountID primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
+
+	Paths []model.Path `json:"category_path,omitempty" bson:"category_path,omitempty"`
+
+	Name string `json:"name,omitempty" bson:"name,omitempty"`
+	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
+
+	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
+	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+
+	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
+	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
+
+	VariantType model.VariantType `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	Variants    []VariantInfo     `json:"variants,omitempty" bson:"variants,omitempty"`
+	HSNCode     string            `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
+
+	BasePrice   model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+
+	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
+	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
+
+	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type CatalogContentInfoResp struct {
@@ -346,9 +379,62 @@ type CatalogContentInfoResp struct {
 	MediaInfo interface{}        `json:"media_info,omitempty"`
 }
 
+type CatalogContentKafkaMessage struct {
+	ID        primitive.ObjectID `json:"_id,omitempty"`
+	Type      string             `json:"type,omitempty"`
+	MediaType string             `json:"media_type,omitempty"`
+	MediaID   primitive.ObjectID `json:"media_id,omitempty"`
+	MediaInfo interface{}        `json:"media_info,omitempty"`
+}
+
 type GetCatalogContentInfoResp struct {
 	Success bool                     `json:"success"`
 	Payload []CatalogContentInfoResp `json:"payload"`
+}
+
+type DiscountBasicResp struct {
+	ID     primitive.ObjectID `json:"id,omitempty"`
+	SaleID primitive.ObjectID `json:"sale_id,omitempty"`
+
+	IsActive bool   `json:"is_active,omitempty"`
+	Type     string `json:"type,omitempty"`
+
+	Value uint `json:"value,omitempty"`
+	// MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.
+	MaxValue uint `json:"max_value,omitempty"`
+}
+
+type GetCatalogBasicResp struct {
+	ID            primitive.ObjectID `json:"id,omitempty"`
+	BrandID       primitive.ObjectID `json:"brand_id,omitempty"`
+	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty"`
+	DiscountID    primitive.ObjectID `json:"discount_id,omitempty"`
+	DiscountInfo  *DiscountBasicResp `json:"discount_info,omitempty"`
+	FeaturedImage *model.IMG         `json:"featured_image,omitempty"`
+	BasePrice     model.Price        `json:"base_price,omitempty"`
+	RetailPrice   model.Price        `json:"retail_price,omitempty"`
+}
+
+type GetCatalogInfoResp struct {
+	ID              primitive.ObjectID       `json:"id,omitempty"`
+	BrandID         primitive.ObjectID       `json:"brand_id,omitempty"`
+	BrandInfo       *BrandInfoResp           `json:"brand_info,omitempty"`
+	DiscountID      primitive.ObjectID       `json:"discount_id,omitempty"`
+	DiscountInfo    *DiscountBasicResp       `json:"discount_info,omitempty"`
+	FeaturedImage   *model.IMG               `json:"featured_image,omitempty"`
+	BasePrice       model.Price              `json:"base_price,omitempty"`
+	RetailPrice     model.Price              `json:"retail_price,omitempty"`
+	Slug            string                   `json:"slug,omitempty"`
+	Description     string                   `json:"description,omitempty"`
+	Specifications  []model.Specification    `json:"specs,omitempty"`
+	FilterAttribute []model.Attribute        `json:"filter_attr,omitempty"`
+	VariantType     model.VariantType        `json:"variant_type,omitempty"`
+	Variants        []VariantInfo            `json:"variants,omitempty"`
+	ContentInfo     []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
+}
+
+type GetCatalogByIDFilter struct {
+	IDs []string `qs:"id"`
 }
 
 //GetCatalogVariantResp contains fields which are returned to get variant

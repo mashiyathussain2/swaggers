@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pasztorpisti/qs"
 	"github.com/vasupal1996/goerror"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -255,5 +256,47 @@ func (a *API) getAllCatalogInfo(requestCTX *handler.RequestContext, w http.Respo
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
 
+func (a *API) getCatalogBasicByIds(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCatalogByIDFilter
+	fmt.Println(r.URL.Query().Encode())
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Elasticsearch.GetCatalogByIDs(s.IDs)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getCatalogInfoById(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["catalogID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Elasticsearch.GetCatalogInfoByID(id.Hex())
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getCatalogByCategoryID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Elasticsearch.GetCatalogInfoByCategoryID(id.Hex())
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }

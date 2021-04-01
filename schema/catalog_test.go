@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -2034,4 +2035,51 @@ func TestGetCatalogsByFilter(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestProcessCatalogUpdateSchema(t *testing.T) {
+	var s *KafkaMessage
+	str := `{
+		"meta": {
+		  "_id": {
+			"$oid": "606415cf7f0d4820325ffd1b"
+		  },
+		  "ts": {
+			"$timestamp": {
+			  "t": 1617174341,
+			  "i": 7
+			}
+		  },
+		  "ns": "catalog_v2.catalog",
+		  "op": "u",
+		  "updates": {
+			"removed": [],
+			"changed": {
+			  "status": {
+				"name": "Draft",
+				"value": "draft",
+				"created_at": {
+				  "$date": "2021-03-31T06:58:29.27Z"
+				}
+			  },
+			  "status_history": [
+				{
+				  "name": "Draft",
+				  "value": "draft",
+				  "created_at": {
+					"$date": "2021-03-31T06:58:29.27Z"
+				  }
+				}
+			  ]
+			}
+		  }
+		}
+	  }`
+	if err := bson.UnmarshalExtJSON([]byte(str), false, &s); err != nil {
+		t.Log(err)
+		t.Error("failed to decode catalog update message")
+		return
+	}
+	t.Log(s)
+	t.Error("e")
 }
