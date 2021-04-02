@@ -1301,5 +1301,8 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 	if err := catalogsCursor.All(ctx, &catalog); err != nil {
 		return nil, errors.Wrap(err, "error decoding Catalogs")
 	}
-	return &catalog[0], nil
+	if len(catalog) > 0 {
+		return &catalog[0], nil
+	}
+	return nil, nil
 }
