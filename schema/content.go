@@ -229,6 +229,7 @@ type UpdateContentCatalogInfoOpts struct {
 }
 
 type GetPebbleFilter struct {
+	UserID    string   `json:"user_id,omitempty" queryparam:"user_id"`
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
 	Interests []string `json:"interests,omitempty" queryparam:"interests"`
 }
@@ -260,6 +261,8 @@ type GetPebbleESResp struct {
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty"`
 	CatalogInfo []model.CatalogInfo  `json:"catalog_info,omitempty"`
 	CreatedAt   time.Time            `json:"created_at,omitempty"`
+
+	IsLikedByUser bool `json:"is_liked_by_user,omitempty"`
 }
 
 type GetBrandInfoResp struct {

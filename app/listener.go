@@ -67,7 +67,7 @@ func CloseConsumer(a *App) {
 	a.LikeChanges.Close()
 	a.CommentChanges.Close()
 	a.ViewChanges.Close()
-	// a.CatalogChanges.Close()
+	a.CatalogChanges.Close()
 	a.ContentChanges.Close()
 }
 
