@@ -76,7 +76,7 @@ func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESRes
 
 func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogBasicResp, error) {
 	query := elastic.NewTermsQueryFromStrings("id", ids...)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(query).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
@@ -98,7 +98,7 @@ func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogB
 
 func (ei *ElasticsearchImpl) GetCatalogInfoByID(id string) (*schema.GetCatalogInfoResp, error) {
 	query := elastic.NewTermQuery("id", id)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(query).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
@@ -114,13 +114,15 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByID(id string) (*schema.GetCatalogIn
 		}
 		resp = append(resp, s)
 	}
-
+	if len(resp) == 0 {
+		return nil, nil
+	}
 	return &resp[0], nil
 }
 
 func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(id string) ([]schema.GetCatalogBasicResp, error) {
 	query := elastic.NewTermQuery("category_path", id)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(query).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get catalogs")
 		return nil, errors.Wrap(err, "failed to get catalogs")

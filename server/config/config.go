@@ -73,6 +73,7 @@ type APPConfig struct {
 	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
 	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
 	ContentChangeConfig    ListenerConfig `mapstructure:"contentChangeConsumer"`
+	GroupChangeConfig      ListenerConfig `mapstructure:"groupChangeConsumer"`
 
 	CatalogFullProducerConfig    ProducerConfig `mapstructure:"catalogFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
@@ -84,6 +85,7 @@ type ElasticsearchConfig struct {
 	Username            string `mapstructure:"username"`
 	Password            string `mapstructure:"password"`
 	CollectionFullIndex string `mapstructure:"collectionFullIndex"`
+	CatalogFullIndex    string `mapstructure:"catalogFullIndex"`
 }
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`

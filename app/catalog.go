@@ -41,7 +41,8 @@ type KeeperCatalog interface {
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
 	GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
-	SyncCatalog(id primitive.ObjectID)
+	SyncCatalog(primitive.ObjectID)
+	SyncCatalogs([]primitive.ObjectID)
 	SyncCatalogContent(id primitive.ObjectID)
 	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
@@ -1224,6 +1225,23 @@ func (kc *KeeperCatalogImpl) SyncCatalog(id primitive.ObjectID) {
 	}
 	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
 		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog")
+	}
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalogs(ids []primitive.ObjectID) {
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+		"status.value": model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", ids).Msg("failed to sync catalogs")
 	}
 }
 

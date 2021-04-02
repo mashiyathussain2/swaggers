@@ -37,6 +37,7 @@ type App struct {
 	InventoryChanges  kafka.Consumer
 	DiscountChanges   kafka.Consumer
 	ContentChanges    kafka.Consumer
+	GroupChanges      kafka.Consumer
 
 	CatalogFullProducer    kafka.Producer
 	CollectionFullProducer kafka.Producer
