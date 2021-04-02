@@ -621,6 +621,7 @@ func (ci *ContentImpl) AddContentLike(opts *schema.ProcessLikeOpts) {
 	update := bson.M{
 		"$push": bson.M{
 			"like_ids": opts.ID,
+			"liked_by": opts.UserID,
 		},
 		"$inc": bson.M{
 			"like_count": 1,
@@ -657,7 +658,10 @@ func (ci *ContentImpl) DeleteContentLike(opts *schema.ProcessLikeOpts) {
 		"like_ids": opts.ID,
 	}
 	update := bson.M{
-		"$pull": bson.M{"like_ids": bson.M{"$in": bson.A{opts.ID}}},
+		"$pull": bson.M{
+			"like_ids": bson.M{"$in": bson.A{opts.ID}},
+			"liked_by": bson.M{"$in": bson.A{opts.UserID}},
+		},
 		"$inc": bson.M{
 			"like_count": -1,
 		},

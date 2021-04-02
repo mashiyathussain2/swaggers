@@ -64,6 +64,7 @@ type Content struct {
 	ViewCount    uint                 `json:"view_count" bson:"view_count"`
 	LikeCount    uint                 `json:"like_count" bson:"like_count"`
 	LikeIDs      []primitive.ObjectID `json:"like_ids,omitempty" bson:"like_ids,omitempty"`
+	LikedBy      []primitive.ObjectID `json:"liked_by,omitempty" bson:"liked_by,omitempty"`
 	CommentCount uint                 `json:"comment_count" bson:"comment_count"`
 
 	Caption  string   `json:"caption,omitempty" bson:"caption,omitempty"`
