@@ -31,6 +31,7 @@ type Content interface {
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
 	DeletePebble(primitive.ObjectID) (bool, error)
+	GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
@@ -52,9 +53,6 @@ type Content interface {
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
 	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
-
-	// Elasticsearch
-
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -779,4 +777,50 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 		return nil, errors.New("got success false response from entity")
 	}
 	return s.Payload, nil
+}
+
+func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error) {
+	var resp []schema.GetContentResp
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"type": opts.Type,
+			},
+		},
+	}
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: opts.Page * 20,
+		},
+	}
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: 20,
+		},
+	}
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.MediaColl,
+				"localField":   "media_id",
+				"foreignField": "_id",
+				"as":           "media_info",
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get pebbles")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, " failed to get pebbles")
+	}
+	return resp, nil
 }

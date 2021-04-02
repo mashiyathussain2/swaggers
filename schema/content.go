@@ -301,3 +301,8 @@ type ProcessCommentOpts struct {
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+type GetPebblesKeeperFilter struct {
+	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
+	Page uint   `json:"page" validate:"required"`
+}
