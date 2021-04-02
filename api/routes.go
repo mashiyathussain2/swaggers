@@ -28,6 +28,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.createInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer/get", a.requestHandler(a.getInfluencersByID)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestHandler(a.getInfluencerByName)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.editInfluencer)).Methods("PUT")
 }
 

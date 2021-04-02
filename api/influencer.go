@@ -60,3 +60,21 @@ func (a *API) getInfluencersByID(requestCTX *handler.RequestContext, w http.Resp
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) getInfluencerByName(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetInfluencersByNameOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Influencer.GetInfluencerByName(s.Name)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
