@@ -813,9 +813,22 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 			},
 		},
 	}
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"media_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$media_info",
+						0,
+					},
+				},
+			},
+		},
+	}
 
 	ctx := context.TODO()
-	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage})
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage, setStage})
 	if err != nil {
 		return nil, errors.Wrap(err, "query failed to get pebbles")
 	}
