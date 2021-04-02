@@ -1256,6 +1256,14 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 			"path": "$discount_info",
 		},
 	}}
+	inventoryLookUpStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
 	projectStage :=
 		bson.D{{
 			Key: "$project", Value: bson.M{
@@ -1263,6 +1271,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 				"name":                    1,
 				"base_price":              1,
 				"retail_price":            1,
+				"transfer_price":          1,
 				"discount_info._id":       1,
 				"discount_info.value":     1,
 				"discount_info.type":      1,
@@ -1270,6 +1279,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 				"variant_type":            1,
 				"variant":                 "$variants",
 				"featured_image":          1,
+				"inventory_info":          bson.M{"$arrayElemAt": bson.A{"$inventory_info", 0}},
 			},
 		}}
 
@@ -1281,6 +1291,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 		matchStage2,
 		lookupStage,
 		unwindStage2,
+		inventoryLookUpStage,
 		projectStage,
 	})
 	if err != nil {
