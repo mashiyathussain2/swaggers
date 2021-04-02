@@ -87,8 +87,8 @@ type GetContentResp struct {
 type GetContentFilter struct {
 	IsActive    *bool                `json:"is_active"`
 	IsProcessed *bool                `json:"is_processed"`
-	MediaType   string               `json:"media_type" validate:"oneof=image video"`
-	Type        string               `json:"type" validate:"oneof=pebble catalog_content"`
+	MediaType   string               `json:"media_type" validate:"isdefault|oneof=image video"`
+	Type        string               `json:"type" validate:"isdefault|oneof=pebble catalog_content"`
 	BrandIDs    []primitive.ObjectID `json:"brand_ids"`
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids"`
 	Hashtags    []string             `json:"hashtags"`
@@ -105,7 +105,6 @@ type CreateVideoCatalogContentOpts struct {
 	FileName  string             `json:"file_name" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateImageCatalogContentOpts contains and validates args required to create an image content
@@ -113,7 +112,6 @@ type CreateImageCatalogContentOpts struct {
 	MediaID   primitive.ObjectID `json:"media_id" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateVideoCatalogContentResp returns content id and video upload token

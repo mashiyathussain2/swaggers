@@ -1375,9 +1375,6 @@ func TestContentImpl_CreateCatalogVideoContent(t *testing.T) {
 				assert.Nil(t, res.InfluencerIDs)
 				assert.Equal(t, tt.args.opts.CatalogID, res.CatalogIDs[0])
 				assert.Equal(t, primitive.NilObjectID, res.UserID)
-				assert.Equal(t, tt.args.opts.Label.Gender, res.Label.Genders)
-				assert.Equal(t, tt.args.opts.Label.AgeGroup, res.Label.AgeGroups)
-				assert.Equal(t, tt.args.opts.Label.Interests, res.Label.Interests)
 				assert.Equal(t, model.CatalogContentType, res.Type)
 				assert.WithinDuration(t, time.Now().UTC(), res.CreatedAt, time.Millisecond*200)
 				assert.True(t, res.UpdatedAt.IsZero())
@@ -1504,9 +1501,6 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 				assert.Equal(t, tt.args.createOpts.CatalogID, doc.CatalogIDs[0])
 				assert.Equal(t, true, doc.IsActive)
 				assert.Equal(t, false, doc.IsProcessed)
-				assert.Equal(t, tt.args.createOpts.Label.AgeGroup, doc.Label.AgeGroups)
-				assert.Equal(t, tt.args.createOpts.Label.Gender, doc.Label.Genders)
-				assert.Equal(t, tt.args.createOpts.Label.Interests, doc.Label.Interests)
 			},
 		},
 		{
@@ -1547,9 +1541,6 @@ func TestContentImpl_EditCatalogContent(t *testing.T) {
 				assert.Equal(t, tt.args.createImgOpts.CatalogID, doc.CatalogIDs[0])
 				assert.Equal(t, true, doc.IsActive)
 				assert.Equal(t, true, doc.IsProcessed)
-				assert.Equal(t, tt.args.createImgOpts.Label.AgeGroup, doc.Label.AgeGroups)
-				assert.Equal(t, tt.args.createImgOpts.Label.Gender, doc.Label.Genders)
-				assert.Equal(t, tt.args.createImgOpts.Label.Interests, doc.Label.Interests)
 			},
 		},
 	}
@@ -1631,9 +1622,6 @@ func TestContentImpl_CreateCatalogImageContent(t *testing.T) {
 				assert.Equal(t, tt.args.opts.MediaID, doc.MediaID)
 				assert.Equal(t, tt.args.opts.CatalogID, doc.CatalogIDs[0])
 				assert.Equal(t, tt.args.opts.BrandID, doc.BrandIDs[0])
-				assert.Equal(t, tt.args.opts.Label.AgeGroup, doc.Label.AgeGroups)
-				assert.Equal(t, tt.args.opts.Label.Interests, doc.Label.Interests)
-				assert.Equal(t, tt.args.opts.Label.Gender, doc.Label.Genders)
 				assert.True(t, doc.IsProcessed)
 				assert.Equal(t, doc.Type, model.CatalogContentType)
 				assert.Equal(t, doc.MediaType, model.ImageType)

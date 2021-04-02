@@ -66,6 +66,7 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
 	}
 
 	var resp []schema.GetPebbleESResp

@@ -10,7 +10,6 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -366,6 +365,7 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 		},
 	}
 	pipeline = append(pipeline, setStage)
+	fmt.Println(pipeline)
 
 	ctx := context.TODO()
 	var res []schema.GetContentResp
@@ -387,12 +387,7 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		MediaType:  model.VideoType,
 		BrandIDs:   []primitive.ObjectID{opts.BrandID},
 		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
-		CreatedAt: time.Now().UTC(),
+		CreatedAt:  time.Now().UTC(),
 	}
 
 	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
@@ -400,12 +395,16 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		return nil, errors.Wrap(err, "failed to create catalog content")
 	}
 	cc.ID = res.InsertedID.(primitive.ObjectID)
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get video file extension")
+	}
 
 	// Getting s3 upload token with provided args
 	// This token is then used by frontend to directly upload media to s3
 	res1, err1 := ci.App.Media.GenerateVideoUploadToken(
 		&schema.GenerateVideoUploadTokenOpts{
-			FileName: cc.ID.Hex(),
+			FileName: fmt.Sprintf("%s.%s", cc.ID.Hex(), fType),
 		},
 	)
 	if err1 != nil {
@@ -460,16 +459,11 @@ func (ci *ContentImpl) EditCatalogContent(opts *schema.EditCatalogContentOpts) (
 
 func (ci *ContentImpl) CreateCatalogImageContent(opts *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
 	cc := model.Content{
-		Type:       model.CatalogContentType,
-		MediaType:  model.ImageType,
-		MediaID:    opts.MediaID,
-		BrandIDs:   []primitive.ObjectID{opts.BrandID},
-		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
+		Type:        model.CatalogContentType,
+		MediaType:   model.ImageType,
+		MediaID:     opts.MediaID,
+		BrandIDs:    []primitive.ObjectID{opts.BrandID},
+		CatalogIDs:  []primitive.ObjectID{opts.CatalogID},
 		IsProcessed: true,
 		CreatedAt:   time.Now().UTC(),
 	}
@@ -707,13 +701,14 @@ func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
-		log.Fatalf("An Error Occured %v", err)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	defer resp.Body.Close()
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	if err := json.Unmarshal(body, &s); err != nil {
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
