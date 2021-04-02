@@ -256,6 +256,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		CatalogInfo:    contentSchema.CatalogInfo,
 		LikeCount:      contentSchema.LikeCount,
 		LikeIDs:        contentSchema.LikeIDs,
+		LikedBy:        contentSchema.LikedBy,
 		CommentCount:   contentSchema.CommentCount,
 		ViewCount:      contentSchema.ViewCount,
 		Label:          contentSchema.Label,
