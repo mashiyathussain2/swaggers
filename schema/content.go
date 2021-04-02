@@ -304,5 +304,5 @@ type ProcessCommentOpts struct {
 
 type GetPebblesKeeperFilter struct {
 	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
-	Page uint   `json:"page" validate:"required"`
+	Page uint   `json:"page"`
 }
