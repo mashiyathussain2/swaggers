@@ -100,6 +100,7 @@ func (ci *BrandImpl) GetBrandInfo(ids []string) (*schema.BrandInfoResp, error) {
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
+	fmt.Println(s)
 	if !s.Success {
 		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
 		return nil, errors.New("got success false response from entity")

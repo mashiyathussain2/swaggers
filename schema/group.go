@@ -2,6 +2,7 @@ package schema
 
 import (
 	"go-app/model"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -101,4 +102,13 @@ type EditGroupResp struct {
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
 	Basis      string               `json:"basis"`
 	Status     model.GroupStatus    `json:"status"`
+}
+
+type GroupChangeKafkaMessage struct {
+	ID         primitive.ObjectID   `json:"_id,omitempty"`
+	Basis      string               `json:"basis"`
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids,omitempty"`
+	Status     model.GroupStatus    `json:"status"`
+	CreatedAt  time.Time            `json:"created_at,omitempty"`
+	UpdatedAt  time.Time            `json:"updated_at,omitempty"`
 }

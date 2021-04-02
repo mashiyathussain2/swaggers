@@ -151,6 +151,30 @@ func (cp *CatalogProcessor) ProcessCatalogContentUpdate(msg kafka.Message) {
 	}
 }
 
+func (cp *CatalogProcessor) ProcessGroupUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode inventory update message")
+		return
+	}
+
+	var group schema.GroupChangeKafkaMessage
+	groupBytes, err := json.Marshal(s.Data)
+	if err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode group update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(groupBytes, &group); err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+
+	if group.Status.Value == model.Publish {
+		cp.App.KeeperCatalog.SyncCatalogs(group.CatalogIDs)
+	}
+}
+
 type CollectionProcessor struct {
 	App    *App
 	Logger *zerolog.Logger

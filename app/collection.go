@@ -378,12 +378,14 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	filter := bson.M{
 		"_id": id,
 	}
+
 	if err := ci.DB.Collection(model.CollectionColl).FindOne(ctx, filter).Decode(&collection); err != nil {
 		ci.Logger.Err(err).Msgf("failed to collection with id: %s", id.Hex())
 		return
 	}
 
 	if collection.Type != model.ProductCollection {
+		ci.Logger.Info().Msg("sub collection is not product collection, thus skipping catalog_info linking")
 		return
 	}
 
