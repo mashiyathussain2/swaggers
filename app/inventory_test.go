@@ -607,6 +607,7 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 	type args struct {
 		cat_id primitive.ObjectID
 		var_id primitive.ObjectID
+		qty    int
 	}
 	type fields struct {
 		App    *App
@@ -638,6 +639,7 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 			prepare: func(tt *TC) {
 				tt.args.cat_id = inventory.CatalogID
 				tt.args.var_id = inventory.VariantID
+				tt.args.qty = 5
 			},
 			wantErr: false,
 			want:    true,
@@ -656,8 +658,48 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 			prepare: func(tt *TC) {
 				tt.args.cat_id = inventoryOS.CatalogID
 				tt.args.var_id = inventoryOS.VariantID
+				tt.args.qty = 5
 			},
 			wantErr: false,
+			want:    false,
+		},
+		{
+			name: "[Ok] with insufficient inventory",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = inventory.CatalogID
+				tt.args.var_id = inventory.VariantID
+				tt.args.qty = 15
+			},
+			wantErr: false,
+			want:    false,
+		},
+		{
+			name: "[Error] with -ve inventory",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.GroupConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, kc *mock.MockKeeperCatalog) {
+
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = inventory.CatalogID
+				tt.args.var_id = inventory.VariantID
+				tt.args.qty = -5
+				tt.err = errors.Errorf("quantity must be greater than 0")
+			},
+			wantErr: true,
 			want:    false,
 		},
 		{
@@ -674,6 +716,7 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 			prepare: func(tt *TC) {
 				tt.args.cat_id = primitive.NewObjectID()
 				tt.args.var_id = inventory.VariantID
+				tt.args.qty = 5
 				tt.err = errors.Errorf("inventory not found")
 			},
 			wantErr: true,
@@ -692,6 +735,7 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 			prepare: func(tt *TC) {
 				tt.args.cat_id = inventory.CatalogID
 				tt.args.var_id = primitive.NewObjectID()
+				tt.args.qty = 5
 				tt.err = errors.Errorf("inventory not found")
 			},
 			wantErr: true,
@@ -713,7 +757,7 @@ func TestInventoryImpl_CheckInventoryExists(t *testing.T) {
 			tt.buildStubs(&tt, mockKeeperCatalog)
 			tt.prepare(&tt)
 
-			found, err := ii.CheckInventoryExists(tt.args.cat_id, tt.args.var_id)
+			found, err := ii.CheckInventoryExists(tt.args.cat_id, tt.args.var_id, tt.args.qty)
 			if !tt.wantErr {
 				assert.Nil(t, err)
 				assert.Equal(t, found, tt.want)

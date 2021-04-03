@@ -41,7 +41,7 @@ func (a *API) InitRoutes() {
 	//KEEPER INVENTORY
 	a.Router.APIRoot.Handle("/keeper/inventory", a.requestHandler(a.updateInventory)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/outofstock", a.requestHandler(a.setOutOfStock)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}", a.requestHandler(a.checkInventoryExists)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}/quantity/{quantity}", a.requestHandler(a.checkInventoryExists)).Methods("POST")
 
 	//KEEPER COLLECTION
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestHandler(a.createCollection)).Methods("POST")

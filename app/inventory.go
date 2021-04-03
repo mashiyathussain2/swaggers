@@ -20,7 +20,7 @@ type Inventory interface {
 	CreateInventory(*schema.CreateInventoryOpts) (primitive.ObjectID, error)
 	UpdateInventory(*schema.UpdateInventoryOpts) error
 	SetOutOfStock(primitive.ObjectID) error
-	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID) (bool, error)
+	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID, int) (bool, error)
 }
 
 // InventoryImpl implements Inventory related operations
@@ -206,13 +206,18 @@ func (ii *InventoryImpl) SetOutOfStock(id primitive.ObjectID) error {
 	return nil
 }
 
-func (ii *InventoryImpl) CheckInventoryExists(cat_id, var_id primitive.ObjectID) (bool, error) {
+func (ii *InventoryImpl) CheckInventoryExists(cat_id, var_id primitive.ObjectID, qty int) (bool, error) {
 	ctx := context.TODO()
+
+	if qty <= 0 {
+		return false, errors.Errorf("quantity must be greater than 0")
+	}
 
 	filter := bson.M{
 		"catalog_id": cat_id,
 		"variant_id": var_id,
 	}
+
 	var inventory model.Inventory
 	err := ii.DB.Collection(model.InventoryColl).FindOne(ctx, filter).Decode(&inventory)
 	if err != nil {
@@ -221,7 +226,7 @@ func (ii *InventoryImpl) CheckInventoryExists(cat_id, var_id primitive.ObjectID)
 		}
 		return false, errors.Errorf("unable to query for document")
 	}
-	if inventory.UnitInStock == 0 || inventory.Status.Value == model.OutOfStockStatus {
+	if inventory.UnitInStock < qty || inventory.Status.Value == model.OutOfStockStatus {
 		return false, nil
 	}
 	return true, nil

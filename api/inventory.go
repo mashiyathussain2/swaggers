@@ -5,6 +5,7 @@ import (
 	"go-app/schema"
 	"go-app/server/handler"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/vasupal1996/goerror"
@@ -58,7 +59,14 @@ func (a *API) checkInventoryExists(requestCTX *handler.RequestContext, w http.Re
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid variant id:%s in url", mux.Vars(r)["variantID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.Inventory.CheckInventoryExists(cat_id, var_id)
+
+	qty, err := strconv.Atoi(mux.Vars(r)["quantity"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid quantity :%s in url", mux.Vars(r)["quantity"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := a.App.Inventory.CheckInventoryExists(cat_id, var_id, qty)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
