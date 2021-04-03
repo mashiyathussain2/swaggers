@@ -1361,7 +1361,8 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 	}}
 	unwindStage2 := bson.D{{
 		Key: "$unwind", Value: bson.M{
-			"path": "$discount_info",
+			"path":                       "$discount_info",
+			"preserveNullAndEmptyArrays": true,
 		},
 	}}
 	inventoryLookUpStage := bson.D{{
