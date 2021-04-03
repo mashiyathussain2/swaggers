@@ -1807,12 +1807,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -1863,12 +1861,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -1919,12 +1915,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -1984,12 +1978,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2049,12 +2041,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2114,12 +2104,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2179,12 +2167,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -2237,12 +2223,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2304,12 +2288,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2371,12 +2353,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2438,12 +2418,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2505,12 +2483,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2572,12 +2548,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2642,12 +2616,11 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				// featuredImage := &model.CatalogFeaturedImage{
-				// 	IMG: model.IMG{
+				// featuredImage := & model.IMG{
 				// 		SRC:    faker.Internet().Url(),
 				// 		Height: 20,
 				// 		Width:  20,
-				// 	},
+				//
 				// }
 				//Adding Featured Image to DB
 				// tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{

@@ -110,12 +110,11 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 	}
 	c.Tax = tax
 
-	c.FeaturedImage = &model.CatalogFeaturedImage{
-		IMG: model.IMG{
+	c.FeaturedImage = &model.IMG{
 			SRC: opts.FeaturedImage.SRC,
-		},
-	}
-	if err := c.FeaturedImage.IMG.LoadFromURL(); err != nil {
+		}
+	
+	if err := c.FeaturedImage.LoadFromURL(); err != nil {
 		return nil, errors.Wrapf(err, "unable to process featured image for catalog")
 	}
 

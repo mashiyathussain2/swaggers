@@ -18,9 +18,7 @@ const (
 )
 
 // CatalogFeaturedImage has one featured image for a catalog in landscape, portrait, and square.
-type CatalogFeaturedImage struct {
-	IMG
-}
+type CatalogFeaturedImage = IMG
 
 // ETA contains maximum and minimum delivery time of a catalog
 type ETA struct {

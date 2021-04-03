@@ -64,10 +64,10 @@ type CreateCatalogResp struct {
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
 	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
 
-	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
-	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
-	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	Slug          string     `json:"slug,omitempty" bson:"slug,omitempty"`
+	Description   string     `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords      []string   `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
@@ -140,7 +140,7 @@ type EditCatalogResp struct {
 	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
 	Description string             `json:"description,omitempty" bson:"description,omitempty"`
 	Keywords    []string           `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	// FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	// FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
 	HSNCode         string                `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
@@ -220,10 +220,10 @@ type GetCatalogResp struct {
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
 	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
 
-	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
-	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
-	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	Slug          string     `json:"slug,omitempty" bson:"slug,omitempty"`
+	Description   string     `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords      []string   `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
@@ -312,10 +312,10 @@ type GetAllCatalogInfoResp struct {
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
 	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
 
-	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
-	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
-	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	Slug          string     `json:"slug,omitempty" bson:"slug,omitempty"`
+	Description   string     `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords      []string   `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
@@ -349,10 +349,10 @@ type CatalogKafkaMessage struct {
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
 	// LName string `json:"lname,omitempty" bson:"lname,omitempty"`
 
-	Slug          string                      `json:"slug,omitempty" bson:"slug,omitempty"`
-	Description   string                      `json:"description,omitempty" bson:"description,omitempty"`
-	Keywords      []string                    `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	Slug          string     `json:"slug,omitempty" bson:"slug,omitempty"`
+	Description   string     `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords      []string   `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
@@ -439,16 +439,16 @@ type GetCatalogByIDFilter struct {
 
 //GetCatalogVariantResp contains fields which are returned to get variant
 type GetCatalogVariantResp struct {
-	ID            primitive.ObjectID          `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string                      `json:"name,omitempty" bson:"name,omitempty"`
-	BasePrice     model.Price                 `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice   model.Price                 `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
-	TransferPrice model.Price                 `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
-	VariantType   model.VariantType           `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
-	Variant       model.Variant               `json:"variant,omitempty" bson:"variant,omitempty"`
-	DiscountInfo  DiscountInfo                `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
-	InventoryInfo *model.Inventory            `json:"inventory_info" bson:"inventory_info"`
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
+	BasePrice     model.Price        `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice model.Price        `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	VariantType   model.VariantType  `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	Variant       model.Variant      `json:"variant,omitempty" bson:"variant,omitempty"`
+	DiscountInfo  DiscountInfo       `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	InventoryInfo *model.Inventory   `json:"inventory_info" bson:"inventory_info"`
 }
 
 type DiscountInfo struct {
