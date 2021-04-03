@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"time"
@@ -22,6 +23,7 @@ type Influencer interface {
 	GetInfluencersByID([]primitive.ObjectID) ([]schema.GetInfluencerResp, error)
 
 	GetInfluencerByName(string) ([]schema.GetInfluencerResp, error)
+	AddFollower(*schema.AddInfluencerFollowerOpts) (bool, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -220,4 +222,59 @@ func (ii *InfluencerImpl) GetInfluencerByName(name string) ([]schema.GetInfluenc
 		return nil, errors.Wrap(err, "failed to find influencer")
 	}
 	return resp, nil
+}
+
+func (ii *InfluencerImpl) AddFollower(opts *schema.AddInfluencerFollowerOpts) (bool, error) {
+	ctx := context.TODO()
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		ii.Logger.Err(err).Msg("unable to create db session")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		ii.Logger.Err(err).Msg("unable to start transaction")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		filter := bson.M{
+			"_id": opts.InfluencerID,
+		}
+		update := bson.M{
+			"$addToSet": bson.M{
+				"followers_id": opts.UserID,
+			},
+			"$inc": bson.M{
+				"followers_count": 1,
+			},
+		}
+
+		res, err := ii.DB.Collection(model.InfluencerColl).UpdateOne(sc, filter, update)
+		if err != nil {
+			session.AbortTransaction(sc)
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed add follower")
+			return errors.Wrap(err, "failed to add follower")
+		}
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("influencer not found")
+		}
+		if err := ii.App.Customer.AddInfluencerFollowing(sc, opts); err != nil {
+			session.AbortTransaction(sc)
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed add influencer_id in customer following")
+			return errors.Wrap(err, "failed to add follower")
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to add follower")
+		}
+		return nil
+	}); err != nil {
+		fmt.Println("heree1-")
+		return false, err
+	}
+	return true, nil
 }

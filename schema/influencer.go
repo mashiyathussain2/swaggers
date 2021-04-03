@@ -72,3 +72,8 @@ type GetInfluencerResp struct {
 	ExternalLinks []string             `json:"external_links,omitempty" bson:"external_links,omitempty"`
 	Bio           string               `json:"bio,omitempty" bson:"bio,omitempty"`
 }
+
+type AddInfluencerFollowerOpts struct {
+	InfluencerID primitive.ObjectID `json:"id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+}

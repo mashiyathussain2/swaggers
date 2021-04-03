@@ -100,3 +100,8 @@ type GetBrandResp struct {
 	Bio                string               `json:"bio,omitempty" bson:"bio,omitempty"`
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
 }
+
+type AddBrandFollowerOpts struct {
+	BrandID primitive.ObjectID `json:"id" validate:"required"`
+	UserID  primitive.ObjectID `json:"user_id" validate:"required"`
+}

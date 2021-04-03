@@ -21,6 +21,9 @@ type Customer interface {
 	Login(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	SignUp(*schema.CreateUserOpts) (auth.Claim, error)
 	UpdateCustomer(*schema.UpdateCustomerOpts) (*schema.GetCustomerInfoResp, error)
+
+	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
+	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
 }
 
 // CustomerImpl implements Customer interface methods
@@ -119,4 +122,58 @@ func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (*schema
 		return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
 	}
 	return &resp, nil
+}
+
+func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
+	filter := bson.M{
+		"user_id": opts.UserID,
+	}
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"brand_following": opts.BrandID,
+		},
+		"$inc": bson.M{
+			"brand_follow_count": 1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed add brand id into following field")
+		return errors.Wrap(err, "failed to add brand following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with user_id:%s not found", opts.UserID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *schema.AddInfluencerFollowerOpts) error {
+	filter := bson.M{
+		"user_id": opts.UserID,
+	}
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"influencer_following": opts.InfluencerID,
+		},
+		"$inc": bson.M{
+			"influencer_follow_count": 1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed add influencer id into following field")
+		return errors.Wrap(err, "failed to add influencer following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with user_id:%s not found", opts.UserID.Hex())
+	}
+
+	return nil
 }
