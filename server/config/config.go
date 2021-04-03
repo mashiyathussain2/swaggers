@@ -65,6 +65,9 @@ type APPConfig struct {
 type HypdApiConfig struct {
 	CatalogApi string `mapstructure:"catalogApi"`
 	OrderApi   string `mapstructure:"orderApi"`
+
+	// BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConfig"`
+	// InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConfig"`
 }
 
 // ServiceConfig contains app service related config
@@ -77,6 +80,15 @@ type ListenerConfig struct {
 	GroupID string   `mapstructure:"groupId"`
 	Brokers []string `mapstructure:"brokers"`
 	Topic   string   `mapstructure:"topic"`
+}
+
+// ProducerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
