@@ -99,6 +99,10 @@ type GetBrandResp struct {
 	CoverImg           *model.IMG           `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
 	Bio                string               `json:"bio,omitempty" bson:"bio,omitempty"`
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
+	FollowersID        []primitive.ObjectID `json:"followers_id,omitempty" bson:"followers_id,omitempty"`
+	FollowingID        []primitive.ObjectID `json:"following_id,omitempty" bson:"following_id,omitempty"`
+	FollowersCount     uint                 `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
+	FollowingCount     uint                 `json:"following_count,omitempty" bson:"following_count,omitempty"`
 }
 
 type AddBrandFollowerOpts struct {
