@@ -481,7 +481,6 @@ func TestGroupImpl_GetGroupsByCatalogID(t *testing.T) {
 				CurrencyISO: "inr",
 			},
 			FeaturedImage: &model.CatalogFeaturedImage{
-				ID: primitive.NewObjectID(),
 				IMG: model.IMG{
 					SRC: faker.Avatar().Url("png", 100, 100),
 				},

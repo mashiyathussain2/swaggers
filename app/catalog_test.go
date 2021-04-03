@@ -1808,7 +1808,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -1865,7 +1864,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -1922,7 +1920,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -1988,7 +1985,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2054,7 +2050,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2120,7 +2115,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2186,7 +2180,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2245,7 +2238,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2313,7 +2305,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2381,7 +2372,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2449,7 +2439,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2517,7 +2506,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2585,7 +2573,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
 					IMG: model.IMG{
 						SRC:    faker.Internet().Url(),
 						Height: 20,
@@ -2656,7 +2643,6 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
 				// featuredImage := &model.CatalogFeaturedImage{
-				// 	ID: primitive.NewObjectID(),
 				// 	IMG: model.IMG{
 				// 		SRC:    faker.Internet().Url(),
 				// 		Height: 20,
