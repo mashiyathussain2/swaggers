@@ -6,36 +6,37 @@ package mock
 
 import (
 	context "context"
-	gomock "github.com/golang/mock/gomock"
 	schema "go-app/schema"
-	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// MockBrand is a mock of Brand interface
+// MockBrand is a mock of Brand interface.
 type MockBrand struct {
 	ctrl     *gomock.Controller
 	recorder *MockBrandMockRecorder
 }
 
-// MockBrandMockRecorder is the mock recorder for MockBrand
+// MockBrandMockRecorder is the mock recorder for MockBrand.
 type MockBrandMockRecorder struct {
 	mock *MockBrand
 }
 
-// NewMockBrand creates a new mock instance
+// NewMockBrand creates a new mock instance.
 func NewMockBrand(ctrl *gomock.Controller) *MockBrand {
 	mock := &MockBrand{ctrl: ctrl}
 	mock.recorder = &MockBrandMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockBrand) EXPECT() *MockBrandMockRecorder {
 	return m.recorder
 }
 
-// CheckBrandIDExists mocks base method
+// CheckBrandIDExists mocks base method.
 func (m *MockBrand) CheckBrandIDExists(arg0 context.Context, arg1 primitive.ObjectID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckBrandIDExists", arg0, arg1)
@@ -44,13 +45,13 @@ func (m *MockBrand) CheckBrandIDExists(arg0 context.Context, arg1 primitive.Obje
 	return ret0, ret1
 }
 
-// CheckBrandIDExists indicates an expected call of CheckBrandIDExists
+// CheckBrandIDExists indicates an expected call of CheckBrandIDExists.
 func (mr *MockBrandMockRecorder) CheckBrandIDExists(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBrandIDExists", reflect.TypeOf((*MockBrand)(nil).CheckBrandIDExists), arg0, arg1)
 }
 
-// GetBrandInfo mocks base method
+// GetBrandInfo mocks base method.
 func (m *MockBrand) GetBrandInfo(arg0 []string) (*schema.BrandInfoResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBrandInfo", arg0)
@@ -59,7 +60,7 @@ func (m *MockBrand) GetBrandInfo(arg0 []string) (*schema.BrandInfoResp, error) {
 	return ret0, ret1
 }
 
-// GetBrandInfo indicates an expected call of GetBrandInfo
+// GetBrandInfo indicates an expected call of GetBrandInfo.
 func (mr *MockBrandMockRecorder) GetBrandInfo(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBrandInfo", reflect.TypeOf((*MockBrand)(nil).GetBrandInfo), arg0)
