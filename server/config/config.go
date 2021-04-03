@@ -34,6 +34,7 @@ type ServerConfig struct {
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	CORSConfig     CORSConfig    `mapstructure:"cors"`
+	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
 }
 
 // APIConfig contains api package related configurations
@@ -43,6 +44,7 @@ type APIConfig struct {
 	EnableMediaRoute   bool   `mapstructure:"enableMediaRoute"`
 	EnableStaticRoute  bool   `mapstructure:"enableStaticRoute"`
 	MaxRequestDataSize int    `mapstructure:"maxRequestDataSize"`
+	HypdApiConfig      HypdApiConfig
 }
 
 // APPConfig contains api package related configurations
@@ -55,6 +57,14 @@ type APPConfig struct {
 	CustomerConfig   ServiceConfig `mapstructure:"customer"`
 	BrandConfig      ServiceConfig `mapstructure:"brand"`
 	InfluencerConfig ServiceConfig `mapstructure:"influencer"`
+	CartConfig       ServiceConfig `mapstructure:"cart"`
+	HypdApiConfig    HypdApiConfig
+}
+
+//HypdApiConfig contains config related to other services
+type HypdApiConfig struct {
+	CatalogApi string `mapstructure:"catalogApi"`
+	OrderApi   string `mapstructure:"orderApi"`
 }
 
 // ServiceConfig contains app service related config
@@ -226,5 +236,7 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.TokenAuthConfig = config.TokenAuthConfig
 	config.APPConfig.SNSConfig = config.SNSConfig
 	config.APPConfig.SESConfig = config.SESConfig
+	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	return config
 }
