@@ -27,16 +27,16 @@ type Cart struct {
 
 //Item is a unique catalogs data inside the cart
 type Item struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CatalogID     primitive.ObjectID `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`
-	BrandID       primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
-	VariantID     primitive.ObjectID `json:"variant_id,omitempty" bson:"variant_id,omitempty"`
-	CatalogInfo   CatalogInfo        `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
-	DiscountID    primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
-	DiscountInfo  *DiscountInfo      `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	BasePrice     *Price             `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice   *Price             `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
-	TransferPrice *Price             `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
-	DiscountPrice *Price             `json:"discount_price,omitempty" bson:"discount_price,omitempty"`
-	Quantity      uint               `json:"quantity,omitempty" bson:"quantity,omitempty"`
+	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CatalogID       primitive.ObjectID `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`
+	BrandID         primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	VariantID       primitive.ObjectID `json:"variant_id,omitempty" bson:"variant_id,omitempty"`
+	CatalogInfo     CatalogInfo        `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	DiscountID      primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
+	DiscountInfo    *DiscountInfo      `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	BasePrice       *Price             `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice     *Price             `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	TransferPrice   *Price             `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	DiscountedPrice *Price             `json:"discounted_price,omitempty" bson:"discounted_price,omitempty"`
+	Quantity        uint               `json:"quantity,omitempty" bson:"quantity,omitempty"`
 }

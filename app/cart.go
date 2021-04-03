@@ -24,7 +24,7 @@ type Cart interface {
 	CreateCart(primitive.ObjectID) (primitive.ObjectID, error)
 	AddToCart(*schema.AddToCartOpts) (*model.Cart, error)
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
-	GetCartItems(primitive.ObjectID) ([]model.Item, error)
+	GetCartItems(primitive.ObjectID) (*model.Cart, error)
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
 }
@@ -122,32 +122,33 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			return nil, errors.Wrapf(mongoErr, "unable to check cart for catalog")
 		}
 	}
-	if cartMongo.UserID == opts.ID {
+	if cartMongo.ID == opts.ID {
 		return nil, errors.Errorf("item already in cart")
 	}
 
 	//calculate discount if available
 	discount := uint(0)
 	discountInfo := model.DiscountInfo{}
-
-	if len(s.Payload.DiscountInfo) != 0 {
-		//TODO: check variant has discount
-		// if s.Payload.DiscountInfo[0].VariantsID
-		for _, d := range s.Payload.DiscountInfo[0].VariantsID {
+	var dp *model.Price
+	if s.Payload.DiscountInfo != nil {
+		fmt.Println(s.Payload.DiscountInfo)
+		for _, d := range s.Payload.DiscountInfo.VariantsID {
 			if d == opts.VariantID {
-				if s.Payload.DiscountInfo[0].Type == model.FlatOffType {
-					discount = s.Payload.DiscountInfo[0].Value
-				} else if s.Payload.DiscountInfo[0].Type == model.PercentOffType {
-					discount = (s.Payload.DiscountInfo[0].Value * uint(s.Payload.RetailPrice.Value)) / 100
-					if discount > s.Payload.DiscountInfo[0].MaxValue {
-						discount = s.Payload.DiscountInfo[0].MaxValue
+				switch s.Payload.DiscountInfo.Type {
+				case model.FlatOffType:
+					discount = s.Payload.DiscountInfo.Value
+					dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
+				case model.PercentOffType:
+					discount = uint(float64((s.Payload.DiscountInfo.Value * uint(s.Payload.RetailPrice.Value)) / 100.0))
+					if discount > s.Payload.DiscountInfo.MaxValue && s.Payload.DiscountInfo.MaxValue > 0 {
+						discount = s.Payload.DiscountInfo.MaxValue
 					}
-					discountInfo.MaxValue = s.Payload.DiscountInfo[0].MaxValue
+					discountInfo.MaxValue = s.Payload.DiscountInfo.MaxValue
+					dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
 				}
 				discountInfo.Value = discount
-				discountInfo.ID = s.Payload.DiscountInfo[0].ID
-				discountInfo.Type = s.Payload.DiscountInfo[0].Type
-
+				discountInfo.ID = s.Payload.DiscountInfo.ID
+				discountInfo.Type = s.Payload.DiscountInfo.Type
 			}
 		}
 	}
@@ -182,9 +183,10 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 		TransferPrice: &s.Payload.TransferPrice,
 		Quantity:      opts.Quantity,
 	}
-	if len(s.Payload.DiscountInfo) != 0 {
-		item.DiscountID = s.Payload.DiscountInfo[0].ID
+	if s.Payload.DiscountInfo != nil {
+		item.DiscountID = s.Payload.DiscountInfo.ID
 		item.DiscountInfo = &discountInfo
+		item.DiscountedPrice = dp
 	}
 
 	updateQuery := bson.M{
@@ -294,11 +296,11 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 }
 
 //GetCartItems function increases, decreases or removes the item from cart based on input qty
-func (ci *CartImpl) GetCartItems(id primitive.ObjectID) ([]model.Item, error) {
+func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
 
 	ctx := context.TODO()
 	var cart model.Cart
-	err := ci.DB.Collection(model.CartColl).FindOne(ctx, bson.M{"_id": id}).Decode(&cart)
+	err := ci.DB.Collection(model.CartColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&cart)
 
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
@@ -306,7 +308,43 @@ func (ci *CartImpl) GetCartItems(id primitive.ObjectID) ([]model.Item, error) {
 		}
 		return nil, errors.Wrapf(err, "unable to query for cart")
 	}
-	return cart.Items, nil
+	for _, item := range cart.Items {
+		item.BasePrice = &item.CatalogInfo.BasePrice
+		item.RetailPrice = &item.CatalogInfo.RetailPrice
+		item.TransferPrice = &item.CatalogInfo.TransferPrice
+
+		if item.CatalogInfo.DiscountInfo != nil {
+			for _, v := range item.CatalogInfo.DiscountInfo.VariantsID {
+				if v == item.VariantID {
+					var dp *model.Price
+					item.DiscountInfo = &model.DiscountInfo{
+						ID:    item.CatalogInfo.DiscountInfo.ID,
+						Type:  item.CatalogInfo.DiscountInfo.Type,
+						Value: item.CatalogInfo.DiscountInfo.Value,
+					}
+					switch item.DiscountInfo.Type {
+					case model.FlatOffType:
+						dp = model.SetINRPrice(item.RetailPrice.Value - float32(item.DiscountInfo.Value))
+
+					case model.PercentOffType:
+						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
+						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
+						item.DiscountInfo.MaxValue = item.CatalogInfo.DiscountInfo.MaxValue
+						d := uint(float64((item.DiscountInfo.Value * uint(item.RetailPrice.Value)) / 100.0))
+						if d > item.DiscountInfo.MaxValue && item.DiscountInfo.MaxValue > 0 {
+							d = item.DiscountInfo.MaxValue
+						}
+						dp = model.SetINRPrice(item.RetailPrice.Value - float32(d))
+
+					default:
+					}
+					item.DiscountedPrice = dp
+					item.DiscountID = item.CatalogInfo.DiscountInfo.ID
+				}
+			}
+		}
+	}
+	return &cart, nil
 }
 
 //GetCartItems function sets the shipping address for cart
