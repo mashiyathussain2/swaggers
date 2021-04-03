@@ -58,6 +58,10 @@ type GetInfluencersByIDOpts struct {
 	IDs []primitive.ObjectID `json:"id" validate:"required,min=1"`
 }
 
+type GetInfluencersByNameOpts struct {
+	Name string `json:"name" validate:"required,min=3"`
+}
+
 // GetInfluencerResp contains fields to be returned for get influencer function
 type GetInfluencerResp struct {
 	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`

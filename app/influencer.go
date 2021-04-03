@@ -20,6 +20,8 @@ type Influencer interface {
 	EditInfluencer(*schema.EditInfluencerOpts) (*schema.EditInfluencerResp, error)
 
 	GetInfluencersByID([]primitive.ObjectID) ([]schema.GetInfluencerResp, error)
+
+	GetInfluencerByName(string) ([]schema.GetInfluencerResp, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -194,6 +196,26 @@ func (ii *InfluencerImpl) GetInfluencersByID(ids []primitive.ObjectID) ([]schema
 		ii.Logger.Err(err).Interface("ids", ids).Msg("failed to get influencer with ids")
 		return nil, errors.Wrap(err, "failed to get influencer with id")
 	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find influencer")
+	}
+	return resp, nil
+}
+
+func (ii *InfluencerImpl) GetInfluencerByName(name string) ([]schema.GetInfluencerResp, error) {
+	ctx := context.TODO()
+	filter := bson.M{
+		"name": primitive.Regex{
+			Pattern: name,
+			Options: "i",
+		},
+	}
+	cur, err := ii.DB.Collection(model.InfluencerColl).Find(ctx, filter)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to find influencer")
+	}
+
+	var resp []schema.GetInfluencerResp
 	if err := cur.All(ctx, &resp); err != nil {
 		return nil, errors.Wrap(err, "failed to find influencer")
 	}
