@@ -80,8 +80,8 @@ func NewServer() *Server {
 	// Initializing app and services
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
-	app.InitProcessor(server.API.App)
 	app.InitService(server.API.App)
+	app.InitProcessor(server.API.App)
 	app.InitConsumer(server.API.App)
 	app.InitProducer(server.API.App)
 	return server
