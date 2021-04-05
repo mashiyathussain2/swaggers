@@ -480,11 +480,8 @@ func TestGroupImpl_GetGroupsByCatalogID(t *testing.T) {
 				Value:       faker.Commerce().Price(),
 				CurrencyISO: "inr",
 			},
-			FeaturedImage: &model.CatalogFeaturedImage{
-				ID: primitive.NewObjectID(),
-				IMG: model.IMG{
-					SRC: faker.Avatar().Url("png", 100, 100),
-				},
+			FeaturedImage: &model.IMG{
+				SRC: faker.Avatar().Url("png", 100, 100),
 			},
 		})
 		catalogDB.Collection(model.CatalogColl).InsertOne(context.TODO(), catalogs[i])

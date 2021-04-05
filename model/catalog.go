@@ -18,10 +18,7 @@ const (
 )
 
 // CatalogFeaturedImage has one featured image for a catalog in landscape, portrait, and square.
-type CatalogFeaturedImage struct {
-	ID  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	IMG IMG                `json:"img,omitempty" bson:"img,omitempty"`
-}
+type CatalogFeaturedImage = IMG
 
 // ETA contains maximum and minimum delivery time of a catalog
 type ETA struct {

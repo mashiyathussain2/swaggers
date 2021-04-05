@@ -59,7 +59,7 @@ func (di *DiscountImpl) CreateDiscount(opts *schema.CreateDiscountOpts) (*schema
 		CatalogID:   opts.CatalogID,
 		VariantsID:  opts.VariantsID,
 		SaleID:      opts.SaleID,
-		IsActive:    true,
+		IsActive:    false,
 		Value:       opts.Value,
 		MaxValue:    opts.MaxValue,
 		ValidAfter:  opts.ValidAfter,
@@ -293,25 +293,26 @@ func (di *DiscountImpl) CheckAndUpdateStatus() error {
 
 	ctx := context.TODO()
 	t := time.Now().UTC()
-	t_low := t.Add(time.Second * time.Duration(-1))
-	t_high := t.Add(time.Second * time.Duration(1))
+	//TODO:based on time.now and write test cases
 
-	err := di.activateDiscount(ctx, t_low, t_high)
+	err := di.activateDiscount(ctx, t)
 	if err != nil {
 		return err
 	}
-	err = di.deActivateDiscount(ctx, t_low, t_high)
+	err = di.deActivateDiscount(ctx, t)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (di *DiscountImpl) activateDiscount(ctx context.Context, t_low, t_high time.Time) error {
+func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error {
 	filter := bson.M{
 		"valid_after": bson.M{
-			"lte": t_high,
-			"gte": t_low,
+			"lte": t,
+		},
+		"valid_before": bson.M{
+			"gte": t,
 		},
 		"is_active": false,
 	}
@@ -373,11 +374,10 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t_low, t_high time
 	return nil
 }
 
-func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t_low, t_high time.Time) error {
+func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) error {
 	filter := bson.M{
-		"valid_after": bson.M{
-			"lte": t_high,
-			"gte": t_low,
+		"valid_before": bson.M{
+			"lte": t,
 		},
 		"is_active": true,
 	}
@@ -400,8 +400,8 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t_low, t_high ti
 		discount.IsActive = true
 		updateDiscounts = append(updateDiscounts, discount.ID)
 		update := bson.M{
-			"$set": bson.M{
-				"discount_id": primitive.NilObjectID,
+			"$unset": bson.M{
+				"discount_id": 1,
 			},
 		}
 		res, err := di.DB.Collection(model.CatalogColl).UpdateOne(ctx, bson.M{"_id": discount.CatalogID}, update)
