@@ -53,24 +53,24 @@ type APPConfig struct {
 	TokenAuthConfig  TokenAuthConfig
 	SNSConfig        SNSConfig
 	SESConfig        SESConfig
+	HypdApiConfig    HypdApiConfig
 	UserConfig       ServiceConfig `mapstructure:"user"`
 	CustomerConfig   ServiceConfig `mapstructure:"customer"`
 	BrandConfig      ServiceConfig `mapstructure:"brand"`
 	InfluencerConfig ServiceConfig `mapstructure:"influencer"`
 	CartConfig       ServiceConfig `mapstructure:"cart"`
-	HypdApiConfig    HypdApiConfig
-}
-
-//HypdApiConfig contains config related to other services
-type HypdApiConfig struct {
-	CatalogApi string `mapstructure:"catalogApi"`
-	OrderApi   string `mapstructure:"orderApi"`
 
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 
 	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
+}
+
+//HypdApiConfig contains config related to other services
+type HypdApiConfig struct {
+	CatalogApi string `mapstructure:"catalogApi"`
+	OrderApi   string `mapstructure:"orderApi"`
 }
 
 // ServiceConfig contains app service related config
