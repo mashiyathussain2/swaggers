@@ -79,10 +79,27 @@ type CreateIVSCommentMetaData struct {
 	Description  string `json:"description"`
 }
 
-type PushCatalogInfo struct {
-	ID            primitive.ObjectID `json:"id" validate:"required"`
-	Name          string             `json:"name" validate:"required"`
-	FeaturedImage *ImgResp           `json:"featured_image" validate:"required"`
-	BasePrice     *PriceOpts         `json:"base_price" validate:"required"`
-	RetailPrice   *PriceOpts         `json:"retail_price" validate:"required"`
+type CreateIVSCatalogMetaData struct {
+	ID primitive.ObjectID `json:"id"`
+}
+
+type CreateIVSOrderMetaData struct {
+	Name         string   `json:"name"`
+	ProfileImage *ImgResp `json:"profile_image"`
+}
+
+type IVSMetaData struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"data"`
+}
+
+type PushCatalogOpts struct {
+	ARN string             `json:"arn" validate:"required"`
+	ID  primitive.ObjectID `json:"id" validate:"required"`
+}
+
+type PushNewOrderOpts struct {
+	ARN          string   `json:"arn" validate:"required"`
+	Name         string   `json:"name" validate:"required"`
+	ProfileImage *ImgResp `json:"profile_image" validate:"required"`
 }

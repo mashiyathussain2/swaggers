@@ -124,3 +124,33 @@ func (a *API) stopLiveStream(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(true, http.StatusCreated)
 	return
 }
+
+func (a *API) pushCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.PushCatalogOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	a.App.Live.PushCatalog(&s)
+	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}
+
+func (a *API) pushOrder(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.PushNewOrderOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	a.App.Live.PushOrder(&s)
+	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}

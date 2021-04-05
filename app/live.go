@@ -30,12 +30,12 @@ type Live interface {
 	JoinLiveStream(primitive.ObjectID) (string, error)
 
 	PushComment(*schema.CreateLiveCommentOpts)
+	PushOrder(opts *schema.PushNewOrderOpts)
+	PushCatalog(opts *schema.PushCatalogOpts)
 
 	GetLiveStreamByID(primitive.ObjectID) (*schema.GetLiveStreamResp, error)
 	GetLiveStreams(*schema.GetLiveStreamsFilter) ([]schema.GetLiveStreamResp, error)
-
 	ConsumeComment(m kafka.Message)
-
 	CreateLiveComment(*schema.CreateLiveCommentOpts)
 }
 
@@ -324,10 +324,13 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s := schema.CreateIVSCommentMetaData{
-			Name:         opts.Name,
-			ProfileImage: opts.ProfileImage,
-			Description:  opts.Description,
+		s := schema.IVSMetaData{
+			Type: "comment",
+			Data: schema.CreateIVSCommentMetaData{
+				Name:         opts.Name,
+				ProfileImage: opts.ProfileImage,
+				Description:  opts.Description,
+			},
 		}
 		bytes, err := json.Marshal(s)
 		metaData := string(bytes)
@@ -383,4 +386,49 @@ func (li *LiveImpl) CreateLiveComment(opts *schema.CreateLiveCommentOpts) {
 	}
 }
 
-// func (li *LiveImpl) PushCatalog()
+func (li *LiveImpl) PushCatalog(opts *schema.PushCatalogOpts) {
+	s := schema.IVSMetaData{
+		Type: "catalog",
+		Data: schema.CreateIVSCatalogMetaData{
+			ID: opts.ID,
+		},
+	}
+	bytes, err := json.Marshal(s)
+	metaData := string(bytes)
+	if err == nil {
+		params := ivs.PutMetadataInput{
+			ChannelArn: &opts.ARN,
+			Metadata:   &metaData,
+		}
+		_, err := li.IVS.PutMetadata(&params)
+		if err != nil {
+			li.Logger.Err(err).RawJSON("metadata", bytes).Msg("failed to push catalog in ivs metadata")
+		}
+		return
+	}
+	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
+}
+
+func (li *LiveImpl) PushOrder(opts *schema.PushNewOrderOpts) {
+	s := schema.IVSMetaData{
+		Type: "order",
+		Data: schema.CreateIVSOrderMetaData{
+			Name:         opts.Name,
+			ProfileImage: opts.ProfileImage,
+		},
+	}
+	bytes, err := json.Marshal(s)
+	metaData := string(bytes)
+	if err == nil {
+		params := ivs.PutMetadataInput{
+			ChannelArn: &opts.ARN,
+			Metadata:   &metaData,
+		}
+		_, err := li.IVS.PutMetadata(&params)
+		if err != nil {
+			li.Logger.Err(err).RawJSON("metadata", bytes).Msg("failed to push order in ivs metadata")
+		}
+		return
+	}
+	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
+}

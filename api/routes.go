@@ -17,9 +17,11 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/content/catalog/image", a.requestHandler(a.createImageCatalogContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/image/upload", a.requestHandler(a.uploadImage)).Methods("POST")
 
+	a.Router.APIRoot.Handle("/keeper/live", a.requestHandler(a.getLiveStreams)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/live/create", a.requestHandler(a.createLiveStream)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}", a.requestHandler(a.getLiveStreamByID)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/live", a.requestHandler(a.getLiveStreams)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/live/{liveID}/catalog", a.requestHandler(a.pushCatalog)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/live/{liveID}/order", a.requestHandler(a.pushOrder)).Methods("POST")
 	// a.Router.APIRoot.Handle("/keeper/live/{liveID}/catalog", a.requestHandler(a.getLiveStreams)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/live/{liveID}/start", a.requestHandler(a.startLiveStream)).Methods("GET")
