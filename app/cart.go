@@ -24,7 +24,7 @@ type Cart interface {
 	CreateCart(primitive.ObjectID) (primitive.ObjectID, error)
 	AddToCart(*schema.AddToCartOpts) (*model.Cart, error)
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
-	GetCartItems(primitive.ObjectID) (*model.Cart, error)
+	GetCartInfo(primitive.ObjectID) (*model.Cart, error)
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
 }
@@ -295,8 +295,8 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	return &cart, nil
 }
 
-//GetCartItems function increases, decreases or removes the item from cart based on input qty
-func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
+//GetCartInfo function increases, decreases or removes the item from cart based on input qty
+func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 
 	ctx := context.TODO()
 	var cart model.Cart
@@ -308,10 +308,14 @@ func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
 		}
 		return nil, errors.Wrapf(err, "unable to query for cart")
 	}
+	tp := uint(0)
+	td := uint(0)
 	for _, item := range cart.Items {
 		item.BasePrice = &item.CatalogInfo.BasePrice
 		item.RetailPrice = &item.CatalogInfo.RetailPrice
 		item.TransferPrice = &item.CatalogInfo.TransferPrice
+
+		tp = tp + (uint(item.RetailPrice.Value) * item.Quantity)
 
 		if item.CatalogInfo.DiscountInfo != nil {
 			for _, v := range item.CatalogInfo.DiscountInfo.VariantsID {
@@ -325,7 +329,7 @@ func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
 					switch item.DiscountInfo.Type {
 					case model.FlatOffType:
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(item.DiscountInfo.Value))
-
+						td = td + item.DiscountInfo.Value
 					case model.PercentOffType:
 						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
@@ -335,6 +339,7 @@ func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
 							d = item.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(d))
+						td = td + d
 
 					default:
 					}
@@ -344,6 +349,10 @@ func (ci *CartImpl) GetCartItems(id primitive.ObjectID) (*model.Cart, error) {
 			}
 		}
 	}
+	cart.TotalPrice.Value = float32(tp)
+	cart.TotalDiscount.Value = float32(td)
+	cart.GrandTotal.Value = float32(tp - td)
+
 	return &cart, nil
 }
 

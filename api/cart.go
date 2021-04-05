@@ -63,14 +63,14 @@ func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
-func (a *API) getCartItems(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	cat_id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+func (a *API) getCartInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
 
-	resp, err := a.App.Cart.GetCartItems(cat_id)
+	resp, err := a.App.Cart.GetCartInfo(userID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
