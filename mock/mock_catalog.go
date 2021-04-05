@@ -274,6 +274,20 @@ func (mr *MockKeeperCatalogMockRecorder) KeeperSearchCatalog(arg0 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KeeperSearchCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).KeeperSearchCatalog), arg0)
 }
 
+// RemoveContent mocks base method.
+func (m *MockKeeperCatalog) RemoveContent(arg0 *schema.RemoveContentOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveContent", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveContent indicates an expected call of RemoveContent.
+func (mr *MockKeeperCatalogMockRecorder) RemoveContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveContent", reflect.TypeOf((*MockKeeperCatalog)(nil).RemoveContent), arg0)
+}
+
 // SyncCatalog mocks base method.
 func (m *MockKeeperCatalog) SyncCatalog(arg0 primitive.ObjectID) {
 	m.ctrl.T.Helper()

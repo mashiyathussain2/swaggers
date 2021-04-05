@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"io/ioutil"
@@ -37,6 +38,7 @@ type KeeperCatalog interface {
 	GetCatalogByIDs(context.Context, []primitive.ObjectID) ([]schema.GetCatalogResp, error)
 	AddCatalogContent(*schema.AddCatalogContentOpts) (*schema.PayloadVideo, []error)
 	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) []error
+	GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error)
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
@@ -45,6 +47,7 @@ type KeeperCatalog interface {
 	SyncCatalogs([]primitive.ObjectID)
 	SyncCatalogContent(id primitive.ObjectID)
 	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
+	RemoveContent(*schema.RemoveContentOpts) error
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
@@ -111,9 +114,9 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 	c.Tax = tax
 
 	c.FeaturedImage = &model.IMG{
-			SRC: opts.FeaturedImage.SRC,
-		}
-	
+		SRC: opts.FeaturedImage.SRC,
+	}
+
 	if err := c.FeaturedImage.LoadFromURL(); err != nil {
 		return nil, errors.Wrapf(err, "unable to process featured image for catalog")
 	}
@@ -1413,4 +1416,23 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 		return &catalog[0], nil
 	}
 	return nil, nil
+}
+
+func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error {
+
+	filter := bson.M{"_id": opts.CatalogID}
+	fmt.Println(opts.CatalogID)
+	updateQuery := bson.M{
+		"$pull": bson.M{
+			"catalog_content": opts.ContentID,
+		},
+	}
+	res, err := kc.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), filter, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "error removing content with id: %s", opts.ContentID.Hex())
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("error finding catalog with id: %s", opts.CatalogID.Hex())
+	}
+	return nil
 }

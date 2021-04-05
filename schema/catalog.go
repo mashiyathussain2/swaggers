@@ -239,8 +239,9 @@ type GetCatalogResp struct {
 	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
 
-	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt      time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt      time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
 	Tax *model.Tax `json:"tax,omitempty" bson:"tax,omitempty"`
 }
@@ -466,4 +467,9 @@ type VariantInfo struct {
 	SKU           string             `json:"sku,omitempty" bson:"sku,omitempty"`
 	IsDeleted     bool               `json:"is_deleted" bson:"is_deleted"`
 	InventoryInfo *model.Inventory   `json:"inventory_info" bson:"inventory_info"`
+}
+
+type RemoveContentOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id"`
+	ContentID primitive.ObjectID `json:"content_id"`
 }

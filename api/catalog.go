@@ -300,3 +300,35 @@ func (a *API) getCatalogByCategoryID(requestCTX *handler.RequestContext, w http.
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+func (a *API) removeContentfromCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.RemoveContentOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.KeeperCatalog.RemoveContent(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) getCatalogContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["catalogID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogContent(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
