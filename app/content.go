@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -31,6 +32,7 @@ type Content interface {
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
 	DeletePebble(primitive.ObjectID) (bool, error)
+	GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
@@ -52,9 +54,6 @@ type Content interface {
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
 	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
-
-	// Elasticsearch
-
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -550,10 +549,30 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 	}
 
 	// like exists thus removing the like
+	var wg sync.WaitGroup
+
+	if opts.ResourceType == model.PebbleType {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			filter := bson.M{
+				"_id": opts.ResourceID,
+			}
+			update := bson.M{
+				"$pull": bson.M{
+					"liked_by": opts.UserID,
+				},
+			}
+			if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+				ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
+			}
+		}()
+	}
+
 	if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
 		return errors.Wrap(err, "failed to unlike")
 	}
-
+	wg.Wait()
 	return nil
 }
 
@@ -623,6 +642,7 @@ func (ci *ContentImpl) AddContentLike(opts *schema.ProcessLikeOpts) {
 	update := bson.M{
 		"$push": bson.M{
 			"like_ids": opts.ID,
+			"liked_by": opts.UserID,
 		},
 		"$inc": bson.M{
 			"like_count": 1,
@@ -659,14 +679,16 @@ func (ci *ContentImpl) DeleteContentLike(opts *schema.ProcessLikeOpts) {
 		"like_ids": opts.ID,
 	}
 	update := bson.M{
-		"$pull": bson.M{"like_ids": bson.M{"$in": bson.A{opts.ID}}},
+		"$pull": bson.M{
+			"like_ids": opts.ID,
+		},
 		"$inc": bson.M{
 			"like_count": -1,
 		},
 	}
-	// { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } },
 	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to delete like")
+		return
 	}
 }
 
@@ -779,4 +801,63 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 		return nil, errors.New("got success false response from entity")
 	}
 	return s.Payload, nil
+}
+
+func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error) {
+	var resp []schema.GetContentResp
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"type": opts.Type,
+			},
+		},
+	}
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: opts.Page * 20,
+		},
+	}
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: 20,
+		},
+	}
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.MediaColl,
+				"localField":   "media_id",
+				"foreignField": "_id",
+				"as":           "media_info",
+			},
+		},
+	}
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"media_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$media_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get pebbles")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, " failed to get pebbles")
+	}
+	return resp, nil
 }

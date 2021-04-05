@@ -185,6 +185,7 @@ type ContentUpdateOpts struct {
 	ViewCount      uint                   `json:"view_count" bson:"view_count"`
 	LikeCount      uint                   `json:"like_count" bson:"like_count"`
 	LikeIDs        []primitive.ObjectID   `json:"like_ids" bson:"like_ids"`
+	LikedBy        []primitive.ObjectID   `json:"liked_by" bson:"liked_by"`
 	CommentCount   uint                   `json:"comment_count" bson:"comment_count"`
 	Caption        string                 `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags       []string               `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
@@ -228,6 +229,7 @@ type UpdateContentCatalogInfoOpts struct {
 }
 
 type GetPebbleFilter struct {
+	UserID    string   `json:"user_id,omitempty" queryparam:"user_id"`
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
 	Interests []string `json:"interests,omitempty" queryparam:"interests"`
 }
@@ -259,6 +261,8 @@ type GetPebbleESResp struct {
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty"`
 	CatalogInfo []model.CatalogInfo  `json:"catalog_info,omitempty"`
 	CreatedAt   time.Time            `json:"created_at,omitempty"`
+
+	IsLikedByUser bool `json:"is_liked_by_user,omitempty"`
 }
 
 type GetBrandInfoResp struct {
@@ -300,4 +304,9 @@ type ProcessCommentOpts struct {
 	Description  string             `json:"description,omitempty" bson:"description,omitempty"`
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type GetPebblesKeeperFilter struct {
+	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
+	Page uint   `json:"page"`
 }
