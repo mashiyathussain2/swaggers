@@ -33,6 +33,18 @@ type CreateCollectionResp struct {
 	Order          int                   `json:"order" bson:"order"`
 }
 
+// CollectionResp serialize the get collections api response
+type CollectionResp struct {
+	ID             primitive.ObjectID    `json:"id,omitempty" bson:"_id,omitempty"`
+	Name           string                `json:"name" bson:"name,omitempty"`
+	Type           string                `json:"type,omitempty" bson:"type,omitempty"`
+	Genders        []string              `json:"genders,omitempty" bson:"genders,omitempty"`
+	Title          string                `json:"title,omitempty" bson:"title,omitempty"`
+	SubCollections []model.SubCollection `json:"sub_collections,omitempty" bson:"sub_collections,omitempty"`
+	Status         string                `json:"status,omitempty" bson:"status,omitempty"`
+	Order          int                   `json:"order,omitempty" bson:"order,omitempty"`
+}
+
 // EditCollectionOpts serialize the edit collection api arguments
 type EditCollectionOpts struct {
 	ID      primitive.ObjectID `json:"id" validate:"required"`
@@ -157,4 +169,9 @@ type SubCollectionCatalogInfoSchema struct {
 	RetailPrice   *model.Price                              `json:"retail_price,omitempty"`
 	DiscountID    primitive.ObjectID                        `json:"discount_id,omitempty"`
 	DiscountInfo  *SubCollectionCatalogInfoDiscountInfoResp `json:"discount_info,omitempty"`
+}
+
+type UpdateCollectionStatus struct {
+	ID     primitive.ObjectID `json:"id"`
+	Status string             `json:"string"`
 }

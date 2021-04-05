@@ -46,7 +46,7 @@ func (a *API) InitRoutes() {
 	//KEEPER COLLECTION
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestHandler(a.createCollection)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestHandler(a.editCollection)).Methods("PUT")
-	a.Router.APIRoot.Handle("/keeper/collection", a.requestHandler(a.getCollections)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/collections", a.requestHandler(a.getCollections)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/collection/{collectionID}", a.requestHandler(a.deleteCollection)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/keeper/collection/subcollection", a.requestHandler(a.addSubCollection)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/collection/{collectionID}/subcollection/{subCollectionID}", a.requestHandler(a.deleteSubCollection)).Methods("DELETE")

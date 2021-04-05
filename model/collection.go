@@ -29,7 +29,7 @@ type Collection struct {
 	SubCollections []SubCollection    `json:"sub_collections,omitempty" bson:"sub_collections,omitempty"`
 	CreatedAt      time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt      time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	Status         string             `json:"status,omitempty" bson:"status,omitempty"`
+	Status         Status             `json:"status,omitempty" bson:"status,omitempty"`
 	Order          int                `json:"order,omitempty" bson:"order,omitempty"`
 }
 
