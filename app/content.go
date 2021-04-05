@@ -28,16 +28,16 @@ type Content interface {
 	ProcessVideoContent(*schema.ProcessVideoContentOpts) (bool, error)
 	GetContentByID(primitive.ObjectID) (*schema.GetContentResp, error)
 	GetContent(*schema.GetContentFilter) ([]schema.GetContentResp, error)
+	ChangeContentStatus(*schema.ChangeContentStatusOpts) (bool, error)
+	DeleteContent(primitive.ObjectID) (bool, error)
 
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
-	DeletePebble(primitive.ObjectID) (bool, error)
 	GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
 	EditCatalogContent(*schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error)
-	ChangeContentStatus(*schema.ChangeContentStatusOpts) (bool, error)
 
 	CreateComment(*schema.CreateCommentOpts) (*schema.CreateCommentResp, error)
 	CreateView(*schema.CreateViewOpts) error
@@ -188,8 +188,8 @@ func (ci *ContentImpl) EditPebble(opts *schema.EditPebbleOpts) (*schema.EditPebb
 	}, nil
 }
 
-// DeletePebble removes the pebble instance from DB
-func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
+// DeleteContent removes the content instance from DB
+func (ci *ContentImpl) DeleteContent(id primitive.ObjectID) (bool, error) {
 	ctx := context.TODO()
 	var c model.Content
 
@@ -203,8 +203,10 @@ func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
 	}
 
 	// Deleting media document reference from media collection
-	if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
-		return false, err
+	if !c.MediaID.IsZero() {
+		if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
+			return false, err
+		}
 	}
 
 	// Deleting content document from cotent collection

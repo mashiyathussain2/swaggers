@@ -11,3 +11,8 @@ type ImgResp struct {
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
+
+type PriceOpts struct {
+	ISO   string  `json:"iso" validate:"required"`
+	Value float64 `json:"value" validate:"required"`
+}

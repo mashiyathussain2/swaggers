@@ -33,12 +33,22 @@ type InfluencerInfo struct {
 	ProfileImage *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 }
 
+type CatalogDiscountInfo struct {
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	IsActive bool               `json:"is_active,omitempty" bson:"is_active,omitempty"`
+	Type     string             `json:"type,omitempty" bson:"type,omitempty"`
+	Value    uint               `json:"value,omitempty" bson:"value,omitempty"`
+	// MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.
+	MaxValue uint `json:"max_value,omitempty" bson:"max_value,omitempty"`
+}
+
 type CatalogInfo struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
-	FeaturedImage *IMG               `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
-	BasePrice     *Price             `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice   *Price             `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	FeaturedImage *IMG                 `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	BasePrice     *Price               `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   *Price               `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	DiscountInfo  *CatalogDiscountInfo `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 }
 
 // Content contains linked media (image/video) with influencer, catalog or customer

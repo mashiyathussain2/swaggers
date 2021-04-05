@@ -382,3 +382,5 @@ func (li *LiveImpl) CreateLiveComment(opts *schema.CreateLiveCommentOpts) {
 		li.Logger.Err(err).Interface("opts", opts).Msg("failed to create live comment")
 	}
 }
+
+func (li *LiveImpl) PushCatalog()

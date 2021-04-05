@@ -78,3 +78,11 @@ type CreateIVSCommentMetaData struct {
 	ProfileImage *Img   `json:"profile_image"`
 	Description  string `json:"description"`
 }
+
+type PushCatalogInfo struct {
+	ID            primitive.ObjectID `json:"id" validate:"required"`
+	Name          string             `json:"name" validate:"required"`
+	FeaturedImage *ImgResp           `json:"featured_image" validate:"required"`
+	BasePrice     *PriceOpts         `json:"base_price" validate:"required"`
+	RetailPrice   *PriceOpts         `json:"retail_price" validate:"required"`
+}
