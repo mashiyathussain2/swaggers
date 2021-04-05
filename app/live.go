@@ -383,4 +383,4 @@ func (li *LiveImpl) CreateLiveComment(opts *schema.CreateLiveCommentOpts) {
 	}
 }
 
-func (li *LiveImpl) PushCatalog()
+// func (li *LiveImpl) PushCatalog()

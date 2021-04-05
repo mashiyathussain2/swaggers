@@ -71,6 +71,21 @@ func (mr *MockContentMockRecorder) AddContentView(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddContentView", reflect.TypeOf((*MockContent)(nil).AddContentView), arg0)
 }
 
+// ChangeContentStatus mocks base method
+func (m *MockContent) ChangeContentStatus(arg0 *schema.ChangeContentStatusOpts) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeContentStatus", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangeContentStatus indicates an expected call of ChangeContentStatus
+func (mr *MockContentMockRecorder) ChangeContentStatus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeContentStatus", reflect.TypeOf((*MockContent)(nil).ChangeContentStatus), arg0)
+}
+
 // CreateCatalogImageContent mocks base method
 func (m *MockContent) CreateCatalogImageContent(arg0 *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
 	m.ctrl.T.Helper()
@@ -159,6 +174,21 @@ func (mr *MockContentMockRecorder) CreateView(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateView", reflect.TypeOf((*MockContent)(nil).CreateView), arg0)
 }
 
+// DeleteContent mocks base method
+func (m *MockContent) DeleteContent(arg0 primitive.ObjectID) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteContent", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteContent indicates an expected call of DeleteContent
+func (mr *MockContentMockRecorder) DeleteContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteContent", reflect.TypeOf((*MockContent)(nil).DeleteContent), arg0)
+}
+
 // DeleteContentLike mocks base method
 func (m *MockContent) DeleteContentLike(arg0 *schema.ProcessLikeOpts) {
 	m.ctrl.T.Helper()
@@ -169,21 +199,6 @@ func (m *MockContent) DeleteContentLike(arg0 *schema.ProcessLikeOpts) {
 func (mr *MockContentMockRecorder) DeleteContentLike(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteContentLike", reflect.TypeOf((*MockContent)(nil).DeleteContentLike), arg0)
-}
-
-// DeletePebble mocks base method
-func (m *MockContent) DeletePebble(arg0 primitive.ObjectID) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePebble", arg0)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeletePebble indicates an expected call of DeletePebble
-func (mr *MockContentMockRecorder) DeletePebble(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePebble", reflect.TypeOf((*MockContent)(nil).DeletePebble), arg0)
 }
 
 // EditCatalogContent mocks base method
@@ -289,6 +304,21 @@ func (m *MockContent) GetInfluencerInfo(arg0 []string) ([]model.InfluencerInfo, 
 func (mr *MockContentMockRecorder) GetInfluencerInfo(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInfluencerInfo", reflect.TypeOf((*MockContent)(nil).GetInfluencerInfo), arg0)
+}
+
+// GetPebbles mocks base method
+func (m *MockContent) GetPebbles(arg0 *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPebbles", arg0)
+	ret0, _ := ret[0].([]schema.GetContentResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPebbles indicates an expected call of GetPebbles
+func (mr *MockContentMockRecorder) GetPebbles(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPebbles", reflect.TypeOf((*MockContent)(nil).GetPebbles), arg0)
 }
 
 // ProcessVideoContent mocks base method
