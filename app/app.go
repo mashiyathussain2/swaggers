@@ -59,4 +59,5 @@ func NewApp(opts *Options) *App {
 func (a *App) Close() {
 	// terminating connections to all consumes
 	CloseConsumer(a)
+	CloseProducer(a)
 }

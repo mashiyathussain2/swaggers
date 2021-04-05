@@ -84,10 +84,22 @@ func NewSegmentioKafkaConsumer(opts *SegmentioConsumerOpts) *SegmentioConsumer {
 
 // Init initialize kafka consumer group
 func (cl *SegmentioConsumer) Init(c *config.ListenerConfig) {
+	mechanism := plain.Mechanism{
+		Username: c.Username,
+		Password: c.Password,
+	}
+	dialer := &kafka.Dialer{
+		Timeout: 10 * time.Second,
+		// DualStack:     true,
+		SASLMechanism: mechanism,
+		ClientID:      "cms-kafka",
+		TLS:           &tls.Config{},
+	}
 	cl.Reader = kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  c.Brokers,
 		GroupID:  c.GroupID,
 		Topic:    c.Topic,
+		Dialer:   dialer,
 		MaxBytes: 10e6, // 10MB
 	})
 }
@@ -116,7 +128,7 @@ func (cl *SegmentioConsumer) ConsumeAndCommit(ctx context.Context, f func(Messag
 	for {
 		m, err := cl.Reader.ReadMessage(ctx)
 		if err != nil {
-			cl.Logger.Err(err).Msg("failed to fetch messages")
+			cl.Logger.Err(err).Str("topic", cl.Reader.Config().Topic).Msg("failed to fetch messages")
 			break
 		}
 		f(m)
