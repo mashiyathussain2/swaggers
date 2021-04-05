@@ -84,9 +84,9 @@ func (a *API) editPebble(requestCTX *handler.RequestContext, w http.ResponseWrit
 }
 
 func (a *API) deleteContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["pebbleID"])
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["contentID"])
 	if err != nil {
-		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["pebbleID"]), http.StatusBadRequest)
+		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["contentID"]), http.StatusBadRequest)
 		return
 	}
 	res, err := a.App.Content.DeleteContent(id)
