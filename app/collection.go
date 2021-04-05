@@ -427,11 +427,17 @@ func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 
 	update := bson.M{
 		"$set": bson.M{
-			"sub_collections.catalog_info.$": catalogInfo[0],
+			"sub_collections.$[elem].catalog_info.$": catalogInfo[0],
 		},
 	}
 
-	if _, err = ci.DB.Collection(model.CollectionColl).UpdateMany(context.TODO(), filter, update); err != nil {
+	af := []interface{}{
+		bson.M{
+			"elem.catalog_info._id": id,
+		},
+	}
+	queryOpts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: af})
+	if _, err = ci.DB.Collection(model.CollectionColl).UpdateMany(context.TODO(), filter, update, queryOpts); err != nil {
 		ci.Logger.Err(err).Msgf("failed to update catalog info for catalog id:%s", id.Hex())
 		return
 	}
