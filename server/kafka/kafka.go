@@ -24,7 +24,7 @@ type Consumer interface {
 
 // Producer defines how kafka producer should be implemented
 type Producer interface {
-	Init(*Kafka)
-	Publish(*Kafka)
+	Init(*config.ProducerConfig)
+	Publish(Message)
 	Close()
 }

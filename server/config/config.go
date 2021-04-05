@@ -66,8 +66,11 @@ type HypdApiConfig struct {
 	CatalogApi string `mapstructure:"catalogApi"`
 	OrderApi   string `mapstructure:"orderApi"`
 
-	// BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConfig"`
-	// InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConfig"`
+	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
+	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
+
+	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
+	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
 }
 
 // ServiceConfig contains app service related config
