@@ -125,8 +125,8 @@ type BrandKafkaMessage struct {
 	Bio                string               `json:"bio,omitempty"`
 	CoverImg           *model.IMG           `json:"cover_img,omitempty"`
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty"`
-	FollowersID        []primitive.ObjectID `json:"followers_id,omitempty"`
-	FollowingID        []primitive.ObjectID `json:"following_id,omitempty"`
+	FollowersID        []primitive.ObjectID `json:"followers_id"`
+	FollowingID        []primitive.ObjectID `json:"following_id"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
@@ -141,13 +141,13 @@ type BrandFullKafkaMessageOpts struct {
 	Domain             string               `json:"domain,omitempty"`
 	Website            string               `json:"website,omitempty"`
 	Logo               *model.IMG           `json:"logo,omitempty"`
-	FollowersCount     uint                 `json:"followers_count,omitempty"`
-	FollowingCount     uint                 `json:"following_count,omitempty"`
+	FollowersCount     uint                 `json:"followers_count"`
+	FollowingCount     uint                 `json:"following_count"`
 	Bio                string               `json:"bio,omitempty"`
 	CoverImg           *model.IMG           `json:"cover_img,omitempty"`
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty"`
-	FollowersID        []primitive.ObjectID `json:"followers_id,omitempty"`
-	FollowingID        []primitive.ObjectID `json:"following_id,omitempty"`
+	FollowersID        []primitive.ObjectID `json:"followers_id"`
+	FollowingID        []primitive.ObjectID `json:"following_id"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }

@@ -105,8 +105,8 @@ type InfluencerFullKafkaMessageOpts struct {
 	SocialAccount  *model.SocialAccount `json:"social_account,omitempty"`
 	ExternalLinks  []string             `json:"external_links,omitempty"`
 	Bio            string               `json:"bio,omitempty"`
-	FollowersID    []primitive.ObjectID `json:"followers_id,omitempty"`
-	FollowingID    []primitive.ObjectID `json:"following_id,omitempty"`
+	FollowersID    []primitive.ObjectID `json:"followers_id"`
+	FollowingID    []primitive.ObjectID `json:"following_id"`
 	FollowersCount uint                 `json:"followers_count"`
 	FollowingCount uint                 `json:"following_count"`
 	CreatedAt      time.Time            `json:"created_at,omitempty"`

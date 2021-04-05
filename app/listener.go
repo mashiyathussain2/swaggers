@@ -38,7 +38,10 @@ func InitProducer(a *App) {
 }
 
 // CloseProducer terminates all producer connections
-func CloseProducer(a *App) {}
+func CloseProducer(a *App) {
+	a.BrandFullProducer.Close()
+	// a.InfluencerFullProducer.Close()
+}
 
 func InitProcessor(a *App) {
 	a.BrandProcessor = InitBrandProcessor(&BrandProcessorOpts{App: a, Logger: a.Logger})
