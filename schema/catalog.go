@@ -373,11 +373,13 @@ type CatalogKafkaMessage struct {
 }
 
 type CatalogContentInfoResp struct {
-	ID        primitive.ObjectID `json:"id,omitempty"`
-	Type      string             `json:"type,omitempty"`
-	MediaType string             `json:"media_type,omitempty"`
-	MediaID   primitive.ObjectID `json:"media_id,omitempty"`
-	MediaInfo interface{}        `json:"media_info,omitempty"`
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	Type        string             `json:"type,omitempty"`
+	MediaType   string             `json:"media_type,omitempty"`
+	MediaID     primitive.ObjectID `json:"media_id,omitempty"`
+	MediaInfo   interface{}        `json:"media_info,omitempty"`
+	IsActive    bool               `json:"is_active"`
+	IsProcessed bool               `json:"is_processed"`
 }
 
 type CatalogContentKafkaMessage struct {
