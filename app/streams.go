@@ -60,6 +60,10 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 		return
 	}
 
+	if len(brand.FollowersID) == 0 {
+		brand.FollowersID = []primitive.ObjectID{primitive.NilObjectID}
+	}
+
 	brandFullOpts := schema.BrandFullKafkaMessageOpts{
 		ID:                 brand.ID,
 		Name:               brand.Name,
@@ -137,6 +141,10 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	if err := json.Unmarshal(influencerByteData, &influencer); err != nil {
 		ip.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 		return
+	}
+
+	if len(influencer.FollowersID) == 0 {
+		influencer.FollowersID = []primitive.ObjectID{primitive.NilObjectID}
 	}
 
 	influencerFullOpts := schema.InfluencerFullKafkaMessageOpts{
