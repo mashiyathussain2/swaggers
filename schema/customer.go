@@ -37,3 +37,21 @@ type UpdateCustomerOpts struct {
 	Gender       string             `json:"gender"`
 	ProfileImage *Img               `json:"profile_image"`
 }
+
+//AddAddressOpts contains field required to add new address
+type AddAddressOpts struct {
+	UserID            primitive.ObjectID `json:"user_id" validate:"required"`
+	DisplayName       string             `json:"display_name"`
+	Line1             string             `json:"line1" validate:"required"`
+	Line2             string             `json:"line2"`
+	District          string             `json:"district"`
+	City              string             `json:"city" validate:"required"`
+	State             *model.State       `json:"state" validate:"required"`
+	PostalCode        string             `json:"postal_code" validate:"required"`
+	Country           *model.Country     `json:"country" validate:"required"`
+	PlainAddress      string             `json:"plain_address" validate:"required"`
+	IsBillingAddress  bool               `json:"is_billing_address" validate:"required"`
+	IsShippingAddress bool               `json:"is_shipping_address" validate:"required"`
+	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
+	ContactNumber     *model.PhoneNumber `json:"contact_number" validate:"required"`
+}
