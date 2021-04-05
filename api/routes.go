@@ -30,6 +30,14 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/influencer/get", a.requestHandler(a.getInfluencersByID)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestHandler(a.getInfluencerByName)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.editInfluencer)).Methods("PUT")
+
+	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestHandler(a.createCart)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart", a.requestHandler(a.addToCart)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/cart/update", a.requestHandler(a.updateItemQty)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestHandler(a.getCartInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/address/set", a.requestHandler(a.setCartAddress)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/checkout/{userID}/source/{source}", a.requestHandler(a.checkoutCart)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

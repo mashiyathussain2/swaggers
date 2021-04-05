@@ -27,6 +27,7 @@ type App struct {
 	Customer   Customer
 	Brand      Brand
 	Influencer Influencer
+	Cart       Cart
 }
 
 // NewApp returns new app instance

@@ -25,4 +25,9 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.InfluencerConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.Cart = InitCart(&CartImplOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.CartConfig.DBName),
+		Logger: a.Logger,
+	})
 }
