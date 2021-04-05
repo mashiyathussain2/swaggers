@@ -325,7 +325,7 @@ func (a *API) getCatalogContent(requestCTX *handler.RequestContext, w http.Respo
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.KeeperCatalog.GetCatalogContent(id)
+	resp, err := a.App.KeeperCatalog.GetKeeperCatalogContent(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

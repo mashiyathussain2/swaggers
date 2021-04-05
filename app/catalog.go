@@ -38,6 +38,7 @@ type KeeperCatalog interface {
 	GetCatalogByIDs(context.Context, []primitive.ObjectID) ([]schema.GetCatalogResp, error)
 	AddCatalogContent(*schema.AddCatalogContentOpts) (*schema.PayloadVideo, []error)
 	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) []error
+	GetKeeperCatalogContent(primitive.ObjectID) ([]schema.CatalogContentInfoResp, error)
 	GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error)
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
@@ -1176,6 +1177,42 @@ func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.G
 	}
 
 	return nil, errors.Errorf("unable to find info for catalog with id: %s", id.Hex())
+}
+
+func (kc *KeeperCatalogImpl) GetKeeperCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content"
+	data, err := json.Marshal(map[string]interface{}{
+		"type":        "catalog_content",
+		"catalog_ids": []string{id.Hex()},
+		"page":        999,
+	})
+	if err != nil {
+		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
+		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+
+	defer resp.Body.Close()
+	//Read the response body
+
+	var s schema.GetCatalogContentInfoResp
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		kc.Logger.Err(errors.New("success false from cms")).Str("body", string(body)).Msg("got success false response from cms")
+		return nil, errors.New("got success false response from cms")
+	}
+	return s.Payload, nil
 }
 
 func (kc *KeeperCatalogImpl) GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
