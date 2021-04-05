@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-app/schema"
 	"go-app/server/kafka"
 
@@ -31,14 +30,12 @@ func InitBrandProcessor(opts *BrandProcessorOpts) *BrandProcessor {
 }
 
 func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
-	fmt.Println("got brand update")
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
 		bp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode brand update message")
 		return
 	}
-	fmt.Println(string(message.Value))
 	if s.Meta.Operation == "d" {
 		m := segKafka.Message{
 			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
@@ -48,7 +45,6 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 		return
 	}
 
-	fmt.Println(s.Data)
 	var brand schema.BrandKafkaMessage
 	brandByteData, err := json.Marshal(s.Data)
 	if err != nil {
@@ -58,10 +54,6 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 	if err := json.Unmarshal(brandByteData, &brand); err != nil {
 		bp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 		return
-	}
-
-	if len(brand.FollowersID) == 0 {
-		brand.FollowersID = []primitive.ObjectID{primitive.NilObjectID}
 	}
 
 	brandFullOpts := schema.BrandFullKafkaMessageOpts{
@@ -141,10 +133,6 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	if err := json.Unmarshal(influencerByteData, &influencer); err != nil {
 		ip.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 		return
-	}
-
-	if len(influencer.FollowersID) == 0 {
-		influencer.FollowersID = []primitive.ObjectID{primitive.NilObjectID}
 	}
 
 	influencerFullOpts := schema.InfluencerFullKafkaMessageOpts{
