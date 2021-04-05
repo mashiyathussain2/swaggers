@@ -29,6 +29,7 @@ type Collection interface {
 	GetCollections(int) ([]schema.CollectionResp, error)
 	AddCatalogInfoToCollection(id primitive.ObjectID)
 	UpdateCollectionCatalogInfo(id primitive.ObjectID)
+	UpdateCollectionStatus(*schema.UpdateCollectionStatus) error
 
 	// GetActiveCollections()
 }
