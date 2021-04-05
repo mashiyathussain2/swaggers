@@ -35,12 +35,17 @@ func InitProducer(a *App) {
 		Config: &a.Config.BrandFullProduceConfig,
 	})
 
+	a.InfluencerFullProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InfluencerFullProducerConfig,
+	})
+
 }
 
 // CloseProducer terminates all producer connections
 func CloseProducer(a *App) {
 	a.BrandFullProducer.Close()
-	// a.InfluencerFullProducer.Close()
+	a.InfluencerFullProducer.Close()
 }
 
 func InitProcessor(a *App) {
