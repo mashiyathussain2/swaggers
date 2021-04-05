@@ -267,3 +267,22 @@ func (a *API) geContents(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 	return
 }
+
+func (a *API) changeContentStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.ChangeContentStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.ChangeContentStatus(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}

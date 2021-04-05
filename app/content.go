@@ -37,6 +37,7 @@ type Content interface {
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
 	EditCatalogContent(*schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error)
+	ChangeContentStatus(*schema.ChangeContentStatusOpts) (bool, error)
 
 	CreateComment(*schema.CreateCommentOpts) (*schema.CreateCommentResp, error)
 	CreateView(*schema.CreateViewOpts) error
@@ -860,4 +861,22 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 		return nil, errors.Wrap(err, " failed to get pebbles")
 	}
 	return resp, nil
+}
+
+func (ci *ContentImpl) ChangeContentStatus(opts *schema.ChangeContentStatusOpts) (bool, error) {
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_active": opts.IsActive,
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		return false, errors.Wrap(err, "failed to update content status")
+	}
+
+	return true, nil
 }

@@ -310,3 +310,8 @@ type GetPebblesKeeperFilter struct {
 	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
 	Page uint   `json:"page"`
 }
+
+type ChangeContentStatusOpts struct {
+	ID       primitive.ObjectID `json:"id,omitempty" validate:"required"`
+	IsActive *bool              `json:"is_active" validate:"required"`
+}

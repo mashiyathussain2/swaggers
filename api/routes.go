@@ -9,6 +9,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/keeper/content", a.requestHandler(a.getContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/get", a.requestHandler(a.geContents)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/content/status", a.requestHandler(a.changeContentStatus)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestHandler(a.createPebble)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestHandler(a.editPebble)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/content/pebble/process", a.requestHandler(a.processPebble)).Methods("PUT")
