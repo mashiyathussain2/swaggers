@@ -238,6 +238,13 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 			c.Paths = append(c.Paths, path)
 		}
 	}
+	if opts.FeaturedImage != nil {
+		img := model.IMG{SRC: opts.FeaturedImage.SRC}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "failed to load featured image")
+		}
+		c.FeaturedImage = &img
+	}
 	if opts.ETA != nil {
 		c.ETA = &model.ETA{
 			Min:  int(opts.ETA.Min),
@@ -311,6 +318,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		Description:     c.Description,
 		Paths:           c.Paths,
 		Keywords:        c.Keywords,
+		FeaturedImage:   c.FeaturedImage,
 		Specifications:  c.Specifications,
 		FilterAttribute: c.FilterAttribute,
 		HSNCode:         c.HSNCode,
