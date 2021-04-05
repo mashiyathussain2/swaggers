@@ -47,11 +47,10 @@ type CollectionResp struct {
 
 // EditCollectionOpts serialize the edit collection api arguments
 type EditCollectionOpts struct {
-	ID             primitive.ObjectID    `json:"id" validate:"required"`
-	Genders        []string              `json:"genders"`
-	Title          string                `json:"title"`
-	Order          int                   `json:"order"`
-	SubCollections []model.SubCollection `json:"sub_collections"`
+	ID      primitive.ObjectID `json:"id" validate:"required"`
+	Genders []string           `json:"genders"`
+	Title   string             `json:"title"`
+	Order   int                `json:"order"`
 }
 
 // AddSubCollectionOpts serialize the add sub collection api arguments

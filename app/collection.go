@@ -226,9 +226,6 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 	if opts.Order != 0 {
 		collection.Order = opts.Order
 	}
-	if opts.SubCollections != nil {
-		collection.SubCollections = opts.SubCollections
-	}
 
 	if reflect.DeepEqual(model.Collection{}, collection) {
 		return nil, errors.New("no fields found to update")
