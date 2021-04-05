@@ -416,6 +416,7 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 
 func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 	filter := bson.M{
+		"type":                             model.ProductCollection,
 		"sub_collections.catalog_info._id": id,
 	}
 
