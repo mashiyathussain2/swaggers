@@ -23,13 +23,14 @@ type App struct {
 	Config  *config.APPConfig
 
 	// List of services this app is implementing
-	SNS        SNS
-	SES        SES
-	User       User
-	Customer   Customer
-	Brand      Brand
-	Influencer Influencer
-	Cart       Cart
+	SNS           SNS
+	SES           SES
+	Elasticsearch Elasticsearch
+	User          User
+	Customer      Customer
+	Brand         Brand
+	Influencer    Influencer
+	Cart          Cart
 
 	// Consumer
 	BrandChanges      kafka.Consumer
@@ -47,11 +48,12 @@ type App struct {
 // NewApp returns new app instance
 func NewApp(opts *Options) *App {
 	return &App{
-		MongoDB: opts.MongoDB,
-		Logger:  opts.Logger,
-		Config:  opts.Config,
-		SNS:     NewSNSImpl(&SNSOpts{Config: &opts.Config.SNSConfig}),
-		SES:     NewSESImpl(&SESImplOpts{Config: &opts.Config.SESConfig}),
+		MongoDB:       opts.MongoDB,
+		Logger:        opts.Logger,
+		Config:        opts.Config,
+		SNS:           NewSNSImpl(&SNSOpts{Config: &opts.Config.SNSConfig}),
+		SES:           NewSESImpl(&SESImplOpts{Config: &opts.Config.SESConfig}),
+		Elasticsearch: InitElasticsearch(&ElasticsearchOpts{Config: &opts.Config.ElasticsearchConfig, Logger: opts.Logger}),
 	}
 }
 

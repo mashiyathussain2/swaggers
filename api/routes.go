@@ -40,6 +40,13 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestHandler(a.followInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/customer/brand/follow", a.requestHandler(a.followBrand)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/app/brand/basic", a.requestHandler(a.getBrandsBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestHandler(a.getBrandInfo)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

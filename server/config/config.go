@@ -11,17 +11,18 @@ import (
 
 // Config struct stores entire project configurations
 type Config struct {
-	ServerConfig     ServerConfig     `mapstructure:"server"`
-	APIConfig        APIConfig        `mapstructure:"api"`
-	APPConfig        APPConfig        `mapstructure:"app"`
-	KafkaConfig      KafkaConfig      `mapstructure:"kafka"`
-	LoggerConfig     LoggerConfig     `mapstructure:"logger"`
-	DatabaseConfig   DatabaseConfig   `mapstructure:"database"`
-	RedisConfig      RedisConfig      `mapstructure:"redis"`
-	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
-	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
-	SNSConfig        SNSConfig        `mapstructure:"sns"`
-	SESConfig        SESConfig        `mapstructure:"ses"`
+	ServerConfig        ServerConfig        `mapstructure:"server"`
+	APIConfig           APIConfig           `mapstructure:"api"`
+	APPConfig           APPConfig           `mapstructure:"app"`
+	KafkaConfig         KafkaConfig         `mapstructure:"kafka"`
+	LoggerConfig        LoggerConfig        `mapstructure:"logger"`
+	DatabaseConfig      DatabaseConfig      `mapstructure:"database"`
+	RedisConfig         RedisConfig         `mapstructure:"redis"`
+	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
+	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
+	SNSConfig           SNSConfig           `mapstructure:"sns"`
+	SESConfig           SESConfig           `mapstructure:"ses"`
+	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 }
 
 // ServerConfig has only server specific configuration
@@ -49,22 +50,32 @@ type APIConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig   DatabaseConfig
-	TokenAuthConfig  TokenAuthConfig
-	SNSConfig        SNSConfig
-	SESConfig        SESConfig
-	HypdApiConfig    HypdApiConfig
-	UserConfig       ServiceConfig `mapstructure:"user"`
-	CustomerConfig   ServiceConfig `mapstructure:"customer"`
-	BrandConfig      ServiceConfig `mapstructure:"brand"`
-	InfluencerConfig ServiceConfig `mapstructure:"influencer"`
-	CartConfig       ServiceConfig `mapstructure:"cart"`
+	DatabaseConfig      DatabaseConfig
+	TokenAuthConfig     TokenAuthConfig
+	SNSConfig           SNSConfig
+	SESConfig           SESConfig
+	HypdApiConfig       HypdApiConfig
+	ElasticsearchConfig ElasticsearchConfig
+	UserConfig          ServiceConfig `mapstructure:"user"`
+	CustomerConfig      ServiceConfig `mapstructure:"customer"`
+	BrandConfig         ServiceConfig `mapstructure:"brand"`
+	InfluencerConfig    ServiceConfig `mapstructure:"influencer"`
+	CartConfig          ServiceConfig `mapstructure:"cart"`
 
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 
 	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
+}
+
+// ElasticsearchConfig contains elasticsearch related configurations
+type ElasticsearchConfig struct {
+	Endpoint            string `mapstructure:"endpoint"`
+	Username            string `mapstructure:"username"`
+	Password            string `mapstructure:"password"`
+	BrandFullIndex      string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
 }
 
 //HypdApiConfig contains config related to other services
@@ -255,5 +266,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.SESConfig = config.SESConfig
 	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	return config
 }
