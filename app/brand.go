@@ -23,6 +23,8 @@ type Brand interface {
 	CheckBrandByID(primitive.ObjectID) (bool, error)
 	GetBrandsByID([]primitive.ObjectID) ([]schema.GetBrandResp, error)
 	GetBrands() ([]schema.GetBrandResp, error)
+
+	AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error)
 }
 
 // BrandImpl implements brand interface methods
@@ -259,4 +261,61 @@ func (bi *BrandImpl) GetBrands() ([]schema.GetBrandResp, error) {
 		return nil, errors.Wrap(err, "failed to find brands")
 	}
 	return resp, nil
+}
+
+func (bi *BrandImpl) AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error) {
+	ctx := context.TODO()
+	session, err := bi.DB.Client().StartSession()
+	if err != nil {
+		bi.Logger.Err(err).Msg("unable to create db session")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		bi.Logger.Err(err).Msg("unable to start transaction")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		filter := bson.M{
+			"_id": opts.BrandID,
+		}
+		update := bson.M{
+			"$addToSet": bson.M{
+				"followers_id": opts.UserID,
+			},
+			"$inc": bson.M{
+				"followers_count": 1,
+			},
+		}
+
+		res, err := bi.DB.Collection(model.BrandColl).UpdateOne(sc, filter, update)
+		if err != nil {
+			session.AbortTransaction(sc)
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed add follower")
+			return errors.Wrap(err, "failed to add follower")
+		}
+
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("brand not found")
+		}
+
+		if err := bi.App.Customer.AddBrandFollowing(sc, opts); err != nil {
+			session.AbortTransaction(sc)
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed add brand_id in customer following")
+			return errors.Wrap(err, "failed to add follower")
+		}
+
+		if err := session.CommitTransaction(sc); err != nil {
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to add follower")
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	return true, nil
 }

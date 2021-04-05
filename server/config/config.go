@@ -53,12 +53,18 @@ type APPConfig struct {
 	TokenAuthConfig  TokenAuthConfig
 	SNSConfig        SNSConfig
 	SESConfig        SESConfig
+	HypdApiConfig    HypdApiConfig
 	UserConfig       ServiceConfig `mapstructure:"user"`
 	CustomerConfig   ServiceConfig `mapstructure:"customer"`
 	BrandConfig      ServiceConfig `mapstructure:"brand"`
 	InfluencerConfig ServiceConfig `mapstructure:"influencer"`
 	CartConfig       ServiceConfig `mapstructure:"cart"`
-	HypdApiConfig    HypdApiConfig
+
+	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
+	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
+
+	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
+	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
 }
 
 //HypdApiConfig contains config related to other services
@@ -77,6 +83,15 @@ type ListenerConfig struct {
 	GroupID string   `mapstructure:"groupId"`
 	Brokers []string `mapstructure:"brokers"`
 	Topic   string   `mapstructure:"topic"`
+}
+
+// ProducerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // TokenAuthConfig contains token authentication related configuration

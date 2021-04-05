@@ -64,11 +64,51 @@ type GetInfluencersByNameOpts struct {
 
 // GetInfluencerResp contains fields to be returned for get influencer function
 type GetInfluencerResp struct {
-	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
-	CoverImg      *model.IMG           `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
-	ProfileImage  *model.IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
-	SocialAccount *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
-	ExternalLinks []string             `json:"external_links,omitempty" bson:"external_links,omitempty"`
-	Bio           string               `json:"bio,omitempty" bson:"bio,omitempty"`
+	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
+	CoverImg       *model.IMG           `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
+	ProfileImage   *model.IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	SocialAccount  *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
+	ExternalLinks  []string             `json:"external_links,omitempty" bson:"external_links,omitempty"`
+	Bio            string               `json:"bio,omitempty" bson:"bio,omitempty"`
+	FollowersID    []primitive.ObjectID `json:"followers_id,omitempty" bson:"followers_id,omitempty"`
+	FollowingID    []primitive.ObjectID `json:"following_id,omitempty" bson:"following_id,omitempty"`
+	FollowersCount uint                 `json:"followers_count" bson:"followers_count"`
+	FollowingCount uint                 `json:"following_count" bson:"following_count"`
+}
+
+type AddInfluencerFollowerOpts struct {
+	InfluencerID primitive.ObjectID `json:"id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+}
+
+type InfluencerKafkaMessage struct {
+	ID             primitive.ObjectID   `json:"_id,omitempty"`
+	Name           string               `json:"name,omitempty"`
+	CoverImg       *model.IMG           `json:"cover_img,omitempty"`
+	ProfileImage   *model.IMG           `json:"profile_image,omitempty"`
+	SocialAccount  *model.SocialAccount `json:"social_account,omitempty"`
+	ExternalLinks  []string             `json:"external_links,omitempty"`
+	Bio            string               `json:"bio,omitempty"`
+	FollowersID    []primitive.ObjectID `json:"followers_id,omitempty"`
+	FollowingID    []primitive.ObjectID `json:"following_id,omitempty"`
+	FollowersCount uint                 `json:"followers_count"`
+	FollowingCount uint                 `json:"following_count"`
+	CreatedAt      time.Time            `json:"created_at,omitempty"`
+	UpdatedAt      time.Time            `json:"updated_at,omitempty"`
+}
+type InfluencerFullKafkaMessageOpts struct {
+	ID             primitive.ObjectID   `json:"id,omitempty"`
+	Name           string               `json:"name,omitempty"`
+	CoverImg       *model.IMG           `json:"cover_img,omitempty"`
+	ProfileImage   *model.IMG           `json:"profile_image,omitempty"`
+	SocialAccount  *model.SocialAccount `json:"social_account,omitempty"`
+	ExternalLinks  []string             `json:"external_links,omitempty"`
+	Bio            string               `json:"bio,omitempty"`
+	FollowersID    []primitive.ObjectID `json:"followers_id,omitempty"`
+	FollowingID    []primitive.ObjectID `json:"following_id,omitempty"`
+	FollowersCount uint                 `json:"followers_count"`
+	FollowingCount uint                 `json:"following_count"`
+	CreatedAt      time.Time            `json:"created_at,omitempty"`
+	UpdatedAt      time.Time            `json:"updated_at,omitempty"`
 }

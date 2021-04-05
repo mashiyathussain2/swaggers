@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -95,4 +96,41 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 
 	resp["user"] = res
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.AddInfluencerFollowerOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Influencer.AddFollower(&s)
+	fmt.Println(res, err)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.AddBrandFollowerOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Brand.AddFollower(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
 }

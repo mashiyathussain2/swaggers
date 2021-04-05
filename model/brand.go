@@ -12,22 +12,24 @@ const (
 )
 
 type Brand struct {
-	ID                 primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name               string             `json:"name,omitempty" bson:"name,omitempty"`
-	LName              string             `json:"lname,omitempty" bson:"lname,omitempty"`
-	RegisteredName     string             `json:"registered_name,omitempty" bson:"registered_name,omitempty"`
-	FulfillmentEmail   string             `json:"fulfillment_email,omitempty" bson:"fulfillment_email,omitempty"`
-	FulfillmentCCEmail []string           `json:"fulfillment_cc_email,omitempty" bson:"fulfillment_cc_email,omitempty"`
-	Domain             string             `json:"domain,omitempty" bson:"domain,omitempty"`
-	Website            string             `json:"website,omitempty" bson:"website,omitempty"`
-	Logo               *IMG               `json:"logo,omitempty" bson:"logo,omitempty"`
-	FollowersCount     uint               `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
-	FollowingCount     uint               `json:"following_count,omitempty" bson:"following_count,omitempty"`
-	Bio                string             `json:"bio,omitempty" bson:"bio,omitempty"`
-	CoverImg           *IMG               `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
-	SocialAccount      *SocialAccount     `json:"social_account,omitempty" bson:"social_account,omitempty"`
-	CreatedAt          time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt          time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	ID                 primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name               string               `json:"name,omitempty" bson:"name,omitempty"`
+	LName              string               `json:"lname,omitempty" bson:"lname,omitempty"`
+	RegisteredName     string               `json:"registered_name,omitempty" bson:"registered_name,omitempty"`
+	FulfillmentEmail   string               `json:"fulfillment_email,omitempty" bson:"fulfillment_email,omitempty"`
+	FulfillmentCCEmail []string             `json:"fulfillment_cc_email,omitempty" bson:"fulfillment_cc_email,omitempty"`
+	Domain             string               `json:"domain,omitempty" bson:"domain,omitempty"`
+	Website            string               `json:"website,omitempty" bson:"website,omitempty"`
+	Logo               *IMG                 `json:"logo,omitempty" bson:"logo,omitempty"`
+	FollowersCount     uint                 `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
+	FollowingCount     uint                 `json:"following_count,omitempty" bson:"following_count,omitempty"`
+	Bio                string               `json:"bio,omitempty" bson:"bio,omitempty"`
+	CoverImg           *IMG                 `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
+	SocialAccount      *SocialAccount       `json:"social_account,omitempty" bson:"social_account,omitempty"`
+	FollowersID        []primitive.ObjectID `json:"followers_id,omitempty" bson:"followers_id,omitempty"`
+	FollowingID        []primitive.ObjectID `json:"following_id,omitempty" bson:"following_id,omitempty"`
+	CreatedAt          time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt          time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 // SocialMedia contains followers_count for a specific account
