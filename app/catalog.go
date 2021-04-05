@@ -1456,9 +1456,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 }
 
 func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error {
-
 	filter := bson.M{"_id": opts.CatalogID}
-	fmt.Println(opts.CatalogID)
 	updateQuery := bson.M{
 		"$pull": bson.M{
 			"catalog_content": opts.ContentID,
@@ -1470,6 +1468,16 @@ func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error
 	}
 	if res.MatchedCount == 0 {
 		return errors.Errorf("error finding catalog with id: %s", opts.CatalogID.Hex())
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/keeper/content/%s", kc.App.Config.HypdApiConfig.CmsApi, opts.ContentID.Hex()), nil)
+	if err != nil {
+		return errors.Wrap(err, "error sending deleting content request to cms")
+	}
+
+	if _, err := client.Do(req); err != nil {
+		return errors.Wrap(err, "error deleting content from cms")
 	}
 	return nil
 }
