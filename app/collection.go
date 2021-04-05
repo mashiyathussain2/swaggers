@@ -5,6 +5,7 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,16 +20,16 @@ import (
 type Collection interface {
 	CreateCollection(*schema.CreateCollectionOpts) (*schema.CreateCollectionResp, []error)
 	DeleteCollection(primitive.ObjectID) error
-	AddSubCollection(*schema.AddSubCollectionOpts) (*schema.CreateCollectionResp, []error)
+	AddSubCollection(*schema.AddSubCollectionOpts) (*schema.CollectionResp, []error)
 	DeleteSubCollection(primitive.ObjectID, primitive.ObjectID) error
-	EditCollection(*schema.EditCollectionOpts) (*schema.CreateCollectionResp, error)
+	EditCollection(*schema.EditCollectionOpts) (*schema.CollectionResp, error)
 	UpdateSubCollectionImage(opts *schema.UpdateSubCollectionImageOpts) error
 	AddCatalogsToSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
 	RemoveCatalogsFromSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
-	GetCollections(int) ([]schema.CreateCollectionResp, error)
-
+	GetCollections(int) ([]schema.CollectionResp, error)
 	AddCatalogInfoToCollection(id primitive.ObjectID)
 	UpdateCollectionCatalogInfo(id primitive.ObjectID)
+	UpdateCollectionStatus(*schema.UpdateCollectionStatus) error
 
 	// GetActiveCollections()
 }
@@ -85,6 +86,7 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		subCollections = append(subCollections, subCollection)
 
 	}
+
 	collection := model.Collection{
 		Name:           UniqueSlug(opts.Title),
 		Type:           opts.Type,
@@ -92,8 +94,12 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		Title:          opts.Title,
 		SubCollections: subCollections,
 		CreatedAt:      t,
-		Status:         model.Draft,
-		Order:          -1,
+		Status: model.Status{
+			Name:      "Draft",
+			Value:     model.Draft,
+			CreatedAt: time.Now(),
+		},
+		Order: -1,
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).InsertOne(ctx, collection)
 
@@ -119,7 +125,7 @@ func (ci *CollectionImpl) DeleteCollection(id primitive.ObjectID) error {
 	filter := bson.M{"_id": id}
 	deleteQuery := bson.M{
 		"$set": bson.M{
-			"status": model.Disable,
+			"status": model.Archive,
 		},
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).UpdateOne(context.TODO(), filter, deleteQuery)
@@ -133,7 +139,7 @@ func (ci *CollectionImpl) DeleteCollection(id primitive.ObjectID) error {
 }
 
 //AddSubCollection adds a sub collection to the collection with given id
-func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*schema.CreateCollectionResp, []error) {
+func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*schema.CollectionResp, []error) {
 
 	err := ci.checkCatalogs(opts.SubCollection.CatalogIDs)
 	if err != nil && len(err) > 0 {
@@ -173,13 +179,15 @@ func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*
 		return nil, []error{errors.Wrap(errResp, "failed to update catalog")}
 	}
 
-	collection := schema.CreateCollectionResp{
+	collection := schema.CollectionResp{
 		ID:             collectionModel.ID,
 		Type:           collectionModel.Type,
 		Name:           collectionModel.Name,
 		Genders:        collectionModel.Genders,
 		Title:          collectionModel.Title,
 		SubCollections: collectionModel.SubCollections,
+		Status:         collectionModel.Status.Value,
+		Order:          collectionModel.Order,
 	}
 	return &collection, nil
 }
@@ -206,7 +214,7 @@ func (ci *CollectionImpl) DeleteSubCollection(collID primitive.ObjectID, subID p
 }
 
 //EditCollection edits the collection details such as title, name, genders
-func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*schema.CreateCollectionResp, error) {
+func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*schema.CollectionResp, error) {
 	collection := model.Collection{}
 
 	if opts.Title != "" {
@@ -236,7 +244,7 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 		return nil, errors.Wrap(err, "failed to update catalog")
 	}
 
-	collectionResp := &schema.CreateCollectionResp{
+	collectionResp := &schema.CollectionResp{
 		ID:             collection.ID,
 		Title:          collection.Title,
 		Type:           collection.Type,
@@ -244,6 +252,7 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 		Genders:        collection.Genders,
 		SubCollections: collection.SubCollections,
 		Order:          collection.Order,
+		Status:         collection.Status.Value,
 	}
 
 	return collectionResp, nil
@@ -353,7 +362,7 @@ func (ci *CollectionImpl) checkCatalogs(opts []primitive.ObjectID) []error {
 	return errorRes
 }
 
-func (ci *CollectionImpl) GetCollections(page int) ([]schema.CreateCollectionResp, error) {
+func (ci *CollectionImpl) GetCollections(page int) ([]schema.CollectionResp, error) {
 
 	ctx := context.TODO()
 	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "order", Value: 1}})
@@ -364,7 +373,7 @@ func (ci *CollectionImpl) GetCollections(page int) ([]schema.CreateCollectionRes
 		}
 		return nil, errors.Wrapf(err, "error querying the database")
 	}
-	var collectionResp []schema.CreateCollectionResp
+	var collectionResp []schema.CollectionResp
 	if err := cur.All(ctx, &collectionResp); err != nil {
 		return nil, err
 	}
@@ -435,4 +444,57 @@ func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 		ci.Logger.Err(err).Msgf("failed to update catalog info for catalog id:%s", id.Hex())
 		return
 	}
+}
+
+func (ci *CollectionImpl) UpdateCollectionStatus(opts *schema.UpdateCollectionStatus) error {
+	var collection model.Collection
+	updateStatusValue := strings.ToLower(opts.Status)
+
+	ctx := context.TODO()
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+	err := ci.DB.Collection(model.CollectionColl).FindOne(ctx, filter).Decode(&collection)
+	if err != nil {
+		return errors.Wrap(err, "Failed to Find Catalog")
+	}
+	currentStatusValue := collection.Status.Value
+
+	//Checking if status change is allowed
+	if currentStatusValue == model.Draft && updateStatusValue == model.Unlist {
+		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+	}
+	if currentStatusValue == model.Publish && updateStatusValue == model.Draft {
+		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+	}
+	if currentStatusValue == model.Unlist && updateStatusValue == model.Draft {
+		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+	}
+	if currentStatusValue == model.Archive {
+		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+	}
+
+	updateStatus := model.Status{
+		Name:      strings.Title(updateStatusValue),
+		Value:     updateStatusValue,
+		CreatedAt: time.Now(),
+	}
+
+	updateQuery := bson.M{
+		"$set": bson.M{
+			"status": updateStatus,
+		},
+		"$push": bson.M{
+			"status_history": updateStatus,
+		},
+	}
+	updateResp, err := ci.DB.Collection(model.CatalogColl).UpdateOne(ctx, filter, updateQuery)
+
+	if err != nil {
+		return errors.Wrap(err, "Unable to update Status")
+	}
+	if updateResp.ModifiedCount == 0 {
+		return errors.Errorf("Unable to update Status")
+	}
+	return nil
 }
