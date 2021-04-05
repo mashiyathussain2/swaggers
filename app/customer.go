@@ -24,6 +24,8 @@ type Customer interface {
 
 	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
 	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
+	AddAddress(opts *schema.AddAddressOpts) error
+	GetAddresses(primitive.ObjectID) ([]model.Address, error)
 }
 
 // CustomerImpl implements Customer interface methods
@@ -176,4 +178,52 @@ func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *sc
 	}
 
 	return nil
+}
+
+func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) error {
+	findQuery := bson.M{
+		"user_id": opts.UserID,
+	}
+	address := model.Address{
+		ID:                primitive.NewObjectID(),
+		DisplayName:       opts.DisplayName,
+		Line1:             opts.Line1,
+		Line2:             opts.Line2,
+		District:          opts.District,
+		City:              opts.City,
+		State:             opts.State,
+		PostalCode:        opts.PostalCode,
+		Country:           opts.Country,
+		PlainAddress:      opts.PlainAddress,
+		IsBillingAddress:  opts.IsBillingAddress,
+		IsShippingAddress: opts.IsShippingAddress,
+		IsDefaultAddress:  opts.IsDefaultAddress,
+		ContactNumber:     opts.ContactNumber,
+	}
+	updateQuery := bson.M{
+		"$push": bson.M{
+			"addresses": address,
+		},
+	}
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to add address")
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find user with id: %s", opts.UserID.Hex())
+	}
+	return nil
+}
+
+func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, error) {
+	findQuery := bson.M{
+		"user_id": id,
+	}
+	var customer model.Customer
+	err := ci.DB.Collection(model.CustomerColl).FindOne(context.TODO(), findQuery).Decode(&customer)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to fetch addresses")
+	}
+
+	return customer.Addresses, nil
 }

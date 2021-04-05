@@ -7,6 +7,9 @@ import (
 	"go-app/server/handler"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (a *API) loginViaEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -133,4 +136,38 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	var s schema.AddAddressOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.Customer.AddAddress(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Customer.GetAddresses(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }

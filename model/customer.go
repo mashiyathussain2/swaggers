@@ -54,7 +54,7 @@ type Customer struct {
 	InfluencerFollowCount uint                 `json:"influencer_follow_count,omitempty" bson:"influencer_follow_count,omitempty"`
 	BrandFollowing        []primitive.ObjectID `json:"brand_following,omitempty" bson:"brand_following,omitempty"`
 	InfluencerFollowing   []primitive.ObjectID `json:"influencer_following,omitempty" bson:"influencer_following,omitempty"`
-	Addresses             []Address            `json:"address,omitempty" bson:"address,omitempty"`
+	Addresses             []Address            `json:"addresses,omitempty" bson:"addresses,omitempty"`
 	CreatedAt             time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt             time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

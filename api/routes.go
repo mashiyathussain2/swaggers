@@ -18,6 +18,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/customer/otp/generate", a.requestHandler(a.loginViaMobileOTP)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/otp/confirm", a.requestHandler(a.confirmLoginViaMobileOTP)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer", a.requestWithAuthHandler(a.updateCustomerInfo)).Methods("PUT")
+	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.addAddress)).Methods("PUT")
+	a.Router.APIRoot.Handle("/customer/address/{userID}", a.requestWithAuthHandler(a.getAddress)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestHandler(a.createbrand)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/brands", a.requestHandler(a.getBrands)).Methods("GET")
