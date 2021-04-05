@@ -173,5 +173,5 @@ type SubCollectionCatalogInfoSchema struct {
 
 type UpdateCollectionStatus struct {
 	ID     primitive.ObjectID `json:"id"`
-	Status string             `json:"string"`
+	Status string             `json:"status"`
 }
