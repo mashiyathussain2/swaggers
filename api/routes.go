@@ -49,6 +49,11 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/app/express-checkout", a.requestHandler(a.expressCheckout)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/app/wishlist", a.requestHandler(a.addToWishlist)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/wishlist", a.requestHandler(a.removeFromWishlist)).Methods("DELETE")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

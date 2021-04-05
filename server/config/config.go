@@ -50,17 +50,19 @@ type APIConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig      DatabaseConfig
-	TokenAuthConfig     TokenAuthConfig
-	SNSConfig           SNSConfig
-	SESConfig           SESConfig
-	HypdApiConfig       HypdApiConfig
-	ElasticsearchConfig ElasticsearchConfig
-	UserConfig          ServiceConfig `mapstructure:"user"`
-	CustomerConfig      ServiceConfig `mapstructure:"customer"`
-	BrandConfig         ServiceConfig `mapstructure:"brand"`
-	InfluencerConfig    ServiceConfig `mapstructure:"influencer"`
-	CartConfig          ServiceConfig `mapstructure:"cart"`
+	DatabaseConfig        DatabaseConfig
+	TokenAuthConfig       TokenAuthConfig
+	SNSConfig             SNSConfig
+	SESConfig             SESConfig
+	HypdApiConfig         HypdApiConfig
+	ElasticsearchConfig   ElasticsearchConfig
+	UserConfig            ServiceConfig `mapstructure:"user"`
+	CustomerConfig        ServiceConfig `mapstructure:"customer"`
+	BrandConfig           ServiceConfig `mapstructure:"brand"`
+	InfluencerConfig      ServiceConfig `mapstructure:"influencer"`
+	CartConfig            ServiceConfig `mapstructure:"cart"`
+	ExpressCheckoutConfig ServiceConfig `mapstructure:"expressCheckout"`
+	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
 
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`

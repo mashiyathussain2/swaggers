@@ -224,6 +224,5 @@ func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, er
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch addresses")
 	}
-
 	return customer.Addresses, nil
 }

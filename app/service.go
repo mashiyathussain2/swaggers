@@ -30,4 +30,14 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.CartConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.ExpressCheckout = InitExpressCheckout(&ExpressCheckoutImplOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.ExpressCheckoutConfig.DBName),
+		Logger: a.Logger,
+	})
+	a.Wishlist = InitWishlist(&WishlistImplOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.WishlistConfig.DBName),
+		Logger: a.Logger,
+	})
 }
