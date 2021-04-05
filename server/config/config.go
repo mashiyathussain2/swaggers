@@ -68,12 +68,13 @@ type APPConfig struct {
 	InventoryConfig     ServiceConfig `mapstructure:"inventory"`
 	PageSize            int           `mapstructure:"pageSize"`
 
-	CatalogChangeConfig    ListenerConfig `mapstructure:"catalogChangeConsumer"`
-	CollectionChangeConfig ListenerConfig `mapstructure:"collectionChangeConsumer"`
-	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
-	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
-	ContentChangeConfig    ListenerConfig `mapstructure:"contentChangeConsumer"`
-	GroupChangeConfig      ListenerConfig `mapstructure:"groupChangeConsumer"`
+	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	CollectionCatalogChangeConfig ListenerConfig `mapstructure:"collectionCatalogChangeConsumer"`
+	CollectionChangeConfig        ListenerConfig `mapstructure:"collectionChangeConsumer"`
+	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
+	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	ContentChangeConfig           ListenerConfig `mapstructure:"contentChangeConsumer"`
+	GroupChangeConfig             ListenerConfig `mapstructure:"groupChangeConsumer"`
 
 	CatalogFullProducerConfig    ProducerConfig `mapstructure:"catalogFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`

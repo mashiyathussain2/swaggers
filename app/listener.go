@@ -15,6 +15,12 @@ func InitConsumer(a *App) {
 	})
 	go a.CatalogChanges.ConsumeAndCommit(ctx, a.CatalogProcessor.ProcessCatalogUpdate)
 
+	a.CollectionCatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CollectionCatalogChangeConfig,
+	})
+	go a.CatalogChanges.ConsumeAndCommit(ctx, a.CollectionProcessor.ProcessCatalogUpdate)
+
 	a.InventoryChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
 		Config: &a.Config.InventoryChangeConfig,
@@ -51,6 +57,7 @@ func InitConsumer(a *App) {
 func CloseConsumer(a *App) {
 	a.ContentChanges.Close()
 	a.CatalogChanges.Close()
+	a.CollectionCatalogChanges.Close()
 	a.InventoryChanges.Close()
 	a.DiscountChanges.Close()
 	a.CollectionChanges.Close()

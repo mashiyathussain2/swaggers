@@ -32,12 +32,13 @@ type App struct {
 	Inventory     Inventory
 
 	// Consumers
-	CatalogChanges    kafka.Consumer
-	CollectionChanges kafka.Consumer
-	InventoryChanges  kafka.Consumer
-	DiscountChanges   kafka.Consumer
-	ContentChanges    kafka.Consumer
-	GroupChanges      kafka.Consumer
+	CatalogChanges           kafka.Consumer
+	CollectionCatalogChanges kafka.Consumer
+	CollectionChanges        kafka.Consumer
+	InventoryChanges         kafka.Consumer
+	DiscountChanges          kafka.Consumer
+	ContentChanges           kafka.Consumer
+	GroupChanges             kafka.Consumer
 
 	CatalogFullProducer    kafka.Producer
 	CollectionFullProducer kafka.Producer
