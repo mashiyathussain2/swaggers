@@ -401,16 +401,19 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: collection.ID,
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
-						CatalogIDs: catalogIDs[15:20],
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: catalogIDs[15:20],
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return(catalogs[15:20], nil)
+
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return(catalogs[15:20], nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -427,16 +430,18 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: primitive.NewObjectID(),
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
-						CatalogIDs: catalogIDs[15:20],
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: catalogIDs[15:20],
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return(catalogs[15:20], nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return(catalogs[15:20], nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -454,21 +459,23 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: primitive.NewObjectID(),
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
-						CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[12]},
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[12]},
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
 				tt.wantErr = true
-				tt.err = []error{errors.Errorf("catalog with id: %s not found", tt.args.opts.SubCollection.CatalogIDs[0].Hex())}
+				tt.err = []error{errors.Errorf("catalog with id: %s not found", tt.args.opts.SubCollections[0].CatalogIDs[0].Hex())}
 			},
 		},
 	}

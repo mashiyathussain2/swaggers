@@ -137,33 +137,38 @@ func (ci *CollectionImpl) DeleteCollection(id primitive.ObjectID) error {
 //AddSubCollection adds a sub collection to the collection with given id
 func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*schema.CollectionResp, []error) {
 
-	err := ci.checkCatalogs(opts.SubCollection.CatalogIDs)
-	if err != nil && len(err) > 0 {
-		return nil, err
-	}
+	subCollections := []model.SubCollection{}
 
-	subCollection := model.SubCollection{
-		ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
-		Name:       opts.SubCollection.Name,
-		CatalogIDs: opts.SubCollection.CatalogIDs,
-		CreatedAt:  time.Now(),
-	}
-
-	if opts.SubCollection.Image != nil {
-		image := model.IMG{
-			SRC: opts.SubCollection.Image.SRC,
+	for _, subColl := range opts.SubCollections {
+		err := ci.checkCatalogs(subColl.CatalogIDs)
+		if err != nil && len(err) > 0 {
+			return nil, err
 		}
-		if err := image.LoadFromURL(); err != nil {
-			return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", opts.SubCollection.Name)}
+		subCollection := model.SubCollection{
+			ID:         primitive.NewObjectIDFromTimestamp(time.Now()),
+			Name:       subColl.Name,
+			CatalogIDs: subColl.CatalogIDs,
+			CreatedAt:  time.Now(),
 		}
-		subCollection.Image = &image
+		if subColl.Image != nil {
+			image := model.IMG{
+				SRC: subColl.Image.SRC,
+			}
+			if err := image.LoadFromURL(); err != nil {
+				return nil, []error{errors.Wrapf(err, "unable to process image for sub collection %s", subColl.Name)}
+			}
+			subCollection.Image = &image
+		}
+		subCollections = append(subCollections, subCollection)
 	}
 
 	var collectionModel model.Collection
 	findQuery := bson.M{"_id": opts.ID}
 	updateQuery := bson.M{
 		"$push": bson.M{
-			"sub_collections": subCollection,
+			"sub_collections": bson.M{
+				"$each": subCollections,
+			},
 		},
 	}
 	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
