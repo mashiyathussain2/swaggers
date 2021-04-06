@@ -121,6 +121,7 @@ type EditCatalogOpts struct {
 	ID              primitive.ObjectID   `json:"id" validate:"required"`
 	Name            string               `json:"name"`
 	Description     string               `json:"description"`
+	FeaturedImage   *Img                 `json:"featured_image"`
 	CategoryID      []primitive.ObjectID `json:"category_id"`
 	Keywords        []string             `json:"keywords" validate:"unique"`
 	ETA             *etaOpts             `json:"eta"`
@@ -135,12 +136,12 @@ type EditCatalogOpts struct {
 
 // EditCatalogResp contains fields which are returned when a catalog is edited
 type EditCatalogResp struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Paths       []model.Path       `json:"category_path,omitempty" bson:"category_path,omitempty"`
-	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
-	Description string             `json:"description,omitempty" bson:"description,omitempty"`
-	Keywords    []string           `json:"keywords,omitempty" bson:"keywords,omitempty"`
-	// FeaturedImage *model.IMG `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	ID              primitive.ObjectID    `json:"id,omitempty" bson:"_id,omitempty"`
+	Paths           []model.Path          `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Name            string                `json:"name,omitempty" bson:"name,omitempty"`
+	Description     string                `json:"description,omitempty" bson:"description,omitempty"`
+	Keywords        []string              `json:"keywords,omitempty" bson:"keywords,omitempty"`
+	FeaturedImage   *model.IMG            `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	Specifications  []model.Specification `json:"specs,omitempty" bson:"specs,omitempty"`
 	FilterAttribute []model.Attribute     `json:"filter_attr,omitempty" bson:"filter_attr,omitempty"`
 	HSNCode         string                `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
@@ -373,11 +374,13 @@ type CatalogKafkaMessage struct {
 }
 
 type CatalogContentInfoResp struct {
-	ID        primitive.ObjectID `json:"id,omitempty"`
-	Type      string             `json:"type,omitempty"`
-	MediaType string             `json:"media_type,omitempty"`
-	MediaID   primitive.ObjectID `json:"media_id,omitempty"`
-	MediaInfo interface{}        `json:"media_info,omitempty"`
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	Type        string             `json:"type,omitempty"`
+	MediaType   string             `json:"media_type,omitempty"`
+	MediaID     primitive.ObjectID `json:"media_id,omitempty"`
+	MediaInfo   interface{}        `json:"media_info,omitempty"`
+	IsActive    bool               `json:"is_active"`
+	IsProcessed bool               `json:"is_processed"`
 }
 
 type CatalogContentKafkaMessage struct {
@@ -407,6 +410,7 @@ type DiscountBasicResp struct {
 
 type GetCatalogBasicResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty"`
+	Name          string             `json:"name,omitempty"`
 	BrandID       primitive.ObjectID `json:"brand_id,omitempty"`
 	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty"`
 	DiscountID    primitive.ObjectID `json:"discount_id,omitempty"`
@@ -418,6 +422,7 @@ type GetCatalogBasicResp struct {
 
 type GetCatalogInfoResp struct {
 	ID              primitive.ObjectID       `json:"id,omitempty"`
+	Name            string                   `json:"name,omitempty"`
 	BrandID         primitive.ObjectID       `json:"brand_id,omitempty"`
 	BrandInfo       *BrandInfoResp           `json:"brand_info,omitempty"`
 	DiscountID      primitive.ObjectID       `json:"discount_id,omitempty"`

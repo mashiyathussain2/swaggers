@@ -238,6 +238,13 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 			c.Paths = append(c.Paths, path)
 		}
 	}
+	if opts.FeaturedImage != nil {
+		img := model.IMG{SRC: opts.FeaturedImage.SRC}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "failed to load featured image")
+		}
+		c.FeaturedImage = &img
+	}
 	if opts.ETA != nil {
 		c.ETA = &model.ETA{
 			Min:  int(opts.ETA.Min),
@@ -311,6 +318,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		Description:     c.Description,
 		Paths:           c.Paths,
 		Keywords:        c.Keywords,
+		FeaturedImage:   c.FeaturedImage,
 		Specifications:  c.Specifications,
 		FilterAttribute: c.FilterAttribute,
 		HSNCode:         c.HSNCode,
@@ -1456,9 +1464,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 }
 
 func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error {
-
 	filter := bson.M{"_id": opts.CatalogID}
-	fmt.Println(opts.CatalogID)
 	updateQuery := bson.M{
 		"$pull": bson.M{
 			"catalog_content": opts.ContentID,
@@ -1470,6 +1476,16 @@ func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error
 	}
 	if res.MatchedCount == 0 {
 		return errors.Errorf("error finding catalog with id: %s", opts.CatalogID.Hex())
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/keeper/content/%s", kc.App.Config.HypdApiConfig.CmsApi, opts.ContentID.Hex()), nil)
+	if err != nil {
+		return errors.Wrap(err, "error sending deleting content request to cms")
+	}
+
+	if _, err := client.Do(req); err != nil {
+		return errors.Wrap(err, "error deleting content from cms")
 	}
 	return nil
 }
