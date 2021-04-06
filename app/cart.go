@@ -111,7 +111,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 
 	//checking if item already in cart
 	findFilter := bson.M{
-		"_id":              opts.ID,
+		"user_id":          opts.ID,
 		"items.catalog_id": opts.CatalogID,
 		"items.variant_id": opts.VariantID,
 	}
@@ -245,7 +245,7 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	}
 
 	filterQuery := bson.M{
-		"_id":              opts.ID,
+		"user_id":          opts.ID,
 		"items.catalog_id": opts.CatalogID,
 		"items.variant_id": opts.VariantID,
 	}
@@ -376,7 +376,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 		ContactNumber:     opts.ContactNumber,
 	}
 	findQuery := bson.M{
-		"_id": opts.ID,
+		"user_id": opts.ID,
 	}
 	updateQuery := bson.M{
 		"$set": bson.M{
@@ -403,7 +403,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
-			"_id": id,
+			"user_id": id,
 		},
 	}}
 
