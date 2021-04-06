@@ -204,7 +204,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	}
 
 	filter := bson.M{
-		"_id": opts.ID,
+		"user_id": opts.ID,
 	}
 	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var cart model.Cart
