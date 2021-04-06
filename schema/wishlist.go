@@ -16,12 +16,13 @@ type RemoveFromWishlistOpts struct {
 }
 
 type GetWishlistResp struct {
-	CatalogInfo []CatalogWishListinfo `json:"catalog_info"`
+	CatalogID   primitive.ObjectID  `json:"catalog_id"`
+	CatalogInfo CatalogWishListinfo `json:"catalog_info"`
 }
+
 type CatalogWishListinfo struct {
 	ID            primitive.ObjectID          `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string                      `json:"name,omitempty" bson:"name,omitempty"`
-	BrandName     string                      `json:"brand_name,omitempty" bson:"brand_name,omitempty"`
 	FeaturedImage *model.CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 
 	BasePrice   model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`

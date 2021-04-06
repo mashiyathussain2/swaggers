@@ -21,7 +21,7 @@ import (
 type Wishlist interface {
 	AddToWishlist(*schema.AddToWishlistOpts) error
 	RemoveFromWishlist(opts *schema.RemoveFromWishlistOpts) error
-	GetWishlist(id primitive.ObjectID) (map[primitive.ObjectID]schema.CatalogWishListinfo, error)
+	GetWishlist(id primitive.ObjectID) ([]schema.GetWishlistResp, error)
 }
 
 // WishlistImpl implements Wishlist interface methods
@@ -93,18 +93,18 @@ func (wi *WishlistImpl) RemoveFromWishlist(opts *schema.RemoveFromWishlistOpts) 
 	return nil
 }
 
-func (wi *WishlistImpl) GetWishlist(id primitive.ObjectID) (map[primitive.ObjectID]schema.CatalogWishListinfo, error) {
+func (wi *WishlistImpl) GetWishlist(id primitive.ObjectID) ([]schema.GetWishlistResp, error) {
 
 	ctx := context.TODO()
-	wlResp := make(map[primitive.ObjectID]schema.CatalogWishListinfo)
-
+	wishlistResp := []schema.GetWishlistResp{}
 	var wishlist model.Wishlist
 
 	err := wi.DB.Collection(model.WishlistColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&wishlist)
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Errorf("unable to find wishlist for user with id: %s", id)
+			return nil, errors.Errorf("unable to find wishlist for user with id: %s", id.Hex())
 		}
+		return nil, errors.Wrapf(err, "unable to query for document")
 	}
 
 	for _, cat := range wishlist.CatalogIDS {
@@ -132,21 +132,24 @@ func (wi *WishlistImpl) GetWishlist(id primitive.ObjectID) (map[primitive.Object
 			return nil, errors.New("got success false response from catalog")
 		}
 
-		wlResp[cat] = schema.CatalogWishListinfo{
-			ID:            cat,
-			Name:          s.Payload.Name,
-			BrandName:     s.Payload.BrandInfo.Name,
-			FeaturedImage: s.Payload.FeaturedImage,
+		wishlistItem := schema.GetWishlistResp{
+			CatalogID: cat,
+			CatalogInfo: schema.CatalogWishListinfo{
+				ID:            cat,
+				Name:          s.Payload.Name,
+				FeaturedImage: s.Payload.FeaturedImage,
 
-			BasePrice:   s.Payload.BasePrice,
-			RetailPrice: s.Payload.RetailPrice,
+				BasePrice:   s.Payload.BasePrice,
+				RetailPrice: s.Payload.RetailPrice,
 
-			Status: s.Payload.Status,
+				Status: s.Payload.Status,
 
-			DiscountInfo: s.Payload.DiscountInfo,
-			BrandInfo:    s.Payload.BrandInfo,
+				DiscountInfo: s.Payload.DiscountInfo,
+				BrandInfo:    s.Payload.BrandInfo,
+			},
 		}
+		wishlistResp = append(wishlistResp, wishlistItem)
 	}
 
-	return wlResp, nil
+	return wishlistResp, nil
 }
