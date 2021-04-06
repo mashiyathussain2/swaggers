@@ -27,16 +27,19 @@ type Live interface {
 	StartLiveStream(primitive.ObjectID) (*schema.StartLiveStreamResp, error)
 	DiscardLiveStream(primitive.ObjectID) error
 	EndLiveStream(primitive.ObjectID) error
-	JoinLiveStream(primitive.ObjectID) (string, error)
+	JoinLiveStream(primitive.ObjectID) (*schema.JoinLiveStreamResp, error)
 
 	PushComment(*schema.CreateLiveCommentOpts)
 	PushOrder(opts *schema.PushNewOrderOpts)
 	PushCatalog(opts *schema.PushCatalogOpts)
+	PushJoin(opts *schema.PushJoinOpts)
 
 	GetLiveStreamByID(primitive.ObjectID) (*schema.GetLiveStreamResp, error)
 	GetLiveStreams(*schema.GetLiveStreamsFilter) ([]schema.GetLiveStreamResp, error)
 	ConsumeComment(m kafka.Message)
 	CreateLiveComment(*schema.CreateLiveCommentOpts)
+
+	GetAppLiveStreams(*schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error)
 }
 
 // LiveImpl implemethods Live interface methods
@@ -232,23 +235,30 @@ func (li *LiveImpl) EndLiveStream(id primitive.ObjectID) error {
 }
 
 // JoinLiveStream returns a playback url to user can stream the live feed
-func (li *LiveImpl) JoinLiveStream(id primitive.ObjectID) (string, error) {
+func (li *LiveImpl) JoinLiveStream(id primitive.ObjectID) (*schema.JoinLiveStreamResp, error) {
 	filter := bson.M{"_id": id}
 
 	var stream model.Live
-	opts := options.FindOne().SetProjection(bson.M{"ivs.playback": 1, "status": 1})
+	opts := options.FindOne().SetProjection(bson.M{"ivs.playback": 1, "status": 1, "ivs.channel": 1})
 	if err := li.DB.Collection(model.LiveColl).FindOne(context.TODO(), filter, opts).Decode(&stream); err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-			return "", errors.Errorf("failed to find live stream with id:%s", id.Hex())
+			return nil, errors.Errorf("failed to find live stream with id:%s", id.Hex())
 		}
-		return "", errors.Errorf("failed to end live stream with id:%s", id.Hex())
+		return nil, errors.Errorf("failed to end live stream with id:%s", id.Hex())
 	}
 
+	if stream.Status == nil {
+		return nil, errors.New("stream is not active")
+	}
 	if stream.Status.Name != model.ActiveStatus {
-		return "", errors.New("stream is not active")
+		return nil, errors.New("stream is not active")
 	}
 
-	return stream.IVS.Playback.PlaybackURL, nil
+	resp := schema.JoinLiveStreamResp{
+		PlaybackURL: stream.IVS.Playback.PlaybackURL,
+		ARN:         stream.IVS.Channel.ARN,
+	}
+	return &resp, nil
 }
 
 // GetLiveStreamByID returns specific live stream info matched by id
@@ -304,21 +314,21 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 	// Pushing comment to kafka topic
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		opts.Type = "comment"
-		opts.CreatedAt = time.Now().UTC()
-		bytes, err := json.Marshal(opts)
-		if err == nil {
-			li.App.LiveCommentProducer.Publish(segKafka.Message{
-				Key:   nil,
-				Value: bytes,
-			})
-			return
-		}
-		li.Logger.Err(err).Interface("opts", opts).Msg("failed to decode opts to bytes")
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	opts.Type = "comment"
+	// 	opts.CreatedAt = time.Now().UTC()
+	// 	bytes, err := json.Marshal(opts)
+	// 	if err == nil {
+	// 		li.App.LiveCommentProducer.Publish(segKafka.Message{
+	// 			Key:   nil,
+	// 			Value: bytes,
+	// 		})
+	// 		return
+	// 	}
+	// 	li.Logger.Err(err).Interface("opts", opts).Msg("failed to decode opts to bytes")
+	// }()
 
 	// Pushing comment to IVS meta-data
 	wg.Add(1)
@@ -349,6 +359,29 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 	}()
 
 	wg.Wait()
+}
+
+func (li *LiveImpl) PushJoin(opts *schema.PushJoinOpts) {
+	s := schema.IVSMetaData{
+		Type: "join",
+		Data: schema.CreateIVSNewJoinMetaData{
+			Name: opts.Name,
+		},
+	}
+	bytes, err := json.Marshal(s)
+	metaData := string(bytes)
+	if err == nil {
+		params := ivs.PutMetadataInput{
+			ChannelArn: &opts.ARN,
+			Metadata:   &metaData,
+		}
+		_, err := li.IVS.PutMetadata(&params)
+		if err != nil {
+			li.Logger.Err(err).RawJSON("metadata", bytes).Msg("failed to push join in ivs metadata")
+		}
+		return
+	}
+	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
 }
 
 func (li *LiveImpl) ConsumeComment(m kafka.Message) {
@@ -431,4 +464,42 @@ func (li *LiveImpl) PushOrder(opts *schema.PushNewOrderOpts) {
 		return
 	}
 	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
+}
+
+// func (li *LiveImpl) GetAppLiveStreamByID(id primitive.ObjectID) (*schema.GetLiveStreamResp, error) {
+// 	var resp schema.GetLiveStreamResp
+// 	filter := bson.M{"_id": id}
+// 	if err := li.DB.Collection(model.LiveColl).FindOne(context.TODO(), filter).Decode(&resp); err != nil {
+// 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+// 			return nil, errors.Wrapf(err, "live stream by id:%s not found", id.Hex())
+// 		}
+// 		return nil, errors.Wrapf(err, "failed to find live stream by id:%s", id.Hex())
+// 	}
+// 	return &resp, nil
+// }
+
+func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error) {
+	ctx := context.TODO()
+	filter := bson.M{
+		"$or": bson.A{
+			bson.M{
+				"scheduled_at": bson.M{
+					"$gte": time.Now().UTC(),
+				},
+			},
+			bson.M{
+				"status.name": model.ActiveStatus,
+			},
+		},
+	}
+	var resp []schema.GetAppLiveStreamResp
+	queryOpts := options.Find().SetSkip(int64(filterOpts.Page * 10)).SetLimit(10)
+	cur, err := li.DB.Collection(model.LiveColl).Find(ctx, filter, queryOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get live streams")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get live streams")
+	}
+	return resp, nil
 }

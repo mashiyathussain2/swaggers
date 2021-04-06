@@ -22,11 +22,13 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}", a.requestHandler(a.getLiveStreamByID)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}/catalog", a.requestHandler(a.pushCatalog)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}/order", a.requestHandler(a.pushOrder)).Methods("POST")
-	// a.Router.APIRoot.Handle("/keeper/live/{liveID}/catalog", a.requestHandler(a.getLiveStreams)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/live/{liveID}/start", a.requestHandler(a.startLiveStream)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/live/{liveID}/stop", a.requestHandler(a.stopLiveStream)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/live/{liveID}/start", a.requestHandler(a.startLiveStream)).Methods("GET")
-	a.Router.APIRoot.Handle("/live/{liveID}/stop", a.requestHandler(a.stopLiveStream)).Methods("GET")
+	a.Router.APIRoot.Handle("/live", a.requestHandler(a.getAppLiveStreams)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/live/{liveID}/join", a.requestHandler(a.joinLiveStream)).Methods("GET")
+	a.Router.APIRoot.Handle("/live/{liveID}/joined", a.requestHandler(a.joinedLiveStream)).Methods("POST")
 	a.Router.APIRoot.Handle("/live/{liveID}/comment", a.requestHandler(a.pushComment)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/content/like", a.requestHandler(a.createLike)).Methods("POST")

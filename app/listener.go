@@ -57,6 +57,12 @@ func InitConsumer(a *App) {
 	})
 	go a.CommentChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessComment)
 
+	a.LiveOrder = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.LiveOrderConfig,
+	})
+	go a.LiveOrder.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessLiveOrder)
+
 }
 
 // CloseConsumer close all consumer connections
@@ -69,6 +75,7 @@ func CloseConsumer(a *App) {
 	a.ViewChanges.Close()
 	a.CatalogChanges.Close()
 	a.ContentChanges.Close()
+	a.LiveOrder.Close()
 }
 
 func InitProducer(a *App) {

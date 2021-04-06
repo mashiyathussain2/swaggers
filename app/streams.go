@@ -2,11 +2,13 @@ package app
 
 import (
 	"encoding/json"
+
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	segKafka "github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
@@ -357,4 +359,36 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 		}
 		csp.App.Content.AddContentView(&viewSchema)
 	}
+}
+
+func (csp *ContentUpdateProcessor) ProcessLiveOrder(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+
+	var liveOrder schema.LiveOrderKafkaMessage
+	if err := json.Unmarshal(message.Value, &liveOrder); err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode live order update data fields into bytes")
+		return
+	}
+	if liveOrder.ID.IsZero() {
+		csp.Logger.Err(errors.New("invalid live")).Interface("liveOrder", liveOrder).Msg("invalid live id")
+		return
+	}
+
+	live, err := csp.App.Live.GetLiveStreamByID(liveOrder.ID)
+	if err != nil {
+		csp.Logger.Err(err).Interface("liveOrder", liveOrder).Msg("failed to query live order data")
+		return
+	}
+	if live == nil {
+		csp.Logger.Err(errors.New("invalid live")).Interface("liveOrder", liveOrder).Msg("failed to find live order data")
+		return
+	}
+
+	opts := schema.PushNewOrderOpts{
+		ARN:          live.IVS.Channel.ARN,
+		Name:         liveOrder.Name,
+		ProfileImage: liveOrder.ProfileImage,
+	}
+	csp.App.Live.PushOrder(&opts)
 }
