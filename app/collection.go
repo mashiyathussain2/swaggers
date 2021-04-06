@@ -282,14 +282,14 @@ func (ci *CollectionImpl) UpdateSubCollectionImage(opts *schema.UpdateSubCollect
 //AddCatalogsToSubCollection adds catalogs to the sub collectionUpdateCatalogsToSubCollection
 func (ci *CollectionImpl) AddCatalogsToSubCollection(opts *schema.UpdateCatalogsInSubCollectionOpts) []error {
 
-	findQuery := bson.M{"_id": opts.ColID, "sub_collection._id": opts.SubID}
+	findQuery := bson.M{"_id": opts.ColID, "sub_collections._id": opts.SubID}
 
 	err := ci.checkCatalogs(opts.CatalogIDs)
 	if err != nil && len(err) > 0 {
 		return err
 	}
 
-	updateQuery := bson.M{"$addToSet": bson.M{"sub_collection.$.catalog_ids": bson.M{
+	updateQuery := bson.M{"$addToSet": bson.M{"sub_collections.$.catalog_ids": bson.M{
 		"$each": opts.CatalogIDs,
 	}}}
 
@@ -310,14 +310,17 @@ func (ci *CollectionImpl) AddCatalogsToSubCollection(opts *schema.UpdateCatalogs
 //RemoveCatalogsFromSubCollection adds catalogs to the sub collection
 func (ci *CollectionImpl) RemoveCatalogsFromSubCollection(opts *schema.UpdateCatalogsInSubCollectionOpts) []error {
 
-	findQuery := bson.M{"_id": opts.ColID, "sub_collection._id": opts.SubID}
+	findQuery := bson.M{
+		"_id":                 opts.ColID,
+		"sub_collections._id": opts.SubID,
+	}
 
 	err := ci.checkCatalogs(opts.CatalogIDs)
-	if err != nil && len(err) > 0 {
+	if len(err) > 0 {
 		return err
 	}
 
-	updateQuery := bson.M{"$pull": bson.M{"sub_collection.$.catalog_ids": bson.M{
+	updateQuery := bson.M{"$pull": bson.M{"sub_collections.$.catalog_ids": bson.M{
 		"$in": opts.CatalogIDs,
 	}}}
 
