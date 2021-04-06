@@ -1001,6 +1001,11 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 			"newRoot": "$catalog",
 		},
 	}}
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"updated_at": -1,
+		},
+	}}
 
 	pipeline = append(pipeline, mongo.Pipeline{
 		skipStage,
@@ -1011,7 +1016,7 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		groupStage,
 		addFieldsStage,
 		setStage2,
-		replaceRootStage}...)
+		replaceRootStage, sortStage}...)
 	cur, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err

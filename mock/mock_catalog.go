@@ -199,6 +199,21 @@ func (mr *MockKeeperCatalogMockRecorder) GetCatalogBySlug(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogBySlug", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogBySlug), arg0)
 }
 
+// GetCatalogContent mocks base method.
+func (m *MockKeeperCatalog) GetCatalogContent(arg0 primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCatalogContent", arg0)
+	ret0, _ := ret[0].([]schema.CatalogContentInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCatalogContent indicates an expected call of GetCatalogContent.
+func (mr *MockKeeperCatalogMockRecorder) GetCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogContent", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogContent), arg0)
+}
+
 // GetCatalogFilter mocks base method.
 func (m *MockKeeperCatalog) GetCatalogFilter() (*schema.GetCatalogFilterResp, error) {
 	m.ctrl.T.Helper()
@@ -257,6 +272,21 @@ func (m *MockKeeperCatalog) GetCollectionCatalogInfo(arg0 []primitive.ObjectID) 
 func (mr *MockKeeperCatalogMockRecorder) GetCollectionCatalogInfo(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCollectionCatalogInfo", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCollectionCatalogInfo), arg0)
+}
+
+// GetKeeperCatalogContent mocks base method.
+func (m *MockKeeperCatalog) GetKeeperCatalogContent(arg0 primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetKeeperCatalogContent", arg0)
+	ret0, _ := ret[0].([]schema.CatalogContentInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetKeeperCatalogContent indicates an expected call of GetKeeperCatalogContent.
+func (mr *MockKeeperCatalogMockRecorder) GetKeeperCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeeperCatalogContent", reflect.TypeOf((*MockKeeperCatalog)(nil).GetKeeperCatalogContent), arg0)
 }
 
 // KeeperSearchCatalog mocks base method.
