@@ -410,6 +410,7 @@ type DiscountBasicResp struct {
 
 type GetCatalogBasicResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty"`
+	Name          string             `json:"name,omitempty"`
 	BrandID       primitive.ObjectID `json:"brand_id,omitempty"`
 	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty"`
 	DiscountID    primitive.ObjectID `json:"discount_id,omitempty"`
@@ -421,6 +422,7 @@ type GetCatalogBasicResp struct {
 
 type GetCatalogInfoResp struct {
 	ID              primitive.ObjectID       `json:"id,omitempty"`
+	Name            string                   `json:"name,omitempty"`
 	BrandID         primitive.ObjectID       `json:"brand_id,omitempty"`
 	BrandInfo       *BrandInfoResp           `json:"brand_info,omitempty"`
 	DiscountID      primitive.ObjectID       `json:"discount_id,omitempty"`
