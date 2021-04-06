@@ -122,7 +122,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			return nil, errors.Wrapf(mongoErr, "unable to check cart for catalog")
 		}
 	}
-	if cartMongo.ID == opts.ID {
+	if cartMongo.UserID == opts.ID {
 		return nil, errors.Errorf("item already in cart")
 	}
 

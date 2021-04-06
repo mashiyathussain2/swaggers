@@ -8,17 +8,17 @@ import (
 
 //AddToCartOpts contains field required to add item into Cart
 type AddToCartOpts struct {
-	ID        primitive.ObjectID `json:"id"`
-	CatalogID primitive.ObjectID `json:"catalog_id"`
-	VariantID primitive.ObjectID `json:"variant_id"`
-	Quantity  uint               `json:"quantity"`
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
+	Quantity  uint               `json:"quantity" validate:"required,gt=0"`
 }
 
 //UpdateItemQtyOpts contains field required to update the quantity of a item already in the user's cart
 type UpdateItemQtyOpts struct {
-	ID        primitive.ObjectID `json:"id"`
-	CatalogID primitive.ObjectID `json:"catalog_id"`
-	VariantID primitive.ObjectID `json:"variant_id"`
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
 	Quantity  uint               `json:"quantity" validate:"oneof=-1 0 1"`
 }
 
