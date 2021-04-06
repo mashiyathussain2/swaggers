@@ -304,6 +304,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			BillingAddress:  opts.Address,
 			Source:          opts.Source,
 			OrderItems:      oi,
+			SourceID:        opts.SourceID,
 		})
 	}
 	//Create Order

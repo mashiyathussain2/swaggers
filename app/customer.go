@@ -68,15 +68,24 @@ func (ci *CustomerImpl) SignUp(opts *schema.CreateUserOpts) (auth.Claim, error) 
 	if err != nil {
 		return nil, err
 	}
+	cart_id, err := ci.App.Cart.CreateCart(user.ID)
+	if err != nil {
+		return nil, err
+	}
 	customer := model.Customer{
 		UserID:    user.ID,
 		CreatedAt: time.Now().UTC(),
+		CartID:    cart_id,
 	}
 	res, err := ci.DB.Collection(model.CustomerColl).InsertOne(context.TODO(), customer)
+	if err != nil {
+		return nil, err
+	}
 	customer.ID = res.InsertedID.(primitive.ObjectID)
 
 	claim := auth.UserClaim{
 		ID:         user.ID.Hex(),
+		CartID:     cart_id.Hex(),
 		CustomerID: customer.ID.Hex(),
 		Type:       user.Type,
 		Role:       model.UserRole,
