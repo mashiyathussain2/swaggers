@@ -157,6 +157,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 		CatalogID: opts.CatalogID,
 		BrandID:   s.Payload.BrandID,
 		VariantID: opts.VariantID,
+		BrandInfo: s.Payload.BrandInfo,
 		CatalogInfo: model.CatalogInfo{
 			ID:            s.Payload.ID,
 			BrandID:       s.Payload.BrandID,
@@ -314,7 +315,8 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 		item.BasePrice = &item.CatalogInfo.BasePrice
 		item.RetailPrice = &item.CatalogInfo.RetailPrice
 		item.TransferPrice = &item.CatalogInfo.TransferPrice
-
+		item.BrandInfo = item.CatalogInfo.BrandInfo
+		fmt.Println(item.BrandInfo)
 		tp = tp + (uint(item.RetailPrice.Value) * item.Quantity)
 
 		if item.CatalogInfo.DiscountInfo != nil {

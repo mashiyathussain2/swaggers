@@ -53,6 +53,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestHandler(a.removeFromWishlist)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestHandler(a.getWishlist)).Methods("GET")
 
 }
 
