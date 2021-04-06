@@ -262,7 +262,7 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 //UpdateSubCollectionImage updates the sub collection image
 func (ci *CollectionImpl) UpdateSubCollectionImage(opts *schema.UpdateSubCollectionImageOpts) error {
 
-	findQuery := bson.M{"_id": opts.ColID, "sub_collection._id": opts.SubID}
+	findQuery := bson.M{"_id": opts.ColID, "sub_collections._id": opts.SubID}
 	img := model.IMG{
 		SRC: opts.Image,
 	}
@@ -270,7 +270,7 @@ func (ci *CollectionImpl) UpdateSubCollectionImage(opts *schema.UpdateSubCollect
 	if err != nil {
 		return errors.Wrapf(err, "unable to load image")
 	}
-	updateQuery := bson.M{"$set": bson.M{"sub_collection.$.image": img}}
+	updateQuery := bson.M{"$set": bson.M{"sub_collections.$.image": img}}
 	res, err := ci.DB.Collection(model.CollectionColl).UpdateOne(context.TODO(), findQuery, updateQuery)
 	if err != nil {
 		return err
