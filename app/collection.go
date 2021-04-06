@@ -94,12 +94,8 @@ func (ci *CollectionImpl) CreateCollection(opts *schema.CreateCollectionOpts) (*
 		Title:          opts.Title,
 		SubCollections: subCollections,
 		CreatedAt:      t,
-		Status: model.Status{
-			Name:      "Draft",
-			Value:     model.Draft,
-			CreatedAt: time.Now(),
-		},
-		Order: -1,
+		Status:         model.Draft,
+		Order:          -1,
 	}
 	res, err := ci.DB.Collection(model.CollectionColl).InsertOne(ctx, collection)
 
@@ -186,7 +182,7 @@ func (ci *CollectionImpl) AddSubCollection(opts *schema.AddSubCollectionOpts) (*
 		Genders:        collectionModel.Genders,
 		Title:          collectionModel.Title,
 		SubCollections: collectionModel.SubCollections,
-		Status:         collectionModel.Status.Value,
+		Status:         collectionModel.Status,
 		Order:          collectionModel.Order,
 	}
 	return &collection, nil
@@ -239,9 +235,9 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 	err := ci.DB.Collection(model.CollectionColl).FindOneAndUpdate(context.TODO(), filter, update, qOpts).Decode(&collection)
 	if err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-			return nil, errors.Errorf("catalog with id:%s not found", opts.ID.Hex())
+			return nil, errors.Errorf("collection with id:%s not found", opts.ID.Hex())
 		}
-		return nil, errors.Wrap(err, "failed to update catalog")
+		return nil, errors.Wrap(err, "failed to update collection")
 	}
 
 	collectionResp := &schema.CollectionResp{
@@ -252,7 +248,7 @@ func (ci *CollectionImpl) EditCollection(opts *schema.EditCollectionOpts) (*sche
 		Genders:        collection.Genders,
 		SubCollections: collection.SubCollections,
 		Order:          collection.Order,
-		Status:         collection.Status.Value,
+		Status:         collection.Status,
 	}
 
 	return collectionResp, nil
@@ -463,45 +459,39 @@ func (ci *CollectionImpl) UpdateCollectionStatus(opts *schema.UpdateCollectionSt
 	}
 	err := ci.DB.Collection(model.CollectionColl).FindOne(ctx, filter).Decode(&collection)
 	if err != nil {
-		return errors.Wrap(err, "Failed to Find Catalog")
+		return errors.Wrap(err, "failed to Find collection")
 	}
-	currentStatusValue := collection.Status.Value
+	currentStatusValue := collection.Status
 
 	//Checking if status change is allowed
 	if currentStatusValue == model.Draft && updateStatusValue == model.Unlist {
-		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 	if currentStatusValue == model.Publish && updateStatusValue == model.Draft {
-		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 	if currentStatusValue == model.Unlist && updateStatusValue == model.Draft {
-		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
+		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 	if currentStatusValue == model.Archive {
-		return errors.Errorf("Status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
-	}
-
-	updateStatus := model.Status{
-		Name:      strings.Title(updateStatusValue),
-		Value:     updateStatusValue,
-		CreatedAt: time.Now(),
+		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 
 	updateQuery := bson.M{
 		"$set": bson.M{
-			"status": updateStatus,
-		},
-		"$push": bson.M{
-			"status_history": updateStatus,
+			"status": updateStatusValue,
 		},
 	}
-	updateResp, err := ci.DB.Collection(model.CatalogColl).UpdateOne(ctx, filter, updateQuery)
+	updateResp, err := ci.DB.Collection(model.CollectionColl).UpdateOne(ctx, filter, updateQuery)
 
 	if err != nil {
-		return errors.Wrap(err, "Unable to update Status")
+		return errors.Wrap(err, "unable to update Status")
+	}
+	if updateResp.MatchedCount == 0 {
+		return errors.Errorf("unable to find collection")
 	}
 	if updateResp.ModifiedCount == 0 {
-		return errors.Errorf("Unable to update Status")
+		return errors.Errorf("unable to update Status")
 	}
 	return nil
 }
