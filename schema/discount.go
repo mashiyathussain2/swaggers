@@ -160,9 +160,10 @@ type GetSalesOpts struct {
 }
 
 type GetSalesResp struct {
-	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
 
 	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 
