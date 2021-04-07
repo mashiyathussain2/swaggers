@@ -777,7 +777,7 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 
 func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
 	var s schema.GetCatalogInfoResp
-	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/catalog/get"
+	url := ci.App.Config.HypdAPIConfig.CatalogAPI + "/api/keeper/catalog/get"
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
