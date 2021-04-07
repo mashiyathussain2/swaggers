@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Discount service contains methods that handles catalog level discount
@@ -22,6 +23,9 @@ type Discount interface {
 	EditSaleStatus(*schema.EditSaleStatusOpts) error
 
 	GetActiveDiscountByCatalogID(catalogID primitive.ObjectID) (*schema.DiscountInfoResp, error)
+
+	GetSales(*schema.GetSalesOpts) ([]schema.GetSalesResp, error)
+	GetDiscountAndCatalogInfoBySaleID(primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error)
 }
 
 // DiscountImpl implements Discount service methods
@@ -455,4 +459,65 @@ func (di *DiscountImpl) GetActiveDiscountByCatalogID(catalogID primitive.ObjectI
 	}
 
 	return &s, nil
+}
+
+func (di *DiscountImpl) GetSales(opts *schema.GetSalesOpts) ([]schema.GetSalesResp, error) {
+	var resp []schema.GetSalesResp
+	ctx := context.TODO()
+	queryOpts := options.Find().SetSkip(int64(opts.Page) * 20).SetLimit(20)
+	cur, err := di.DB.Collection(model.SaleColl).Find(ctx, bson.M{}, queryOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to find sales")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find sales")
+	}
+	return resp, nil
+}
+
+func (di *DiscountImpl) GetDiscountAndCatalogInfoBySaleID(id primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error) {
+	var resp []schema.DiscountInfoWithCatalogInfoResp
+	ctx := context.TODO()
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"sale_id": id,
+			},
+		},
+	}
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.CatalogColl,
+				"localField":   "catalog_id",
+				"foreignField": "_id",
+				"as":           "catalog_info",
+			},
+		},
+	}
+
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"$arrayElemAt": bson.A{
+					"$catalog_info",
+					0,
+				},
+			},
+		},
+	}
+
+	cur, err := di.DB.Collection(model.DiscountColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to find discount items")
+	}
+
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find discount items")
+	}
+
+	return resp, nil
 }
