@@ -35,7 +35,7 @@ func (a *API) getWishlist(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	res, err := a.App.Wishlist.GetWishlist(id)
+	res, err := a.App.Wishlist.GetWishlistMap(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

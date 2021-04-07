@@ -20,8 +20,9 @@ import (
 // Wishlist contains methods for Wishlist service functionality
 type Wishlist interface {
 	AddToWishlist(*schema.AddToWishlistOpts) error
-	RemoveFromWishlist(opts *schema.RemoveFromWishlistOpts) error
-	GetWishlist(id primitive.ObjectID) ([]schema.GetWishlistResp, error)
+	RemoveFromWishlist(*schema.RemoveFromWishlistOpts) error
+	GetWishlist(primitive.ObjectID) ([]schema.GetWishlistResp, error)
+	GetWishlistMap(primitive.ObjectID) (map[string]schema.CatalogWishListinfo, error)
 }
 
 // WishlistImpl implements Wishlist interface methods
@@ -152,4 +153,61 @@ func (wi *WishlistImpl) GetWishlist(id primitive.ObjectID) ([]schema.GetWishlist
 	}
 
 	return wishlistResp, nil
+}
+
+func (wi *WishlistImpl) GetWishlistMap(id primitive.ObjectID) (map[string]schema.CatalogWishListinfo, error) {
+
+	ctx := context.TODO()
+	var wishlist model.Wishlist
+	mapWish := make(map[string]schema.CatalogWishListinfo)
+
+	err := wi.DB.Collection(model.WishlistColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&wishlist)
+	if err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, errors.Errorf("unable to find wishlist for user with id: %s", id.Hex())
+		}
+		return nil, errors.Wrapf(err, "unable to query for document")
+	}
+
+	for _, cat := range wishlist.CatalogIDS {
+		var s model.GetAllCatalogInfoResp
+
+		url := wi.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + cat.Hex()
+		resp, err := http.Get(url)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		}
+		defer resp.Body.Close()
+
+		//Read the response body
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			wi.Logger.Err(err).Msgf("failed to read response from api %s", url)
+			return nil, errors.Wrap(err, "failed to get catalog info")
+		}
+		if err := json.Unmarshal(body, &s); err != nil {
+			wi.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+			return nil, errors.Wrap(err, "failed to decode body into struct")
+		}
+		if !s.Success {
+			wi.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+			return nil, errors.New("got success false response from catalog")
+		}
+		mapWish[cat.Hex()] = schema.CatalogWishListinfo{
+			ID:            cat,
+			Name:          s.Payload.Name,
+			FeaturedImage: s.Payload.FeaturedImage,
+
+			BasePrice:   s.Payload.BasePrice,
+			RetailPrice: s.Payload.RetailPrice,
+
+			Status: s.Payload.Status,
+
+			DiscountInfo: s.Payload.DiscountInfo,
+			BrandInfo:    s.Payload.BrandInfo,
+		}
+
+	}
+
+	return mapWish, nil
 }
