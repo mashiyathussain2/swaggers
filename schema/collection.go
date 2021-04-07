@@ -55,8 +55,8 @@ type EditCollectionOpts struct {
 
 // AddSubCollectionOpts serialize the add sub collection api arguments
 type AddSubCollectionOpts struct {
-	ID            primitive.ObjectID `json:"id" validate:"required"`
-	SubCollection *SubCollectionOpts `json:"sub_collections" validate:"required"`
+	ID             primitive.ObjectID  `json:"id" validate:"required"`
+	SubCollections []SubCollectionOpts `json:"sub_collections" validate:"required"`
 }
 
 // UpdateSubCollectionImageOpts serialize the edit collection api arguments
