@@ -28,10 +28,11 @@ type Content interface {
 	ProcessVideoContent(*schema.ProcessVideoContentOpts) (bool, error)
 	GetContentByID(primitive.ObjectID) (*schema.GetContentResp, error)
 	GetContent(*schema.GetContentFilter) ([]schema.GetContentResp, error)
+	ChangeContentStatus(*schema.ChangeContentStatusOpts) (bool, error)
+	DeleteContent(primitive.ObjectID) (bool, error)
 
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
-	DeletePebble(primitive.ObjectID) (bool, error)
 	GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
@@ -187,8 +188,8 @@ func (ci *ContentImpl) EditPebble(opts *schema.EditPebbleOpts) (*schema.EditPebb
 	}, nil
 }
 
-// DeletePebble removes the pebble instance from DB
-func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
+// DeleteContent removes the content instance from DB
+func (ci *ContentImpl) DeleteContent(id primitive.ObjectID) (bool, error) {
 	ctx := context.TODO()
 	var c model.Content
 
@@ -202,8 +203,10 @@ func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
 	}
 
 	// Deleting media document reference from media collection
-	if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
-		return false, err
+	if !c.MediaID.IsZero() {
+		if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
+			return false, err
+		}
 	}
 
 	// Deleting content document from cotent collection
@@ -364,7 +367,6 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 		},
 	}
 	pipeline = append(pipeline, setStage)
-	fmt.Println(pipeline)
 
 	ctx := context.TODO()
 	var res []schema.GetContentResp
@@ -775,7 +777,7 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 
 func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
 	var s schema.GetCatalogInfoResp
-	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/catalog/get"
+	url := ci.App.Config.HypdAPIConfig.CatalogAPI + "/api/keeper/catalog/get/ids"
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
@@ -797,8 +799,8 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
 	if !s.Success {
-		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
-		return nil, errors.New("got success false response from entity")
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+		return nil, errors.New("got success false response from catalog")
 	}
 	return s.Payload, nil
 }
@@ -860,4 +862,22 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 		return nil, errors.Wrap(err, " failed to get pebbles")
 	}
 	return resp, nil
+}
+
+func (ci *ContentImpl) ChangeContentStatus(opts *schema.ChangeContentStatusOpts) (bool, error) {
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_active": opts.IsActive,
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		return false, errors.Wrap(err, "failed to update content status")
+	}
+
+	return true, nil
 }

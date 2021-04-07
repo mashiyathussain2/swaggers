@@ -83,13 +83,13 @@ func (a *API) editPebble(requestCTX *handler.RequestContext, w http.ResponseWrit
 	return
 }
 
-func (a *API) deletePebble(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["pebbleID"])
+func (a *API) deleteContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["contentID"])
 	if err != nil {
-		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["pebbleID"]), http.StatusBadRequest)
+		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["contentID"]), http.StatusBadRequest)
 		return
 	}
-	res, err := a.App.Content.DeletePebble(id)
+	res, err := a.App.Content.DeleteContent(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -260,6 +260,25 @@ func (a *API) geContents(requestCTX *handler.RequestContext, w http.ResponseWrit
 		return
 	}
 	res, err := a.App.Content.GetPebbles(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+func (a *API) changeContentStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.ChangeContentStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.ChangeContentStatus(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

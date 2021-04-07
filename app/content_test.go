@@ -482,7 +482,7 @@ func TestContentImpl_DeletePebble(t *testing.T) {
 				DB:     tt.fields.DB,
 				Logger: tt.fields.Logger,
 			}
-			got, err := ci.DeletePebble(tt.args.id)
+			got, err := ci.DeleteContent(tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ContentImpl.DeletePebble() error = %v, wantErr %v", err, tt.wantErr)
 				return

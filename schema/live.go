@@ -54,6 +54,11 @@ type GetLiveStreamsFilter struct {
 	CreatedAtTo     time.Time `queryparam:"created_at_to"`
 }
 
+// GetLiveStreamsFilter contains and validates supported filter to get live streams
+type GetAppLiveStreamsFilter struct {
+	Page int `queryparam:"page"`
+}
+
 // StartLiveStreamResp contains fields to be returned in response to start live
 type StartLiveStreamResp struct {
 	StreamKey string `json:"stream_key"`
@@ -77,4 +82,62 @@ type CreateIVSCommentMetaData struct {
 	Name         string `json:"name"`
 	ProfileImage *Img   `json:"profile_image"`
 	Description  string `json:"description"`
+}
+
+type CreateIVSCatalogMetaData struct {
+	ID primitive.ObjectID `json:"id"`
+}
+
+type CreateIVSOrderMetaData struct {
+	Name         string   `json:"name"`
+	ProfileImage *ImgResp `json:"profile_image"`
+}
+
+type CreateIVSNewJoinMetaData struct {
+	Name string `json:"name"`
+}
+
+type IVSMetaData struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"data"`
+}
+
+type PushCatalogOpts struct {
+	ARN string             `json:"arn" validate:"required"`
+	ID  primitive.ObjectID `json:"id" validate:"required"`
+}
+
+type PushNewOrderOpts struct {
+	ARN          string   `json:"arn" validate:"required"`
+	Name         string   `json:"name" validate:"required"`
+	ProfileImage *ImgResp `json:"profile_image" validate:"required"`
+}
+
+type GetAppLiveStreamResp struct {
+	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
+	Slug           string               `json:"slug,omitempty" bson:"slug,omitempty"`
+	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids" bson:"influencer_ids,omitempty"`
+	CatalogIDs     []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
+	ScheduledAt    time.Time            `json:"scheduled_at,omitempty" bson:"scheduled_at,omitempty"`
+	FeaturedImage  *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	StreamEndImage *model.IMG           `json:"stream_end_image,omitempty" bson:"stream_end_image,omitempty"`
+	Status         *model.StreamStatus  `json:"status,omitempty" bson:"status,omitempty"`
+	CreatedAt      time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type JoinLiveStreamResp struct {
+	ARN         string `json:"arn"`
+	PlaybackURL string `json:"playbackURL"`
+}
+
+type PushJoinOpts struct {
+	ARN  string `json:"arn"`
+	Name string `json:"name"`
+}
+
+type LiveOrderKafkaMessage struct {
+	ID           primitive.ObjectID `json:"id"`
+	Name         string             `json:"name"`
+	ProfileImage *ImgResp           `json:"profile_image"`
 }
