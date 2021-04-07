@@ -27,6 +27,7 @@ type Cart interface {
 	GetCartInfo(primitive.ObjectID) (*model.Cart, error)
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
+	ClearCart(primitive.ObjectID) error
 }
 
 // CartImpl implements Cart interface methods
@@ -608,4 +609,31 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	}
 
 	return &orderResp.Payload, nil
+}
+
+func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
+
+	findQuery := bson.M{
+		"user_id": id,
+	}
+	updateQuery := bson.M{
+		"$set": bson.M{
+			"total_price":    0,
+			"total_discount": 0,
+			"grand_total":    0,
+		},
+		"$unset": bson.M{
+			"items": "",
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CartColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to query for document")
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find cart for user with id: %s", id)
+	}
+
+	return nil
 }

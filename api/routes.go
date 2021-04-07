@@ -33,6 +33,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestHandler(a.getInfluencerByName)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.editInfluencer)).Methods("PUT")
 
+	a.Router.APIRoot.Handle("/keeper/cart/{userID}", a.requestHandler(a.clearCart)).Methods("DELETE")
+
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestHandler(a.createCart)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart", a.requestHandler(a.addToCart)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/cart/update", a.requestHandler(a.updateItemQty)).Methods("PUT")
