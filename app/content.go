@@ -777,7 +777,7 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 
 func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
 	var s schema.GetCatalogInfoResp
-	url := ci.App.Config.HypdAPIConfig.CatalogAPI + "/api/keeper/catalog/get"
+	url := ci.App.Config.HypdAPIConfig.CatalogAPI + "/api/keeper/catalog/get/ids"
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
@@ -799,8 +799,8 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
 	if !s.Success {
-		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
-		return nil, errors.New("got success false response from entity")
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+		return nil, errors.New("got success false response from catalog")
 	}
 	return s.Payload, nil
 }

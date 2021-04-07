@@ -213,7 +213,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 			}
 			catalogInfo, err := csp.App.Content.GetCatalogInfo(ids)
 			if err != nil {
-				csp.Logger.Err(err).Interface("data", contentSchema).Msg("failed to get content brand info")
+				csp.Logger.Err(err).Interface("data", contentSchema).Msg("failed to get content catalog info")
 			}
 			contentSchema.CatalogInfo = catalogInfo
 		}()
