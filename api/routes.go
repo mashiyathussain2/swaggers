@@ -63,7 +63,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/discount/{discountID}/deactivate", a.requestHandler(a.deactivateDiscount)).Methods("POST")
 
 	//KEEPER SALE
-	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.getSales)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.getSales)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/sale/{saleID}/discount", a.requestHandler(a.getDiscountInfoBySaleID)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.createSale)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.editSale)).Methods("PUT")
