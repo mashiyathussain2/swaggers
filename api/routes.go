@@ -65,8 +65,8 @@ func (a *API) InitRoutes() {
 	//KEEPER SALE
 	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.getSales)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/sale/{saleID}/discount", a.requestHandler(a.getDiscountInfoBySaleID)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.createSale)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.editSale)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/sale/create", a.requestHandler(a.createSale)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/sale/edit", a.requestHandler(a.editSale)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/sale/status", a.requestHandler(a.editSaleStatus)).Methods("POST")
 
 	//APP CATALOG
