@@ -27,11 +27,11 @@ func InitConsumer(a *App) {
 	})
 	go a.InfluencerChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessInfluencerMessage)
 
-	// a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-	// 	Logger: a.Logger,
-	// 	Config: &a.Config.CatalogChangesConfig,
-	// })
-	// go a.CatalogChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCatalogMessage)
+	a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CatalogChangesConfig,
+	})
+	go a.CatalogChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCatalogMessage)
 
 	a.ContentChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
