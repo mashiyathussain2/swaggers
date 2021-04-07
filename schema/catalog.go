@@ -420,6 +420,18 @@ type GetCatalogBasicResp struct {
 	RetailPrice   model.Price        `json:"retail_price,omitempty"`
 }
 
+type GetCatalogPebbleResp struct {
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
+	BrandID       primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	DiscountID    primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
+	DiscountInfo  *DiscountBasicResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	BasePrice     model.Price        `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+}
+
 type GetCatalogInfoResp struct {
 	ID              primitive.ObjectID       `json:"id,omitempty"`
 	Name            string                   `json:"name,omitempty"`
@@ -440,7 +452,11 @@ type GetCatalogInfoResp struct {
 }
 
 type GetCatalogByIDFilter struct {
-	IDs []string `qs:"id"`
+	IDs []string `qs:"id" json:"id"`
+}
+
+type GetPebbleCatalogInfoByIDs struct {
+	IDs []primitive.ObjectID `json:"id" validate:"required,min=1"`
 }
 
 //GetCatalogVariantResp contains fields which are returned to get variant
