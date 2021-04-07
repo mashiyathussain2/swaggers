@@ -618,9 +618,9 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 	}
 	updateQuery := bson.M{
 		"$set": bson.M{
-			"total_price":    0,
-			"total_discount": 0,
-			"grand_total":    0,
+			"total_price.value":    0,
+			"total_discount.value": 0,
+			"grand_total.value":    0,
 		},
 		"$unset": bson.M{
 			"items": "",
