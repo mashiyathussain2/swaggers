@@ -439,18 +439,18 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 		},
 	}
 	catalogUpdateQuery := bson.M{
-		"$set": bson.M{
-			"is_active": false,
+		"$unset": bson.M{
+			"discount_id": 1,
 		},
 	}
 
-	res, err := di.DB.Collection(model.DiscountColl).UpdateMany(ctx, catlogFilterQuery, catalogUpdateQuery)
+	res, err := di.DB.Collection(model.CatalogColl).UpdateMany(ctx, catlogFilterQuery, catalogUpdateQuery)
 	if err != nil {
 		di.Logger.Log().Err(err)
 		return err
 	}
-	if res.MatchedCount != int64(len(updateDiscountIDs)) {
-		err := errors.Errorf("%d catalog ids did not match", int64(len(updateDiscountIDs))-res.MatchedCount)
+	if res.MatchedCount != int64(len(updateCatalogIds)) {
+		err := errors.Errorf("%d catalog ids did not match", int64(len(updateCatalogIds))-res.MatchedCount)
 		di.Logger.Log().Err(err)
 		return err
 	}
@@ -475,7 +475,7 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 		return err
 	}
 	if res.MatchedCount != int64(len(updateDiscountIDs)) {
-		err := errors.Errorf("%d discount ids did not match", int64(len(updateDiscountIDs))-res.MatchedCount)
+		err := errors.Errorf("%d discount ids did not match in deactivate account", int64(len(updateDiscountIDs))-res.MatchedCount)
 		di.Logger.Log().Err(err)
 		return err
 	}

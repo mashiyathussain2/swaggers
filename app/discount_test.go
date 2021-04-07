@@ -908,7 +908,7 @@ func TestDiscountImpl_CheckAndUpdateStatus(t *testing.T) {
 	t.Parallel()
 
 	app := NewTestApp(getTestConfig())
-	// defer CleanTestApp(app)
+	defer CleanTestApp(app)
 
 	type fields struct {
 		App    *App
@@ -924,39 +924,37 @@ func TestDiscountImpl_CheckAndUpdateStatus(t *testing.T) {
 	}
 
 	db := app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName)
-	cat1 := model.Catalog{
-		ID: primitive.NewObjectID(),
-	}
-	cat2 := model.Catalog{
-		ID: primitive.NewObjectID(),
-	}
+	cat1 := []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID()}
+	cat2 := []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID()}
+
 	db.Collection(model.CatalogColl).InsertOne(context.TODO(), cat1)
 	db.Collection(model.CatalogColl).InsertOne(context.TODO(), cat2)
 
 	validBefore, _ := time.Parse(time.RFC3339, "2021-05-08T00:00:00+00:00")
 	validAfter, _ := time.Parse(time.RFC3339, "2021-03-06T00:00:00+00:00")
 
-	toActDiscount := model.Discount{
-		ID:          primitive.NewObjectID(),
-		CatalogID:   cat1.ID,
-		IsActive:    false,
-		ValidBefore: validBefore,
-		ValidAfter:  validAfter,
+	for i := 0; i < 5; i++ {
+		toActDiscount := model.Discount{
+			ID:          primitive.NewObjectID(),
+			CatalogID:   cat1[i],
+			IsActive:    false,
+			ValidBefore: validBefore,
+			ValidAfter:  validAfter,
+		}
+		db.Collection(model.DiscountColl).InsertOne(context.TODO(), toActDiscount)
+
+		validBefore, _ = time.Parse(time.RFC3339, "2021-03-06T00:00:00+00:00")
+		validAfter, _ = time.Parse(time.RFC3339, "2021-02-05T00:00:00+00:00")
+
+		toDeActDiscount := model.Discount{
+			ID:          primitive.NewObjectID(),
+			CatalogID:   cat2[i],
+			IsActive:    true,
+			ValidBefore: validBefore,
+			ValidAfter:  validAfter,
+		}
+		db.Collection(model.DiscountColl).InsertOne(context.TODO(), toDeActDiscount)
 	}
-	db.Collection(model.DiscountColl).InsertOne(context.TODO(), toActDiscount)
-
-	validBefore, _ = time.Parse(time.RFC3339, "2021-03-06T00:00:00+00:00")
-	validAfter, _ = time.Parse(time.RFC3339, "2021-02-05T00:00:00+00:00")
-
-	toDeActDiscount := model.Discount{
-		ID:          primitive.NewObjectID(),
-		CatalogID:   cat2.ID,
-		IsActive:    true,
-		ValidBefore: validBefore,
-		ValidAfter:  validAfter,
-	}
-	db.Collection(model.DiscountColl).InsertOne(context.TODO(), toDeActDiscount)
-
 	tests := []TC{
 		{
 			name: "[Ok]",
