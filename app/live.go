@@ -314,21 +314,21 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 	// Pushing comment to kafka topic
 	var wg sync.WaitGroup
 
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	opts.Type = "comment"
-	// 	opts.CreatedAt = time.Now().UTC()
-	// 	bytes, err := json.Marshal(opts)
-	// 	if err == nil {
-	// 		li.App.LiveCommentProducer.Publish(segKafka.Message{
-	// 			Key:   nil,
-	// 			Value: bytes,
-	// 		})
-	// 		return
-	// 	}
-	// 	li.Logger.Err(err).Interface("opts", opts).Msg("failed to decode opts to bytes")
-	// }()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		opts.Type = "comment"
+		opts.CreatedAt = time.Now().UTC()
+		bytes, err := json.Marshal(opts)
+		if err == nil {
+			li.App.LiveCommentProducer.Publish(segKafka.Message{
+				Key:   nil,
+				Value: bytes,
+			})
+			return
+		}
+		li.Logger.Err(err).Interface("opts", opts).Msg("failed to decode opts to bytes")
+	}()
 
 	// Pushing comment to IVS meta-data
 	wg.Add(1)
