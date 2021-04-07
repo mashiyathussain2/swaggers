@@ -42,7 +42,6 @@ type App struct {
 	InfluencerChanges kafka.Consumer
 	CatalogChanges    kafka.Consumer
 	ContentChanges    kafka.Consumer
-	LiveOrder         kafka.Consumer
 
 	// Kafka Producer
 	LiveCommentProducer kafka.Producer

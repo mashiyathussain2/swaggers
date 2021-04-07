@@ -68,7 +68,6 @@ type APPConfig struct {
 	ContentFullProducerConfig ProducerConfig `mapstructure:"contentFullProducer"`
 
 	LikeChangeConfig         ListenerConfig `mapstructure:"likeChangesConsumer"`
-	LiveOrderConfig          ListenerConfig `mapstructure:"liveOrderConsumer"`
 	CommentChangeConfig      ListenerConfig `mapstructure:"commentChangesConsumer"`
 	ViewChangeConfig         ListenerConfig `mapstructure:"viewChangesConsumer"`
 	BrandChangesConfig       ListenerConfig `mapstructure:"brandChangesConsumer"`
