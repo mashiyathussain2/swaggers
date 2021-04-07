@@ -42,6 +42,14 @@ type CatalogDiscountInfo struct {
 	MaxValue uint `json:"max_value,omitempty" bson:"max_value,omitempty"`
 }
 
+type VariantInfo struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Attribute   string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
+	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
+	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
+	IsDeleted   bool               `json:"is_deleted" bson:"is_deleted"`
+}
+
 type CatalogInfo struct {
 	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
@@ -49,6 +57,8 @@ type CatalogInfo struct {
 	BasePrice     *Price               `json:"base_price,omitempty" bson:"base_price,omitempty"`
 	RetailPrice   *Price               `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	DiscountInfo  *CatalogDiscountInfo `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	VariantType   string               `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	Variants      []VariantInfo        `json:"variants,omitempty" bson:"variants,omitempty"`
 }
 
 // Content contains linked media (image/video) with influencer, catalog or customer
