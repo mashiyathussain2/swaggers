@@ -43,7 +43,7 @@ type Discount struct {
 	VariantsID []primitive.ObjectID `json:"variants_id,omitempty" bson:"variants_id,omitempty"`
 	SaleID     primitive.ObjectID   `json:"sale_id,omitempty" bson:"sale_id,omitempty"`
 
-	IsActive bool         `json:"is_active,omitempty" bson:"is_active,omitempty"`
+	IsActive bool         `json:"is_active" bson:"is_active"`
 	Type     DiscountType `json:"type,omitempty" bson:"type,omitempty"`
 
 	Value uint `json:"value,omitempty" bson:"value,omitempty"`
@@ -59,12 +59,12 @@ type Discount struct {
 
 // Sale contains grouping of various catalog discounts.
 type Sale struct {
-	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name   string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug   string             `json:"slug,omitempty" bson:"slug,omitempty"`
-	Status SaleStatusType     `json:"status" bson:"status"`
-
-	Banner *IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Status  SaleStatusType     `json:"status" bson:"status"`
+	Genders []string           `json:"genders" bson:"genders"`
+	Banner  *IMG               `json:"banner,omitempty" bson:"banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`

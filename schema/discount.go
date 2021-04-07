@@ -52,9 +52,10 @@ type CreateSaleOpts struct {
 
 // CreateSaleResp contains fields to be returned as response when a new sale is created
 type CreateSaleResp struct {
-	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
 
 	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 
@@ -66,18 +67,19 @@ type CreateSaleResp struct {
 
 //EditSaleOpts validates schema for editing a sale
 type EditSaleOpts struct {
-	ID     primitive.ObjectID `json:"id" validate:"required"`
-	Name   string             `json:"name" `
-	Banner *Img               `json:"banner" `
+	ID      primitive.ObjectID `json:"id" validate:"required"`
+	Name    string             `json:"name" `
+	Banner  *Img               `json:"banner" `
+	Genders []string           `json:"genders" validate:"dive,oneof=M F O"`
 }
 
 // EditSaleResp contains fields to be returned as response when a sale is edited
 type EditSaleResp struct {
-	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug string             `json:"slug,omitempty" bson:"slug,omitempty"`
-
-	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
+	Banner  *model.IMG         `json:"banner,omitempty" bson:"banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`

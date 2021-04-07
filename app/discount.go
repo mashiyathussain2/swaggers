@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -177,6 +179,7 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		Banner: &model.IMG{
 			SRC: opts.Banner.SRC,
 		},
+		Genders:     opts.Genders,
 		Status:      model.Schedule,
 		ValidAfter:  opts.ValidAfter,
 		ValidBefore: opts.ValidBefore,
@@ -196,6 +199,7 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		Name:        s.Name,
 		Slug:        s.Slug,
 		Banner:      s.Banner,
+		Genders:     s.Genders,
 		ValidAfter:  s.ValidAfter,
 		ValidBefore: s.ValidBefore,
 		CreatedAt:   s.CreatedAt,
@@ -242,6 +246,14 @@ func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleRes
 		})
 		sale.Banner = &banner
 	}
+
+	if len(opts.Genders) != 0 {
+		sale.Genders = opts.Genders
+		updateData = append(updateData, bson.E{
+			Key: "genders", Value: opts.Genders,
+		})
+	}
+
 	updateData = append(updateData, bson.E{
 		Key: "updated_at", Value: t,
 	})
@@ -262,6 +274,7 @@ func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleRes
 		Name:        sale.Name,
 		Slug:        sale.Slug,
 		Banner:      sale.Banner,
+		Genders:     sale.Genders,
 		ValidAfter:  sale.ValidAfter,
 		ValidBefore: sale.ValidBefore,
 		CreatedAt:   sale.CreatedAt,
@@ -297,8 +310,7 @@ func (di *DiscountImpl) CheckAndUpdateStatus() error {
 
 	ctx := context.TODO()
 	t := time.Now().UTC()
-	//TODO:based on time.now and write test cases
-
+	fmt.Println(t)
 	err := di.activateDiscount(ctx, t)
 	if err != nil {
 		return err
@@ -313,14 +325,15 @@ func (di *DiscountImpl) CheckAndUpdateStatus() error {
 func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error {
 	filter := bson.M{
 		"valid_after": bson.M{
-			"lte": t,
+			"$lte": t,
 		},
 		"valid_before": bson.M{
-			"gte": t,
+			"$gte": t,
 		},
 		"is_active": false,
 	}
 	var discounts []model.Discount
+
 	cur, err := di.DB.Collection(model.DiscountColl).Find(ctx, filter)
 	if err != nil {
 		return errors.Wrap(err, "unable to query for discounts")
@@ -328,13 +341,13 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 	if err := cur.All(ctx, &discounts); err != nil {
 		return errors.Wrap(err, "error decoding Catalogs")
 	}
+
 	var updateDiscounts []primitive.ObjectID
+
+	var operations []mongo.WriteModel
 
 	for _, discount := range discounts {
 
-		if discount.IsActive {
-			continue
-		}
 		discount.IsActive = true
 		updateDiscounts = append(updateDiscounts, discount.ID)
 		update := bson.M{
@@ -342,15 +355,32 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 				"discount_id": discount.ID,
 			},
 		}
-		res, err := di.DB.Collection(model.CatalogColl).UpdateOne(ctx, bson.M{"_id": discount.CatalogID}, update)
-		if err != nil {
-			di.Logger.Err(err)
-			continue
-		}
-		if res.MatchedCount == 0 {
-			di.Logger.Err(errors.Errorf("catalog with id: %s not found", discount.CatalogID))
-		}
+		filterCat := bson.M{"_id": discount.CatalogID}
 
+		operation := mongo.NewUpdateOneModel()
+		operation.SetUpdate(update)
+		operation.SetFilter(filterCat)
+
+		operations = append(operations, operation)
+
+		// res, err := di.DB.Collection(model.CatalogColl).UpdateOne(ctx, bson.M{"_id": discount.CatalogID}, update)
+		// if err != nil {
+		// 	di.Logger.Err(err)
+		// 	continue
+		// }
+		// if res.MatchedCount == 0 {
+		// 	di.Logger.Err(errors.Errorf("catalog with id: %s not found", discount.CatalogID))
+		// }
+
+	}
+
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+
+	_, err = di.DB.Collection(model.CatalogColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		log.Fatal(err)
+		return err
 	}
 	filterQuery := bson.M{
 		"_id": bson.M{
@@ -362,16 +392,18 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 			"is_active": true,
 		},
 	}
+
 	if len(updateDiscounts) == 0 {
 		return nil
 	}
-	res, err := di.DB.Collection(model.CatalogColl).UpdateMany(ctx, filterQuery, updateQuery)
+
+	res, err := di.DB.Collection(model.DiscountColl).UpdateMany(ctx, filterQuery, updateQuery)
 	if err != nil {
 		di.Logger.Log().Err(err)
 		return err
 	}
 	if res.MatchedCount != int64(len(updateDiscounts)) {
-		err := errors.Errorf("%d discount ids did not match", int64(len(updateDiscounts))-res.MatchedCount)
+		err := errors.Errorf("%d discount ids did not match for activating", int64(len(updateDiscounts))-res.MatchedCount)
 		di.Logger.Log().Err(err)
 		return err
 	}
@@ -381,7 +413,7 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) error {
 	filter := bson.M{
 		"valid_before": bson.M{
-			"lte": t,
+			"$lte": t,
 		},
 		"is_active": true,
 	}
@@ -394,33 +426,38 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 	if err := cur.All(ctx, &discounts); err != nil {
 		return errors.Wrap(err, "error decoding Catalogs")
 	}
-	var updateDiscounts []primitive.ObjectID
-
+	var updateDiscountIDs []primitive.ObjectID
+	var updateCatalogIds []primitive.ObjectID
 	for _, discount := range discounts {
-
-		if discount.IsActive {
-			continue
-		}
-		discount.IsActive = true
-		updateDiscounts = append(updateDiscounts, discount.ID)
-		update := bson.M{
-			"$unset": bson.M{
-				"discount_id": 1,
-			},
-		}
-		res, err := di.DB.Collection(model.CatalogColl).UpdateOne(ctx, bson.M{"_id": discount.CatalogID}, update)
-		if err != nil {
-			di.Logger.Err(err)
-			continue
-		}
-		if res.MatchedCount == 0 {
-			di.Logger.Err(errors.Errorf("catalog with id: %s not found", discount.CatalogID))
-		}
-
+		updateDiscountIDs = append(updateDiscountIDs, discount.ID)
+		updateCatalogIds = append(updateCatalogIds, discount.CatalogID)
 	}
+
+	catlogFilterQuery := bson.M{
+		"_id": bson.M{
+			"$in": updateCatalogIds,
+		},
+	}
+	catalogUpdateQuery := bson.M{
+		"$set": bson.M{
+			"is_active": false,
+		},
+	}
+
+	res, err := di.DB.Collection(model.DiscountColl).UpdateMany(ctx, catlogFilterQuery, catalogUpdateQuery)
+	if err != nil {
+		di.Logger.Log().Err(err)
+		return err
+	}
+	if res.MatchedCount != int64(len(updateDiscountIDs)) {
+		err := errors.Errorf("%d catalog ids did not match", int64(len(updateDiscountIDs))-res.MatchedCount)
+		di.Logger.Log().Err(err)
+		return err
+	}
+
 	filterQuery := bson.M{
 		"_id": bson.M{
-			"$in": updateDiscounts,
+			"$in": updateDiscountIDs,
 		},
 	}
 	updateQuery := bson.M{
@@ -428,16 +465,17 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 			"is_active": false,
 		},
 	}
-	if len(updateDiscounts) == 0 {
+
+	if len(updateDiscountIDs) == 0 {
 		return nil
 	}
-	res, err := di.DB.Collection(model.CatalogColl).UpdateMany(ctx, filterQuery, updateQuery)
+	res, err = di.DB.Collection(model.DiscountColl).UpdateMany(ctx, filterQuery, updateQuery)
 	if err != nil {
 		di.Logger.Log().Err(err)
 		return err
 	}
-	if res.MatchedCount != int64(len(updateDiscounts)) {
-		err := errors.Errorf("%d discount ids did not match", int64(len(updateDiscounts))-res.MatchedCount)
+	if res.MatchedCount != int64(len(updateDiscountIDs)) {
+		err := errors.Errorf("%d discount ids did not match", int64(len(updateDiscountIDs))-res.MatchedCount)
 		di.Logger.Log().Err(err)
 		return err
 	}
