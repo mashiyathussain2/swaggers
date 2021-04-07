@@ -282,9 +282,9 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 		updateQuery = bson.M{
 			"$inc": bson.M{
 				"items.$.quantity":     opts.Quantity,
-				"total_price.value":    opts.Quantity * uint(incPrice.Value),
-				"grand_total.value":    opts.Quantity * incGrandTotal,
-				"total_discount.value": opts.Quantity * discount,
+				"total_price.value":    opts.Quantity * int(incPrice.Value),
+				"grand_total.value":    opts.Quantity * int(incGrandTotal),
+				"total_discount.value": opts.Quantity * int(discount),
 			},
 		}
 	}

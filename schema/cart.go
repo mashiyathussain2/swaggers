@@ -19,7 +19,7 @@ type UpdateItemQtyOpts struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
-	Quantity  uint               `json:"quantity" validate:"oneof=-1 0 1"`
+	Quantity  int                `json:"quantity" validate:"oneof=-1 0 1"`
 }
 
 //AddressOpts contains field required to add/edit the address of the user's cart
