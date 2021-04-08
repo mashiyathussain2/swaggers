@@ -13,21 +13,28 @@ import (
 )
 
 func (a *API) createDiscount(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.CreateDiscountOpts
+	var s []schema.CreateDiscountOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	if errs := a.Validator.Validate(&s); errs != nil {
-		requestCTX.SetErrs(errs, http.StatusBadRequest)
-		return
+	for _, discount := range s {
+		if errs := a.Validator.Validate(&discount); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
 	}
-	res, err := a.App.Discount.CreateDiscount(&s)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
+	var errs []error
+	var results []interface{}
+	for _, discount := range s {
+		res, err := a.App.Discount.CreateDiscount(&discount)
+		if err != nil {
+			errs = append(errs, err)
+		} else {
+			results = append(results, res)
+		}
 	}
-	requestCTX.SetAppResponse(res, http.StatusCreated)
+	requestCTX.SetCustomResponse(true, results, errs, http.StatusAccepted)
 }
 func (a *API) deactivateDiscount(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["discountID"])
