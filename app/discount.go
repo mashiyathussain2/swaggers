@@ -541,9 +541,11 @@ func (di *DiscountImpl) GetDiscountAndCatalogInfoBySaleID(id primitive.ObjectID)
 		{
 			Key: "$set",
 			Value: bson.M{
-				"$arrayElemAt": bson.A{
-					"$catalog_info",
-					0,
+				"catalog_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$catalog_info",
+						0,
+					},
 				},
 			},
 		},
