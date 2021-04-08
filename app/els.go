@@ -147,7 +147,7 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogB
 func (ei *ElasticsearchImpl) GetCatalogBySaleID(opts *schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error) {
 	var queries []elastic.Query
 	queries = append(queries, elastic.NewTermQuery("status.value", model.Publish))
-	queries = append(queries, elastic.NewNestedQuery("discount_info", elastic.NewTermQuery("sale_id", opts.SaleID)))
+	queries = append(queries, elastic.NewNestedQuery("discount_info", elastic.NewTermQuery("discount_info.sale_id", opts.SaleID)))
 	query := elastic.NewBoolQuery().Must(queries...)
 	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(int(opts.Page * 20)).Size(20).Do(context.Background())
 	if err != nil {
