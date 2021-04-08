@@ -293,7 +293,13 @@ func (a *API) getCatalogByCategoryID(requestCTX *handler.RequestContext, w http.
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.Elasticsearch.GetCatalogInfoByCategoryID(id.Hex())
+	var s schema.GetCatalogByCategoryIDOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.CategoryID = id.Hex()
+	resp, err := a.App.Elasticsearch.GetCatalogInfoByCategoryID(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -349,4 +355,19 @@ func (a *API) getPebbleCatalogInfo(requestCTX *handler.RequestContext, w http.Re
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchBrandCatalogInfluencerContent(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+
 }
