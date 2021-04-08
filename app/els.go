@@ -179,7 +179,7 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))
 
-	influencerQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
+	influencerQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"name.autocomplete"}...).Operator("or").Type("cross_fields")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.InfluencerFullIndex).Query(influencerQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "profile_image"}, nil))
 
 	var subQuery []elastic.Query
