@@ -293,7 +293,13 @@ func (a *API) getCatalogByCategoryID(requestCTX *handler.RequestContext, w http.
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["catalogID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.Elasticsearch.GetCatalogInfoByCategoryID(id.Hex())
+	var s schema.GetCatalogByCategoryIDOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.CategoryID = id.Hex()
+	resp, err := a.App.Elasticsearch.GetCatalogInfoByCategoryID(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

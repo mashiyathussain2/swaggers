@@ -82,6 +82,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestHandler(a.getCatalogBasicByIds)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestHandler(a.getCatalogInfoById)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestHandler(a.getCatalogByCategoryID)).Methods("GET")
+
+	//APP SALE
+	a.Router.APIRoot.Handle("/app/sale", a.requestHandler(a.getAppActiveSale)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/sale/items", a.requestHandler(a.getSaleCatalogs)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

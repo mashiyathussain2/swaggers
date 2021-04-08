@@ -57,3 +57,13 @@ type GetCollectionESResp struct {
 	Status         string                   `json:"status,omitempty"`
 	Order          int                      `json:"order,omitempty"`
 }
+
+type GetCatalogBySaleIDOpts struct {
+	Page   uint   `qs:"page"`
+	SaleID string `qs:"sale_id"`
+}
+
+type GetCatalogByCategoryIDOpts struct {
+	Page       uint   `qs:"page"`
+	CategoryID string `qs:"categoryID"`
+}

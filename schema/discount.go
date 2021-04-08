@@ -159,6 +159,10 @@ type GetSalesOpts struct {
 	Page uint `json:"page"`
 }
 
+type GetAppActiveSaleOpts struct {
+	Genders []string `qs:"genders,omitempty"`
+}
+
 type GetSalesResp struct {
 	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name    string             `json:"name,omitempty" bson:"name,omitempty"`

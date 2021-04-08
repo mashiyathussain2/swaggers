@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pasztorpisti/qs"
 	"github.com/vasupal1996/goerror"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -120,6 +121,34 @@ func (a *API) getDiscountInfoBySaleID(requestCTX *handler.RequestContext, w http
 		return
 	}
 	res, err := a.App.Discount.GetDiscountAndCatalogInfoBySaleID(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getAppActiveSale(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetAppActiveSaleOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Discount.GetAppActiveSale(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getSaleCatalogs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCatalogBySaleIDOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.GetCatalogBySaleID(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

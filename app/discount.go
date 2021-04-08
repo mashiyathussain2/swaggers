@@ -28,6 +28,7 @@ type Discount interface {
 
 	GetSales(*schema.GetSalesOpts) ([]schema.GetSalesResp, error)
 	GetDiscountAndCatalogInfoBySaleID(primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error)
+	GetAppActiveSale(*schema.GetAppActiveSaleOpts) ([]schema.GetSalesResp, error)
 }
 
 // DiscountImpl implements Discount service methods
@@ -555,6 +556,40 @@ func (di *DiscountImpl) GetDiscountAndCatalogInfoBySaleID(id primitive.ObjectID)
 
 	if err := cur.All(ctx, &resp); err != nil {
 		return nil, errors.Wrap(err, "failed to find discount items")
+	}
+
+	return resp, nil
+}
+
+func (di *DiscountImpl) GetAppActiveSale(opts *schema.GetAppActiveSaleOpts) ([]schema.GetSalesResp, error) {
+	var resp []schema.GetSalesResp
+	now := time.Now().UTC()
+	filter := bson.D{
+		{
+			Key: "valid_after",
+			Value: bson.M{
+				"$lte": now,
+			},
+		},
+		{
+			Key: "valid_before",
+			Value: bson.M{
+				"$gte": now,
+			},
+		},
+	}
+	if len(opts.Genders) > 0 {
+		filter = append(filter, bson.E{Key: "genders", Value: bson.M{"$in": opts.Genders}})
+	}
+	ctx := context.TODO()
+	cur, err := di.DB.Collection(model.SaleColl).Find(ctx, filter)
+	if err != nil {
+		di.Logger.Err(err).Msg("query failed to find sale")
+		return nil, errors.New("failed to find active sale")
+	}
+
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.New("failed to find active sale")
 	}
 
 	return resp, nil
