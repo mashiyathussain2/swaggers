@@ -356,3 +356,18 @@ func (a *API) getPebbleCatalogInfo(requestCTX *handler.RequestContext, w http.Re
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchBrandCatalogInfluencerContent(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+
+}

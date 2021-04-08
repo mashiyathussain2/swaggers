@@ -87,6 +87,9 @@ type ElasticsearchConfig struct {
 	Password            string `mapstructure:"password"`
 	CollectionFullIndex string `mapstructure:"collectionFullIndex"`
 	CatalogFullIndex    string `mapstructure:"catalogFullIndex"`
+	BrandFullIndex      string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
+	ContentFullIndex    string `mapstructure:"contentFullIndex"`
 }
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`

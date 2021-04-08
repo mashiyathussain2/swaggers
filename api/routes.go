@@ -86,6 +86,9 @@ func (a *API) InitRoutes() {
 	//APP SALE
 	a.Router.APIRoot.Handle("/app/sale", a.requestHandler(a.getAppActiveSale)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/sale/items", a.requestHandler(a.getSaleCatalogs)).Methods("GET")
+
+	//SEARCH
+	a.Router.APIRoot.Handle("/app/search", a.requestHandler(a.search)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

@@ -8,6 +8,7 @@ import (
 	"go-app/server/config"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -21,6 +22,7 @@ type Elasticsearch interface {
 	GetCatalogInfoByCategoryID(*schema.GetCatalogByCategoryIDOpts) ([]schema.GetCatalogBasicResp, error)
 
 	GetCatalogBySaleID(*schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error)
+	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -165,4 +167,79 @@ func (ei *ElasticsearchImpl) GetCatalogBySaleID(opts *schema.GetCatalogBySaleIDO
 		resp = append(resp, s)
 	}
 	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error) {
+	mSearch := elastic.NewMultiSearchService(ei.Client)
+	var mSearchQuery []*elastic.SearchRequest
+
+	catalogQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"brand_info.name.autocomplete", "name.autocomplete", "keywords.autocomplete"}...).Operator("or").Type("cross_fields")
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id"}, nil))
+
+	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))
+
+	influencerQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.InfluencerFullIndex).Query(influencerQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "profile_image"}, nil))
+
+	var subQuery []elastic.Query
+	subQuery = append(subQuery, elastic.NewTermQuery("type", "pebble"))
+	subQuery = append(subQuery, elastic.NewTermQuery("is_active", true))
+	subQuery = append(subQuery, elastic.NewMultiMatchQuery(opts.Query, []string{"label.interests", "caption", "influencer_info.name.autocomplete", "brand_info.name.autocomplete", "catalog_info.name.autocomplete"}...).Operator("or").Type("cross_fields"))
+
+	contentQuery := elastic.NewBoolQuery().Must(subQuery...)
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.ContentFullIndex).Query(contentQuery).Size(5).FetchSourceIncludeExclude([]string{"name", "id", "media_info", "caption"}, nil))
+
+	resp, err := mSearch.Add(mSearchQuery...).Do(context.TODO())
+	if err != nil {
+		ei.Logger.Err(err).Msgf("failed to get search result for query:%s", opts.Query)
+		return nil, errors.Wrap(err, "failed to get search results")
+	}
+
+	var influencer []schema.InfluencerSearchResp
+	var brand []schema.BrandSearchResp
+	var content []schema.ContentSearchResp
+	var catalog []schema.CatalogSearchResp
+	for _, result := range resp.Responses {
+		for _, hit := range result.Hits.Hits {
+			if strings.Contains(hit.Index, ei.Config.BrandFullIndex) {
+				var s schema.BrandSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				brand = append(brand, s)
+			} else if strings.Contains(hit.Index, ei.Config.InfluencerFullIndex) {
+				var s schema.InfluencerSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				influencer = append(influencer, s)
+			} else if strings.Contains(hit.Index, ei.Config.CatalogFullIndex) {
+				var s schema.CatalogSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+
+				catalog = append(catalog, s)
+			} else if strings.Contains(hit.Index, ei.Config.ContentFullIndex) {
+				var s schema.ContentSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				content = append(content, s)
+			}
+		}
+	}
+	res := schema.SearchResp{
+		Brand:      brand,
+		Influencer: influencer,
+		Content:    content,
+		Catalog:    catalog,
+	}
+
+	return &res, nil
 }

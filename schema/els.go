@@ -67,3 +67,44 @@ type GetCatalogByCategoryIDOpts struct {
 	Page       uint   `qs:"page"`
 	CategoryID string `qs:"categoryID"`
 }
+
+type SearchOpts struct {
+	Query string `qs:"query"`
+}
+
+type BrandSearchResp struct {
+	ID   primitive.ObjectID `json:"id"`
+	Name string             `json:"name"`
+	Logo *model.IMG         `json:"logo"`
+}
+
+type InfluencerSearchResp struct {
+	ID           primitive.ObjectID `json:"id"`
+	Name         string             `json:"name"`
+	ProfileImage *model.IMG         `json:"profile_image"`
+}
+
+type CatalogSearchResp struct {
+	ID            primitive.ObjectID `json:"id"`
+	Name          string             `json:"name"`
+	FeaturedImage *model.IMG         `json:"featured_image"`
+	BasePrice     model.Price        `json:"base_price"`
+	RetailPrice   model.Price        `json:"retail_price"`
+	DiscountInfo  *DiscountBasicResp `json:"discount_info"`
+	Variants      []struct {
+		ID primitive.ObjectID `json:"id"`
+	} `json:"variants"`
+}
+
+type ContentSearchResp struct {
+	ID        primitive.ObjectID `json:"id"`
+	Caption   string             `json:"caption"`
+	MediaInfo interface{}        `json:"media_info"`
+}
+
+type SearchResp struct {
+	Catalog    []CatalogSearchResp    `json:"catalog"`
+	Brand      []BrandSearchResp      `json:"brand"`
+	Influencer []InfluencerSearchResp `json:"influencer"`
+	Content    []ContentSearchResp    `json:"content"`
+}
