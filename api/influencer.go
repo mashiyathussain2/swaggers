@@ -2,6 +2,7 @@ package api
 
 import (
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -93,6 +94,10 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	res, err := a.App.Elasticsearch.GetInfluencersByIDBasic(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -107,7 +112,8 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 		requestCTX.SetErr(errors.Errorf("invalid influencer id:%s in url", mux.Vars(r)["influencerID"]), http.StatusBadRequest)
 		return
 	}
-	res, err := a.App.Elasticsearch.GetInfluencerInfoByID(&schema.GetInfluencerInfoByIDOpts{ID: id})
+	userID, _ := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	res, err := a.App.Elasticsearch.GetInfluencerInfoByID(&schema.GetInfluencerInfoByIDOpts{ID: id, UserID: userID})
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

@@ -293,7 +293,7 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	return &cart, nil
 }
 
-//GetCartInfo function increases, decreases or removes the item from cart based on input qty
+//GetCartInfo function returns cart info
 func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 
 	ctx := context.TODO()
@@ -327,7 +327,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 					switch item.DiscountInfo.Type {
 					case model.FlatOffType:
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(item.DiscountInfo.Value))
-						td = td + item.DiscountInfo.Value
+						td = td + item.DiscountInfo.Value*item.Quantity
 					case model.PercentOffType:
 						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
@@ -337,8 +337,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 							d = item.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(d))
-						td = td + d
-
+						td = td + d*item.Quantity
 					default:
 					}
 					item.DiscountedPrice = dp
@@ -389,7 +388,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 		return errors.Wrapf(err, "unable to set the address")
 	}
 	if res.MatchedCount == 0 {
-		return errors.Errorf("unable to find user with id: %s", opts.ID.Hex())
+		return errors.Errorf("unable to find cart with id: %s", opts.ID.Hex())
 	}
 
 	return nil
@@ -517,7 +516,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				switch cv.Payload.DiscountInfo.Type {
 				case model.FlatOffType:
 					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(cv.Payload.DiscountInfo.Value))
-
 				case model.PercentOffType:
 					// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 					// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
@@ -527,7 +525,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 						d = cv.Payload.DiscountInfo.MaxValue
 					}
 					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(d))
-
 				default:
 				}
 			}
@@ -576,7 +573,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(orderOpts)
-	fmt.Println(string(reqBody))
 	if err != nil {
 		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")

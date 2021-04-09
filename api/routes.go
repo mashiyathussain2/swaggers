@@ -31,27 +31,27 @@ func (a *API) InitRoutes() {
 	// CUSTOMER APIS
 	a.Router.APIRoot.Handle("/customer", a.requestWithAuthHandler(a.updateCustomerInfo)).Methods("PUT")
 	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.addAddress)).Methods("PUT")
-	a.Router.APIRoot.Handle("/customer/address/{userID}", a.requestWithAuthHandler(a.getAddress)).Methods("GET")
+	a.Router.APIRoot.Handle("/customer/{userID}/address", a.requestWithAuthHandler(a.getAddress)).Methods("GET")
 
 	// TODO: Shall i remove this api??
 	a.Router.APIRoot.Handle("/brand/{brandID}", a.requestWithAuthHandler(a.getBrandByID)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/app/cart", a.requestWithAuthHandler(a.addToCart)).Methods("PUT")
-	a.Router.APIRoot.Handle("/app/cart/update", a.requestWithAuthHandler(a.updateItemQty)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/cart", a.requestWithAuthHandler(a.addToCart)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/item", a.requestWithAuthHandler(a.updateItemQty)).Methods("PUT")
 	// a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestHandler(a.createCart)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestWithAuthHandler(a.getCartInfo)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/cart/address/set", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/cart/checkout/{userID}/source/{source}", a.requestHandler(a.checkoutCart)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/{cartID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestHandler(a.followInfluencer)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/customer/brand/follow", a.requestHandler(a.followBrand)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestWithAuthHandler(a.followInfluencer)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/customer/brand/follow", a.requestWithAuthHandler(a.followBrand)).Methods("POST")
 
-	a.Router.APIRoot.Handle("/app/brand/basic", a.requestHandler(a.getBrandsBasic)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestHandler(a.getBrandInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/brand/basic", a.requestWithAuthHandler(a.getBrandsBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestWithAuthHandler(a.getBrandInfo)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestWithAuthHandler(a.getInfluencersBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestWithAuthHandler(a.getInfluencerInfo)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

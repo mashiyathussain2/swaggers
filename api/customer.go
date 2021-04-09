@@ -110,6 +110,10 @@ func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.Respon
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	res, err := a.App.Influencer.AddFollower(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -128,6 +132,10 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	res, err := a.App.Brand.AddFollower(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -142,7 +150,6 @@ func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
 	s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
