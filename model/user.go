@@ -18,6 +18,7 @@ const (
 	InfluencerType string = "influencer"
 	BrandType      string = "brand"
 	KeeperType     string = "keeper"
+	InternalType   string = "internal"
 )
 
 // list of supported roles

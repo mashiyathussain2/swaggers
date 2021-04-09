@@ -67,9 +67,17 @@ func (uc *UserClaim) IsAdmin() bool {
 	return false
 }
 
-// IsAdmin if user is an admin user
+// IsSudo if user is a keeper user
 func (uc *UserClaim) IsSudo() bool {
 	if uc.Type == model.KeeperType {
+		return true
+	}
+	return false
+}
+
+// IsInternal if user is a keeper user
+func (uc *UserClaim) IsInternal() bool {
+	if uc.Type == model.InternalType {
 		return true
 	}
 	return false

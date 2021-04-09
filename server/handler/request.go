@@ -51,6 +51,13 @@ func (rh *Request) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+	} else {
+		if rh.IsSudoUser {
+			if requestCTX.UserClaim.IsInternal() {
+				requestCTX.SetErr(errors.New("permission denied: must be internal-user", &errors.PermissionDenied), http.StatusForbidden)
+				goto SKIP_REQUEST
+			}
+		}
 	}
 
 SKIP_REQUEST:
