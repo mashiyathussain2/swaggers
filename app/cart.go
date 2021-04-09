@@ -130,7 +130,6 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	discountInfo := model.DiscountInfo{}
 	var dp *model.Price
 	if s.Payload.DiscountInfo != nil {
-		fmt.Println(s.Payload.DiscountInfo)
 		for _, d := range s.Payload.DiscountInfo.VariantsID {
 			if d == opts.VariantID {
 				switch s.Payload.DiscountInfo.Type {

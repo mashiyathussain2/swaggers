@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -9,6 +10,7 @@ import (
 )
 
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	fmt.Println(requestCTX.UserClaim.(*auth.UserClaim))
 	requestCTX.SetAppResponse(requestCTX.UserClaim, http.StatusOK)
 }
 

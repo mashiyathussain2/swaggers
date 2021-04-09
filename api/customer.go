@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	"errors"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -64,9 +64,7 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 	var s schema.UpdateCustomerOpts
 	var returnToken bool
 	resp := make(map[string]interface{})
-
 	returnToken, _ = strconv.ParseBool(r.URL.Query().Get("returnToken"))
-
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -75,6 +73,7 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	s.ID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
 	res, err := a.App.Customer.UpdateCustomer(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -112,7 +111,6 @@ func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.Respon
 		return
 	}
 	res, err := a.App.Influencer.AddFollower(&s)
-	fmt.Println(res, err)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -139,12 +137,13 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 }
 
 func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-
 	var s schema.AddAddressOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+
+	s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
@@ -163,6 +162,10 @@ func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	resp, err := a.App.Customer.GetAddresses(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -175,6 +178,10 @@ func (a *API) getCustomerInfo(requestCTX *handler.RequestContext, w http.Respons
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["customerID"])
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	res, err := a.App.Customer.GetAppCustomerInfo(id)

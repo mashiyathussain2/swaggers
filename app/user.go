@@ -226,6 +226,7 @@ func (ui *UserImpl) getUserClaim(user *model.User, customer *model.Customer) aut
 	claim := auth.UserClaim{
 		ID:           user.ID.Hex(),
 		CustomerID:   customer.ID.Hex(),
+		CartID:       customer.CartID.Hex(),
 		Type:         user.Type,
 		Role:         user.Role,
 		Email:        user.Email,

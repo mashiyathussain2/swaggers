@@ -1,8 +1,10 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -69,7 +71,10 @@ func (a *API) getCartInfo(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-
+	if userID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	resp, err := a.App.Cart.GetCartInfo(userID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
