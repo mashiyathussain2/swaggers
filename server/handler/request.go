@@ -44,6 +44,11 @@ func (rh *Request) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					requestCTX.SetErr(errors.New("permission denied: required keeper user type", &errors.PermissionDenied), http.StatusForbidden)
 					goto SKIP_REQUEST
 				}
+			} else {
+				if requestCTX.UserClaim.IsSudo() {
+					requestCTX.SetErr(errors.New("permission denied: required customer type", &errors.PermissionDenied), http.StatusForbidden)
+					goto SKIP_REQUEST
+				}
 			}
 		}
 	}
