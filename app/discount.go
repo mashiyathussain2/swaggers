@@ -29,6 +29,7 @@ type Discount interface {
 	GetSales(*schema.GetSalesOpts) ([]schema.GetSalesResp, error)
 	GetDiscountAndCatalogInfoBySaleID(primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error)
 	GetAppActiveSale(*schema.GetAppActiveSaleOpts) ([]schema.GetSalesResp, error)
+	RemoveDiscountFromSale(*schema.RemoveDiscountFromSaleOpts) error
 }
 
 // DiscountImpl implements Discount service methods
@@ -331,7 +332,8 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 		"valid_before": bson.M{
 			"$gte": t,
 		},
-		"is_active": false,
+		"is_active":   false,
+		"is_disabled": false,
 	}
 	var discounts []model.Discount
 
@@ -416,7 +418,8 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 		"valid_before": bson.M{
 			"$lte": t,
 		},
-		"is_active": true,
+		"is_active":   true,
+		"is_disabled": false,
 	}
 
 	var discounts []model.Discount
@@ -595,4 +598,53 @@ func (di *DiscountImpl) GetAppActiveSale(opts *schema.GetAppActiveSaleOpts) ([]s
 	}
 
 	return resp, nil
+}
+
+func (di *DiscountImpl) RemoveDiscountFromSale(opts *schema.RemoveDiscountFromSaleOpts) error {
+
+	ctx := context.TODO()
+
+	filterDiscount := bson.M{
+		"_id": opts.DiscountID,
+	}
+
+	updateDiscount := bson.M{
+		"$set": bson.M{
+			"is_disabled": true,
+		},
+	}
+
+	res, err := di.DB.Collection(model.DiscountColl).UpdateOne(ctx, filterDiscount, updateDiscount)
+	if err != nil {
+		return errors.Wrapf(err, "unable to query for discount with id: %s", opts.DiscountID.Hex())
+	}
+	if res.MatchedCount == 0 {
+		err := errors.Errorf("discount id: %s not found", opts.DiscountID.Hex())
+		di.Logger.Log().Err(err)
+		return err
+	}
+	if !opts.IsActive {
+		return nil
+	}
+	catlogFilterQuery := bson.M{
+		"_id": opts.CatalogID,
+	}
+	catalogUpdateQuery := bson.M{
+		"$unset": bson.M{
+			"discount_id": 1,
+		},
+	}
+
+	res, err = di.DB.Collection(model.CatalogColl).UpdateOne(ctx, catlogFilterQuery, catalogUpdateQuery)
+	if err != nil {
+		di.Logger.Log().Err(err)
+		return err
+	}
+	if res.MatchedCount == 0 {
+		err := errors.Errorf("catalog id: %s not found", opts.CatalogID.Hex())
+		di.Logger.Log().Err(err)
+		return err
+	}
+
+	return nil
 }
