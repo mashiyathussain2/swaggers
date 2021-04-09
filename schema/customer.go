@@ -9,13 +9,26 @@ import (
 
 // GetCustomerInfoResp contains fields to be returned in response to get customer
 type GetCustomerInfoResp struct {
-	ID     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	UserID primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
-	// CartID       primitive.ObjectID `json:"cart_id,omitempty" bson:"cart_id,omitempty"`
-	FullName     string        `json:"full_name,omitempty" bson:"full_name,omitempty"`
-	DOB          time.Time     `json:"dob,omitempty" bson:"dob,omitempty"`
-	Gender       *model.Gender `json:"gender,omitempty" bson:"gender,omitempty"`
-	ProfileImage *model.IMG    `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	DOB          time.Time          `json:"dob,omitempty" bson:"dob,omitempty"`
+	Gender       *model.Gender      `json:"gender,omitempty" bson:"gender,omitempty"`
+	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+}
+
+type GetCustomerProfileInfoResp struct {
+	ID                    primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID                primitive.ObjectID   `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	FullName              string               `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	DOB                   time.Time            `json:"dob,omitempty" bson:"dob,omitempty"`
+	Gender                *model.Gender        `json:"gender,omitempty" bson:"gender,omitempty"`
+	ProfileImage          *model.IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	UserInfo              *GetUserInfoResp     `json:"user_info,omitempty" bson:"user_info,omitempty"`
+	BrandFollowing        []primitive.ObjectID `json:"brand_following,omitempty" bson:"brand_following,omitempty"`
+	InfluencerFollowing   []primitive.ObjectID `json:"influencer_following,omitempty" bson:"influencer_following,omitempty"`
+	BrandFollowCount      uint                 `json:"brand_follow_count,omitempty" bson:"brand_follow_count,omitempty"`
+	InfluencerFollowCount uint                 `json:"influencer_follow_count,omitempty" bson:"influencer_follow_count,omitempty"`
 }
 
 // EmailLoginCustomerOpts contains fields and validations required to allow customer to login via email

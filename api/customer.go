@@ -158,7 +158,6 @@ func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 }
 
 func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -170,4 +169,18 @@ func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getCustomerInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["customerID"])
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Customer.GetAppCustomerInfo(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
 }

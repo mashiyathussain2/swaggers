@@ -40,6 +40,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/cart/address/set", a.requestHandler(a.setCartAddress)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/checkout/{userID}/source/{source}", a.requestHandler(a.checkoutCart)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestHandler(a.getCustomerInfo)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestHandler(a.followInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/customer/brand/follow", a.requestHandler(a.followBrand)).Methods("POST")
 
@@ -48,7 +50,6 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
-
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
