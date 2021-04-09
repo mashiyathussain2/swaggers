@@ -13,7 +13,7 @@ func InitConsumer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.UserChangeConfig,
 	})
-	go a.UserChanges.ConsumeAndCommit(ctx, a.Us)
+	go a.UserChanges.ConsumeAndCommit(ctx, a.UserProcessor.ProcessUserUpdate)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
