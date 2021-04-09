@@ -54,7 +54,6 @@ func InitCart(opts *CartImplOpts) Cart {
 }
 
 func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error) {
-
 	cart := model.Cart{
 		UserID:        id,
 		CreatedAt:     time.Now().UTC(),

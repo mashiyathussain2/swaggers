@@ -1,7 +1,9 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/schema"
 	"go-app/server/kafka"
 
@@ -184,12 +186,18 @@ func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
 func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
+	fmt.Println("got user", string(message.Value))
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
 		up.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode user update message")
 		return
 	}
 	if s.Meta.Operation == "i" {
-		up.App.Cart.CreateCart(s.Meta.ID.(primitive.ObjectID))
-		return
+		_, err := up.App.Cart.CreateCart(s.Meta.ID.(primitive.ObjectID))
+		if err != nil {
+			up.Logger.Err(err).Msg("failed to create cart")
+			return
+		}
 	}
+
+	up.App.UserChanges.Commit(context.TODO(), msg)
 }
