@@ -2,19 +2,22 @@ package api
 
 // InitRoutes initializes all the endpoints
 func (a *API) InitRoutes() {
+	a.Router.Root.Handle("/keeper/gl/callback", a.requestHandler(a.keeperLoginCallback)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/me", a.requestWithAuthHandler(a.me)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/keeper/user/get", a.requestHandler(a.getUserInfoByID)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/brand", a.requestHandler(a.createbrand)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/brands", a.requestHandler(a.getBrands)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestHandler(a.getBrandsById)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/brand", a.requestHandler(a.editbrand)).Methods("PUT")
-	a.Router.APIRoot.Handle("/keeper/brand/{brandID}/check", a.requestHandler(a.checkBrandByID)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.createInfluencer)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/influencer/get", a.requestHandler(a.getInfluencersByID)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestHandler(a.getInfluencerByName)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/influencer", a.requestHandler(a.editInfluencer)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/auth/login", a.requestHandler(a.keeperLogin)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/user/get", a.requestWithSudoHandler(a.getUserInfoByID)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/brand", a.requestWithSudoHandler(a.createbrand)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/brands", a.requestWithSudoHandler(a.getBrands)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestWithSudoHandler(a.getBrandsById)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/brand", a.requestWithSudoHandler(a.editbrand)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/brand/{brandID}/check", a.requestWithSudoHandler(a.checkBrandByID)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.createInfluencer)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/influencer/get", a.requestWithSudoHandler(a.getInfluencersByID)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestWithSudoHandler(a.getInfluencerByName)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.editInfluencer)).Methods("PUT")
 
 	a.Router.APIRoot.Handle("/user/forgot-password", a.requestHandler(a.forgotPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")

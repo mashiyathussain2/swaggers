@@ -187,3 +187,25 @@ func (a *API) getUserInfoByID(requestCTX *handler.RequestContext, w http.Respons
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) keeperLogin(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	url := a.App.KeeperUser.Login()
+	requestCTX.SetRedirectResponse(url, http.StatusTemporaryRedirect)
+}
+
+func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	claim, err := a.App.KeeperUser.Callback(r.FormValue("state"), r.FormValue("code"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	token, err := a.TokenAuth.SignKeeperToken(claim)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	redirectURL := fmt.Sprintf("%s?%s", a.Config.KeeperLoginRedirectURL, token)
+	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
+}

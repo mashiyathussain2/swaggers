@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
 
@@ -186,16 +186,27 @@ func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
 func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
-	fmt.Println("got user", string(message.Value))
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
 		up.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode user update message")
 		return
 	}
 	if s.Meta.Operation == "i" {
-		_, err := up.App.Cart.CreateCart(s.Meta.ID.(primitive.ObjectID))
+		var user model.User
+		userBytes, err := json.Marshal(s.Data)
 		if err != nil {
-			up.Logger.Err(err).Msg("failed to create cart")
+			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode user update data fields into bytes")
 			return
+		}
+		if err := json.Unmarshal(userBytes, &user); err != nil {
+			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		if user.Type == model.CustomerType {
+			_, err = up.App.Cart.CreateCart(user.ID)
+			if err != nil {
+				up.Logger.Err(err).Msg("failed to create cart")
+				return
+			}
 		}
 	}
 

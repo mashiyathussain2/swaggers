@@ -31,6 +31,7 @@ type App struct {
 	Brand         Brand
 	Influencer    Influencer
 	Cart          Cart
+	KeeperUser    KeeperUser
 
 	// Consumer
 	UserChanges       kafka.Consumer

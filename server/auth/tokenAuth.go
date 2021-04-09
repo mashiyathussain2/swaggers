@@ -14,6 +14,7 @@ const HeaderRequestID = "X-Request-ID"
 // TokenAuth defines method for implementing token authentication
 type TokenAuth interface {
 	SignToken(Claim) (string, error)
+	SignKeeperToken(Claim) (string, error)
 	VerifyToken(string) (Claim, error)
 }
 
@@ -23,6 +24,7 @@ type Claim interface {
 	ToJSON() string
 	GetJWTToken() *jwt.Token
 	IsAdmin() bool
+	IsSudo() bool
 }
 
 // JWTToken represents jwt encoded token string for json format

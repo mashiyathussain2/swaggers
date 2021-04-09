@@ -107,3 +107,27 @@ type LoginWithSocial struct {
 type GetUserInfoByIDOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
 }
+
+type KeeperUserLoginOpts struct {
+	GoogleID      string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	Picture       string `json:"picture"`
+	Domain        string `json:"hd"`
+}
+
+type CreateOrUpdateKeeperUser struct {
+	Email        string
+	FullName     string
+	ProfileImage *Img
+}
+
+type KeeperUserInfoResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	UserInfo     *GetUserResp       `json:"user_info,omitempty" bson:"user_info,omitempty"`
+	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}

@@ -8,7 +8,8 @@ import (
 
 // list of collection name in DB
 const (
-	UserColl string = "user"
+	UserColl       string = "user"
+	KeeperUserColl string = "keeper_user"
 )
 
 // list of supported user types
@@ -16,6 +17,7 @@ const (
 	CustomerType   string = "customer"
 	InfluencerType string = "influencer"
 	BrandType      string = "brand"
+	KeeperType     string = "keeper"
 )
 
 // list of supported roles
@@ -68,4 +70,12 @@ type User struct {
 	CreatedVia            string             `json:"created_via,omitempty" bson:"created_via,omitempty"`
 	CreatedAt             time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt             time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+type KeeperUser struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	ProfileImage *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }

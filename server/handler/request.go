@@ -40,8 +40,8 @@ func (rh *Request) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			goto SKIP_REQUEST
 		} else {
 			if rh.IsSudoUser {
-				if requestCTX.UserClaim.IsAdmin() {
-					requestCTX.SetErr(errors.New("permission denied: required admin user role", &errors.PermissionDenied), http.StatusForbidden)
+				if !requestCTX.UserClaim.IsSudo() {
+					requestCTX.SetErr(errors.New("permission denied: required keeper user type", &errors.PermissionDenied), http.StatusForbidden)
 					goto SKIP_REQUEST
 				}
 			}
@@ -72,8 +72,7 @@ SKIP_REQUEST:
 		requestCTX.Err.RequestID = &requestCTX.RequestID
 		json.NewEncoder(w).Encode(&requestCTX.Err)
 	case RedirectResp:
-		res, _ := requestCTX.Response.MarshalJSON()
-		http.Redirect(w, r, string(res), requestCTX.ResponseCode)
+		payload := requestCTX.Response.(*AppResponse).Payload
+		http.Redirect(w, r, payload.(string), requestCTX.ResponseCode)
 	}
-
 }
