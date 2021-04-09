@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"go-app/model"
 	"go-app/schema"
@@ -422,12 +423,35 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 		return nil, errors.New("otp expired")
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		filter := bson.M{
+			"_id": user.ID,
+		}
+		update := bson.D{
+			{
+				Key: "$unset",
+				Value: bson.M{
+					"login_otp": 1,
+				},
+			},
+		}
+		if user.PhoneVerifiedAt.IsZero() {
+			update = append(update, bson.E{Key: "$set", Value: bson.M{"phone_verified_at": time.Now().UTC()}})
+		}
+		_, err := ui.DB.Collection(model.UserColl).UpdateOne(context.TODO(), filter, update)
+		ui.Logger.Err(err).Msg("failed to unset otp")
+	}()
+
 	var customer model.Customer
 	if err := ui.DB.Collection(model.CustomerColl).FindOne(context.TODO(), bson.M{"user_id": user.ID}).Decode(&customer); err != nil {
 		return nil, errors.Wrapf(err, "customer with phone_no:%s%s not found", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
-
 	claim := ui.getUserClaim(&user, &customer)
+
+	wg.Wait()
 	return claim, nil
 }
 

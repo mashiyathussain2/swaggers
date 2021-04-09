@@ -62,6 +62,7 @@ type APPConfig struct {
 	InfluencerConfig    ServiceConfig `mapstructure:"influencer"`
 	CartConfig          ServiceConfig `mapstructure:"cart"`
 
+	UserChangeConfig       ListenerConfig `mapstructure:"userChangeConsumer"`
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 

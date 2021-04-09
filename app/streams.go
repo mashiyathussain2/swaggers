@@ -161,3 +161,35 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	}
 	ip.App.InfluencerFullProducer.Publish(m)
 }
+
+type UserProcessor struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+type UserProcessorOpts struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
+	up := UserProcessor{
+		App:    opts.App,
+		Logger: opts.Logger,
+	}
+
+	return &up
+}
+
+func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		up.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode user update message")
+		return
+	}
+	if s.Meta.Operation == "i" {
+		up.App.Cart.CreateCart(s.Meta.ID.(primitive.ObjectID))
+		return
+	}
+}
