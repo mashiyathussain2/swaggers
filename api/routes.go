@@ -72,25 +72,25 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/sale/discount", a.requestWithSudoHandler(a.removeDiscountFromSale)).Methods("DELETE")
 
 	//APP CATALOG
-	a.Router.APIRoot.Handle("/app/groups/catalog", a.requestWithAuthHandler(a.getGroupsByCatalogID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/groups/catalog", a.requestHandler(a.getGroupsByCatalogID)).Methods("GET")
 
 	//APP CATEGORY
-	a.Router.APIRoot.Handle("/app/category/lvl1", a.requestWithAuthHandler(a.getParentCategory)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl2", a.requestWithAuthHandler(a.getMainCategoryByParentID)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl3", a.requestWithAuthHandler(a.getSubCatergoryByParentID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/lvl1", a.requestHandler(a.getParentCategory)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl2", a.requestHandler(a.getMainCategoryByParentID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl3", a.requestHandler(a.getSubCatergoryByParentID)).Methods("GET")
 
 	//APP COLLECTION
-	a.Router.APIRoot.Handle("/app/collections", a.requestWithAuthHandler(a.getActiveCollections)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestWithAuthHandler(a.getCatalogBasicByIds)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestWithAuthHandler(a.getCatalogInfoById)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestWithAuthHandler(a.getCatalogByCategoryID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/collections", a.requestHandler(a.getActiveCollections)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestHandler(a.getCatalogBasicByIds)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestHandler(a.getCatalogInfoById)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestHandler(a.getCatalogByCategoryID)).Methods("GET")
 
 	//APP SALE
-	a.Router.APIRoot.Handle("/app/sale", a.requestWithAuthHandler(a.getAppActiveSale)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/sale/items", a.requestWithAuthHandler(a.getSaleCatalogs)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/sale", a.requestHandler(a.getAppActiveSale)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/sale/items", a.requestHandler(a.getSaleCatalogs)).Methods("GET")
 
 	//SEARCH
-	a.Router.APIRoot.Handle("/app/search", a.requestWithAuthHandler(a.search)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/search", a.requestHandler(a.search)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
