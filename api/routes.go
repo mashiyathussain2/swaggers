@@ -64,12 +64,12 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/discount/{discountID}/deactivate", a.requestWithSudoHandler(a.deactivateDiscount)).Methods("POST")
 
 	//KEEPER SALE
-	a.Router.APIRoot.Handle("/keeper/sale", a.requestHandler(a.getSales)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/sale/{saleID}/discount", a.requestHandler(a.getDiscountInfoBySaleID)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/sale/create", a.requestHandler(a.createSale)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/sale/edit", a.requestHandler(a.editSale)).Methods("PUT")
-	a.Router.APIRoot.Handle("/keeper/sale/status", a.requestHandler(a.editSaleStatus)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/sale/discount", a.requestHandler(a.removeDiscountFromSale)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/keeper/sale", a.requestWithSudoHandler(a.getSales)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/sale/{saleID}/discount", a.requestWithSudoHandler(a.getDiscountInfoBySaleID)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/sale/create", a.requestWithSudoHandler(a.createSale)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/sale/edit", a.requestWithSudoHandler(a.editSale)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/sale/status", a.requestWithSudoHandler(a.editSaleStatus)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/sale/discount", a.requestWithSudoHandler(a.removeDiscountFromSale)).Methods("DELETE")
 
 	//APP CATALOG
 	a.Router.APIRoot.Handle("/app/groups/catalog", a.requestWithAuthHandler(a.getGroupsByCatalogID)).Methods("GET")
