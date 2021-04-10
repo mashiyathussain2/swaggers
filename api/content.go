@@ -2,6 +2,7 @@ package api
 
 import (
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -187,6 +188,10 @@ func (a *API) createContentComment(requestCTX *handler.RequestContext, w http.Re
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	res, err := a.App.Content.CreateComment(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -204,6 +209,10 @@ func (a *API) createLike(requestCTX *handler.RequestContext, w http.ResponseWrit
 	}
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	err := a.App.Content.CreateLike(&s)
@@ -225,6 +234,10 @@ func (a *API) createView(requestCTX *handler.RequestContext, w http.ResponseWrit
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	err := a.App.Content.CreateView(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -239,6 +252,9 @@ func (a *API) getPebble(requestCTX *handler.RequestContext, w http.ResponseWrite
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
 	}
 	res, err := a.App.Elasticsearch.GetPebble(&s)
 	if err != nil {

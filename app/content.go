@@ -721,7 +721,14 @@ func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get brand info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
@@ -751,7 +758,14 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get influencer info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
@@ -781,7 +795,14 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get catalog info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
