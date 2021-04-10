@@ -40,6 +40,7 @@ type User interface {
 	MobileLoginCustomerUser(*schema.MobileLoginCustomerUserOpts) (auth.Claim, error)
 	GenerateMobileLoginOTP(*schema.GenerateMobileLoginOTPOpts) (bool, error)
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
+	GetUserByID(primitive.ObjectID) (*model.User, error)
 }
 
 // UserImpl implements user interface methods
@@ -698,4 +699,15 @@ func (ui *UserImpl) GetUserInfoByID(opts *schema.GetUserInfoByIDOpts) (bson.M, e
 		return nil, errors.Errorf("user with id: %s not found", opts.ID.Hex())
 	}
 	return res[0], nil
+}
+
+func (ui *UserImpl) GetUserByID(id primitive.ObjectID) (*model.User, error) {
+	filter := bson.M{
+		"_id": id,
+	}
+	var user model.User
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), filter).Decode(&user); err != nil {
+		return nil, errors.Wrap(err, "failed to find user with id")
+	}
+	return &user, nil
 }

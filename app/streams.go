@@ -191,14 +191,19 @@ func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
 		return
 	}
 	if s.Meta.Operation == "i" {
-		var user model.User
-		userBytes, err := json.Marshal(s.Data)
+		var customer model.Customer
+		customerBytes, err := json.Marshal(s.Data)
 		if err != nil {
-			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode user update data fields into bytes")
+			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode customer update data fields into bytes")
 			return
 		}
-		if err := json.Unmarshal(userBytes, &user); err != nil {
+		if err := json.Unmarshal(customerBytes, &customer); err != nil {
 			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		user, err := up.App.User.GetUserByID(customer.UserID)
+		if err != nil {
+			up.Logger.Err(err).Interface("customer", customer).Msg("failed to get customer user")
 			return
 		}
 		if user.Type == model.CustomerType {
@@ -210,5 +215,5 @@ func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
 		}
 	}
 
-	up.App.UserChanges.Commit(context.TODO(), msg)
+	up.App.CustomerChanges.Commit(context.TODO(), msg)
 }

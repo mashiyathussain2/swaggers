@@ -9,11 +9,11 @@ import (
 func InitConsumer(a *App) {
 	ctx := context.TODO()
 
-	a.UserChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+	a.CustomerChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
-		Config: &a.Config.UserChangeConfig,
+		Config: &a.Config.CustomerChangeConfig,
 	})
-	go a.UserChanges.Consume(ctx, a.UserProcessor.ProcessUserUpdate)
+	go a.CustomerChanges.Consume(ctx, a.UserProcessor.ProcessUserUpdate)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,

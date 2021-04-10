@@ -36,7 +36,7 @@ type App struct {
 	Wishlist        Wishlist
 
 	// Consumer
-	UserChanges       kafka.Consumer
+	CustomerChanges   kafka.Consumer
 	BrandChanges      kafka.Consumer
 	InfluencerChanges kafka.Consumer
 

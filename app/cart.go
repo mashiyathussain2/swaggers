@@ -55,6 +55,7 @@ func InitCart(opts *CartImplOpts) Cart {
 }
 
 func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error) {
+	ctx := context.TODO()
 	cart := model.Cart{
 		UserID:        id,
 		CreatedAt:     time.Now().UTC(),
@@ -63,9 +64,21 @@ func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error
 		TotalDiscount: model.SetINRPrice(0),
 		GrandTotal:    model.SetINRPrice(0),
 	}
-	cartID, err := ci.DB.Collection(model.CartColl).InsertOne(context.TODO(), cart)
+	cartID, err := ci.DB.Collection(model.CartColl).InsertOne(ctx, cart)
 	if err != nil {
 		return primitive.NilObjectID, errors.Wrapf(err, "unable to create cart for user with id: %s", id)
+	}
+
+	filter := bson.M{
+		"user_id": id,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"cart_id": cartID,
+		},
+	}
+	if _, err := ci.DB.Collection(model.CustomerColl).UpdateOne(ctx, filter, update); err != nil {
+		return primitive.NilObjectID, errors.Wrap(err, "failed to link cart and customer")
 	}
 	return cartID.InsertedID.(primitive.ObjectID), nil
 }
