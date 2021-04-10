@@ -61,7 +61,14 @@ func InitBrand(opts *BrandOpts) Brand {
 func (b *BrandImpl) CheckBrandIDExists(ctx context.Context, id primitive.ObjectID) (bool, error) {
 
 	url := fmt.Sprintf("%s/api/keeper/brand/%s/check", b.App.Config.HypdApiConfig.EntityApi, id.Hex())
-	resp, err := http.Get(url)
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to generate request to check brand")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", b.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	if err != nil {
 		return false, err
 	}
@@ -83,7 +90,14 @@ func (ci *BrandImpl) GetBrandInfo(ids []string) (*schema.BrandInfoResp, error) {
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get brands")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
