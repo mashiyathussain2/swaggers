@@ -987,3 +987,117 @@ func TestDiscountImpl_CheckAndUpdateStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestDiscountImpl_RemoveDiscountFromSale(t *testing.T) {
+	t.Parallel()
+
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+
+	type TC struct {
+		name    string
+		fields  fields
+		wantErr bool
+		args    *schema.RemoveDiscountFromSaleOpts
+		err     error
+	}
+
+	type catalogWithDiscountID struct {
+		ID         primitive.ObjectID `bson:"_id,omitempty"`
+		DiscountID primitive.ObjectID `bson:"discount_id,omitempty"`
+	}
+
+	db := app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName)
+	cat1 := catalogWithDiscountID{
+		ID: primitive.NewObjectID(),
+	}
+	cat2 := catalogWithDiscountID{
+		ID:         primitive.NewObjectID(),
+		DiscountID: primitive.NewObjectID(),
+	}
+
+	db.Collection(model.CatalogColl).InsertOne(context.TODO(), cat1)
+	db.Collection(model.CatalogColl).InsertOne(context.TODO(), cat2)
+
+	validBefore, _ := time.Parse(time.RFC3339, "2021-05-08T00:00:00+00:00")
+	validAfter, _ := time.Parse(time.RFC3339, "2021-03-06T00:00:00+00:00")
+
+	toActDiscount := model.Discount{
+		ID:          primitive.NewObjectID(),
+		CatalogID:   cat1.ID,
+		IsActive:    false,
+		ValidBefore: validBefore,
+		ValidAfter:  validAfter,
+	}
+	db.Collection(model.DiscountColl).InsertOne(context.TODO(), toActDiscount)
+
+	validBefore, _ = time.Parse(time.RFC3339, "2021-03-06T00:00:00+00:00")
+	validAfter, _ = time.Parse(time.RFC3339, "2021-02-05T00:00:00+00:00")
+
+	toDeActDiscount := model.Discount{
+		ID:          cat2.DiscountID,
+		CatalogID:   cat2.ID,
+		IsActive:    true,
+		ValidBefore: validBefore,
+		ValidAfter:  validAfter,
+	}
+	db.Collection(model.DiscountColl).InsertOne(context.TODO(), toDeActDiscount)
+
+	tests := []TC{
+		{
+			name: "[Ok] isActive false",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+
+			args: &schema.RemoveDiscountFromSaleOpts{
+				CatalogID:  toActDiscount.CatalogID,
+				DiscountID: toActDiscount.ID,
+				IsActive:   toActDiscount.IsActive,
+			},
+			wantErr: false,
+		},
+		{
+			name: "[Ok] isActive true",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName),
+				Logger: app.Logger,
+			},
+
+			args: &schema.RemoveDiscountFromSaleOpts{
+				CatalogID:  toDeActDiscount.CatalogID,
+				DiscountID: toDeActDiscount.ID,
+				IsActive:   toDeActDiscount.IsActive,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			di := &DiscountImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.Discount = di
+			err := di.RemoveDiscountFromSale(tt.args)
+			fmt.Println(err)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+			}
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				assert.Equal(t, tt.err.Error(), err.Error())
+			}
+		})
+	}
+}

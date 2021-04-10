@@ -176,3 +176,9 @@ type GetSalesResp struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+type RemoveDiscountFromSaleOpts struct {
+	CatalogID  primitive.ObjectID `json:"catalog_id" validate:"required"`
+	DiscountID primitive.ObjectID `json:"discount_id" validate:"required"`
+	IsActive   bool               `json:"is_active" validate:"required"`
+}
