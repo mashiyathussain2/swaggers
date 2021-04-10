@@ -155,12 +155,12 @@ func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	err := a.App.Customer.AddAddress(&s)
+	resp, err := a.App.Customer.AddAddress(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	requestCTX.SetAppResponse(true, http.StatusOK)
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
 func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {

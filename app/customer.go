@@ -24,7 +24,7 @@ type Customer interface {
 
 	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
 	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
-	AddAddress(opts *schema.AddAddressOpts) error
+	AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error)
 	GetAddresses(primitive.ObjectID) ([]model.Address, error)
 	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
 }
@@ -69,15 +69,24 @@ func (ci *CustomerImpl) SignUp(opts *schema.CreateUserOpts) (auth.Claim, error) 
 	if err != nil {
 		return nil, err
 	}
+	cart_id, err := ci.App.Cart.CreateCart(user.ID)
+	if err != nil {
+		return nil, err
+	}
 	customer := model.Customer{
 		UserID:    user.ID,
 		CreatedAt: time.Now().UTC(),
+		CartID:    cart_id,
 	}
 	res, err := ci.DB.Collection(model.CustomerColl).InsertOne(context.TODO(), customer)
+	if err != nil {
+		return nil, err
+	}
 	customer.ID = res.InsertedID.(primitive.ObjectID)
 
 	claim := auth.UserClaim{
 		ID:         user.ID.Hex(),
+		CartID:     cart_id.Hex(),
 		CustomerID: customer.ID.Hex(),
 		Type:       user.Type,
 		Role:       model.UserRole,
@@ -181,7 +190,7 @@ func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *sc
 	return nil
 }
 
-func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) error {
+func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error) {
 	findQuery := bson.M{
 		"user_id": opts.UserID,
 	}
@@ -208,12 +217,24 @@ func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) error {
 	}
 	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), findQuery, updateQuery)
 	if err != nil {
-		return errors.Wrapf(err, "unable to add address")
+		return nil, errors.Wrapf(err, "unable to add address")
 	}
 	if res.MatchedCount == 0 {
-		return errors.Errorf("unable to find user with id: %s", opts.UserID.Hex())
+		return nil, errors.Errorf("unable to find user with id: %s", opts.UserID.Hex())
 	}
-	return nil
+	addressRes := schema.AddAddressResp{
+		ID:            address.ID,
+		DisplayName:   address.DisplayName,
+		ContactNumber: address.ContactNumber,
+		Line1:         address.Line1,
+		Line2:         address.Line2,
+		District:      address.District,
+		City:          address.City,
+		State:         address.State,
+		PostalCode:    address.PostalCode,
+		PlainAddress:  address.PlainAddress,
+	}
+	return &addressRes, nil
 }
 
 func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, error) {
@@ -225,7 +246,6 @@ func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, er
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch addresses")
 	}
-
 	return customer.Addresses, nil
 }
 

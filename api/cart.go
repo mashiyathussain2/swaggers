@@ -14,13 +14,13 @@ import (
 )
 
 func (a *API) createCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	cat_id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+	user_id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
 
-	resp, err := a.App.Cart.CreateCart(cat_id)
+	resp, err := a.App.Cart.CreateCart(user_id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -39,8 +39,8 @@ func (a *API) addToCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CartID {
-		requestCTX.SetErr(errors.New("invalid cart"), http.StatusForbidden)
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	resp, err := a.App.Cart.AddToCart(&s)
@@ -61,8 +61,8 @@ func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseW
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CartID {
-		requestCTX.SetErr(errors.New("invalid cart"), http.StatusForbidden)
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	resp, err := a.App.Cart.UpdateItemQty(&s)
@@ -101,8 +101,8 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CartID {
-		requestCTX.SetErr(errors.New("invalid cart"), http.StatusForbidden)
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	err := a.App.Cart.SetCartAddress(&s)
@@ -114,9 +114,9 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 }
 
 func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["cartID"])
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
-		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["cartID"]), &goerror.BadRequest), http.StatusBadRequest)
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
 	source := r.URL.Query().Get("source")
@@ -124,8 +124,8 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid source :%s in url", mux.Vars(r)["source"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CartID {
-		requestCTX.SetErr(errors.New("invalid cart"), http.StatusForbidden)
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	resp, err := a.App.Cart.CheckoutCart(id, source)
@@ -134,5 +134,20 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+
+}
+
+func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	err = a.App.Cart.ClearCart(userID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
 
 }

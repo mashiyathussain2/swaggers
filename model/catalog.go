@@ -105,6 +105,7 @@ type CatalogInfo struct {
 	UpdatedAt     time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	DiscountInfo  *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	InventoryInfo []Inventory       `json:"inventory_info,omitempty" bson:"inventory_info,omitempty"`
+	BrandInfo     *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 }
 
 //Defined Multiple Status for Inventory
@@ -250,7 +251,17 @@ type AllCatalogInfoResp struct {
 	CreatedAt    time.Time         `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt    time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	BrandInfo    *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 }
+
+type BrandInfoResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	Name        string             `json:"name,omitempty"`
+	Slug        string             `json:"slug,omitempty"`
+	Description string             `json:"description,omitempty"`
+	Logo        *IMG               `json:"logo"`
+}
+
 type DiscountInfoResp struct {
 	ID         primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	CatalogID  primitive.ObjectID   `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`

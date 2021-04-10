@@ -27,6 +27,7 @@ type Cart interface {
 	GetCartInfo(primitive.ObjectID) (*model.Cart, error)
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
+	ClearCart(primitive.ObjectID) error
 }
 
 // CartImpl implements Cart interface methods
@@ -116,7 +117,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 
 	//checking if item already in cart
 	findFilter := bson.M{
-		"_id":              opts.ID,
+		"user_id":          opts.ID,
 		"items.catalog_id": opts.CatalogID,
 		"items.variant_id": opts.VariantID,
 	}
@@ -127,7 +128,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			return nil, errors.Wrapf(mongoErr, "unable to check cart for catalog")
 		}
 	}
-	if cartMongo.ID == opts.ID {
+	if cartMongo.UserID == opts.ID {
 		return nil, errors.Errorf("item already in cart")
 	}
 
@@ -161,6 +162,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 		CatalogID: opts.CatalogID,
 		BrandID:   s.Payload.BrandID,
 		VariantID: opts.VariantID,
+		BrandInfo: s.Payload.BrandInfo,
 		CatalogInfo: model.CatalogInfo{
 			ID:            s.Payload.ID,
 			BrandID:       s.Payload.BrandID,
@@ -208,7 +210,7 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	}
 
 	filter := bson.M{
-		"_id": opts.ID,
+		"user_id": opts.ID,
 	}
 	qOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var cart model.Cart
@@ -255,7 +257,7 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	}
 
 	filterQuery := bson.M{
-		"_id":              opts.ID,
+		"user_id":          opts.ID,
 		"items.catalog_id": opts.CatalogID,
 		"items.variant_id": opts.VariantID,
 	}
@@ -290,9 +292,9 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 		updateQuery = bson.M{
 			"$inc": bson.M{
 				"items.$.quantity":     opts.Quantity,
-				"total_price.value":    opts.Quantity * uint(incPrice.Value),
-				"grand_total.value":    opts.Quantity * incGrandTotal,
-				"total_discount.value": opts.Quantity * discount,
+				"total_price.value":    opts.Quantity * int(incPrice.Value),
+				"grand_total.value":    opts.Quantity * int(incGrandTotal),
+				"total_discount.value": opts.Quantity * int(discount),
 			},
 		}
 	}
@@ -324,7 +326,8 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 		item.BasePrice = &item.CatalogInfo.BasePrice
 		item.RetailPrice = &item.CatalogInfo.RetailPrice
 		item.TransferPrice = &item.CatalogInfo.TransferPrice
-
+		item.BrandInfo = item.CatalogInfo.BrandInfo
+		fmt.Println(item.BrandInfo)
 		tp = tp + (uint(item.RetailPrice.Value) * item.Quantity)
 
 		if item.CatalogInfo.DiscountInfo != nil {
@@ -385,7 +388,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 		ContactNumber:     opts.ContactNumber,
 	}
 	findQuery := bson.M{
-		"_id": opts.ID,
+		"user_id": opts.ID,
 	}
 	updateQuery := bson.M{
 		"$set": bson.M{
@@ -412,7 +415,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
-			"_id": id,
+			"user_id": id,
 		},
 	}}
 
@@ -625,4 +628,31 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	}
 
 	return &orderResp.Payload, nil
+}
+
+func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
+
+	findQuery := bson.M{
+		"user_id": id,
+	}
+	updateQuery := bson.M{
+		"$set": bson.M{
+			"total_price.value":    0,
+			"total_discount.value": 0,
+			"grand_total.value":    0,
+		},
+		"$unset": bson.M{
+			"items": "",
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CartColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to query for document")
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find cart for user with id: %s", id)
+	}
+
+	return nil
 }

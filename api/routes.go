@@ -40,13 +40,14 @@ func (a *API) InitRoutes() {
 
 	// TODO: Shall i remove this api??
 	a.Router.APIRoot.Handle("/brand/{brandID}", a.requestWithAuthHandler(a.getBrandByID)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/cart/{userID}", a.requestWithInternalHandler(a.clearCart)).Methods("DELETE")
 
 	a.Router.APIRoot.Handle("/app/cart", a.requestWithAuthHandler(a.addToCart)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/item", a.requestWithAuthHandler(a.updateItemQty)).Methods("PUT")
 	// a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestHandler(a.createCart)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestWithAuthHandler(a.getCartInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/cart/{cartID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/{userID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestWithAuthHandler(a.followInfluencer)).Methods("POST")
@@ -57,6 +58,12 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestWithAuthHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestWithAuthHandler(a.getInfluencerInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/express-checkout", a.requestWithAuthHandler(a.expressCheckout)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestWithAuthHandler(a.getWishlist)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
