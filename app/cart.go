@@ -600,6 +600,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to create request to create order %s", coURL)
 		return nil, errors.Wrap(err, "failed to create request to generete order")
 	}
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
 	resp, err := client.Do(req)
 	//Handle Error
