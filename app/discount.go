@@ -413,20 +413,32 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 
 func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) error {
 	filter := bson.M{
-		"valid_before": bson.M{
-			"$lte": t,
+		"$or": bson.A{
+			bson.M{
+				"valid_before": bson.M{
+					"$lte": t,
+				},
+				"is_active": true,
+			},
+			bson.M{
+				"is_active":   true,
+				"is_disabled": true,
+			},
 		},
-		"is_active":   true,
-		"is_disabled": false,
 	}
 
 	var discounts []model.Discount
-	cur, err := di.DB.Collection(model.DiscountColl).Find(ctx, filter)
+	queryOpts := options.Find().SetProjection(bson.M{"_id": 1, "catalog_id": 1})
+	cur, err := di.DB.Collection(model.DiscountColl).Find(ctx, filter, queryOpts)
 	if err != nil {
 		return errors.Wrap(err, "unable to query for discounts")
 	}
 	if err := cur.All(ctx, &discounts); err != nil {
 		return errors.Wrap(err, "error decoding Catalogs")
+	}
+
+	if len(discounts) == 0 {
+		return nil
 	}
 	var updateDiscountIDs []primitive.ObjectID
 	var updateCatalogIds []primitive.ObjectID
@@ -468,9 +480,6 @@ func (di *DiscountImpl) deActivateDiscount(ctx context.Context, t time.Time) err
 		},
 	}
 
-	if len(updateDiscountIDs) == 0 {
-		return nil
-	}
 	res, err = di.DB.Collection(model.DiscountColl).UpdateMany(ctx, filterQuery, updateQuery)
 	if err != nil {
 		di.Logger.Log().Err(err)
