@@ -75,7 +75,13 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	var s model.GetAllCatalogInfoResp
 
 	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + opts.CatalogID.Hex()
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to request to get catalog info")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch catlog data")
 	}
@@ -221,7 +227,13 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	var s model.GetCatalogVariant
 
 	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + opts.CatalogID.Hex() + "/variant/" + opts.VariantID.Hex()
-	resp, err := http.Get(url)
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create request to get catalog and variant")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch catlog data")
 	}
@@ -477,7 +489,12 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			// url := "http://localhost:8000" + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
 
 			url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
-			resp, err := http.Get(url)
+			client := http.Client{}
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+			}
+			resp, err := client.Do(req)
 			if err != nil {
 				return nil, errors.Wrapf(err, "unable to fetch catlog data")
 			}
@@ -577,7 +594,14 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
-	resp, err := http.Post(coURL, "application/json", bytes.NewBuffer(reqBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to create request to create order %s", coURL)
+		return nil, errors.Wrap(err, "failed to create request to generete order")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)
