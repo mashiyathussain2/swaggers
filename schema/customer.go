@@ -68,3 +68,17 @@ type AddAddressOpts struct {
 	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
 	ContactNumber     *model.PhoneNumber `json:"contact_number" validate:"required"`
 }
+
+//AddAddressResp contains field required to add new address
+type AddAddressResp struct {
+	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	DisplayName   string             `json:"display_name,omitempty" bson:"display_name,omitempty"`
+	ContactNumber *model.PhoneNumber `json:"phone_no,omitempty" bson:"contact_number,omitempty"`
+	Line1         string             `json:"line1,omitempty" bson:"line1,omitempty"`
+	Line2         string             `json:"line2,omitempty" bson:"line2,omitempty"`
+	District      string             `json:"district,omitempty" bson:"district,omitempty"`
+	City          string             `json:"city,omitempty" bson:"city,omitempty"`
+	State         *model.State       `json:"state,omitempty" bson:"state,omitempty"`
+	PostalCode    string             `json:"postal_code,omitempty" bson:"postal_code,omitempty"`
+	PlainAddress  string             `json:"plain_address,omitempty" bson:"plain_address,omitempty"`
+}

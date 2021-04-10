@@ -39,4 +39,5 @@ type Item struct {
 	TransferPrice   *Price             `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 	DiscountedPrice *Price             `json:"discounted_price,omitempty" bson:"discounted_price,omitempty"`
 	Quantity        uint               `json:"quantity,omitempty" bson:"quantity,omitempty"`
+	BrandInfo       *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 }
