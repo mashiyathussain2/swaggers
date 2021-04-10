@@ -755,9 +755,15 @@ func (kc *KeeperCatalogImpl) AddCatalogContent(opts *schema.AddCatalogContentOpt
 	}
 	opts.BrandID = catalogs[0].BrandID
 	requestByte, _ := json.Marshal(opts)
-	requestReader := bytes.NewReader(requestByte)
-
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/video", "application/json", requestReader)
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content/catalog/video"
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestByte))
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		return nil, []error{errors.Wrap(err, "failed to generate request to create catalog video")}
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -810,9 +816,17 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 	}
 
 	requestByte, _ := json.Marshal(requestData)
-	requestReader := bytes.NewReader(requestByte)
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content/catalog/image"
+	client := http.Client{}
 
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/image", "application/json", requestReader)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestByte))
+	if err != nil {
+		return []error{errors.Wrap(err, "failed to generate request to create catalog image")}
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return []error{err}
 	}
@@ -1203,7 +1217,14 @@ func (kc *KeeperCatalogImpl) GetKeeperCatalogContent(id primitive.ObjectID) ([]s
 		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
 		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
 	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to catalog content")
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
 	if err != nil {
 		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
 		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
@@ -1240,7 +1261,16 @@ func (kc *KeeperCatalogImpl) GetCatalogContent(id primitive.ObjectID) ([]schema.
 		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
 		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
 	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get catalog content")
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
 		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
@@ -1488,7 +1518,7 @@ func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error
 	if err != nil {
 		return errors.Wrap(err, "error sending deleting content request to cms")
 	}
-
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
 	if _, err := client.Do(req); err != nil {
 		return errors.Wrap(err, "error deleting content from cms")
 	}

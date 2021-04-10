@@ -94,6 +94,7 @@ type ElasticsearchConfig struct {
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`
 	EntityApi string `mapstructure:"entityApi"`
+	Token     string `mapstructure:"token"`
 }
 
 // ServiceConfig contains app service related config
