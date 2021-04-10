@@ -13,7 +13,7 @@ func InitConsumer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.CustomerChangeConfig,
 	})
-	go a.CustomerChanges.Consume(ctx, a.UserProcessor.ProcessUserUpdate)
+	go a.CustomerChanges.Consume(ctx, a.UserProcessor.ProcessCustomerUpdate)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
@@ -32,6 +32,7 @@ func InitConsumer(a *App) {
 func CloseConsumer(a *App) {
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
+	a.CustomerChanges.Close()
 }
 
 // InitProducer initializes kafka message producers

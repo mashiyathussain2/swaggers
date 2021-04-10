@@ -183,7 +183,7 @@ func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
 	return &up
 }
 
-func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
+func (up *UserProcessor) ProcessCustomerUpdate(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
