@@ -2,8 +2,11 @@ package api
 
 import (
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -14,6 +17,10 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 	}
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	resp, err := a.App.ExpressCheckout.ExpressCheckoutComplete(&s)

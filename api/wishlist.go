@@ -3,10 +3,12 @@ package api
 import (
 	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/vasupal1996/goerror"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -21,6 +23,10 @@ func (a *API) addToWishlist(requestCTX *handler.RequestContext, w http.ResponseW
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	err := a.App.Wishlist.AddToWishlist(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -33,6 +39,10 @@ func (a *API) getWishlist(requestCTX *handler.RequestContext, w http.ResponseWri
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	res, err := a.App.Wishlist.GetWishlistMap(id)
@@ -51,6 +61,10 @@ func (a *API) removeFromWishlist(requestCTX *handler.RequestContext, w http.Resp
 	}
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	err := a.App.Wishlist.RemoveFromWishlist(&s)
