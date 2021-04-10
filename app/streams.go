@@ -1,7 +1,9 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
+	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
 
@@ -160,4 +162,53 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 		Value: val,
 	}
 	ip.App.InfluencerFullProducer.Publish(m)
+}
+
+type UserProcessor struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+type UserProcessorOpts struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
+	up := UserProcessor{
+		App:    opts.App,
+		Logger: opts.Logger,
+	}
+
+	return &up
+}
+
+func (up *UserProcessor) ProcessUserUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		up.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode user update message")
+		return
+	}
+	if s.Meta.Operation == "i" {
+		var user model.User
+		userBytes, err := json.Marshal(s.Data)
+		if err != nil {
+			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode user update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(userBytes, &user); err != nil {
+			up.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		if user.Type == model.CustomerType {
+			_, err = up.App.Cart.CreateCart(user.ID)
+			if err != nil {
+				up.Logger.Err(err).Msg("failed to create cart")
+				return
+			}
+		}
+	}
+
+	up.App.UserChanges.Commit(context.TODO(), msg)
 }

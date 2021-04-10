@@ -30,4 +30,10 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.CartConfig.DBName),
 		Logger: a.Logger,
 	})
+
+	a.KeeperUser = InitKeeperUser(&KeeperUserOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.UserConfig.DBName),
+		Logger: a.Logger,
+	})
 }

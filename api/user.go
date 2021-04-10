@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -9,6 +10,7 @@ import (
 )
 
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	fmt.Println(requestCTX.UserClaim.(*auth.UserClaim))
 	requestCTX.SetAppResponse(requestCTX.UserClaim, http.StatusOK)
 }
 
@@ -184,4 +186,26 @@ func (a *API) getUserInfoByID(requestCTX *handler.RequestContext, w http.Respons
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) keeperLogin(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	url := a.App.KeeperUser.Login()
+	requestCTX.SetRedirectResponse(url, http.StatusTemporaryRedirect)
+}
+
+func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	claim, err := a.App.KeeperUser.Callback(r.FormValue("state"), r.FormValue("code"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	token, err := a.TokenAuth.SignKeeperToken(claim)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	redirectURL := fmt.Sprintf("%s?%s", a.Config.KeeperLoginRedirectURL, token)
+	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }

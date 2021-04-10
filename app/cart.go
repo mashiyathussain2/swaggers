@@ -54,7 +54,6 @@ func InitCart(opts *CartImplOpts) Cart {
 }
 
 func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error) {
-
 	cart := model.Cart{
 		UserID:        id,
 		CreatedAt:     time.Now().UTC(),
@@ -76,7 +75,13 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	var s model.GetAllCatalogInfoResp
 
 	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + opts.CatalogID.Hex()
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to request to get catalog info")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch catlog data")
 	}
@@ -131,7 +136,6 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	discountInfo := model.DiscountInfo{}
 	var dp *model.Price
 	if s.Payload.DiscountInfo != nil {
-		fmt.Println(s.Payload.DiscountInfo)
 		for _, d := range s.Payload.DiscountInfo.VariantsID {
 			if d == opts.VariantID {
 				switch s.Payload.DiscountInfo.Type {
@@ -223,7 +227,13 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	var s model.GetCatalogVariant
 
 	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + opts.CatalogID.Hex() + "/variant/" + opts.VariantID.Hex()
-	resp, err := http.Get(url)
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create request to get catalog and variant")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to fetch catlog data")
 	}
@@ -295,7 +305,7 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 	return &cart, nil
 }
 
-//GetCartInfo function increases, decreases or removes the item from cart based on input qty
+//GetCartInfo function returns cart info
 func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 
 	ctx := context.TODO()
@@ -329,7 +339,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 					switch item.DiscountInfo.Type {
 					case model.FlatOffType:
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(item.DiscountInfo.Value))
-						td = td + item.DiscountInfo.Value
+						td = td + item.DiscountInfo.Value*item.Quantity
 					case model.PercentOffType:
 						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
@@ -339,8 +349,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 							d = item.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(item.RetailPrice.Value - float32(d))
-						td = td + d
-
+						td = td + d*item.Quantity
 					default:
 					}
 					item.DiscountedPrice = dp
@@ -391,7 +400,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 		return errors.Wrapf(err, "unable to set the address")
 	}
 	if res.MatchedCount == 0 {
-		return errors.Errorf("unable to find user with id: %s", opts.ID.Hex())
+		return errors.Errorf("unable to find cart with id: %s", opts.ID.Hex())
 	}
 
 	return nil
@@ -480,7 +489,12 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			// url := "http://localhost:8000" + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
 
 			url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
-			resp, err := http.Get(url)
+			client := http.Client{}
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+			}
+			resp, err := client.Do(req)
 			if err != nil {
 				return nil, errors.Wrapf(err, "unable to fetch catlog data")
 			}
@@ -519,7 +533,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				switch cv.Payload.DiscountInfo.Type {
 				case model.FlatOffType:
 					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(cv.Payload.DiscountInfo.Value))
-
 				case model.PercentOffType:
 					// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 					// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
@@ -529,7 +542,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 						d = cv.Payload.DiscountInfo.MaxValue
 					}
 					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(d))
-
 				default:
 				}
 			}
@@ -578,12 +590,19 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(orderOpts)
-	fmt.Println(string(reqBody))
 	if err != nil {
 		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
-	resp, err := http.Post(coURL, "application/json", bytes.NewBuffer(reqBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to create request to create order %s", coURL)
+		return nil, errors.Wrap(err, "failed to create request to generete order")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)

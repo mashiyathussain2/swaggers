@@ -23,6 +23,7 @@ type Config struct {
 	SNSConfig           SNSConfig           `mapstructure:"sns"`
 	SESConfig           SESConfig           `mapstructure:"ses"`
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
+	GoogleOAuth         GoogleOAuth         `mapstructure:"googleOAuth"`
 }
 
 // ServerConfig has only server specific configuration
@@ -38,14 +39,23 @@ type ServerConfig struct {
 	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
 }
 
+type GoogleOAuth struct {
+	ClientID     string   `mapstructure:"clientID"`
+	ClientSecret string   `mapstructure:"clientSecret"`
+	RedirectURL  string   `mapstructure:"redirectURL"`
+	Scopes       []string `mapstructure:"scopes"`
+	State        string   `mapstructure:"state"`
+}
+
 // APIConfig contains api package related configurations
 type APIConfig struct {
-	Mode               string `mapstructure:"mode"`
-	EnableTestRoute    bool   `mapstructure:"enableTestRoute"`
-	EnableMediaRoute   bool   `mapstructure:"enableMediaRoute"`
-	EnableStaticRoute  bool   `mapstructure:"enableStaticRoute"`
-	MaxRequestDataSize int    `mapstructure:"maxRequestDataSize"`
-	HypdApiConfig      HypdApiConfig
+	Mode                   string `mapstructure:"mode"`
+	EnableTestRoute        bool   `mapstructure:"enableTestRoute"`
+	EnableMediaRoute       bool   `mapstructure:"enableMediaRoute"`
+	EnableStaticRoute      bool   `mapstructure:"enableStaticRoute"`
+	MaxRequestDataSize     int    `mapstructure:"maxRequestDataSize"`
+	KeeperLoginRedirectURL string `mapstructure:"keeperLoginRedirectURL"`
+	HypdApiConfig          HypdApiConfig
 }
 
 // APPConfig contains api package related configurations
@@ -56,12 +66,14 @@ type APPConfig struct {
 	SESConfig           SESConfig
 	HypdApiConfig       HypdApiConfig
 	ElasticsearchConfig ElasticsearchConfig
+	GoogleOAuth         GoogleOAuth
 	UserConfig          ServiceConfig `mapstructure:"user"`
 	CustomerConfig      ServiceConfig `mapstructure:"customer"`
 	BrandConfig         ServiceConfig `mapstructure:"brand"`
 	InfluencerConfig    ServiceConfig `mapstructure:"influencer"`
 	CartConfig          ServiceConfig `mapstructure:"cart"`
 
+	UserChangeConfig       ListenerConfig `mapstructure:"userChangeConsumer"`
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 
@@ -82,6 +94,7 @@ type ElasticsearchConfig struct {
 type HypdApiConfig struct {
 	CatalogApi string `mapstructure:"catalogApi"`
 	OrderApi   string `mapstructure:"orderApi"`
+	Token      string `mapstructure:"token"`
 }
 
 // ServiceConfig contains app service related config
@@ -267,5 +280,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
+	config.APPConfig.GoogleOAuth = config.GoogleOAuth
 	return config
 }

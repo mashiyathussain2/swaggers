@@ -26,6 +26,7 @@ type Customer interface {
 	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
 	AddAddress(opts *schema.AddAddressOpts) error
 	GetAddresses(primitive.ObjectID) ([]model.Address, error)
+	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
 }
 
 // CustomerImpl implements Customer interface methods
@@ -226,4 +227,63 @@ func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, er
 	}
 
 	return customer.Addresses, nil
+}
+
+func (ci *CustomerImpl) GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error) {
+	var resp []schema.GetCustomerProfileInfoResp
+
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"_id": id,
+			},
+		},
+	}
+
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.UserColl,
+				"localField":   "user_id",
+				"foreignField": "_id",
+				"as":           "user_info",
+			},
+		},
+	}
+
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"user_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$user_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.CustomerColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get customer profile info")
+	}
+
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find customer info")
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	if !resp[0].UserInfo.EmailVerifiedAt.IsZero() {
+		resp[0].UserInfo.EmailVerified = true
+	}
+	if !resp[0].UserInfo.PhoneVerifiedAt.IsZero() {
+		resp[0].UserInfo.PhoneVerified = true
+	}
+	return &resp[0], nil
 }

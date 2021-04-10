@@ -9,6 +9,12 @@ import (
 func InitConsumer(a *App) {
 	ctx := context.TODO()
 
+	a.UserChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.UserChangeConfig,
+	})
+	go a.UserChanges.Consume(ctx, a.UserProcessor.ProcessUserUpdate)
+
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
 		Config: &a.Config.BrandChangeConfig,
@@ -51,4 +57,5 @@ func CloseProducer(a *App) {
 func InitProcessor(a *App) {
 	a.BrandProcessor = InitBrandProcessor(&BrandProcessorOpts{App: a, Logger: a.Logger})
 	a.InfluencerProcessor = InitInfluencerProcessor(&InfluencerProcessorOpts{App: a, Logger: a.Logger})
+	a.UserProcessor = InitUserProcessorOpts(&UserProcessorOpts{App: a, Logger: a.Logger})
 }

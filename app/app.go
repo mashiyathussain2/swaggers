@@ -31,8 +31,10 @@ type App struct {
 	Brand         Brand
 	Influencer    Influencer
 	Cart          Cart
+	KeeperUser    KeeperUser
 
 	// Consumer
+	UserChanges       kafka.Consumer
 	BrandChanges      kafka.Consumer
 	InfluencerChanges kafka.Consumer
 
@@ -41,6 +43,7 @@ type App struct {
 	InfluencerFullProducer kafka.Producer
 
 	// Processor
+	UserProcessor       *UserProcessor
 	BrandProcessor      *BrandProcessor
 	InfluencerProcessor *InfluencerProcessor
 }

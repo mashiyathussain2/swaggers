@@ -44,7 +44,6 @@ type GetUserResp struct {
 	Email         string             `json:"email,omitempty"`
 	PhoneNo       *model.PhoneNumber `json:"phone_no,omitempty"`
 	Username      string             `json:"username,omitempty"`
-	Password      string             `json:"password,omitempty"`
 	EmailVerified bool               `json:"email_verified,omitempty"`
 	PhoneVerified bool               `json:"phone_verified,omitempty"`
 	CreatedVia    string             `json:"created_via,omitempty"`
@@ -53,16 +52,19 @@ type GetUserResp struct {
 }
 
 type GetUserInfoResp struct {
-	ID            primitive.ObjectID `json:"id"`
-	CustomerID    primitive.ObjectID `json:"customer_id"`
-	Type          string             `json:"type"`
-	FullName      string             `json:"full_name"`
-	ProfileImage  *model.IMG         `json:"profile_image"`
-	Email         string             `json:"email"`
-	PhoneNo       *model.PhoneNumber `json:"phone_no"`
-	Username      string             `json:"username"`
-	EmailVerified bool               `json:"email_verified"`
-	PhoneVerified bool               `json:"phone_verified"`
+	ID              primitive.ObjectID `json:"id" bson:"_id"`
+	CustomerID      primitive.ObjectID `json:"customer_id" bson:"customer_id"`
+	Type            string             `json:"type" bson:"type"`
+	Role            string             `json:"role,omitempty" bson:"role,omitempty"`
+	FullName        string             `json:"full_name" bson:"full_name"`
+	ProfileImage    *model.IMG         `json:"profile_image" bson:"profile_image"`
+	Email           string             `json:"email" bson:"email"`
+	PhoneNo         *model.PhoneNumber `json:"phone_no" bson:"phone_no"`
+	Username        string             `json:"username" bson:"username"`
+	EmailVerifiedAt time.Time          `json:"email_verified_at" bson:"email_verified_at"`
+	PhoneVerifiedAt time.Time          `json:"phone_verified_at" bson:"phone_verified_at"`
+	EmailVerified   bool               `json:"email_verified" bson:"email_verified"`
+	PhoneVerified   bool               `json:"phone_verified" bson:"phone_verified"`
 }
 
 //ForgotPasswordOpts contains fields and validations required to send otp to email to reset password
@@ -104,4 +106,28 @@ type LoginWithSocial struct {
 
 type GetUserInfoByIDOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
+}
+
+type KeeperUserLoginOpts struct {
+	GoogleID      string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	Picture       string `json:"picture"`
+	Domain        string `json:"hd"`
+}
+
+type CreateOrUpdateKeeperUser struct {
+	Email        string
+	FullName     string
+	ProfileImage *Img
+}
+
+type KeeperUserInfoResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	UserInfo     *GetUserResp       `json:"user_info,omitempty" bson:"user_info,omitempty"`
+	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
