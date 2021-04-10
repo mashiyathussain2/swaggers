@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"log"
@@ -30,6 +29,8 @@ type Discount interface {
 	GetDiscountAndCatalogInfoBySaleID(primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error)
 	GetAppActiveSale(*schema.GetAppActiveSaleOpts) ([]schema.GetSalesResp, error)
 	RemoveDiscountFromSale(*schema.RemoveDiscountFromSaleOpts) error
+
+	CheckAndUpdateStatus()
 }
 
 // DiscountImpl implements Discount service methods
@@ -308,20 +309,17 @@ func (di *DiscountImpl) EditSaleStatus(opts *schema.EditSaleStatusOpts) error {
 }
 
 //CheckAndUpdateStatus checks discount to be activated/deactivated and updates status
-func (di *DiscountImpl) CheckAndUpdateStatus() error {
-
+func (di *DiscountImpl) CheckAndUpdateStatus() {
 	ctx := context.TODO()
 	t := time.Now().UTC()
-	fmt.Println(t)
 	err := di.activateDiscount(ctx, t)
 	if err != nil {
-		return err
+		di.Logger.Err(err).Msg("failed to activate discount")
 	}
 	err = di.deActivateDiscount(ctx, t)
 	if err != nil {
-		return err
+		di.Logger.Err(err).Msg("failed to deactivate discount")
 	}
-	return nil
 }
 
 func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error {

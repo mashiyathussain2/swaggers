@@ -3,7 +3,14 @@ package app
 import (
 	"context"
 	"go-app/server/kafka"
+	"time"
 )
+
+func RunEvery(d time.Duration, f func()) {
+	for range time.Tick(d) {
+		f()
+	}
+}
 
 // InitConsumer initializes consumers
 func InitConsumer(a *App) {
@@ -50,6 +57,8 @@ func InitConsumer(a *App) {
 		Config: &a.Config.CollectionChangeConfig,
 	})
 	go a.CollectionChanges.ConsumeAndCommit(ctx, a.CollectionProcessor.ProcessCollectionUpdate)
+
+	go RunEvery(10*time.Second, a.Discount.CheckAndUpdateStatus)
 
 }
 
