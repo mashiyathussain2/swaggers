@@ -74,7 +74,7 @@ func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"cart_id": cartID,
+			"cart_id": cartID.InsertedID.(primitive.ObjectID),
 		},
 	}
 	if _, err := ci.DB.Collection(model.CustomerColl).UpdateOne(ctx, filter, update); err != nil {
