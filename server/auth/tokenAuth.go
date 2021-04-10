@@ -25,6 +25,8 @@ type Claim interface {
 	ToJSON() string
 	GetJWTToken() *jwt.Token
 	IsAdmin() bool
+	IsSudo() bool
+	IsInternal() bool
 }
 
 // JWTToken represents jwt encoded token string for json format
