@@ -61,6 +61,6 @@ func NewApp(opts *Options) *App {
 // Close closes all the resources linked with the app
 func (a *App) Close() {
 	// terminating connections to all consumes
-	// CloseConsumer(a)
-	// CloseProducer(a)
+	CloseConsumer(a)
+	CloseProducer(a)
 }
