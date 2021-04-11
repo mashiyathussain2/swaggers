@@ -125,7 +125,10 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByID(id string) (*schema.GetCatalogIn
 }
 
 func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogByCategoryIDOpts) ([]schema.GetCatalogBasicResp, error) {
-	query := elastic.NewTermQuery("category_path", opts.CategoryID)
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("status.value", model.Publish))
+	queries = append(queries, elastic.NewTermQuery("category_path", opts.CategoryID))
+	query := elastic.NewBoolQuery().Must(queries...)
 	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(int(opts.Page) * 20).Size(20).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get catalogs")
@@ -173,7 +176,9 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	mSearch := elastic.NewMultiSearchService(ei.Client)
 	var mSearchQuery []*elastic.SearchRequest
 
-	catalogQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"brand_info.name.autocomplete", "name.autocomplete", "keywords.autocomplete"}...).Operator("or").Type("cross_fields")
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	mustQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"brand_info.name.autocomplete", "name.autocomplete", "keywords.autocomplete"}...).Operator("or").Type("cross_fields")
+	catalogQuery := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id"}, nil))
 
 	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
