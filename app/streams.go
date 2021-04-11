@@ -217,3 +217,61 @@ func (up *UserProcessor) ProcessCustomerUpdate(msg kafka.Message) {
 
 	up.App.CustomerChanges.Commit(context.TODO(), msg)
 }
+
+type CartProcessor struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+type CartProcessorOpts struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+func InitCartProcessorOpts(opts *CartProcessorOpts) *CartProcessor {
+	cp := CartProcessor{
+		App:    opts.App,
+		Logger: opts.Logger,
+	}
+
+	return &cp
+}
+
+func (cp *CartProcessor) ProcessDiscountUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
+		return
+	}
+
+	if s.Meta.Operation == "u" {
+		var discount schema.DiscountKafkaMessage
+		discountBytes, err := json.Marshal(s.Data)
+		if err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode discount update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(discountBytes, &discount); err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+
+		opts := schema.DiscountInCartItemsOpts{
+			ID:         discount.ID,
+			CatalogID:  discount.CatalogID,
+			VariantsID: discount.VariantsID,
+			Type:       discount.Type,
+			Value:      discount.Value,
+			IsActive:   discount.IsActive,
+			IsDisabled: discount.IsDisabled,
+			MaxValue:   discount.MaxValue,
+		}
+		if discount.IsActive {
+			cp.App.Cart.AddDiscountInCartItems(&opts)
+		} else {
+			cp.App.Cart.RemoveDiscountInCartItems(&opts)
+		}
+	}
+
+}

@@ -28,6 +28,9 @@ type Cart interface {
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
 	ClearCart(primitive.ObjectID) error
+
+	AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts)
+	RemoveDiscountInCartItems(opts *schema.DiscountInCartItemsOpts)
 }
 
 // CartImpl implements Cart interface methods
@@ -668,4 +671,49 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 	}
 
 	return nil
+}
+
+func (ci *CartImpl) AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts) {
+	filter := bson.M{
+		"catalog_id": opts.CatalogID,
+		"variant_id": bson.M{
+			"$in": opts.VariantsID,
+		},
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"items.discount_id": opts.ID,
+			"items.discount_info": model.DiscountInfo{
+				ID:       opts.ID,
+				Type:     opts.Type,
+				Value:    opts.Value,
+				MaxValue: opts.MaxValue,
+			},
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add discount in cart items")
+	}
+}
+
+func (ci *CartImpl) RemoveDiscountInCartItems(opts *schema.DiscountInCartItemsOpts) {
+	filter := bson.M{
+		"catalog_id": opts.CatalogID,
+		"variant_id": bson.M{
+			"$in": opts.VariantsID,
+		},
+	}
+
+	update := bson.M{
+		"$unset": bson.M{
+			"items.discount_id":   1,
+			"items.discount_info": 1,
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add discount in cart items")
+	}
 }
