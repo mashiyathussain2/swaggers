@@ -15,6 +15,12 @@ func InitConsumer(a *App) {
 	})
 	go a.CustomerChanges.Consume(ctx, a.UserProcessor.ProcessCustomerUpdate)
 
+	a.DiscountChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.DiscountChangeConfig,
+	})
+	go a.DiscountChanges.Consume(ctx, a.CartProcessor.ProcessDiscountUpdate)
+
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
 		Config: &a.Config.BrandChangeConfig,
