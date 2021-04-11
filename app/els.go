@@ -79,7 +79,10 @@ func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESRes
 }
 
 func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogBasicResp, error) {
-	query := elastic.NewTermsQueryFromStrings("id", ids...)
+
+	mustQuery := elastic.NewTermsQueryFromStrings("id", ids...)
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
 	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
@@ -96,12 +99,13 @@ func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogB
 		}
 		resp = append(resp, s)
 	}
-
 	return resp, nil
 }
 
 func (ei *ElasticsearchImpl) GetCatalogInfoByID(id string) (*schema.GetCatalogInfoResp, error) {
-	query := elastic.NewTermQuery("id", id)
+	mustQuery := elastic.NewTermQuery("id", id)
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
 	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
