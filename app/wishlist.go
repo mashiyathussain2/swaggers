@@ -22,7 +22,7 @@ type Wishlist interface {
 	AddToWishlist(*schema.AddToWishlistOpts) error
 	RemoveFromWishlist(*schema.RemoveFromWishlistOpts) error
 	GetWishlist(primitive.ObjectID) ([]schema.GetWishlistResp, error)
-	GetWishlistMap(primitive.ObjectID) (map[string]schema.CatalogWishListinfo, error)
+	GetWishlistMap(id primitive.ObjectID) (map[string]bool, error)
 }
 
 // WishlistImpl implements Wishlist interface methods
