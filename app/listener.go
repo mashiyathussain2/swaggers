@@ -51,6 +51,9 @@ func CloseConsumer(a *App) {
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
 	a.CustomerChanges.Close()
+	a.DiscountChanges.Close()
+	a.InfluencerChanges.Close()
+	a.CatalogChanges.Close()
 }
 
 // InitProducer initializes kafka message producers
@@ -77,4 +80,5 @@ func InitProcessor(a *App) {
 	a.BrandProcessor = InitBrandProcessor(&BrandProcessorOpts{App: a, Logger: a.Logger})
 	a.InfluencerProcessor = InitInfluencerProcessor(&InfluencerProcessorOpts{App: a, Logger: a.Logger})
 	a.UserProcessor = InitUserProcessorOpts(&UserProcessorOpts{App: a, Logger: a.Logger})
+	a.CartProcessor = InitCartProcessorOpts(&CartProcessorOpts{App: a, Logger: a.Logger})
 }
