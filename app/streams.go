@@ -275,3 +275,48 @@ func (cp *CartProcessor) ProcessDiscountUpdate(msg kafka.Message) {
 	}
 
 }
+
+func (cp *CartProcessor) ProcessInventoryUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
+		return
+	}
+
+	if s.Meta.Operation == "u" {
+		var inventory schema.InventoryUpdateKafkaMessage
+		inventoryBytes, err := json.Marshal(s.Data)
+		if err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode inventory update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(inventoryBytes, &inventory); err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+
+		opts := schema.InventoryUpdateOpts{
+			ID:          inventory.ID,
+			CatalogID:   inventory.CatalogID,
+			VariantID:   inventory.VariantID,
+			SKU:         inventory.SKU,
+			UnitInStock: inventory.UnitInStock,
+		}
+
+		cp.App.Cart.UpdateInventoryStatus(&opts)
+	}
+
+}
+
+func (cp *CartProcessor) ProcessCatalogUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
+		return
+	}
+	if s.Meta.Operation == "u" {
+		cp.App.Cart.UpdateCatalogInfo(s.Meta.ID.(primitive.ObjectID))
+	}
+}

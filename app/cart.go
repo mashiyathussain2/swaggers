@@ -24,13 +24,15 @@ type Cart interface {
 	CreateCart(primitive.ObjectID) (primitive.ObjectID, error)
 	AddToCart(*schema.AddToCartOpts) (*model.Cart, error)
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
-	GetCartInfo(primitive.ObjectID) (*model.Cart, error)
+	GetCartInfo(primitive.ObjectID) (*schema.GetCartInfoResp, error)
 	SetCartAddress(*schema.AddressOpts) error
 	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
 	ClearCart(primitive.ObjectID) error
 
-	AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts)
-	RemoveDiscountInCartItems(opts *schema.DiscountInCartItemsOpts)
+	AddDiscountInCartItems(*schema.DiscountInCartItemsOpts)
+	RemoveDiscountInCartItems(*schema.DiscountInCartItemsOpts)
+	UpdateInventoryStatus(*schema.InventoryUpdateOpts)
+	UpdateCatalogInfo(id primitive.ObjectID)
 }
 
 // CartImpl implements Cart interface methods
@@ -60,12 +62,9 @@ func InitCart(opts *CartImplOpts) Cart {
 func (ci *CartImpl) CreateCart(id primitive.ObjectID) (primitive.ObjectID, error) {
 	ctx := context.TODO()
 	cart := model.Cart{
-		UserID:        id,
-		CreatedAt:     time.Now().UTC(),
-		UpdatedAt:     time.Now().UTC(),
-		TotalPrice:    model.SetINRPrice(0),
-		TotalDiscount: model.SetINRPrice(0),
-		GrandTotal:    model.SetINRPrice(0),
+		UserID:    id,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	}
 	cartID, err := ci.DB.Collection(model.CartColl).InsertOne(ctx, cart)
 	if err != nil {
@@ -151,21 +150,19 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	//calculate discount if available
 	discount := uint(0)
 	discountInfo := model.DiscountInfo{}
-	var dp *model.Price
+
 	if s.Payload.DiscountInfo != nil {
 		for _, d := range s.Payload.DiscountInfo.VariantsID {
 			if d == opts.VariantID {
 				switch s.Payload.DiscountInfo.Type {
 				case model.FlatOffType:
 					discount = s.Payload.DiscountInfo.Value
-					dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
 				case model.PercentOffType:
 					discount = uint(float64((s.Payload.DiscountInfo.Value * uint(s.Payload.RetailPrice.Value)) / 100.0))
 					if discount > s.Payload.DiscountInfo.MaxValue && s.Payload.DiscountInfo.MaxValue > 0 {
 						discount = s.Payload.DiscountInfo.MaxValue
 					}
 					discountInfo.MaxValue = s.Payload.DiscountInfo.MaxValue
-					dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
 				}
 				discountInfo.Value = discount
 				discountInfo.ID = s.Payload.DiscountInfo.ID
@@ -179,25 +176,20 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 		BrandID:   s.Payload.BrandID,
 		VariantID: opts.VariantID,
 		BrandInfo: s.Payload.BrandInfo,
-		CatalogInfo: model.CatalogInfo{
+		CatalogInfo: &model.CatalogInfo{
 			ID:            s.Payload.ID,
 			BrandID:       s.Payload.BrandID,
 			Name:          s.Payload.Name,
 			FeaturedImage: s.Payload.FeaturedImage,
 
-			VariantType: s.Payload.VariantType,
-			Variants:    s.Payload.Variants,
-			HSNCode:     s.Payload.HSNCode,
-
-			BasePrice:     s.Payload.BasePrice,
-			RetailPrice:   s.Payload.RetailPrice,
+			VariantType:   s.Payload.VariantType,
+			Variants:      s.Payload.Variants,
+			HSNCode:       s.Payload.HSNCode,
 			TransferPrice: s.Payload.TransferPrice,
 
 			ETA:    s.Payload.ETA,
 			Status: s.Payload.Status,
 
-			CreatedAt:    s.Payload.CreatedAt,
-			UpdatedAt:    s.Payload.UpdatedAt,
 			DiscountInfo: s.Payload.DiscountInfo,
 		},
 		BasePrice:     &s.Payload.BasePrice,
@@ -208,17 +200,11 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 	if s.Payload.DiscountInfo != nil {
 		item.DiscountID = s.Payload.DiscountInfo.ID
 		item.DiscountInfo = &discountInfo
-		item.DiscountedPrice = dp
 	}
 
 	updateQuery := bson.M{
 		"$push": bson.M{
 			"items": item,
-		},
-		"$inc": bson.M{
-			"total_discount.value": discount * uint(opts.Quantity),
-			"total_price.value":    s.Payload.RetailPrice.Value * float32(opts.Quantity),
-			"grand_total.value":    (uint(s.Payload.RetailPrice.Value) - discount) * uint(opts.Quantity),
 		},
 		"$set": bson.M{
 			"updated_at": time.Now().UTC(),
@@ -324,12 +310,10 @@ func (ci *CartImpl) UpdateItemQty(opts *schema.UpdateItemQtyOpts) (*model.Cart, 
 }
 
 //GetCartInfo function returns cart info
-func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
-
+func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp, error) {
 	ctx := context.TODO()
-	var cart model.Cart
+	var cart schema.GetCartInfoResp
 	err := ci.DB.Collection(model.CartColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&cart)
-
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
 			return nil, errors.Errorf("cart with id :%s not found", id.Hex())
@@ -338,41 +322,34 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 	}
 	tp := uint(0)
 	td := uint(0)
-	for _, item := range cart.Items {
-		item.BasePrice = &item.CatalogInfo.BasePrice
-		item.RetailPrice = &item.CatalogInfo.RetailPrice
-		item.TransferPrice = &item.CatalogInfo.TransferPrice
-		item.BrandInfo = item.CatalogInfo.BrandInfo
-		fmt.Println(item.BrandInfo)
-		tp = tp + (uint(item.RetailPrice.Value) * item.Quantity)
-
-		if item.CatalogInfo.DiscountInfo != nil {
-			for _, v := range item.CatalogInfo.DiscountInfo.VariantsID {
-				if v == item.VariantID {
+	for _, cartItem := range cart.Items {
+		if cartItem.CatalogInfo.DiscountInfo != nil {
+			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
+				if v == cartItem.VariantID {
 					var dp *model.Price
-					item.DiscountInfo = &model.DiscountInfo{
-						ID:    item.CatalogInfo.DiscountInfo.ID,
-						Type:  item.CatalogInfo.DiscountInfo.Type,
-						Value: item.CatalogInfo.DiscountInfo.Value,
+					cartItem.DiscountInfo = &model.DiscountInfo{
+						ID:    cartItem.CatalogInfo.DiscountInfo.ID,
+						Type:  cartItem.CatalogInfo.DiscountInfo.Type,
+						Value: cartItem.CatalogInfo.DiscountInfo.Value,
 					}
-					switch item.DiscountInfo.Type {
+					switch cartItem.DiscountInfo.Type {
 					case model.FlatOffType:
-						dp = model.SetINRPrice(item.RetailPrice.Value - float32(item.DiscountInfo.Value))
-						td = td + item.DiscountInfo.Value*item.Quantity
+						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.DiscountInfo.Value))
+						td = td + cartItem.DiscountInfo.Value*cartItem.Quantity
 					case model.PercentOffType:
 						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
-						item.DiscountInfo.MaxValue = item.CatalogInfo.DiscountInfo.MaxValue
-						d := uint(float64((item.DiscountInfo.Value * uint(item.RetailPrice.Value)) / 100.0))
-						if d > item.DiscountInfo.MaxValue && item.DiscountInfo.MaxValue > 0 {
-							d = item.DiscountInfo.MaxValue
+						cartItem.DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
+						d := uint(float64((cartItem.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
+						if d > cartItem.DiscountInfo.MaxValue && cartItem.DiscountInfo.MaxValue > 0 {
+							d = cartItem.DiscountInfo.MaxValue
 						}
-						dp = model.SetINRPrice(item.RetailPrice.Value - float32(d))
-						td = td + d*item.Quantity
+						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(d))
+						td = td + d*cartItem.Quantity
 					default:
 					}
-					item.DiscountedPrice = dp
-					item.DiscountID = item.CatalogInfo.DiscountInfo.ID
+					cartItem.DiscountedPrice = dp
+					cartItem.DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 				}
 			}
 		}
@@ -380,7 +357,6 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*model.Cart, error) {
 	cart.TotalPrice.Value = float32(tp)
 	cart.TotalDiscount.Value = float32(td)
 	cart.GrandTotal.Value = float32(tp - td)
-
 	return &cart, nil
 }
 
@@ -542,8 +518,8 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				continue
 			}
 			item.CatalogInfo.TransferPrice = cv.Payload.TransferPrice
-			item.CatalogInfo.BasePrice = cv.Payload.BasePrice
-			item.CatalogInfo.RetailPrice = cv.Payload.RetailPrice
+			// item.CatalogInfo.BasePrice = cv.Payload.BasePrice
+			// item.CatalogInfo.RetailPrice = cv.Payload.RetailPrice
 
 			var dp *model.Price
 
@@ -675,16 +651,16 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 
 func (ci *CartImpl) AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts) {
 	filter := bson.M{
-		"catalog_id": opts.CatalogID,
-		"variant_id": bson.M{
+		"items.catalog_id": opts.CatalogID,
+		"items.variant_id": bson.M{
 			"$in": opts.VariantsID,
 		},
 	}
 
 	update := bson.M{
 		"$set": bson.M{
-			"items.discount_id": opts.ID,
-			"items.discount_info": model.DiscountInfo{
+			"items.$.discount_id": opts.ID,
+			"items.$.discount_info": model.DiscountInfo{
 				ID:       opts.ID,
 				Type:     opts.Type,
 				Value:    opts.Value,
@@ -708,12 +684,100 @@ func (ci *CartImpl) RemoveDiscountInCartItems(opts *schema.DiscountInCartItemsOp
 
 	update := bson.M{
 		"$unset": bson.M{
-			"items.discount_id":   1,
-			"items.discount_info": 1,
+			"items.$.discount_id":   1,
+			"items.$.discount_info": 1,
 		},
 	}
 
 	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add discount in cart items")
+	}
+}
+
+func (ci *CartImpl) UpdateInventoryStatus(opts *schema.InventoryUpdateOpts) {
+	filter := bson.M{
+		"items.catalog_id": opts.CatalogID,
+		"items.variant_id": opts.VariantID,
+	}
+
+	var update bson.M
+	if opts.UnitInStock > 0 {
+		update = bson.M{
+			"$set": bson.M{
+				"items.$.in_stock": true,
+			},
+		}
+	} else {
+		update = bson.M{
+			"$set": bson.M{
+				"items.$.in_stock": false,
+			},
+		}
+	}
+	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update stock in cart items")
+	}
+}
+
+func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
+	var s model.GetAllCatalogInfoResp
+
+	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + id.Hex()
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "failed to request to get catalog info"))
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "unable to fetch catlog data"))
+	}
+	defer resp.Body.Close()
+
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to read response from api %s", url)
+		ci.Logger.Err(errors.Wrap(err, "failed to get catalog info"))
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		ci.Logger.Err(errors.Wrap(err, "failed to decode body into struct"))
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+		ci.Logger.Err(errors.New("got success false response from catalog"))
+	}
+
+	filter := bson.M{
+		"catalog_id": id,
+	}
+
+	catalogInfo := model.CatalogInfo{
+		ID:            s.Payload.ID,
+		Name:          s.Payload.Name,
+		BrandID:       s.Payload.BrandID,
+		FeaturedImage: s.Payload.FeaturedImage,
+		VariantType:   s.Payload.VariantType,
+		Variants:      s.Payload.Variants,
+		HSNCode:       s.Payload.HSNCode,
+		ETA:           s.Payload.ETA,
+		Status:        s.Payload.Status,
+		DiscountInfo:  s.Payload.DiscountInfo,
+		TransferPrice: s.Payload.TransferPrice,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"items.$.catalog_info": catalogInfo,
+			"items.$.brand_info":   s.Payload.BrandInfo,
+			"items.$.base_price":   s.Payload.BasePrice,
+			"items.$.retail_price": s.Payload.RetailPrice,
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		ci.Logger.Err(err).Interface("id", id).Msg("failed to update catalog info in cart items")
 	}
 }

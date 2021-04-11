@@ -77,6 +77,8 @@ type APPConfig struct {
 
 	CustomerChangeConfig   ListenerConfig `mapstructure:"customerChangeConsumer"`
 	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
+	CatalogChangeConfig    ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 
