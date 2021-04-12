@@ -75,7 +75,10 @@ type APPConfig struct {
 	ExpressCheckoutConfig ServiceConfig `mapstructure:"expressCheckout"`
 	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
 
-	UserChangeConfig       ListenerConfig `mapstructure:"userChangeConsumer"`
+	CustomerChangeConfig   ListenerConfig `mapstructure:"customerChangeConsumer"`
+	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
+	CatalogChangeConfig    ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
 

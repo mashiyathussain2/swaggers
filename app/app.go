@@ -36,9 +36,12 @@ type App struct {
 	Wishlist        Wishlist
 
 	// Consumer
-	UserChanges       kafka.Consumer
+	CustomerChanges   kafka.Consumer
+	CatalogChanges    kafka.Consumer
+	InventoryChanges  kafka.Consumer
 	BrandChanges      kafka.Consumer
 	InfluencerChanges kafka.Consumer
+	DiscountChanges   kafka.Consumer
 
 	// Producer
 	BrandFullProducer      kafka.Producer
@@ -48,6 +51,7 @@ type App struct {
 	UserProcessor       *UserProcessor
 	BrandProcessor      *BrandProcessor
 	InfluencerProcessor *InfluencerProcessor
+	CartProcessor       *CartProcessor
 }
 
 // NewApp returns new app instance

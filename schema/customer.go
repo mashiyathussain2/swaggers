@@ -11,6 +11,7 @@ import (
 type GetCustomerInfoResp struct {
 	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CartID       primitive.ObjectID `json:"cart_id,omitempty" bson:"cart_id,omitempty"`
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	DOB          time.Time          `json:"dob,omitempty" bson:"dob,omitempty"`
 	Gender       *model.Gender      `json:"gender,omitempty" bson:"gender,omitempty"`
@@ -20,6 +21,7 @@ type GetCustomerInfoResp struct {
 type GetCustomerProfileInfoResp struct {
 	ID                    primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID                primitive.ObjectID   `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CartID                primitive.ObjectID   `json:"cart_id,omitempty" bson:"cart_id,omitempty"`
 	FullName              string               `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	DOB                   time.Time            `json:"dob,omitempty" bson:"dob,omitempty"`
 	Gender                *model.Gender        `json:"gender,omitempty" bson:"gender,omitempty"`

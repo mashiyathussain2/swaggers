@@ -82,6 +82,7 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 
 	if returnToken {
 		claim := requestCTX.UserClaim.(*auth.UserClaim)
+		claim.CartID = res.CartID.Hex()
 		claim.FullName = res.FullName
 		if res.Gender != nil {
 			claim.Gender = *res.Gender

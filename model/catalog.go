@@ -94,18 +94,13 @@ type CatalogInfo struct {
 	Variants    []Variant   `json:"variants,omitempty" bson:"variants,omitempty"`
 	HSNCode     string      `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 
-	BasePrice     Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice   Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	// BasePrice     Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	// RetailPrice   Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	TransferPrice Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
-	ETA    *ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
-	Status *Status `json:"status,omitempty" bson:"status,omitempty"`
-
-	CreatedAt     time.Time         `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt     time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	DiscountInfo  *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	InventoryInfo []Inventory       `json:"inventory_info,omitempty" bson:"inventory_info,omitempty"`
-	BrandInfo     *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	ETA          *ETA              `json:"eta,omitempty" bson:"eta,omitempty"`
+	Status       *Status           `json:"status,omitempty" bson:"status,omitempty"`
+	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 }
 
 //Defined Multiple Status for Inventory

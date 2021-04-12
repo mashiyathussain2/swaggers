@@ -9,11 +9,29 @@ import (
 func InitConsumer(a *App) {
 	ctx := context.TODO()
 
-	a.UserChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+	a.CustomerChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
-		Config: &a.Config.UserChangeConfig,
+		Config: &a.Config.CustomerChangeConfig,
 	})
-	go a.UserChanges.Consume(ctx, a.UserProcessor.ProcessUserUpdate)
+	go a.CustomerChanges.Consume(ctx, a.UserProcessor.ProcessCustomerUpdate)
+
+	a.DiscountChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.DiscountChangeConfig,
+	})
+	go a.DiscountChanges.Consume(ctx, a.CartProcessor.ProcessDiscountUpdate)
+
+	a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CatalogChangeConfig,
+	})
+	go a.CatalogChanges.Consume(ctx, a.CartProcessor.ProcessCatalogUpdate)
+
+	a.InventoryChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InventoryChangeConfig,
+	})
+	go a.InventoryChanges.Consume(ctx, a.CartProcessor.ProcessDiscountUpdate)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
@@ -32,6 +50,10 @@ func InitConsumer(a *App) {
 func CloseConsumer(a *App) {
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
+	a.CustomerChanges.Close()
+	a.DiscountChanges.Close()
+	a.InfluencerChanges.Close()
+	a.CatalogChanges.Close()
 }
 
 // InitProducer initializes kafka message producers
@@ -58,4 +80,5 @@ func InitProcessor(a *App) {
 	a.BrandProcessor = InitBrandProcessor(&BrandProcessorOpts{App: a, Logger: a.Logger})
 	a.InfluencerProcessor = InitInfluencerProcessor(&InfluencerProcessorOpts{App: a, Logger: a.Logger})
 	a.UserProcessor = InitUserProcessorOpts(&UserProcessorOpts{App: a, Logger: a.Logger})
+	a.CartProcessor = InitCartProcessorOpts(&CartProcessorOpts{App: a, Logger: a.Logger})
 }
