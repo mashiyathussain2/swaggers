@@ -53,6 +53,8 @@ type VariantInfo struct {
 type CatalogInfo struct {
 	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	BrandID       primitive.ObjectID   `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	BrandInfo     *BrandInfo           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 	FeaturedImage *IMG                 `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	BasePrice     *Price               `json:"base_price,omitempty" bson:"base_price,omitempty"`
 	RetailPrice   *Price               `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
