@@ -206,6 +206,6 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		return
 	}
 
-	redirectURL := fmt.Sprintf("%s?%s", a.Config.KeeperLoginRedirectURL, token)
+	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
