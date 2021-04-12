@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"time"
@@ -24,6 +23,7 @@ type Influencer interface {
 
 	GetInfluencerByName(string) ([]schema.GetInfluencerResp, error)
 	AddFollower(*schema.AddInfluencerFollowerOpts) (bool, error)
+	RemoveFollower(opts *schema.AddInfluencerFollowerOpts) (bool, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -240,12 +240,24 @@ func (ii *InfluencerImpl) AddFollower(opts *schema.AddInfluencerFollowerOpts) (b
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
+		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		if err != nil {
+			ii.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow influencer")
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "failed to follow influencer")
+		}
+
+		if isFollowing != 0 {
+			session.AbortTransaction(sc)
+			return errors.New("user already follow the influencer")
+		}
+
 		filter := bson.M{
 			"_id": opts.InfluencerID,
 		}
 		update := bson.M{
 			"$addToSet": bson.M{
-				"followers_id": opts.UserID,
+				"followers_id": opts.CustomerID,
 			},
 			"$inc": bson.M{
 				"followers_count": 1,
@@ -273,7 +285,72 @@ func (ii *InfluencerImpl) AddFollower(opts *schema.AddInfluencerFollowerOpts) (b
 		}
 		return nil
 	}); err != nil {
-		fmt.Println("heree1-")
+		return false, err
+	}
+	return true, nil
+}
+
+func (ii *InfluencerImpl) RemoveFollower(opts *schema.AddInfluencerFollowerOpts) (bool, error) {
+	ctx := context.TODO()
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		ii.Logger.Err(err).Msg("unable to create db session")
+		return false, errors.Wrap(err, "failed to remove follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		ii.Logger.Err(err).Msg("unable to start transaction")
+		return false, errors.Wrap(err, "failed to remove follower")
+	}
+
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		if err != nil {
+			ii.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow influencer")
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "failed to follow influencer")
+		}
+
+		if isFollowing == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("user does not follow the influencer")
+		}
+
+		filter := bson.M{
+			"_id": opts.InfluencerID,
+		}
+		update := bson.M{
+			"$pull": bson.M{
+				"followers_id": opts.CustomerID,
+			},
+			"$inc": bson.M{
+				"followers_count": -1,
+			},
+		}
+
+		res, err := ii.DB.Collection(model.InfluencerColl).UpdateOne(sc, filter, update)
+		if err != nil {
+			session.AbortTransaction(sc)
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed remove follower")
+			return errors.Wrap(err, "failed to remove follower")
+		}
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("influencer not found")
+		}
+		if err := ii.App.Customer.RemoveInfluencerFollowing(sc, opts); err != nil {
+			session.AbortTransaction(sc)
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed remove influencer_id in customer following")
+			return errors.Wrap(err, "failed to remove follower")
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to remove follower")
+		}
+		return nil
+	}); err != nil {
 		return false, err
 	}
 	return true, nil

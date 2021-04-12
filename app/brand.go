@@ -25,6 +25,7 @@ type Brand interface {
 	GetBrands() ([]schema.GetBrandResp, error)
 
 	AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error)
+	RemoveFollower(opts *schema.AddBrandFollowerOpts) (bool, error)
 }
 
 // BrandImpl implements brand interface methods
@@ -279,12 +280,24 @@ func (bi *BrandImpl) AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
+		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		if err != nil {
+			bi.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow brand")
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "failed to follow brand")
+		}
+
+		if isFollowing != 0 {
+			session.AbortTransaction(sc)
+			return errors.New("user already follow the brand")
+		}
+
 		filter := bson.M{
 			"_id": opts.BrandID,
 		}
 		update := bson.M{
 			"$addToSet": bson.M{
-				"followers_id": opts.UserID,
+				"followers_id": opts.CustomerID,
 			},
 			"$inc": bson.M{
 				"followers_count": 1,
@@ -312,6 +325,75 @@ func (bi *BrandImpl) AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error
 		if err := session.CommitTransaction(sc); err != nil {
 			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
 			return errors.Wrap(err, "failed to add follower")
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (bi *BrandImpl) RemoveFollower(opts *schema.AddBrandFollowerOpts) (bool, error) {
+	ctx := context.TODO()
+	session, err := bi.DB.Client().StartSession()
+	if err != nil {
+		bi.Logger.Err(err).Msg("unable to create db session")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		bi.Logger.Err(err).Msg("unable to start transaction")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		if err != nil {
+			bi.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow brand")
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "failed to unfollow brand")
+		}
+
+		if isFollowing == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("user does not follow the brand")
+		}
+
+		filter := bson.M{
+			"_id": opts.BrandID,
+		}
+		update := bson.M{
+			"$pull": bson.M{
+				"followers_id": opts.CustomerID,
+			},
+			"$inc": bson.M{
+				"followers_count": -1,
+			},
+		}
+
+		res, err := bi.DB.Collection(model.BrandColl).UpdateOne(sc, filter, update)
+		if err != nil {
+			session.AbortTransaction(sc)
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed remove follower")
+			return errors.Wrap(err, "failed to remove follower")
+		}
+
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("brand not found")
+		}
+
+		if err := bi.App.Customer.RemoveBrandFollowing(sc, opts); err != nil {
+			session.AbortTransaction(sc)
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed remove brand_id in customer following")
+			return errors.Wrap(err, "failed to remove follower")
+		}
+
+		if err := session.CommitTransaction(sc); err != nil {
+			bi.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to remove follower")
 		}
 		return nil
 	}); err != nil {

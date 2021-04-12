@@ -3,7 +3,6 @@ package app
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"io/ioutil"
@@ -100,7 +99,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 	discountInfo := model.DiscountInfo{}
 	var dp *model.Price
 	if s.Payload.DiscountInfo != nil {
-		fmt.Println(s.Payload.DiscountInfo)
 		for _, d := range s.Payload.DiscountInfo.VariantsID {
 			if d == opts.Items[0].VariantID {
 				switch s.Payload.DiscountInfo.Type {
@@ -160,7 +158,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(orderOpts)
-	fmt.Println(string(reqBody))
 	if err != nil {
 		ec.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
@@ -249,7 +246,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 		discountInfo := model.DiscountInfo{}
 		var dp *model.Price
 		if s.Payload.DiscountInfo != nil {
-			fmt.Println(s.Payload.DiscountInfo)
 			for _, d := range s.Payload.DiscountInfo.VariantsID {
 				if d == item.VariantID {
 					switch s.Payload.DiscountInfo.Type {
@@ -312,7 +308,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(orderOpts)
-	fmt.Println(string(reqBody))
 	if err != nil {
 		ec.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")

@@ -51,20 +51,23 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/cart/{userID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/app/customer/influencer/follow", a.requestWithAuthHandler(a.followInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/customer/brand/follow", a.requestWithAuthHandler(a.followBrand)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/customer/influencer/unfollow", a.requestWithAuthHandler(a.unFollowInfluencer)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/customer/brand/unfollow", a.requestWithAuthHandler(a.unFollowBrand)).Methods("POST")
 
-	a.Router.APIRoot.Handle("/app/brand/basic", a.requestWithAuthHandler(a.getBrandsBasic)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestWithAuthHandler(a.getBrandInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/brand/basic", a.requestHandler(a.getBrandsBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestHandler(a.getBrandInfo)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestWithAuthHandler(a.getInfluencersBasic)).Methods("POST")
-	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestWithAuthHandler(a.getInfluencerInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/app/express-checkout", a.requestWithAuthHandler(a.expressCheckout)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestWithAuthHandler(a.getWishlist)).Methods("GET")
-
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

@@ -94,9 +94,8 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
-		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-		return
+	if requestCTX.UserClaim != nil {
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
 	}
 	res, err := a.App.Elasticsearch.GetInfluencersByIDBasic(&s)
 	if err != nil {
@@ -112,8 +111,11 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 		requestCTX.SetErr(errors.Errorf("invalid influencer id:%s in url", mux.Vars(r)["influencerID"]), http.StatusBadRequest)
 		return
 	}
-	userID, _ := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
-	res, err := a.App.Elasticsearch.GetInfluencerInfoByID(&schema.GetInfluencerInfoByIDOpts{ID: id, UserID: userID})
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetInfluencerInfoByID(&schema.GetInfluencerInfoByIDOpts{ID: id, CustomerID: userID})
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

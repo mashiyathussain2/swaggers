@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -184,6 +185,7 @@ func InitUserProcessorOpts(opts *UserProcessorOpts) *UserProcessor {
 }
 
 func (up *UserProcessor) ProcessCustomerUpdate(msg kafka.Message) {
+	fmt.Println("got customer update")
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {

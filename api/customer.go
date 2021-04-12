@@ -111,7 +111,7 @@ func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.Respon
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+	if s.CustomerID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
@@ -133,11 +133,55 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+	if s.CustomerID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	res, err := a.App.Brand.AddFollower(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) unFollowInfluencer(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.AddInfluencerFollowerOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.CustomerID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	res, err := a.App.Influencer.RemoveFollower(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) unFollowBrand(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.AddBrandFollowerOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.CustomerID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	res, err := a.App.Brand.RemoveFollower(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

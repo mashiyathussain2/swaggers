@@ -56,7 +56,7 @@ func InitElasticsearch(opts *ElasticsearchOpts) Elasticsearch {
 
 func (ei *ElasticsearchImpl) GetBrandsByIDBasic(opts *schema.GetBrandsByIDBasicOpts) ([]schema.GetBrandBasicESEesp, error) {
 	query := elastic.NewTermsQueryFromStrings("id", opts.IDs...)
-	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.UserID.Hex())))
+	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.CustomerID.Hex())))
 	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
 	res, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).SearchSource(builder).Do(context.Background())
 	if err != nil {
@@ -85,7 +85,7 @@ func (ei *ElasticsearchImpl) GetBrandsByIDBasic(opts *schema.GetBrandsByIDBasicO
 
 func (ei *ElasticsearchImpl) GetBrandInfoByID(opts *schema.GetBrandsInfoByIDOpts) (*schema.GetBrandInfoEsResp, error) {
 	query := elastic.NewTermQuery("id", opts.ID.Hex())
-	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.UserID.Hex())))
+	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.CustomerID.Hex())))
 	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
 	res, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).SearchSource(builder).Do(context.Background())
 	if err != nil {
@@ -117,7 +117,7 @@ func (ei *ElasticsearchImpl) GetBrandInfoByID(opts *schema.GetBrandsInfoByIDOpts
 
 func (ei *ElasticsearchImpl) GetInfluencersByIDBasic(opts *schema.GetInfluencersByIDBasicOpts) ([]schema.GetInfluencerBasicESEesp, error) {
 	query := elastic.NewTermsQueryFromStrings("id", opts.IDs...)
-	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.UserID.Hex())))
+	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.CustomerID.Hex())))
 	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
 	res, err := ei.Client.Search().Index(ei.Config.InfluencerFullIndex).SearchSource(builder).Do(context.Background())
 	if err != nil {
@@ -145,7 +145,7 @@ func (ei *ElasticsearchImpl) GetInfluencersByIDBasic(opts *schema.GetInfluencers
 
 func (ei *ElasticsearchImpl) GetInfluencerInfoByID(opts *schema.GetInfluencerInfoByIDOpts) (*schema.GetInfluencerInfoEsResp, error) {
 	query := elastic.NewTermQuery("id", opts.ID.Hex())
-	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.UserID.Hex())))
+	sf := elastic.NewScriptField("is_followed_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['followers_id'] == null) {return false} if (doc['followers_id'].contains('%s')) {return true} return false`, opts.CustomerID.Hex())))
 	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
 	res, err := ei.Client.Search().Index(ei.Config.InfluencerFullIndex).SearchSource(builder).Do(context.Background())
 	if err != nil {
