@@ -221,12 +221,22 @@ func (ci *ContentImpl) DeleteContent(id primitive.ObjectID) (bool, error) {
 // ProcessVideoContent mark video content as processed
 func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts) (bool, error) {
 	// Extracting content id from filename EG: 283782738273823.mp4
+	ctx := context.TODO()
 	cID, err := primitive.ObjectIDFromHex(strings.Split(opts.FileName, ".")[0])
 	if err != nil {
 		ci.Logger.Err(err).Interface("opts_info", opts).Msgf("failed to parse id from filename:%s while processing video content", opts.FileName)
 		return false, errors.Wrapf(err, "failed to parse id from filename:%s while processing video content", opts.FileName)
 	}
 
+	var content model.Content
+	if err := ci.DB.Collection(model.ContentColl).FindOne(ctx, bson.M{"_id": cID}).Decode(&content); err != nil {
+		ci.Logger.Err(err).Interface("opts_info", opts).Msgf("failed to find content from id:%s while processing video content", cID.Hex())
+		return false, errors.Wrapf(err, "failed to find content with id:%s", cID.Hex())
+	}
+
+	if &content == nil {
+		return false, errors.Wrapf(err, "failed to find content with id:%s", cID.Hex())
+	}
 	// Creating media object from data received
 	res, err := ci.App.Media.CreateVideoMedia(opts)
 	if err != nil {
@@ -237,13 +247,26 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 	// Updating content as IsProcessed true and linking content with media received from above
 	var c model.Content
 	filter := bson.M{"_id": cID}
-	update := bson.M{
-		"$set": bson.M{
-			"is_processed": true,
-			"processed_at": time.Now().UTC(),
-			"media_type":   model.VideoType,
-			"media_id":     res.ID,
-		},
+	var update bson.M
+	if content.Type != model.CatalogContentType {
+		update = bson.M{
+			"$set": bson.M{
+				"is_processed": true,
+				"processed_at": time.Now().UTC(),
+				"media_type":   model.VideoType,
+				"media_id":     res.ID,
+			},
+		}
+	} else {
+		update = bson.M{
+			"$set": bson.M{
+				"is_processed": true,
+				"is_active":    true,
+				"processed_at": time.Now().UTC(),
+				"media_type":   model.VideoType,
+				"media_id":     res.ID,
+			},
+		}
 	}
 	if err := ci.DB.Collection(model.ContentColl).FindOneAndUpdate(context.TODO(), filter, update).Decode(&c); err != nil {
 		ci.Logger.Err(err).Interface("media_info", res).Msgf("failed to mark content:%s as processed", cID.Hex())
@@ -466,6 +489,7 @@ func (ci *ContentImpl) CreateCatalogImageContent(opts *schema.CreateImageCatalog
 		BrandIDs:    []primitive.ObjectID{opts.BrandID},
 		CatalogIDs:  []primitive.ObjectID{opts.CatalogID},
 		IsProcessed: true,
+		IsActive:    true,
 		CreatedAt:   time.Now().UTC(),
 	}
 
