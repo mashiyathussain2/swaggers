@@ -407,6 +407,9 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 		operation := mongo.NewUpdateOneModel()
 		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
 		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
+		if catalogInfo == nil {
+			continue
+		}
 		if err != nil {
 			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
 			return
@@ -417,6 +420,10 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 			},
 		})
 		operations = append(operations, operation)
+	}
+
+	if len(operations) == 0 {
+		return
 	}
 
 	bulkOption := options.BulkWriteOptions{}
