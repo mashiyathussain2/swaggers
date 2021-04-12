@@ -343,6 +343,10 @@ func (di *DiscountImpl) activateDiscount(ctx context.Context, t time.Time) error
 		return errors.Wrap(err, "error decoding Catalogs")
 	}
 
+	if len(discounts) == 0 {
+		return nil
+	}
+
 	var updateDiscounts []primitive.ObjectID
 
 	var operations []mongo.WriteModel

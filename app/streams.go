@@ -62,6 +62,11 @@ func (cp *CatalogProcessor) ProcessCatalogUpdate(msg kafka.Message) {
 
 	// not doing anything for unpublished catalog
 	if catalog.Status.Value != model.Publish {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		cp.App.CatalogFullProducer.Publish(m)
 		return
 	}
 
