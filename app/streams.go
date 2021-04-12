@@ -161,8 +161,18 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		return
 	}
 
+	// Only pushing pebble type content in elasticsearch
+	if contentSchema.Type != model.PebbleType {
+		return
+	}
+
 	// Removing content from index if is active set to false
 	if !contentSchema.IsActive {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.ContentFullProducer.Publish(m)
 		return
 	}
 
