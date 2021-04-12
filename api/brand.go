@@ -113,9 +113,8 @@ func (a *API) getBrandsBasic(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).CustomerID {
-		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-		return
+	if requestCTX.UserClaim != nil {
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
 	}
 	res, err := a.App.Elasticsearch.GetBrandsByIDBasic(&s)
 	if err != nil {
@@ -131,8 +130,11 @@ func (a *API) getBrandInfo(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(errors.Errorf("invalid brand id:%s in url", mux.Vars(r)["brandID"]), http.StatusBadRequest)
 		return
 	}
-	userID, _ := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
-	res, err := a.App.Elasticsearch.GetBrandInfoByID(&schema.GetBrandsInfoByIDOpts{ID: id, UserID: userID})
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetBrandInfoByID(&schema.GetBrandsInfoByIDOpts{ID: id, CustomerID: userID})
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

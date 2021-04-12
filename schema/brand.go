@@ -106,8 +106,8 @@ type GetBrandResp struct {
 }
 
 type AddBrandFollowerOpts struct {
-	BrandID primitive.ObjectID `json:"id" validate:"required"`
-	UserID  primitive.ObjectID `json:"user_id" validate:"required"`
+	BrandID    primitive.ObjectID `json:"id" validate:"required"`
+	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 }
 
 type BrandKafkaMessage struct {

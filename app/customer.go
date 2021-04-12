@@ -23,7 +23,9 @@ type Customer interface {
 	UpdateCustomer(*schema.UpdateCustomerOpts) (*schema.GetCustomerInfoResp, error)
 
 	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
+	RemoveBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
 	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
+	RemoveInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
 	AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error)
 	GetAddresses(primitive.ObjectID) ([]model.Address, error)
 	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
@@ -132,7 +134,7 @@ func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (*schema
 
 func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
 	filter := bson.M{
-		"user_id": opts.UserID,
+		"_id": opts.CustomerID,
 	}
 
 	update := bson.M{
@@ -151,7 +153,34 @@ func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.
 	}
 
 	if res.MatchedCount == 0 {
-		return errors.Errorf("customer with user_id:%s not found", opts.UserID.Hex())
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) RemoveBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"brand_following": opts.BrandID,
+		},
+		"$inc": bson.M{
+			"brand_follow_count": -1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed remove brand id from following field")
+		return errors.Wrap(err, "failed to remove brand following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
 	}
 
 	return nil
@@ -159,7 +188,7 @@ func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.
 
 func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *schema.AddInfluencerFollowerOpts) error {
 	filter := bson.M{
-		"user_id": opts.UserID,
+		"_id": opts.CustomerID,
 	}
 
 	update := bson.M{
@@ -178,7 +207,34 @@ func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *sc
 	}
 
 	if res.MatchedCount == 0 {
-		return errors.Errorf("customer with user_id:%s not found", opts.UserID.Hex())
+		return errors.Errorf("customer with user_id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) RemoveInfluencerFollowing(sc mongo.SessionContext, opts *schema.AddInfluencerFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"influencer_following": opts.InfluencerID,
+		},
+		"$inc": bson.M{
+			"influencer_follow_count": -1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed remove influencer id into following field")
+		return errors.Wrap(err, "failed to remove influencer following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
 	}
 
 	return nil

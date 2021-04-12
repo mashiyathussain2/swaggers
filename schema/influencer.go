@@ -79,7 +79,7 @@ type GetInfluencerResp struct {
 
 type AddInfluencerFollowerOpts struct {
 	InfluencerID primitive.ObjectID `json:"id" validate:"required"`
-	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+	CustomerID   primitive.ObjectID `json:"customer_id" validate:"required"`
 }
 
 type InfluencerKafkaMessage struct {

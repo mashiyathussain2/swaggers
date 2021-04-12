@@ -29,13 +29,13 @@ type GetBrandInfoEsResp struct {
 }
 
 type GetBrandsByIDBasicOpts struct {
-	IDs    []string           `json:"ids"`
-	UserID primitive.ObjectID `json:"user_id"`
+	IDs        []string `json:"ids"`
+	CustomerID primitive.ObjectID
 }
 
 type GetBrandsInfoByIDOpts struct {
-	ID     primitive.ObjectID `json:"id"`
-	UserID primitive.ObjectID `json:"user_id"`
+	ID         primitive.ObjectID `json:"id"`
+	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
 type GetInfluencerBasicESEesp struct {
@@ -59,11 +59,11 @@ type GetInfluencerInfoEsResp struct {
 }
 
 type GetInfluencersByIDBasicOpts struct {
-	IDs    []string           `json:"ids"`
-	UserID primitive.ObjectID `json:"user_id"`
+	IDs        []string `json:"ids"`
+	CustomerID primitive.ObjectID
 }
 
 type GetInfluencerInfoByIDOpts struct {
-	ID     primitive.ObjectID `json:"id"`
-	UserID primitive.ObjectID `json:"user_id"`
+	ID         primitive.ObjectID `json:"id"`
+	CustomerID primitive.ObjectID
 }

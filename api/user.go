@@ -10,7 +10,6 @@ import (
 )
 
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	fmt.Println(requestCTX.UserClaim.(*auth.UserClaim))
 	requestCTX.SetAppResponse(requestCTX.UserClaim, http.StatusOK)
 }
 

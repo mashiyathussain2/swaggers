@@ -337,8 +337,6 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.DiscountInfo.Value))
 						td = td + cartItem.DiscountInfo.Value*cartItem.Quantity
 					case model.PercentOffType:
-						// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
-						// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
 						cartItem.DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
 						d := uint(float64((cartItem.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
 						if d > cartItem.DiscountInfo.MaxValue && cartItem.DiscountInfo.MaxValue > 0 {
@@ -529,9 +527,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				case model.FlatOffType:
 					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(cv.Payload.DiscountInfo.Value))
 				case model.PercentOffType:
-					// fmt.Println(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
-					// fmt.Println((float32(cv.Payload.DiscountInfo.Value) * 1.0 * cv.Payload.RetailPrice.Value) / 100.0)
-
 					d := uint(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
 					if d > cv.Payload.DiscountInfo.MaxValue && cv.Payload.DiscountInfo.MaxValue > 0 {
 						d = cv.Payload.DiscountInfo.MaxValue

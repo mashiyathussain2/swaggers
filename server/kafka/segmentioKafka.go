@@ -109,7 +109,7 @@ func (cl *SegmentioConsumer) Consume(ctx context.Context, f func(Message)) {
 	for {
 		m, err := cl.Reader.FetchMessage(ctx)
 		if err != nil {
-			cl.Logger.Err(err).Msg("failed to fetch messages")
+			cl.Logger.Err(err).Str("topic", cl.Reader.Config().Topic).Msg("failed to fetch messages")
 			break
 		}
 		f(m)
