@@ -95,7 +95,7 @@ func (cp *CatalogProcessor) ProcessDiscountUpdate(msg kafka.Message) {
 	var discount schema.DiscountKafkaMessage
 	discountBytes, err := json.Marshal(s.Data)
 	if err != nil {
-		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode catalog update data fields into bytes")
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode discount update data fields into bytes")
 		return
 	}
 	if err := json.Unmarshal(discountBytes, &discount); err != nil {

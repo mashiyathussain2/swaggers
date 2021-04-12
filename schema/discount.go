@@ -141,8 +141,9 @@ type DiscountKafkaMessage struct {
 	VariantsID []primitive.ObjectID `json:"variants_id,omitempty" bson:"variants_id,omitempty"`
 	SaleID     primitive.ObjectID   `json:"sale_id,omitempty" bson:"sale_id,omitempty"`
 
-	IsActive bool               `json:"is_active,omitempty" bson:"is_active,omitempty"`
-	Type     model.DiscountType `json:"type,omitempty" bson:"type,omitempty"`
+	IsActive   bool               `json:"is_active,omitempty" bson:"is_active,omitempty"`
+	IsDisabled bool               `json:"is_disabled,omitempty" bson:"is_disabled,omitempty"`
+	Type       model.DiscountType `json:"type,omitempty" bson:"type,omitempty"`
 
 	Value uint `json:"value,omitempty" bson:"value,omitempty"`
 	// MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.

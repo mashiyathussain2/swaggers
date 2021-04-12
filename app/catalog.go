@@ -1349,6 +1349,7 @@ func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) 
 			"_id": bson.M{
 				"$in": ids,
 			},
+			"status.value": model.Publish,
 		},
 	}}
 	lookupDiscountStage := bson.D{{
