@@ -5,6 +5,7 @@ func (a *API) InitRoutes() {
 	a.Router.Root.Handle("/keeper/gl/callback", a.requestHandler(a.keeperLoginCallback)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/me", a.requestWithAuthHandler(a.me)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/me", a.requestWithSudoHandler(a.me)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/auth/login", a.requestHandler(a.keeperLogin)).Methods("GET")
 
