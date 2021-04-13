@@ -487,6 +487,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
 			}
+			req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
 			resp, err := client.Do(req)
 			if err != nil {
 				return nil, errors.Wrapf(err, "unable to fetch catlog data")
