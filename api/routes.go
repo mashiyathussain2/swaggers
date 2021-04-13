@@ -27,6 +27,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/catalog/content", a.requestWithSudoHandler(a.removeContentfromCatalog)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/keeper/catalog/slug/{slug}", a.requestWithSudoHandler(a.getCatalogBySlug)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog", a.requestWithSudoHandler(a.getCatalogsByFilter)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}/get", a.requestWithSudoHandler(a.getAllCatalogInfo)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}", a.requestWithInternalHandler(a.getAllCatalogInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}/variant/{variantID}", a.requestWithInternalHandler(a.getCatalogVariant)).Methods("GET")
