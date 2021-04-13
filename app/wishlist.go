@@ -103,7 +103,7 @@ func (wi *WishlistImpl) GetWishlist(id primitive.ObjectID) ([]schema.GetWishlist
 	err := wi.DB.Collection(model.WishlistColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&wishlist)
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Errorf("unable to find wishlist for user with id: %s", id.Hex())
+			return nil, nil
 		}
 		return nil, errors.Wrapf(err, "unable to query for document")
 	}
@@ -164,7 +164,7 @@ func (wi *WishlistImpl) GetWishlistMap(id primitive.ObjectID) (map[string]bool, 
 	err := wi.DB.Collection(model.WishlistColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&wishlist)
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Errorf("unable to find wishlist for user with id: %s", id.Hex())
+			return mapWish, nil
 		}
 		return nil, errors.Wrapf(err, "unable to query for document")
 	}

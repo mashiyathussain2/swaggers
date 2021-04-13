@@ -205,7 +205,18 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 		var s model.GetAllCatalogInfoResp
 
 		url := ec.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex()
-		resp, err := http.Get(url)
+		// resp, err := http.Get(url)
+		// if err != nil {
+		// 	return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		// }
+		// defer resp.Body.Close()
+		client := http.Client{}
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+		}
+		req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
+		resp, err := client.Do(req)
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to fetch catlog data")
 		}
@@ -312,13 +323,28 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 		ec.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
-	resp, err := http.Post(coURL, "application/json", bytes.NewBuffer(reqBody))
-	//Handle Error
+	// resp, err := http.Post(coURL, "application/json", bytes.NewBuffer(reqBody))
+	// //Handle Error
+	// if err != nil {
+	// 	ec.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)
+	// 	return nil, errors.Wrap(err, "failed to get order info")
+	// }
+	// defer resp.Body.Close()
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		ec.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)
-		return nil, errors.Wrap(err, "failed to get order info")
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("failed to generate order")
+		return nil, errors.Wrap(err, "failed to generate request to generate order")
+	}
+	req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("unable to fetch order info")
+		return nil, errors.Wrapf(err, "unable to fetch order info")
 	}
 	defer resp.Body.Close()
+
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

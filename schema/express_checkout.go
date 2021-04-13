@@ -15,5 +15,5 @@ type ExpressCheckoutOpts struct {
 	Address  *OrderAddressOpts  `json:"address" validate:"required"`
 	Items    []ItemExpress      `json:"items" validate:"required"`
 	Source   string             `json:"source" validate:"required"`
-	SourceID primitive.ObjectID `json:"source_id"`
+	SourceID primitive.ObjectID `json:"source_id" validate:"required"`
 }
