@@ -107,6 +107,7 @@ func (s *Server) StartServer() {
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
+		Handler:      n,
 		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
 		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
