@@ -1807,13 +1807,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -1864,13 +1861,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -1921,13 +1915,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -1987,13 +1978,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2053,13 +2041,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2119,13 +2104,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2185,13 +2167,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{"featured_image": featuredImage}})
@@ -2244,13 +2223,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2312,13 +2288,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2380,13 +2353,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2448,13 +2418,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2516,13 +2483,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2584,13 +2548,10 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				featuredImage := &model.CatalogFeaturedImage{
-					ID: primitive.NewObjectID(),
-					IMG: model.IMG{
-						SRC:    faker.Internet().Url(),
-						Height: 20,
-						Width:  20,
-					},
+				featuredImage := &model.IMG{
+					SRC:    faker.Internet().Url(),
+					Height: 20,
+					Width:  20,
 				}
 				//Adding Featured Image to DB
 				tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2655,13 +2616,11 @@ func TestKeeperCatalogImpl_UpdateCatalogStatus(t *testing.T) {
 				gomock.InOrder(categoryCalls...)
 				resp, _ := tt.fields.App.KeeperCatalog.CreateCatalog(createOpts)
 
-				// featuredImage := &model.CatalogFeaturedImage{
-				// 	ID: primitive.NewObjectID(),
-				// 	IMG: model.IMG{
+				// featuredImage := & model.IMG{
 				// 		SRC:    faker.Internet().Url(),
 				// 		Height: 20,
 				// 		Width:  20,
-				// 	},
+				//
 				// }
 				//Adding Featured Image to DB
 				// tt.fields.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), bson.M{"_id": resp.ID}, bson.M{"$set": bson.M{
@@ -2942,7 +2901,7 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 	bIDs := []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID()}
 	status := []string{model.Archive, model.Publish, model.Draft, model.Unlist}
 	var catalogs []model.Catalog
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		cat := model.Catalog{
 			ID:      primitive.NewObjectID(),
 			BrandID: bIDs[faker.RandomInt(0, 2)],
@@ -2994,9 +2953,9 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					BrandIDs: []primitive.ObjectID{bIDs[1], bIDs[2]},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if (catalogs[i].Status.Value == model.Publish || catalogs[i].Status.Value == model.Archive) && (catalogs[i].BrandID == bIDs[1] || catalogs[i].BrandID == bIDs[2]) {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
@@ -3023,9 +2982,9 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					BrandIDs: []primitive.ObjectID{bIDs[1]},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if catalogs[i].BrandID == bIDs[1] {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
@@ -3052,14 +3011,70 @@ func TestKeeperCatalogImpl_GetCatalogsByFilter(t *testing.T) {
 					Status: []string{model.Publish},
 				}
 				var catalogResp []schema.GetCatalogResp
-				for i := 0; i < 10; i++ {
+				for i := 0; i < 20; i++ {
 					if catalogs[i].Status.Value == model.Publish {
-						catalogResp = append(catalogResp, schema.CreateCatalogResp{
+						catalogResp = append(catalogResp, schema.GetCatalogResp{
 							ID:      catalogs[i].ID,
 							BrandID: catalogs[i].BrandID,
 							Status:  catalogs[i].Status,
 						})
 					}
+				}
+				tt.want = catalogResp
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK] page 0",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.GetCatalogsByFilterOpts{
+					Page: 0,
+				}
+				var catalogResp []schema.GetCatalogResp
+				for i := 0; i < 10; i++ {
+					catalogResp = append(catalogResp, schema.GetCatalogResp{
+						ID:      catalogs[i].ID,
+						BrandID: catalogs[i].BrandID,
+						Status:  catalogs[i].Status,
+					})
+
+				}
+				tt.want = catalogResp
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK] page 1",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.opts = &schema.GetCatalogsByFilterOpts{
+					Page: 1,
+				}
+				var catalogResp []schema.GetCatalogResp
+				for i := 10; i < 20; i++ {
+					catalogResp = append(catalogResp, schema.GetCatalogResp{
+						ID:      catalogs[i].ID,
+						BrandID: catalogs[i].BrandID,
+						Status:  catalogs[i].Status,
+					})
+
 				}
 				tt.want = catalogResp
 			},
@@ -3208,6 +3223,271 @@ func TestKeeperCatalogImpl_GetCatalogBySlug(t *testing.T) {
 
 			resp, err := kc.GetCatalogBySlug(tt.args.slug)
 			fmt.Println(resp)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.NotNil(t, resp)
+				assert.Equal(t, tt.want, resp)
+			}
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				// assert.NotNil(t, resp)
+				assert.Equal(t, tt.err.Error(), err.Error())
+
+			}
+		})
+	}
+}
+func TestKeeperCatalogImpl_GetAllCatalogInfo(t *testing.T) {
+	t.Parallel()
+	// opts := schema.GetRandomKeeperSearchCatalog()
+	app := NewTestApp(getTestConfig())
+	defer CleanTestApp(app)
+	ctx := context.TODO()
+	cat := model.Catalog{
+		ID:          primitive.NewObjectID(),
+		VariantType: "size",
+		Variants: []model.Variant{
+			{
+				ID: primitive.NewObjectID(),
+			},
+		},
+		Slug: faker.Commerce().ProductName(),
+	}
+	app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName).Collection(model.CatalogColl).InsertOne(ctx, cat)
+	discount := model.Discount{
+		ID:         primitive.NewObjectID(),
+		CatalogID:  cat.ID,
+		VariantsID: []primitive.ObjectID{cat.Variants[0].ID},
+		IsActive:   true,
+		Type:       "flat",
+		Value:      100,
+	}
+	app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName).Collection(model.DiscountColl).InsertOne(ctx, discount)
+
+	group := model.Group{
+		ID:         primitive.NewObjectID(),
+		CatalogIDs: []primitive.ObjectID{cat.ID},
+	}
+
+	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.GroupColl).InsertOne(ctx, group)
+
+	inventory := model.Inventory{
+		ID:        primitive.NewObjectID(),
+		CatalogID: cat.ID,
+	}
+
+	app.MongoDB.Client.Database(app.Config.InventoryConfig.DBName).Collection(model.InventoryColl).InsertOne(ctx, inventory)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		cat_id primitive.ObjectID
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.GetAllCatalogInfoResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockCategory, *mock.MockBrand)
+	}
+	tests := []TC{
+		// {
+		// 	name: "[OK]",
+		// 	fields: fields{
+		// 		App:    app,
+		// 		DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+		// 		Logger: app.Logger,
+		// 	},
+		// 	args: args{},
+		// 	buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+		// 		// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+		// 	},
+		// 	prepare: func(tt *TC) {
+		// 		tt.args.cat_id = cat.ID
+
+		// 		tt.want = &schema.GetAllCatalogInfoResp{
+		// 			ID:          cat.ID,
+		// 			VariantType: cat.VariantType,
+		// 			Variants: []schema.VariantAllInfo{
+		// 				{
+		// 					ID: cat.Variants[0].ID,
+		// 				},
+		// 			},
+		// 			Slug:         cat.Slug,
+		// 			GroupInfo:    []model.Group{group},
+		// 			DiscountInfo: []model.Discount{discount},
+		// 		}
+		// 	},
+		// 	wantErr: false,
+		// },
+		{
+			name: "[Error] catalog id doesn't exist",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = primitive.NewObjectID()
+				tt.wantErr = true
+				tt.err = errors.Errorf("unable to find info for catalog with id: %s", tt.args.cat_id.Hex())
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.KeeperCatalog = kc
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			tt.fields.App.Brand = mockBrand
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Category = mockCategory
+
+			tt.buildStubs(&tt, mockCategory, mockBrand)
+			tt.prepare(&tt)
+
+			// fmt.Println(tt.args.cat_id, tt.args.var_id)
+			resp, err := kc.GetAllCatalogInfo(tt.args.cat_id)
+			// fmt.Println(resp)
+			if !tt.wantErr {
+				assert.Nil(t, err)
+				assert.NotNil(t, resp)
+				assert.Equal(t, tt.want, resp)
+			}
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				// assert.NotNil(t, resp)
+				assert.Equal(t, tt.err.Error(), err.Error())
+
+			}
+		})
+	}
+}
+
+func TestKeeperCatalogImpl_GetCatalogVariant(t *testing.T) {
+	t.Parallel()
+	// opts := schema.GetRandomKeeperSearchCatalog()
+	app := NewTestApp(getTestConfig())
+	// defer CleanTestApp(app)
+	ctx := context.TODO()
+	cat := model.Catalog{
+		ID: primitive.NewObjectID(),
+		Status: &model.Status{
+			Value: "publish",
+		},
+		VariantType: "size",
+		Variants: []model.Variant{
+			{
+				ID: primitive.NewObjectID(),
+			},
+		},
+		Slug: faker.Commerce().ProductName(),
+	}
+	app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName).Collection(model.CatalogColl).InsertOne(ctx, cat)
+	discount := model.Discount{
+		ID:         primitive.NewObjectID(),
+		CatalogID:  cat.ID,
+		VariantsID: []primitive.ObjectID{cat.Variants[0].ID},
+		IsActive:   true,
+		Type:       "flat",
+		Value:      100,
+	}
+	app.MongoDB.Client.Database(app.Config.DiscountConfig.DBName).Collection(model.DiscountColl).InsertOne(ctx, discount)
+
+	type fields struct {
+		App    *App
+		DB     *mongo.Database
+		Logger *zerolog.Logger
+	}
+	type args struct {
+		cat_id primitive.ObjectID
+		var_id primitive.ObjectID
+	}
+
+	type TC struct {
+		name       string
+		fields     fields
+		args       args
+		want       *schema.GetCatalogVariantResp
+		wantErr    bool
+		err        error
+		prepare    func(*TC)
+		buildStubs func(*TC, *mock.MockCategory, *mock.MockBrand)
+	}
+	tests := []TC{
+		{
+			name: "[OK]",
+			fields: fields{
+				App:    app,
+				DB:     app.MongoDB.Client.Database(app.Config.KeeperCatalogConfig.DBName),
+				Logger: app.Logger,
+			},
+			args: args{},
+			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand) {
+				// b.EXPECT().CheckBrandIDExists(gomock.Any(), gomock.Any()).Times(1).Return(true, nil)
+			},
+			prepare: func(tt *TC) {
+				tt.args.cat_id = cat.ID
+				tt.args.var_id = cat.Variants[0].ID
+
+				tt.want = &schema.GetCatalogVariantResp{
+					ID:          cat.ID,
+					VariantType: cat.VariantType,
+					Variant:     cat.Variants[0],
+					DiscountInfo: schema.DiscountInfo{
+						Type:  "flat",
+						Value: 100,
+					},
+				}
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			kc := &KeeperCatalogImpl{
+				App:    tt.fields.App,
+				DB:     tt.fields.DB,
+				Logger: tt.fields.Logger,
+			}
+			tt.fields.App.KeeperCatalog = kc
+
+			mockBrand := mock.NewMockBrand(ctrl)
+			tt.fields.App.Brand = mockBrand
+			mockCategory := mock.NewMockCategory(ctrl)
+			tt.fields.App.Category = mockCategory
+
+			tt.buildStubs(&tt, mockCategory, mockBrand)
+			tt.prepare(&tt)
+
+			// fmt.Println(tt.args.cat_id, tt.args.var_id)
+			resp, err := kc.GetCatalogVariant(tt.args.cat_id, tt.args.var_id)
+			// fmt.Println(resp)
 			if !tt.wantErr {
 				assert.Nil(t, err)
 				assert.NotNil(t, resp)

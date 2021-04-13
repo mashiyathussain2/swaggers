@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -1695,11 +1696,7 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
 	bID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
 	fName := "fake file"
-	label := ContentLabel{
-		Interests: []string{"A", "B"},
-		AgeGroup:  []string{"25-30"},
-		Gender:    []string{"M", "F"},
-	}
+
 	tv := validator.NewValidation()
 	tests := []struct {
 		name    string
@@ -1725,7 +1722,6 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 				BrandID:   bID,
 				CatalogID: cID,
 				FileName:  fName,
-				Label:     &label,
 			},
 		},
 		{
@@ -1835,11 +1831,7 @@ func TestKeeperCatalogImpl_AddCatalogContent(t *testing.T) {
 func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 	t.Parallel()
 	mediaID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
-	label := ContentLabel{
-		Interests: []string{"A", "B"},
-		AgeGroup:  []string{"25-30"},
-		Gender:    []string{"M", "F"},
-	}
+
 	cID, _ := primitive.ObjectIDFromHex("5e8821fe1108c87837ef2612")
 	tv := validator.NewValidation()
 	tests := []struct {
@@ -1864,7 +1856,6 @@ func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 			want: AddCatalogContentImageOpts{
 				CatalogID: cID,
 				MediaID:   mediaID,
-				Label:     &label,
 			},
 		},
 		{
@@ -1952,4 +1943,143 @@ func TestKeeperCatalogImpl_AddCatalogContentImage(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetCatalogsByFilter(t *testing.T) {
+	t.Parallel()
+	brandID, _ := primitive.ObjectIDFromHex("603378cb6c45d2a044f167a8")
+	status := []string{model.Publish}
+	tv := validator.NewValidation()
+	tests := []struct {
+		name    string
+		json    string
+		wantErr bool
+		err     []string
+		want    GetCatalogsByFilterOpts
+	}{
+		{
+			name: "[OK]",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":1,
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     1,
+				Status:   status,
+			},
+		},
+		{
+			name: "[OK] brands missing",
+			json: string(`{
+				"page":1,
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				Page:   1,
+				Status: status,
+			},
+		},
+		{
+			name: "[OK] page missing",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"status":["publish"]
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     0,
+				Status:   status,
+			},
+		},
+		{
+			name: "[OK] Status missing",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":1
+				}`),
+			wantErr: false,
+			want: GetCatalogsByFilterOpts{
+				BrandIDs: []primitive.ObjectID{brandID},
+				Page:     1,
+			},
+		},
+		{
+			name: "[Error] page < 0",
+			json: string(`{
+				"brands":["603378cb6c45d2a044f167a8"],
+				"page":-1,
+				"status":["publish"]
+				}`),
+			wantErr: true,
+			err:     []string{"page must be 0 or greater"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var sc GetCatalogsByFilterOpts
+			err := json.Unmarshal([]byte(tt.json), &sc)
+			assert.Nil(t, err)
+			errs := tv.Validate(&sc)
+			if tt.wantErr {
+				assert.Len(t, errs, len(tt.err))
+				assert.Equal(t, errs[0].Error(), tt.err[0])
+			}
+			if !tt.wantErr {
+				assert.Len(t, errs, 0)
+				assert.Equal(t, tt.want, sc)
+			}
+		})
+	}
+}
+
+func TestProcessCatalogUpdateSchema(t *testing.T) {
+	var s *KafkaMessage
+	str := `{
+		"meta": {
+		  "_id": {
+			"$oid": "606415cf7f0d4820325ffd1b"
+		  },
+		  "ts": {
+			"$timestamp": {
+			  "t": 1617174341,
+			  "i": 7
+			}
+		  },
+		  "ns": "catalog_v2.catalog",
+		  "op": "u",
+		  "updates": {
+			"removed": [],
+			"changed": {
+			  "status": {
+				"name": "Draft",
+				"value": "draft",
+				"created_at": {
+				  "$date": "2021-03-31T06:58:29.27Z"
+				}
+			  },
+			  "status_history": [
+				{
+				  "name": "Draft",
+				  "value": "draft",
+				  "created_at": {
+					"$date": "2021-03-31T06:58:29.27Z"
+				  }
+				}
+			  ]
+			}
+		  }
+		}
+	  }`
+	if err := bson.UnmarshalExtJSON([]byte(str), false, &s); err != nil {
+		t.Log(err)
+		t.Error("failed to decode catalog update message")
+		return
+	}
+	t.Log(s)
+	t.Error("e")
 }

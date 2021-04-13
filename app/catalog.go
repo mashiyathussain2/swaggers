@@ -6,11 +6,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -35,14 +38,24 @@ type KeeperCatalog interface {
 	GetCatalogByIDs(context.Context, []primitive.ObjectID) ([]schema.GetCatalogResp, error)
 	AddCatalogContent(*schema.AddCatalogContentOpts) (*schema.PayloadVideo, []error)
 	AddCatalogContentImage(*schema.AddCatalogContentImageOpts) []error
+	GetKeeperCatalogContent(primitive.ObjectID) ([]schema.CatalogContentInfoResp, error)
+	GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error)
 	GetCatalogsByFilter(*schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error)
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
+	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
+	GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
+	SyncCatalog(primitive.ObjectID)
+	SyncCatalogs([]primitive.ObjectID)
+	SyncCatalogContent(id primitive.ObjectID)
+	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
+	RemoveContent(*schema.RemoveContentOpts) error
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	// DeleteVariant(primitive.ObjectID)
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
-type UserCatalog interface{}
+type UserCatalog interface {
+}
 
 // KeeperCatalogImpl implements keeper related operations
 type KeeperCatalogImpl struct {
@@ -72,6 +85,7 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 
 	currentTime := time.Now().UTC()
 	c := model.Catalog{
+		ID:            primitive.NewObjectID(),
 		Name:          opts.Name,
 		LName:         strings.ToLower(opts.Name),
 		Description:   opts.Description,
@@ -100,12 +114,11 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 	}
 	c.Tax = tax
 
-	c.FeaturedImage = &model.CatalogFeaturedImage{
-		IMG: model.IMG{
-			SRC: opts.FeaturedImage.SRC,
-		},
+	c.FeaturedImage = &model.IMG{
+		SRC: opts.FeaturedImage.SRC,
 	}
-	if err := c.FeaturedImage.IMG.LoadFromURL(); err != nil {
+
+	if err := c.FeaturedImage.LoadFromURL(); err != nil {
 		return nil, errors.Wrapf(err, "unable to process featured image for catalog")
 	}
 
@@ -113,7 +126,11 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 	if opts.VariantType != "" {
 		c.VariantType = opts.VariantType
 		for _, variant := range opts.Variants {
-			c.Variants = append(c.Variants, *kc.createVariant(&variant))
+			v, err := kc.createVariant(c.ID, &variant)
+			if err != nil {
+				return nil, err
+			}
+			c.Variants = append(c.Variants, *v)
 		}
 	}
 
@@ -159,6 +176,13 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 			return nil, err
 		}
 		c.Paths = append(c.Paths, path)
+	}
+	c.StatusHistory = []model.Status{
+		{
+			Name:      "Draft",
+			Value:     model.Draft,
+			CreatedAt: currentTime,
+		},
 	}
 
 	// Inserting the document in the DB
@@ -213,6 +237,13 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 			}
 			c.Paths = append(c.Paths, path)
 		}
+	}
+	if opts.FeaturedImage != nil {
+		img := model.IMG{SRC: opts.FeaturedImage.SRC}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "failed to load featured image")
+		}
+		c.FeaturedImage = &img
 	}
 	if opts.ETA != nil {
 		c.ETA = &model.ETA{
@@ -287,6 +318,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		Description:     c.Description,
 		Paths:           c.Paths,
 		Keywords:        c.Keywords,
+		FeaturedImage:   c.FeaturedImage,
 		Specifications:  c.Specifications,
 		FilterAttribute: c.FilterAttribute,
 		HSNCode:         c.HSNCode,
@@ -299,12 +331,24 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 	}, nil
 }
 
-func (kc *KeeperCatalogImpl) createVariant(opts *schema.CreateVariantOpts) *model.Variant {
-	return &model.Variant{
-		ID:        primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
+func (kc *KeeperCatalogImpl) createVariant(id primitive.ObjectID, opts *schema.CreateVariantOpts) (*model.Variant, error) {
+
+	cOpts := schema.CreateInventoryOpts{
+		CatalogID: id,
+		VariantID: primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
 		SKU:       opts.SKU,
-		Attribute: opts.Attribute,
+		Unit:      opts.Unit,
 	}
+	inv, err := kc.App.Inventory.CreateInventory(&cOpts)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to create inventory")
+	}
+	return &model.Variant{
+		ID:          cOpts.VariantID,
+		SKU:         opts.SKU,
+		Attribute:   opts.Attribute,
+		InventoryID: inv,
+	}, nil
 }
 
 // AddVariant adds a new variant to an existing catalog
@@ -580,13 +624,13 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 				Field:   "Featured Image",
 			})
 		}
-		if catalog.FilterAttribute == nil {
-			resp = append(resp, schema.UpdateCatalogStatusResp{
-				Type:    "Field Missing",
-				Message: "Filter Attribute" + isRequiredString,
-				Field:   "Filter Attribute",
-			})
-		}
+		// if catalog.FilterAttribute == nil {
+		// 	resp = append(resp, schema.UpdateCatalogStatusResp{
+		// 		Type:    "Field Missing",
+		// 		Message: "Filter Attribute" + isRequiredString,
+		// 		Field:   "Filter Attribute",
+		// 	})
+		// }
 		if len(catalog.Variants) == 0 {
 			resp = append(resp, schema.UpdateCatalogStatusResp{
 				Type:    "Field Missing",
@@ -627,6 +671,13 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 				Type:    "Field Missing",
 				Message: "Retail Price" + isRequiredString,
 				Field:   "Retail Price",
+			})
+		}
+		if len(catalog.CatalogContent) == 0 {
+			resp = append(resp, schema.UpdateCatalogStatusResp{
+				Type:    "Field Missing",
+				Message: "At least one Catalog Content is required",
+				Field:   "Catalog Content",
 			})
 		}
 
@@ -704,9 +755,15 @@ func (kc *KeeperCatalogImpl) AddCatalogContent(opts *schema.AddCatalogContentOpt
 	}
 	opts.BrandID = catalogs[0].BrandID
 	requestByte, _ := json.Marshal(opts)
-	requestReader := bytes.NewReader(requestByte)
-
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/video", "application/json", requestReader)
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content/catalog/video"
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestByte))
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		return nil, []error{errors.Wrap(err, "failed to generate request to create catalog video")}
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -756,13 +813,20 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 		"media_id":   opts.MediaID.Hex(),
 		"brand_id":   catalogs[0].BrandID.Hex(),
 		"catalog_id": opts.CatalogID.Hex(),
-		"label":      opts.Label,
 	}
 
 	requestByte, _ := json.Marshal(requestData)
-	requestReader := bytes.NewReader(requestByte)
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content/catalog/image"
+	client := http.Client{}
 
-	resp, err := http.Post(kc.App.Config.HypdApiConfig.CmsApi+"/api/keeper/content/catalog/image", "application/json", requestReader)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(requestByte))
+	if err != nil {
+		return []error{errors.Wrap(err, "failed to generate request to create catalog image")}
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return []error{err}
 	}
@@ -799,38 +863,184 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 }
 
 //GetCatalogsByFilter returns catalogs based on the filters entered
+// func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
+
+// 	var cur *mongo.Cursor
+// 	var err error
+// 	ctx := context.TODO()
+// 	var filterQuery bson.D
+// 	if len(opts.BrandIDs) > 0 {
+// 		bQuery := bson.E{
+// 			Key: "brand_id", Value: bson.M{
+// 				"$in": opts.BrandIDs,
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, bQuery)
+// 	}
+// 	if len(opts.Status) > 0 {
+// 		sQuery := bson.E{
+// 			Key: "status.value", Value: bson.M{
+// 				"$in": opts.Status,
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, sQuery)
+// 	}
+// 	if opts.Name != "" {
+// 		nQuery := bson.E{
+// 			Key: "lname", Value: bson.M{
+// 				"$regex": strings.ToLower(opts.Name),
+// 			},
+// 		}
+// 		filterQuery = append(filterQuery, nQuery)
+// 	}
+// 	// filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
+
+// 	var catalogs []schema.GetCatalogResp
+
+// 	pageSize := kc.App.Config.PageSize
+// 	skip := int64(pageSize * opts.Page)
+// 	limit := int64(pageSize)
+// 	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
+// 	fmt.Println(len(filterQuery))
+// 	if len(filterQuery) == 0 {
+// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{}, findOpts)
+// 	} else {
+// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery, findOpts)
+// 	}
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "error finding catalogs")
+// 	}
+// 	if err := cur.All(ctx, &catalogs); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return catalogs, nil
+// }
+
 func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
-
+	var err error
 	ctx := context.TODO()
-	var filterQuery bson.D
+
+	pipeline := mongo.Pipeline{}
 	if len(opts.BrandIDs) > 0 {
-		bQuery := bson.E{
-			Key: "brand_id", Value: bson.M{
-				"$in": opts.BrandIDs,
+		bMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"brand_id": bson.M{
+					"$in": opts.BrandIDs,
+				},
 			},
-		}
-		filterQuery = append(filterQuery, bQuery)
+		}}
+		pipeline = append(pipeline, bMatchStage)
 	}
+
 	if len(opts.Status) > 0 {
-		sQuery := bson.E{
-			Key: "status.value", Value: bson.M{
-				"$in": opts.Status,
+		sMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"status.value": bson.M{
+					"$in": opts.Status,
+				},
 			},
-		}
-		filterQuery = append(filterQuery, sQuery)
+		}}
+		pipeline = append(pipeline, sMatchStage)
+	}
+	if opts.Name != "" {
+		nMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"lname": bson.M{
+					"$regex": strings.ToLower(opts.Name),
+				},
+			},
+		}}
+		pipeline = append(pipeline, nMatchStage)
+	}
+	limitStage := bson.D{
+		{Key: "$limit", Value: kc.App.Config.PageSize},
+	}
+	skipStage := bson.D{
+		{Key: "$skip", Value: kc.App.Config.PageSize * opts.Page},
 	}
 
-	var catalogs []schema.GetCatalogResp
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path":                       "$variants",
+			"preserveNullAndEmptyArrays": true,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"variants.inventory_info": bson.M{
+				"$first": "$inventory_info",
+			},
+		},
+	}}
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$_id",
+			"catalogs": bson.M{
+				"$push": "$$ROOT",
+			},
+			"variants": bson.M{
+				"$push": "$variants",
+			},
+		},
+	}}
 
-	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery)
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"catalog": bson.M{
+				"$arrayElemAt": bson.A{
+					"$catalogs",
+					0,
+				},
+			},
+		},
+	}}
+
+	setStage2 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"catalog.variants": "$variants",
+		},
+	}}
+
+	replaceRootStage := bson.D{{
+		Key: "$replaceRoot", Value: bson.M{
+			"newRoot": "$catalog",
+		},
+	}}
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"updated_at": -1,
+		},
+	}}
+
+	pipeline = append(pipeline, mongo.Pipeline{
+		skipStage,
+		limitStage,
+		unwindStage,
+		lookupStage,
+		setStage,
+		groupStage,
+		addFieldsStage,
+		setStage2,
+		replaceRootStage, sortStage}...)
+	cur, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, errors.Wrap(err, "error finding catalogs")
+		return nil, err
 	}
-	if err := cur.All(ctx, &catalogs); err != nil {
+	var catalogResp []schema.GetCatalogResp
+	if err := cur.All(ctx, &catalogResp); err != nil {
 		return nil, err
 	}
 
-	return catalogs, nil
+	return catalogResp, nil
 }
 
 //GetCatalogBySlug finds and return the catalog with given slug
@@ -844,4 +1054,474 @@ func (kc *KeeperCatalogImpl) GetCatalogBySlug(slug string) (*schema.GetCatalogRe
 		return nil, err
 	}
 	return catalog, nil
+}
+
+func (kc *KeeperCatalogImpl) GetAllCatalogInfo(id primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error) {
+	var wg sync.WaitGroup
+	var contentInfo []schema.CatalogContentInfoResp
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": id,
+		},
+	}}
+	lookupGroupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         model.GroupColl,
+			"localField":   "_id",
+			"foreignField": "catalog_ids",
+			"as":           "group_info",
+		},
+	}}
+	lookupDiscountStage := bson.D{{
+		Key: "$lookup",
+		Value: bson.M{
+			"from": "discount",
+			"let":  bson.M{"catalog_id": "$_id"},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr": bson.M{
+							"$and": bson.A{
+								bson.M{"$eq": bson.A{"$catalog_id", "$$catalog_id"}},
+								bson.M{"$eq": bson.A{"$is_active", true}},
+							},
+						},
+					},
+				},
+			},
+			"as": "discount_info",
+		},
+	}}
+	setStage0 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"discount_info": bson.M{
+				"$first": "$discount_info",
+			},
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path":                       "$variants",
+			"preserveNullAndEmptyArrays": true,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	setStage1 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"variants.inventory_info": bson.M{
+				"$first": "$inventory_info",
+			},
+		},
+	}}
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$_id",
+			"catalogs": bson.M{
+				"$push": "$$ROOT",
+			},
+			"variants": bson.M{
+				"$push": "$variants",
+			},
+		},
+	}}
+
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"catalog": bson.M{
+				"$arrayElemAt": bson.A{
+					"$catalogs",
+					0,
+				},
+			},
+		},
+	}}
+
+	setStage2 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"catalog.variants": "$variants",
+		},
+	}}
+
+	replaceRootStage := bson.D{{
+		Key: "$replaceRoot", Value: bson.M{
+			"newRoot": "$catalog",
+		},
+	}}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		info, err := kc.GetCatalogContent(id)
+		if err != nil {
+			kc.App.Logger.Err(err).Msgf("failed to get catalog content for id: %s", id.Hex())
+			return
+		}
+		contentInfo = info
+	}()
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupDiscountStage,
+		setStage0,
+		lookupGroupStage,
+		unwindStage,
+		lookupStage,
+		setStage1,
+		groupStage,
+		addFieldsStage,
+		setStage2,
+		replaceRootStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id:%s", id.Hex())
+	}
+
+	var catalog []schema.GetAllCatalogInfoResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+
+	wg.Wait()
+
+	if len(catalog) != 0 {
+		var brandInfo *schema.BrandInfoResp
+		brandInfo, err = kc.App.Brand.GetBrandInfo([]string{catalog[0].BrandID.Hex()})
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get brand-info")
+		}
+
+		catalog[0].ContentInfo = contentInfo
+		catalog[0].BrandInfo = brandInfo
+		return &catalog[0], nil
+	}
+
+	return nil, errors.Errorf("unable to find info for catalog with id: %s", id.Hex())
+}
+
+func (kc *KeeperCatalogImpl) GetKeeperCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content"
+	data, err := json.Marshal(map[string]interface{}{
+		"type":        "catalog_content",
+		"catalog_ids": []string{id.Hex()},
+		"page":        999,
+	})
+	if err != nil {
+		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
+		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
+	}
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to catalog content")
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+
+	defer resp.Body.Close()
+	//Read the response body
+
+	var s schema.GetCatalogContentInfoResp
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		kc.Logger.Err(errors.New("success false from cms")).Str("body", string(body)).Msg("got success false response from cms")
+		return nil, errors.New("got success false response from cms")
+	}
+	return s.Payload, nil
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogContent(id primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	url := kc.App.Config.HypdApiConfig.CmsApi + "/api/keeper/content"
+	data, err := json.Marshal(map[string]interface{}{
+		"is_active":   true,
+		"type":        "catalog_content",
+		"catalog_ids": []string{id.Hex()},
+		"page":        999,
+	})
+	if err != nil {
+		kc.Logger.Err(err).Msg("failed to prepare request to get catalog content")
+		return nil, errors.Wrap(err, "failed to prepare request to get catalog content")
+	}
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get catalog content")
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to send request to api %s", url)
+		return nil, errors.Wrapf(err, "failed to send request to api %s", url)
+	}
+
+	defer resp.Body.Close()
+	//Read the response body
+
+	var s schema.GetCatalogContentInfoResp
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		kc.Logger.Err(err).Str("responseBody", string(data)).Msgf("failed to read response from api %s", url)
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		kc.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		kc.Logger.Err(errors.New("success false from cms")).Str("body", string(body)).Msg("got success false response from cms")
+		return nil, errors.New("got success false response from cms")
+	}
+	return s.Payload, nil
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalog(id primitive.ObjectID) {
+	filter := bson.M{
+		"_id":          id,
+		"status.value": model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog")
+	}
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalogs(ids []primitive.ObjectID) {
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+		"status.value": model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", ids).Msg("failed to sync catalogs")
+	}
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalogContent(id primitive.ObjectID) {
+	filter := bson.M{
+		"catalog_content": id,
+		"status.value":    model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog content")
+	}
+}
+
+func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": bson.M{
+				"$in": ids,
+			},
+			"status.value": model.Publish,
+		},
+	}}
+	lookupDiscountStage := bson.D{{
+		Key: "$lookup",
+		Value: bson.M{
+			"from": "discount",
+			"let":  bson.M{"catalog_id": "$_id"},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr": bson.M{
+							"$and": bson.A{
+								bson.M{"$eq": bson.A{"$catalog_id", "$$catalog_id"}},
+								bson.M{"$eq": bson.A{"$is_active", true}},
+							},
+						},
+					},
+				},
+			},
+			"as": "discount_info",
+		},
+	}}
+	setStage0 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"discount_info": bson.M{
+				"$first": "$discount_info",
+			},
+		},
+	}}
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupDiscountStage,
+		setStage0,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id")
+	}
+
+	var catalogs []schema.GetAllCatalogInfoResp
+	if err := catalogsCursor.All(ctx, &catalogs); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+
+	if len(catalogs) == 0 {
+		return nil, errors.Errorf("unable to find info for catalog for collection")
+	}
+	for i, catalog := range catalogs {
+		bi, err := kc.App.Brand.GetBrandInfo([]string{catalog.BrandID.Hex()})
+		if err != nil {
+			kc.Logger.Err(err).Msgf("failed to get brand info for catalog with brand-id: %s", catalog.BrandID.Hex())
+			continue
+		}
+		catalogs[i].BrandInfo = bi
+	}
+	return catalogs, nil
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id":          cat_id,
+			"variants._id": var_id,
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$variants",
+		},
+	}}
+	matchStage2 := bson.D{{
+		Key: "$match", Value: bson.M{
+			"variants._id": var_id,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from": model.DiscountColl,
+			"let": bson.M{
+				"variant_id": "$variants._id",
+			},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr":     bson.M{"$in": bson.A{"$$variant_id", "$variants_id"}},
+						"is_active": true,
+					}},
+			},
+			"as": "discount_info",
+		},
+	}}
+	unwindStage2 := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path":                       "$discount_info",
+			"preserveNullAndEmptyArrays": true,
+		},
+	}}
+	inventoryLookUpStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	projectStage :=
+		bson.D{{
+			Key: "$project", Value: bson.M{
+				"_id":                     1,
+				"name":                    1,
+				"base_price":              1,
+				"retail_price":            1,
+				"transfer_price":          1,
+				"discount_info._id":       1,
+				"discount_info.value":     1,
+				"discount_info.type":      1,
+				"discount_info.max_value": 1,
+				"variant_type":            1,
+				"variant":                 "$variants",
+				"featured_image":          1,
+				"inventory_info":          bson.M{"$arrayElemAt": bson.A{"$inventory_info", 0}},
+			},
+		}}
+
+	ctx := context.TODO()
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		unwindStage,
+		matchStage2,
+		lookupStage,
+		unwindStage2,
+		inventoryLookUpStage,
+		projectStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id:%s", cat_id.Hex())
+	}
+	var catalog []schema.GetCatalogVariantResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+	if len(catalog) > 0 {
+		return &catalog[0], nil
+	}
+	return nil, nil
+}
+
+func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error {
+	filter := bson.M{"_id": opts.CatalogID}
+	updateQuery := bson.M{
+		"$pull": bson.M{
+			"catalog_content": opts.ContentID,
+		},
+	}
+	res, err := kc.DB.Collection(model.CatalogColl).UpdateOne(context.TODO(), filter, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "error removing content with id: %s", opts.ContentID.Hex())
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("error finding catalog with id: %s", opts.CatalogID.Hex())
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/keeper/content/%s", kc.App.Config.HypdApiConfig.CmsApi, opts.ContentID.Hex()), nil)
+	if err != nil {
+		return errors.Wrap(err, "error sending deleting content request to cms")
+	}
+	req.Header.Add("Authorization", kc.App.Config.HypdApiConfig.Token)
+	if _, err := client.Do(req); err != nil {
+		return errors.Wrap(err, "error deleting content from cms")
+	}
+	return nil
 }

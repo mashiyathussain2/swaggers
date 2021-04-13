@@ -51,11 +51,15 @@ func (a *API) getCatalogsByGroupID(requestCTX *handler.RequestContext, w http.Re
 }
 
 func (a *API) getGroups(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.GetGroupsOpts
-	if err := a.DecodeJSONBody(r, &s); err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
+
+	page := GetPageValue(r)
+	status := GetStatusValue(r)
+
+	s := schema.GetGroupsOpts{
+		Page:   page,
+		Status: status,
 	}
+
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
@@ -142,4 +146,54 @@ func (a *API) addCatalogsInTheGroup(requestCTX *handler.RequestContext, w http.R
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) editGroup(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.EditGroupOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Group.EditGroup(&s)
+	if err != nil {
+		requestCTX.SetErrs(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+
+}
+
+func (a *API) getGroupsByCatalogName(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	page := GetPageValue(r)
+	name := r.URL.Query().Get("name")
+	res, err := a.App.Group.GetGroupsByCatalogName(name, page)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+
+}
+
+func (a *API) updateGroupStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.UpdateGroupStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.Group.UpdateGroupStatus(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
 }

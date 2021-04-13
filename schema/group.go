@@ -2,6 +2,7 @@ package schema
 
 import (
 	"go-app/model"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -44,7 +45,7 @@ type GetCatalogByGroupIDResp struct {
 //GetGroupsOpts contains fields to retrieve Groups
 type GetGroupsOpts struct {
 	Page   int    `json:"page" validate:"gte=0"`
-	Status string `json:"status" validate:"oneof=unlist archive publish"`
+	Status string `json:"status" validate:"oneof=unlist archive publish all"`
 }
 
 //GetGroupsByCatalogIDOpts contains fields to retrieve Groups
@@ -77,4 +78,37 @@ type GetGroupsByCatalogIDResp struct {
 	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Basis       string             `json:"basis" bson:"basis,omitempty" `
 	CatalogInfo []model.Catalog    `json:"catalog_info" bson:"catalog_info,omitempty" `
+}
+
+type GetGroupsByCatalogNameResp struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Minimum     int                `json:"minimum,omitempty" bson:"minimum,omitempty"`
+	Maximum     int                `json:"maximum,omitempty" bson:"maximum,omitempty"`
+	GroupStatus model.GroupStatus  `json:"group_status,omitempty" bson:"group_status,omitempty"`
+	CatalogInfo []model.Catalog    `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	Count       int                `json:"count,omitempty" bson:"count,omitempty"`
+}
+
+//EditGroupOpts contains fields to add Catalogs to the Group with given ID.
+type EditGroupOpts struct {
+	ID         primitive.ObjectID   `json:"id" validate:"required"`
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
+	Basis      string               `json:"basis"`
+}
+
+//EditGroupResp contains fields to add Catalogs to the Group with given ID.
+type EditGroupResp struct {
+	ID         primitive.ObjectID   `json:"id" validate:"required"`
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
+	Basis      string               `json:"basis"`
+	Status     model.GroupStatus    `json:"status"`
+}
+
+type GroupChangeKafkaMessage struct {
+	ID         primitive.ObjectID   `json:"_id,omitempty"`
+	Basis      string               `json:"basis"`
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids,omitempty"`
+	Status     model.GroupStatus    `json:"status"`
+	CreatedAt  time.Time            `json:"created_at,omitempty"`
+	UpdatedAt  time.Time            `json:"updated_at,omitempty"`
 }

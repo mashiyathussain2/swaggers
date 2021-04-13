@@ -55,22 +55,22 @@ func TestCollectionImpl_CreateCollection(t *testing.T) {
 	subCollections := []schema.SubCollectionOpts{
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[0:5],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[5:10],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[10:15],
 		},
 		{
 			Name:       faker.Name().Name(),
-			Image:      faker.Avatar().Url("png", 100, 100),
+			Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
 			CatalogIDs: catalogIDs[15:20],
 		},
 	}
@@ -165,11 +165,11 @@ func TestCollectionImpl_CreateCollection(t *testing.T) {
 				assert.Equal(t, resp.Genders, collection.Genders)
 				assert.Equal(t, resp.Title, collection.Title)
 				assert.Equal(t, resp.Type, collection.Type)
-				assert.Equal(t, len(resp.SubCollection), len(collection.SubCollection))
-				for i := 0; i < len(resp.SubCollection); i++ {
-					resp.SubCollection[i].CreatedAt = time.Time{}
-					collection.SubCollection[i].CreatedAt = time.Time{}
-					assert.Equal(t, resp.SubCollection[i], collection.SubCollection[i])
+				assert.Equal(t, len(resp.SubCollections), len(collection.SubCollections))
+				for i := 0; i < len(resp.SubCollections); i++ {
+					resp.SubCollections[i].CreatedAt = time.Time{}
+					collection.SubCollections[i].CreatedAt = time.Time{}
+					assert.Equal(t, resp.SubCollections[i], collection.SubCollections[i])
 				}
 			}
 
@@ -236,18 +236,18 @@ func TestCollectionImpl_DeleteCollection(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
 	collection = model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "B",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "B",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -381,10 +381,10 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 	}
 
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -401,16 +401,19 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: collection.ID,
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
-						CatalogIDs: catalogIDs[15:20],
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: catalogIDs[15:20],
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return(catalogs[15:20], nil)
+
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return(catalogs[15:20], nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -427,16 +430,18 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: primitive.NewObjectID(),
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
-						CatalogIDs: catalogIDs[15:20],
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: catalogIDs[15:20],
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return(catalogs[15:20], nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return(catalogs[15:20], nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -454,21 +459,23 @@ func TestCollectionImpl_AddSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.AddSubCollectionOpts{
 					ID: primitive.NewObjectID(),
-					SubCollection: &schema.SubCollectionOpts{
-						Name:       "New Sub Collection",
-						Image:      faker.Avatar().Url("png", 100, 100),
-						CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[12]},
+					SubCollections: []schema.SubCollectionOpts{
+						{
+							Name:       "New Sub Collection",
+							Image:      &schema.Img{SRC: faker.Avatar().Url("png", 100, 100)},
+							CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[12]},
+						},
 					},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollection.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.SubCollections[0].CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
 				tt.wantErr = true
-				tt.err = []error{errors.Errorf("catalog with id: %s not found", tt.args.opts.SubCollection.CatalogIDs[0].Hex())}
+				tt.err = []error{errors.Errorf("catalog with id: %s not found", tt.args.opts.SubCollections[0].CatalogIDs[0].Hex())}
 			},
 		},
 	}
@@ -572,10 +579,10 @@ func TestCollectionImpl_DeleteSubCollection(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -589,7 +596,7 @@ func TestCollectionImpl_DeleteSubCollection(t *testing.T) {
 			},
 			args: args{
 				calID: collection.ID,
-				subID: collection.SubCollection[0].ID,
+				subID: collection.SubCollections[0].ID,
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
@@ -608,7 +615,7 @@ func TestCollectionImpl_DeleteSubCollection(t *testing.T) {
 			},
 			args: args{
 				calID: primitive.NewObjectID(),
-				subID: collection.SubCollection[0].ID,
+				subID: collection.SubCollections[0].ID,
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
@@ -667,10 +674,10 @@ func TestCollectionImpl_DeleteSubCollection(t *testing.T) {
 				// assert.Equal(t, tt.want, resp)
 				var collection model.Collection
 				ci.DB.Collection(model.CollectionColl).FindOne(context.TODO(), bson.M{"_id": tt.args.calID}).Decode(&collection)
-				for _, sc := range collection.SubCollection {
+				for _, sc := range collection.SubCollections {
 					assert.NotEqual(t, sc.ID, tt.args.subID)
 				}
-				assert.Equal(t, len(collection.SubCollection), len(subCollections)-1)
+				assert.Equal(t, len(collection.SubCollections), len(subCollections)-1)
 
 			}
 
@@ -742,11 +749,11 @@ func TestCollectionImpl_EditCollection(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		Genders:       []string{"M"},
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		Genders:        []string{"M"},
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -778,12 +785,12 @@ func TestCollectionImpl_EditCollection(t *testing.T) {
 					collection.Title = tt.args.opts.Title
 				}
 				want := &schema.CreateCollectionResp{
-					ID:            collection.ID,
-					Type:          collection.Type,
-					Genders:       collection.Genders,
-					Title:         collection.Title,
-					Name:          collection.Name,
-					SubCollection: collection.SubCollection,
+					ID:             collection.ID,
+					Type:           collection.Type,
+					Genders:        collection.Genders,
+					Title:          collection.Title,
+					Name:           collection.Name,
+					SubCollections: collection.SubCollections,
 				}
 				tt.want = want
 			},
@@ -814,12 +821,12 @@ func TestCollectionImpl_EditCollection(t *testing.T) {
 					collection.Title = tt.args.opts.Title
 				}
 				want := &schema.CreateCollectionResp{
-					ID:            collection.ID,
-					Type:          collection.Type,
-					Genders:       collection.Genders,
-					Title:         collection.Title,
-					Name:          collection.Name,
-					SubCollection: collection.SubCollection,
+					ID:             collection.ID,
+					Type:           collection.Type,
+					Genders:        collection.Genders,
+					Title:          collection.Title,
+					Name:           collection.Name,
+					SubCollections: collection.SubCollections,
 				}
 				tt.want = want
 			},
@@ -945,10 +952,10 @@ func TestCollectionImpl_UpdateSubCollectionImage(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -963,7 +970,7 @@ func TestCollectionImpl_UpdateSubCollectionImage(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateSubCollectionImageOpts{
 					ColID: collection.ID,
-					SubID: collection.SubCollection[0].ID,
+					SubID: collection.SubCollections[0].ID,
 					Image: "https://www.agencyreporter.com/wp-content/uploads/2021/02/HYPD-Store-raises-pre-seed-strategic-investment-from-ScoopWhoop.jpg",
 				},
 			},
@@ -986,7 +993,7 @@ func TestCollectionImpl_UpdateSubCollectionImage(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateSubCollectionImageOpts{
 					ColID: primitive.NewObjectID(),
-					SubID: collection.SubCollection[0].ID,
+					SubID: collection.SubCollections[0].ID,
 					Image: "https://www.agencyreporter.com/wp-content/uploads/2021/02/HYPD-Store-raises-pre-seed-strategic-investment-from-ScoopWhoop.jpg",
 				},
 			},
@@ -1121,10 +1128,10 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -1140,13 +1147,13 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[11], catalogIDs[12]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[11], catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[11], catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1164,13 +1171,13 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[1], catalogIDs[14]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[14]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[14]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1188,13 +1195,13 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[1], catalogIDs[2]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1215,13 +1222,13 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[2]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1242,13 +1249,13 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      primitive.NewObjectID(),
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[11], catalogIDs[12]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1273,7 +1280,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1312,7 +1319,7 @@ func TestCollectionImpl_AddCatalogsToSubCollection(t *testing.T) {
 				var collection model.Collection
 				ci.DB.Collection(model.CollectionColl).FindOne(context.TODO(), bson.M{"_id": tt.args.opts.ColID}).Decode(&collection)
 				i := 0
-				for _, ci := range collection.SubCollection[0].CatalogIDs {
+				for _, ci := range collection.SubCollections[0].CatalogIDs {
 					if ci == tt.args.opts.CatalogIDs[0] {
 						i++
 					}
@@ -1390,10 +1397,10 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 		},
 	}
 	collection := model.Collection{
-		ID:            primitive.NewObjectID(),
-		Name:          "A",
-		Type:          model.ProductCollection,
-		SubCollection: subCollections,
+		ID:             primitive.NewObjectID(),
+		Name:           "A",
+		Type:           model.ProductCollection,
+		SubCollections: subCollections,
 	}
 	app.MongoDB.Client.Database(app.Config.GroupConfig.DBName).Collection(model.CollectionColl).InsertOne(context.TODO(), collection)
 
@@ -1409,13 +1416,13 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[1], catalogIDs[2]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1433,13 +1440,13 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[3], catalogIDs[14]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[3], catalogs[14]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[3], catalogs[14]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1457,13 +1464,13 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[11], catalogIDs[12]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[11], catalogs[12]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[11], catalogs[12]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1484,13 +1491,13 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      collection.ID,
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{primitive.NewObjectID(), catalogIDs[2]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1511,13 +1518,13 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			args: args{
 				opts: &schema.UpdateCatalogsInSubCollectionOpts{
 					ColID:      primitive.NewObjectID(),
-					SubID:      collection.SubCollection[0].ID,
+					SubID:      collection.SubCollections[0].ID,
 					CatalogIDs: []primitive.ObjectID{catalogIDs[11], catalogIDs[12]},
 				},
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1542,7 +1549,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 			},
 
 			buildStubs: func(tt *TC, ct *mock.MockCategory, b *mock.MockBrand, kc *mock.MockKeeperCatalog) {
-				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.CreateCatalogResp{catalogs[1], catalogs[2]}, nil)
+				kc.EXPECT().GetCatalogByIDs(gomock.Any(), tt.args.opts.CatalogIDs).Times(1).Return([]schema.GetCatalogResp{catalogs[1], catalogs[2]}, nil)
 
 			},
 			prepare: func(tt *TC) {
@@ -1581,7 +1588,7 @@ func TestCollectionImpl_RemoveCatalogsFromSubCollection(t *testing.T) {
 				var collection model.Collection
 				ci.DB.Collection(model.CollectionColl).FindOne(context.TODO(), bson.M{"_id": tt.args.opts.ColID}).Decode(&collection)
 				i := 0
-				for _, ci := range collection.SubCollection[0].CatalogIDs {
+				for _, ci := range collection.SubCollections[0].CatalogIDs {
 					if ci == catalogIDs[1] {
 						i++
 					}
