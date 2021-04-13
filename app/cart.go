@@ -328,20 +328,20 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
 					var dp *model.Price
-					cartItem.DiscountInfo = &model.DiscountInfo{
+					cart.Items[i].DiscountInfo = &model.DiscountInfo{
 						ID:    cartItem.CatalogInfo.DiscountInfo.ID,
 						Type:  cartItem.CatalogInfo.DiscountInfo.Type,
 						Value: cartItem.CatalogInfo.DiscountInfo.Value,
 					}
-					switch cartItem.DiscountInfo.Type {
+					switch cartItem.CatalogInfo.DiscountInfo.Type {
 					case model.FlatOffType:
-						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.DiscountInfo.Value))
-						td = td + cartItem.DiscountInfo.Value*cartItem.Quantity
+						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.CatalogInfo.DiscountInfo.Value))
+						td = td + cartItem.CatalogInfo.DiscountInfo.Value*cartItem.Quantity
 					case model.PercentOffType:
-						cartItem.DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
-						d := uint(float64((cartItem.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
-						if d > cartItem.DiscountInfo.MaxValue && cartItem.DiscountInfo.MaxValue > 0 {
-							d = cartItem.DiscountInfo.MaxValue
+						cart.Items[i].DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
+						d := uint(float64((cartItem.CatalogInfo.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
+						if d > cartItem.CatalogInfo.DiscountInfo.MaxValue && cartItem.CatalogInfo.DiscountInfo.MaxValue > 0 {
+							d = cartItem.CatalogInfo.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(d))
 						td = td + (d * cartItem.Quantity)
