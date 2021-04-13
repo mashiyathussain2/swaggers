@@ -60,8 +60,6 @@ type APIConfig struct {
 }
 
 type SessionConfig struct {
-	Store        string       `mapstructure:"store"`
-	Name         string       `mapstructure:"name"`
 	CookieConfig CookieConfig `mapstructure:"cookie"`
 	RedisConfig  RedisConfig
 }
