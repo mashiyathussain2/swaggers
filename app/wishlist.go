@@ -164,7 +164,7 @@ func (wi *WishlistImpl) GetWishlistMap(id primitive.ObjectID) (map[string]bool, 
 	err := wi.DB.Collection(model.WishlistColl).FindOne(ctx, bson.M{"user_id": id}).Decode(&wishlist)
 	if err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, nil
+			return mapWish, nil
 		}
 		return nil, errors.Wrapf(err, "unable to query for document")
 	}
