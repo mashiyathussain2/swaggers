@@ -2,6 +2,7 @@ package api
 
 import (
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -13,8 +14,12 @@ import (
 
 func (a *API) getContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetContentFilter
-	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
 	res, err := a.App.Content.GetContent(&s)
@@ -79,13 +84,13 @@ func (a *API) editPebble(requestCTX *handler.RequestContext, w http.ResponseWrit
 	return
 }
 
-func (a *API) deletePebble(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["pebbleID"])
+func (a *API) deleteContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["contentID"])
 	if err != nil {
-		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["pebbleID"]), http.StatusBadRequest)
+		requestCTX.SetErr(errors.Errorf("invalid pebble id: %s in url", mux.Vars(r)["contentID"]), http.StatusBadRequest)
 		return
 	}
-	res, err := a.App.Content.DeletePebble(id)
+	res, err := a.App.Content.DeleteContent(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -183,6 +188,10 @@ func (a *API) createContentComment(requestCTX *handler.RequestContext, w http.Re
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	res, err := a.App.Content.CreateComment(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -200,6 +209,10 @@ func (a *API) createLike(requestCTX *handler.RequestContext, w http.ResponseWrit
 	}
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
 	err := a.App.Content.CreateLike(&s)
@@ -221,6 +234,10 @@ func (a *API) createView(requestCTX *handler.RequestContext, w http.ResponseWrit
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	err := a.App.Content.CreateView(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -236,7 +253,48 @@ func (a *API) getPebble(requestCTX *handler.RequestContext, w http.ResponseWrite
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	if requestCTX.UserClaim != nil {
+		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
+	}
 	res, err := a.App.Elasticsearch.GetPebble(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+func (a *API) geContents(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetPebblesKeeperFilter
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.GetPebbles(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+func (a *API) changeContentStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.ChangeContentStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.ChangeContentStatus(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

@@ -98,3 +98,12 @@ func (a *API) requestWithSudoHandler(h func(c *handler.RequestContext, w http.Re
 		IsSudoUser:  true,
 	}
 }
+
+func (a *API) requestWithInternalHandler(h func(c *handler.RequestContext, w http.ResponseWriter, r *http.Request)) http.Handler {
+	return &handler.Request{
+		HandlerFunc: h,
+		AuthFunc:    a.TokenAuth,
+		IsLoggedIn:  false,
+		IsSudoUser:  true,
+	}
+}

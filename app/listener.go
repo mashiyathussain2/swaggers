@@ -9,11 +9,11 @@ import (
 func InitConsumer(a *App) {
 	ctx := context.Background()
 
-	a.LiveComments = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-		Logger: a.Logger,
-		Config: &a.Config.LiveCommentChangesConfig,
-	})
-	go a.LiveComments.Consume(ctx, a.Live.ConsumeComment)
+	// a.LiveComments = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+	// 	Logger: a.Logger,
+	// 	Config: &a.Config.LiveCommentChangesConfig,
+	// })
+	// go a.LiveComments.Consume(ctx, a.Live.ConsumeComment)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
@@ -27,11 +27,11 @@ func InitConsumer(a *App) {
 	})
 	go a.InfluencerChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessInfluencerMessage)
 
-	// a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-	// 	Logger: a.Logger,
-	// 	Config: &a.Config.CatalogChangesConfig,
-	// })
-	// go a.CatalogChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCatalogMessage)
+	a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CatalogChangesConfig,
+	})
+	go a.CatalogChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCatalogMessage)
 
 	a.ContentChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
@@ -61,22 +61,21 @@ func InitConsumer(a *App) {
 
 // CloseConsumer close all consumer connections
 func CloseConsumer(a *App) {
-	a.LiveComments.Close()
+	// a.LiveComments.Close()
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
 	a.LikeChanges.Close()
 	a.CommentChanges.Close()
 	a.ViewChanges.Close()
-	// a.CatalogChanges.Close()
+	a.CatalogChanges.Close()
 	a.ContentChanges.Close()
 }
 
 func InitProducer(a *App) {
-	a.LiveCommentProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
-		Logger: a.Logger,
-		Config: &a.Config.LiveCommentProducerConfig,
-	})
-
+	// a.LiveCommentProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+	// 	Logger: a.Logger,
+	// 	Config: &a.Config.LiveCommentProducerConfig,
+	// })
 	a.ContentFullProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
 		Logger: a.Logger,
 		Config: &a.Config.ContentFullProducerConfig,
@@ -85,7 +84,7 @@ func InitProducer(a *App) {
 }
 
 func CloseProducer(a *App) {
-	a.LiveCommentProducer.Close()
+	// a.LiveCommentProducer.Close()
 	a.ContentFullProducer.Close()
 }
 

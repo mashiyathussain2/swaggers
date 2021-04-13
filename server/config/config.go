@@ -30,6 +30,7 @@ type Config struct {
 type HypdAPIConfig struct {
 	EntityAPI  string `mapstructure:"entityAPI"`
 	CatalogAPI string `mapstructure:"catalogAPI"`
+	Token      string `mapstructure:"token"`
 }
 
 // ServerConfig has only server specific configuration

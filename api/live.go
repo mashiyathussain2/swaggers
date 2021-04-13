@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/handler"
 	"net/http"
@@ -17,6 +18,7 @@ func (a *API) getLiveStreams(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(r.URL.Query().Encode())
 	res, err := a.App.Live.GetLiveStreams(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -107,6 +109,22 @@ func (a *API) joinLiveStream(requestCTX *handler.RequestContext, w http.Response
 	return
 }
 
+func (a *API) joinedLiveStream(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.PushJoinOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+
+	a.App.Live.PushJoin(&s)
+	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}
+
 func (a *API) stopLiveStream(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["liveID"])
 	if err != nil {
@@ -122,3 +140,63 @@ func (a *API) stopLiveStream(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(true, http.StatusCreated)
 	return
 }
+
+func (a *API) pushCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.PushCatalogOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	a.App.Live.PushCatalog(&s)
+	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}
+
+func (a *API) pushOrder(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.PushNewOrderOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	a.App.Live.PushOrder(&s)
+	requestCTX.SetAppResponse(true, http.StatusCreated)
+	return
+}
+
+func (a *API) getAppLiveStreams(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetAppLiveStreamsFilter
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Live.GetAppLiveStreams(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+// func (a *API) getAppLiveStreamByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+// 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["liveID"])
+// 	if err != nil {
+// 		requestCTX.SetErr(errors.Errorf("invalid live id: %s in url", mux.Vars(r)["liveID"]), http.StatusBadRequest)
+// 		return
+// 	}
+// 	res, err := a.App.Live.GetLiveStreamByID(id)
+// 	if err != nil {
+// 		requestCTX.SetErr(err, http.StatusBadRequest)
+// 		return
+// 	}
+// 	requestCTX.SetAppResponse(res, http.StatusCreated)
+// 	return
+// }

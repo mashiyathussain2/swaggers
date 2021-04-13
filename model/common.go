@@ -7,6 +7,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// PhoneNumber represents a contact number contains prefix (country code) and phone number
+type PhoneNumber struct {
+	Prefix string `json:"prefix,omitempty" bson:"prefix,omitempty"`
+	Number string `json:"number,omitempty" bson:"number,omitempty"`
+}
+
 // IMG contains image url, src, height and id
 type IMG struct {
 	SRC    string `json:"src" bson:"src"`

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/config"
@@ -63,9 +64,13 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
 	queries = append(queries, elastic.NewTermQuery("is_active", true))
 	boolQuery := elastic.NewBoolQuery().Must(queries...)
-	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Do(context.Background())
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
 	}
 
 	var resp []schema.GetPebbleESResp
@@ -75,6 +80,14 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 		if err := json.Unmarshal(hit.Source, &s); err != nil {
 			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
 			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
 		}
 		resp = append(resp, s)
 	}

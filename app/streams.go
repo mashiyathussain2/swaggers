@@ -2,12 +2,12 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	segKafka "github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
@@ -160,8 +160,18 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		return
 	}
 
+	// Only pushing pebble type content in elasticsearch
+	if contentSchema.Type != model.PebbleType {
+		return
+	}
+
 	// Removing content from index if is active set to false
 	if !contentSchema.IsActive {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.ContentFullProducer.Publish(m)
 		return
 	}
 
@@ -212,7 +222,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 			}
 			catalogInfo, err := csp.App.Content.GetCatalogInfo(ids)
 			if err != nil {
-				csp.Logger.Err(err).Interface("data", contentSchema).Msg("failed to get content brand info")
+				csp.Logger.Err(err).Interface("data", contentSchema).Msg("failed to get content catalog info")
 			}
 			contentSchema.CatalogInfo = catalogInfo
 		}()
@@ -257,6 +267,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		CatalogInfo:    contentSchema.CatalogInfo,
 		LikeCount:      contentSchema.LikeCount,
 		LikeIDs:        contentSchema.LikeIDs,
+		LikedBy:        contentSchema.LikedBy,
 		CommentCount:   contentSchema.CommentCount,
 		ViewCount:      contentSchema.ViewCount,
 		Label:          contentSchema.Label,
@@ -281,13 +292,10 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 func (csp *ContentUpdateProcessor) ProcessLike(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
-	fmt.Println("processing like")
-	fmt.Println(message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
 		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
 		return
 	}
-	fmt.Println(s)
 	// creating a like
 	if s.Meta.Operation == "i" {
 		var likeSchema schema.ProcessLikeOpts
@@ -359,4 +367,36 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 		}
 		csp.App.Content.AddContentView(&viewSchema)
 	}
+}
+
+func (csp *ContentUpdateProcessor) ProcessLiveOrder(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+
+	var liveOrder schema.LiveOrderKafkaMessage
+	if err := json.Unmarshal(message.Value, &liveOrder); err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode live order update data fields into bytes")
+		return
+	}
+	if liveOrder.ID.IsZero() {
+		csp.Logger.Err(errors.New("invalid live")).Interface("liveOrder", liveOrder).Msg("invalid live id")
+		return
+	}
+
+	live, err := csp.App.Live.GetLiveStreamByID(liveOrder.ID)
+	if err != nil {
+		csp.Logger.Err(err).Interface("liveOrder", liveOrder).Msg("failed to query live order data")
+		return
+	}
+	if live == nil {
+		csp.Logger.Err(errors.New("invalid live")).Interface("liveOrder", liveOrder).Msg("failed to find live order data")
+		return
+	}
+
+	opts := schema.PushNewOrderOpts{
+		ARN:          live.IVS.Channel.ARN,
+		Name:         liveOrder.Name,
+		ProfileImage: liveOrder.ProfileImage,
+	}
+	csp.App.Live.PushOrder(&opts)
 }

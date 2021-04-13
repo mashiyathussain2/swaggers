@@ -87,8 +87,8 @@ type GetContentResp struct {
 type GetContentFilter struct {
 	IsActive    *bool                `json:"is_active"`
 	IsProcessed *bool                `json:"is_processed"`
-	MediaType   string               `json:"media_type" validate:"oneof=image video"`
-	Type        string               `json:"type" validate:"oneof=pebble catalog_content"`
+	MediaType   string               `json:"media_type" validate:"isdefault|oneof=image video"`
+	Type        string               `json:"type" validate:"isdefault|oneof=pebble catalog_content"`
 	BrandIDs    []primitive.ObjectID `json:"brand_ids"`
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids"`
 	Hashtags    []string             `json:"hashtags"`
@@ -105,7 +105,6 @@ type CreateVideoCatalogContentOpts struct {
 	FileName  string             `json:"file_name" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateImageCatalogContentOpts contains and validates args required to create an image content
@@ -113,7 +112,6 @@ type CreateImageCatalogContentOpts struct {
 	MediaID   primitive.ObjectID `json:"media_id" validate:"required"`
 	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
-	Label     *LabelOpts         `json:"label" validate:"required"`
 }
 
 // CreateVideoCatalogContentResp returns content id and video upload token
@@ -187,6 +185,7 @@ type ContentUpdateOpts struct {
 	ViewCount      uint                   `json:"view_count" bson:"view_count"`
 	LikeCount      uint                   `json:"like_count" bson:"like_count"`
 	LikeIDs        []primitive.ObjectID   `json:"like_ids" bson:"like_ids"`
+	LikedBy        []primitive.ObjectID   `json:"liked_by" bson:"liked_by"`
 	CommentCount   uint                   `json:"comment_count" bson:"comment_count"`
 	Caption        string                 `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags       []string               `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
@@ -230,6 +229,7 @@ type UpdateContentCatalogInfoOpts struct {
 }
 
 type GetPebbleFilter struct {
+	UserID    string   `json:"user_id,omitempty" queryparam:"user_id"`
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
 	Interests []string `json:"interests,omitempty" queryparam:"interests"`
 }
@@ -261,6 +261,8 @@ type GetPebbleESResp struct {
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty"`
 	CatalogInfo []model.CatalogInfo  `json:"catalog_info,omitempty"`
 	CreatedAt   time.Time            `json:"created_at,omitempty"`
+
+	IsLikedByUser bool `json:"is_liked_by_user,omitempty"`
 }
 
 type GetBrandInfoResp struct {
@@ -302,4 +304,14 @@ type ProcessCommentOpts struct {
 	Description  string             `json:"description,omitempty" bson:"description,omitempty"`
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type GetPebblesKeeperFilter struct {
+	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
+	Page uint   `json:"page"`
+}
+
+type ChangeContentStatusOpts struct {
+	ID       primitive.ObjectID `json:"id,omitempty" validate:"required"`
+	IsActive *bool              `json:"is_active" validate:"required"`
 }
