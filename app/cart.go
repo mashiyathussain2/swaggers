@@ -353,9 +353,9 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 			}
 		}
 	}
-	cart.TotalPrice.Value = float32(tp)
-	cart.TotalDiscount.Value = float32(td)
-	cart.GrandTotal.Value = float32(tp - td)
+	cart.TotalPrice = model.SetINRPrice(float32(tp))
+	cart.TotalDiscount = model.SetINRPrice(float32(td))
+	cart.GrandTotal = model.SetINRPrice(float32(tp - td))
 	return &cart, nil
 }
 
