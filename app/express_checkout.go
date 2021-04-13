@@ -334,12 +334,14 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("failed to generate order")
+		return nil, errors.Wrap(err, "failed to generate request to generate order")
 	}
 	req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("unable to fetch order info")
+		return nil, errors.Wrapf(err, "unable to fetch order info")
 	}
 	defer resp.Body.Close()
 
