@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -14,6 +15,8 @@ import (
 
 func (a *API) loginViaEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.EmailLoginCustomerOpts
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -33,11 +36,21 @@ func (a *API) loginViaEmail(requestCTX *handler.RequestContext, w http.ResponseW
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
+		return
+	}
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
 func (a *API) signUpViaEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreateUserOpts
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -57,13 +70,23 @@ func (a *API) signUpViaEmail(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
+		return
+	}
+
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
 func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.UpdateCustomerOpts
 	var returnToken bool
-	resp := make(map[string]interface{})
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	returnToken, _ = strconv.ParseBool(r.URL.Query().Get("returnToken"))
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -80,24 +103,32 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 		return
 	}
 
-	if returnToken {
-		claim := requestCTX.UserClaim.(*auth.UserClaim)
-		claim.CartID = res.CartID.Hex()
-		claim.FullName = res.FullName
-		if res.Gender != nil {
-			claim.Gender = *res.Gender
-		}
-		claim.ProfileImage = res.ProfileImage
-		claim.DOB = res.DOB
-		token, err := a.TokenAuth.SignToken(claim)
-		if err != nil {
-			requestCTX.SetErr(err, http.StatusBadRequest)
+	resp := make(map[string]interface{})
+	resp["user"] = res
+	claim := requestCTX.UserClaim.(*auth.UserClaim)
+	claim.CartID = res.CartID.Hex()
+	claim.FullName = res.FullName
+	if res.Gender != nil {
+		claim.Gender = *res.Gender
+	}
+	claim.ProfileImage = res.ProfileImage
+	claim.DOB = res.DOB
+	token, err := a.TokenAuth.SignToken(claim)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
 			return
 		}
+		requestCTX.SetAppResponse(resp, http.StatusOK)
+		return
+	}
+	if returnToken {
 		resp["token"] = token
 	}
-
-	resp["user"] = res
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 

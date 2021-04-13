@@ -24,6 +24,7 @@ type Config struct {
 	SESConfig           SESConfig           `mapstructure:"ses"`
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 	GoogleOAuth         GoogleOAuth         `mapstructure:"googleOAuth"`
+	SessionConfig       SessionConfig       `mapstructure:"session"`
 }
 
 // ServerConfig has only server specific configuration
@@ -56,6 +57,21 @@ type APIConfig struct {
 	MaxRequestDataSize     int    `mapstructure:"maxRequestDataSize"`
 	KeeperLoginRedirectURL string `mapstructure:"keeperLoginRedirectURL"`
 	HypdApiConfig          HypdApiConfig
+}
+
+type SessionConfig struct {
+	Store        string       `mapstructure:"store"`
+	Name         string       `mapstructure:"name"`
+	CookieConfig CookieConfig `mapstructure:"cookie"`
+	RedisConfig  RedisConfig
+}
+
+type CookieConfig struct {
+	Name     string `mapstructure:"name"`
+	Path     string `mapstructure:"path"`
+	HttpOnly bool   `mapstructure:"httpOnly"`
+	Domain   string `mapstructure:"domain"`
+	Secure   bool   `mapstructure:"secure"`
 }
 
 // APPConfig contains api package related configurations
@@ -286,5 +302,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	config.APPConfig.GoogleOAuth = config.GoogleOAuth
+	config.SessionConfig.RedisConfig = config.RedisConfig
 	return config
 }

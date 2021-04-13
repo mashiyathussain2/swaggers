@@ -461,13 +461,14 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 // If phone number does not exists then it create a new user and sends the otp.
 func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOpts) (bool, error) {
 	ctx := context.TODO()
-	filter := bson.M{"phone_no": bson.M{"prefix": opts.PhoneNo.Prefix, "number": opts.PhoneNo.Number}}
+	filter := bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
 	count, err := ui.DB.Collection(model.UserColl).CountDocuments(context.TODO(), filter)
 	if err != nil {
 		ui.Logger.Err(err).Msgf("failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 		return false, errors.Wrapf(err, "failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
 	otp, _ := GenerateOTP(6)
+	fmt.Println(count, "count is")
 	switch count {
 	// When no user exists thus creating a new one
 	case 0:

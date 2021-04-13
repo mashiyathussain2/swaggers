@@ -54,6 +54,8 @@ func (a *API) verifyEmail(requestCTX *handler.RequestContext, w http.ResponseWri
 	var returnToken bool
 	resp := make(map[string]interface{})
 
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	returnToken, _ = strconv.ParseBool(r.URL.Query().Get("returnToken"))
 
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -69,7 +71,9 @@ func (a *API) verifyEmail(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	if returnToken && res {
+
+	if res {
+		resp["email_verified"] = true
 		claim := requestCTX.UserClaim.(*auth.UserClaim)
 		if claim != nil {
 			claim.EmailVerified = true
@@ -78,10 +82,19 @@ func (a *API) verifyEmail(requestCTX *handler.RequestContext, w http.ResponseWri
 				requestCTX.SetErr(err, http.StatusBadRequest)
 				return
 			}
-			resp["token"] = token
+			if isWeb {
+				if err := a.SessionAuth.Create(token, w); err != nil {
+					requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+					return
+				}
+				requestCTX.SetAppResponse(resp, http.StatusOK)
+				return
+			}
+			if returnToken {
+				resp["token"] = token
+			}
 		}
 	}
-	resp["email_verified"] = true
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
@@ -123,6 +136,8 @@ func (a *API) loginViaMobileOTP(requestCTX *handler.RequestContext, w http.Respo
 
 func (a *API) loginViaSocial(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.LoginWithSocial
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -142,11 +157,21 @@ func (a *API) loginViaSocial(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
+		return
+	}
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
 func (a *API) confirmLoginViaMobileOTP(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.MobileLoginCustomerUserOpts
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -164,6 +189,14 @@ func (a *API) confirmLoginViaMobileOTP(requestCTX *handler.RequestContext, w htt
 	token, err := a.TokenAuth.SignToken(res)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
 		return
 	}
 	requestCTX.SetAppResponse(token, http.StatusOK)
@@ -204,7 +237,6 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
