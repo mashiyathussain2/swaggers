@@ -3,6 +3,8 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
+
+	"go-app/model"
 	"go-app/server/config"
 	"time"
 
@@ -26,10 +28,23 @@ type UserAuth struct {
 	JWTToken  JWTToken
 }
 
-// UserClaim contains user related info for jwt token
+// UserClaim contains customer related info for jwt token
 type UserClaim struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
+	ID            string             `json:"id"`
+	KeeperUserID  string             `json:"keeper_user_id,omitempty"`
+	CustomerID    string             `json:"customer_id,omitempty"`
+	CartID        string             `json:"cart_id,omitempty"`
+	Type          string             `json:"type"`
+	Role          string             `json:"role"`
+	FullName      string             `json:"full_name"`
+	DOB           time.Time          `json:"dob,omitempty"`
+	Email         string             `json:"email"`
+	PhoneNo       *model.PhoneNumber `json:"phone_no,omitempty"`
+	ProfileImage  *model.IMG         `json:"profile_image"`
+	Gender        string             `json:"gender,omitempty"`
+	EmailVerified bool               `json:"email_verified,omitempty"`
+	PhoneVerified bool               `json:"phone_verified,omitempty"`
+	CreatedVia    string             `json:"created_via,omitempty"`
 	jwt.StandardClaims
 }
 
@@ -47,7 +62,23 @@ func (uc *UserClaim) ToJSON() string {
 
 // IsAdmin if user is an admin user
 func (uc *UserClaim) IsAdmin() bool {
-	if uc.Type == "admin" {
+	if uc.Role == "admin" {
+		return true
+	}
+	return false
+}
+
+// IsSudo if user is a keeper user
+func (uc *UserClaim) IsSudo() bool {
+	if uc.Type == "keeper" {
+		return true
+	}
+	return false
+}
+
+// IsInternal if user is a keeper user
+func (uc *UserClaim) IsInternal() bool {
+	if uc.Type == "internal" {
 		return true
 	}
 	return false

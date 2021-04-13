@@ -75,20 +75,11 @@ func GetRandomCreateImageMediaOpts() *CreateImageMediaOpts {
 // GetRandomCreateCatalogContentOpts returns CreateCatalogContentOpts populated with random data
 func GetRandomCreateCatalogContentOpts() *CreateVideoCatalogContentOpts {
 	s := &CreateVideoCatalogContentOpts{
-		FileName: fmt.Sprintf("%s%s", faker.Lorem().Word(), faker.RandomChoice([]string{".mp4", ".mov", ".mpg", ".m4v", ".m2ts"})),
-		Label: &LabelOpts{
-			Interests: faker.Lorem().Words(faker.RandomInt(1, 10)),
-		},
+		FileName:  fmt.Sprintf("%s%s", faker.Lorem().Word(), faker.RandomChoice([]string{".mp4", ".mov", ".mpg", ".m4v", ".m2ts"})),
 		BrandID:   primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
 		CatalogID: primitive.NewObjectIDFromTimestamp(time.Now().UTC()),
 	}
 
-	for i := 0; i < faker.RandomInt(1, 10); i++ {
-		s.Label.Gender = append(s.Label.Gender, faker.RandomChoice([]string{"M", "F", "O"}))
-	}
-	for i := 0; i < faker.RandomInt(1, 10); i++ {
-		s.Label.AgeGroup = append(s.Label.AgeGroup, faker.RandomChoice([]string{"18-22", "23-30", "31-40", "40-50", "50-"}))
-	}
 	return s
 }
 
@@ -98,9 +89,6 @@ func GetRandomCreateCatalogImageContentOpts() *CreateImageCatalogContentOpts {
 		MediaID:   primitive.NewObjectID(),
 		BrandID:   primitive.NewObjectID(),
 		CatalogID: primitive.NewObjectID(),
-		Label: &LabelOpts{
-			Interests: faker.Lorem().Words(faker.RandomInt(1, 10)),
-		},
 	}
 	return &c
 }

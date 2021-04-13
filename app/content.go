@@ -10,9 +10,9 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,10 +28,12 @@ type Content interface {
 	ProcessVideoContent(*schema.ProcessVideoContentOpts) (bool, error)
 	GetContentByID(primitive.ObjectID) (*schema.GetContentResp, error)
 	GetContent(*schema.GetContentFilter) ([]schema.GetContentResp, error)
+	ChangeContentStatus(*schema.ChangeContentStatusOpts) (bool, error)
+	DeleteContent(primitive.ObjectID) (bool, error)
 
 	CreatePebble(*schema.CreatePebbleOpts) (*schema.CreatePebbleResp, error)
 	EditPebble(*schema.EditPebbleOpts) (*schema.EditPebbleResp, error)
-	DeletePebble(primitive.ObjectID) (bool, error)
+	GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error)
 
 	CreateCatalogVideoContent(*schema.CreateVideoCatalogContentOpts) (*schema.CreateVideoCatalogContentResp, error)
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
@@ -53,9 +55,6 @@ type Content interface {
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
 	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
-
-	// Elasticsearch
-
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -189,8 +188,8 @@ func (ci *ContentImpl) EditPebble(opts *schema.EditPebbleOpts) (*schema.EditPebb
 	}, nil
 }
 
-// DeletePebble removes the pebble instance from DB
-func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
+// DeleteContent removes the content instance from DB
+func (ci *ContentImpl) DeleteContent(id primitive.ObjectID) (bool, error) {
 	ctx := context.TODO()
 	var c model.Content
 
@@ -204,8 +203,10 @@ func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
 	}
 
 	// Deleting media document reference from media collection
-	if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
-		return false, err
+	if !c.MediaID.IsZero() {
+		if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
+			return false, err
+		}
 	}
 
 	// Deleting content document from cotent collection
@@ -220,12 +221,22 @@ func (ci *ContentImpl) DeletePebble(id primitive.ObjectID) (bool, error) {
 // ProcessVideoContent mark video content as processed
 func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts) (bool, error) {
 	// Extracting content id from filename EG: 283782738273823.mp4
+	ctx := context.TODO()
 	cID, err := primitive.ObjectIDFromHex(strings.Split(opts.FileName, ".")[0])
 	if err != nil {
 		ci.Logger.Err(err).Interface("opts_info", opts).Msgf("failed to parse id from filename:%s while processing video content", opts.FileName)
 		return false, errors.Wrapf(err, "failed to parse id from filename:%s while processing video content", opts.FileName)
 	}
 
+	var content model.Content
+	if err := ci.DB.Collection(model.ContentColl).FindOne(ctx, bson.M{"_id": cID}).Decode(&content); err != nil {
+		ci.Logger.Err(err).Interface("opts_info", opts).Msgf("failed to find content from id:%s while processing video content", cID.Hex())
+		return false, errors.Wrapf(err, "failed to find content with id:%s", cID.Hex())
+	}
+
+	if &content == nil {
+		return false, errors.Wrapf(err, "failed to find content with id:%s", cID.Hex())
+	}
 	// Creating media object from data received
 	res, err := ci.App.Media.CreateVideoMedia(opts)
 	if err != nil {
@@ -236,13 +247,26 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 	// Updating content as IsProcessed true and linking content with media received from above
 	var c model.Content
 	filter := bson.M{"_id": cID}
-	update := bson.M{
-		"$set": bson.M{
-			"is_processed": true,
-			"processed_at": time.Now().UTC(),
-			"media_type":   model.VideoType,
-			"media_id":     res.ID,
-		},
+	var update bson.M
+	if content.Type != model.CatalogContentType {
+		update = bson.M{
+			"$set": bson.M{
+				"is_processed": true,
+				"processed_at": time.Now().UTC(),
+				"media_type":   model.VideoType,
+				"media_id":     res.ID,
+			},
+		}
+	} else {
+		update = bson.M{
+			"$set": bson.M{
+				"is_processed": true,
+				"is_active":    true,
+				"processed_at": time.Now().UTC(),
+				"media_type":   model.VideoType,
+				"media_id":     res.ID,
+			},
+		}
 	}
 	if err := ci.DB.Collection(model.ContentColl).FindOneAndUpdate(context.TODO(), filter, update).Decode(&c); err != nil {
 		ci.Logger.Err(err).Interface("media_info", res).Msgf("failed to mark content:%s as processed", cID.Hex())
@@ -320,21 +344,24 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 		pipeline = append(pipeline, matchStage)
 	}
 
-	skipStage := bson.D{
-		{
-			Key:   "$skip",
-			Value: 10 * filterOpts.Page,
-		},
-	}
-	pipeline = append(pipeline, skipStage)
+	// when page is set == 999 will return all the matching documents and skip pagination
+	if filterOpts.Page != 999 {
+		skipStage := bson.D{
+			{
+				Key:   "$skip",
+				Value: 10 * filterOpts.Page,
+			},
+		}
+		pipeline = append(pipeline, skipStage)
 
-	limitStage := bson.D{
-		{
-			Key:   "$limit",
-			Value: 10,
-		},
+		limitStage := bson.D{
+			{
+				Key:   "$limit",
+				Value: 10,
+			},
+		}
+		pipeline = append(pipeline, limitStage)
 	}
-	pipeline = append(pipeline, limitStage)
 
 	lookupStage := bson.D{
 		{
@@ -384,12 +411,7 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		MediaType:  model.VideoType,
 		BrandIDs:   []primitive.ObjectID{opts.BrandID},
 		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
-		CreatedAt: time.Now().UTC(),
+		CreatedAt:  time.Now().UTC(),
 	}
 
 	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
@@ -397,12 +419,16 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 		return nil, errors.Wrap(err, "failed to create catalog content")
 	}
 	cc.ID = res.InsertedID.(primitive.ObjectID)
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get video file extension")
+	}
 
 	// Getting s3 upload token with provided args
 	// This token is then used by frontend to directly upload media to s3
 	res1, err1 := ci.App.Media.GenerateVideoUploadToken(
 		&schema.GenerateVideoUploadTokenOpts{
-			FileName: cc.ID.Hex(),
+			FileName: fmt.Sprintf("%s.%s", cc.ID.Hex(), fType),
 		},
 	)
 	if err1 != nil {
@@ -457,17 +483,13 @@ func (ci *ContentImpl) EditCatalogContent(opts *schema.EditCatalogContentOpts) (
 
 func (ci *ContentImpl) CreateCatalogImageContent(opts *schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error) {
 	cc := model.Content{
-		Type:       model.CatalogContentType,
-		MediaType:  model.ImageType,
-		MediaID:    opts.MediaID,
-		BrandIDs:   []primitive.ObjectID{opts.BrandID},
-		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
-		Label: &model.Label{
-			Interests: opts.Label.Interests,
-			AgeGroups: opts.Label.AgeGroup,
-			Genders:   opts.Label.Gender,
-		},
+		Type:        model.CatalogContentType,
+		MediaType:   model.ImageType,
+		MediaID:     opts.MediaID,
+		BrandIDs:    []primitive.ObjectID{opts.BrandID},
+		CatalogIDs:  []primitive.ObjectID{opts.CatalogID},
 		IsProcessed: true,
+		IsActive:    true,
 		CreatedAt:   time.Now().UTC(),
 	}
 
@@ -553,10 +575,30 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 	}
 
 	// like exists thus removing the like
+	var wg sync.WaitGroup
+
+	if opts.ResourceType == model.PebbleType {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			filter := bson.M{
+				"_id": opts.ResourceID,
+			}
+			update := bson.M{
+				"$pull": bson.M{
+					"liked_by": opts.UserID,
+				},
+			}
+			if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+				ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
+			}
+		}()
+	}
+
 	if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
 		return errors.Wrap(err, "failed to unlike")
 	}
-
+	wg.Wait()
 	return nil
 }
 
@@ -626,6 +668,7 @@ func (ci *ContentImpl) AddContentLike(opts *schema.ProcessLikeOpts) {
 	update := bson.M{
 		"$push": bson.M{
 			"like_ids": opts.ID,
+			"liked_by": opts.UserID,
 		},
 		"$inc": bson.M{
 			"like_count": 1,
@@ -662,14 +705,16 @@ func (ci *ContentImpl) DeleteContentLike(opts *schema.ProcessLikeOpts) {
 		"like_ids": opts.ID,
 	}
 	update := bson.M{
-		"$pull": bson.M{"like_ids": bson.M{"$in": bson.A{opts.ID}}},
+		"$pull": bson.M{
+			"like_ids": opts.ID,
+		},
 		"$inc": bson.M{
 			"like_count": -1,
 		},
 	}
-	// { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } },
 	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to delete like")
+		return
 	}
 }
 
@@ -700,17 +745,25 @@ func (ci *ContentImpl) GetBrandInfo(ids []string) ([]model.BrandInfo, error) {
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get brand info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
-		log.Fatalf("An Error Occured %v", err)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	defer resp.Body.Close()
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+		return nil, errors.Wrap(err, "failed to get brandinfo")
 	}
 	if err := json.Unmarshal(body, &s); err != nil {
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
@@ -729,7 +782,14 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get influencer info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
@@ -755,11 +815,18 @@ func (ci *ContentImpl) GetInfluencerInfo(ids []string) ([]model.InfluencerInfo, 
 
 func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error) {
 	var s schema.GetCatalogInfoResp
-	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/keeper/catalog/get"
+	url := ci.App.Config.HypdAPIConfig.CatalogAPI + "/api/keeper/catalog/get/ids"
 	postBody, _ := json.Marshal(map[string][]string{
 		"id": ids,
 	})
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(postBody))
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate request to get catalog info")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
@@ -777,8 +844,85 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
 	if !s.Success {
-		ci.Logger.Err(errors.New("success false from entity")).Str("body", string(body)).Msg("got success false response from entity")
-		return nil, errors.New("got success false response from entity")
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+		return nil, errors.New("got success false response from catalog")
 	}
 	return s.Payload, nil
+}
+
+func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error) {
+	var resp []schema.GetContentResp
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"type": opts.Type,
+			},
+		},
+	}
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: opts.Page * 20,
+		},
+	}
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: 20,
+		},
+	}
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.MediaColl,
+				"localField":   "media_id",
+				"foreignField": "_id",
+				"as":           "media_info",
+			},
+		},
+	}
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"media_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$media_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get pebbles")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, " failed to get pebbles")
+	}
+	return resp, nil
+}
+
+func (ci *ContentImpl) ChangeContentStatus(opts *schema.ChangeContentStatusOpts) (bool, error) {
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_active": opts.IsActive,
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		return false, errors.Wrap(err, "failed to update content status")
+	}
+
+	return true, nil
 }

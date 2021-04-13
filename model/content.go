@@ -33,12 +33,34 @@ type InfluencerInfo struct {
 	ProfileImage *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 }
 
+type CatalogDiscountInfo struct {
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	IsActive bool               `json:"is_active,omitempty" bson:"is_active,omitempty"`
+	Type     string             `json:"type,omitempty" bson:"type,omitempty"`
+	Value    uint               `json:"value,omitempty" bson:"value,omitempty"`
+	// MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.
+	MaxValue uint `json:"max_value,omitempty" bson:"max_value,omitempty"`
+}
+
+type VariantInfo struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Attribute   string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
+	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
+	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
+	IsDeleted   bool               `json:"is_deleted" bson:"is_deleted"`
+}
+
 type CatalogInfo struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
-	FeaturedImage *IMG               `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
-	BasePrice     *Price             `json:"base_price,omitempty" bson:"base_price,omitempty"`
-	RetailPrice   *Price             `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
+	BrandID       primitive.ObjectID   `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	BrandInfo     *BrandInfo           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	FeaturedImage *IMG                 `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	BasePrice     *Price               `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice   *Price               `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	DiscountInfo  *CatalogDiscountInfo `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	VariantType   string               `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
+	Variants      []VariantInfo        `json:"variants,omitempty" bson:"variants,omitempty"`
 }
 
 // Content contains linked media (image/video) with influencer, catalog or customer
@@ -64,6 +86,7 @@ type Content struct {
 	ViewCount    uint                 `json:"view_count" bson:"view_count"`
 	LikeCount    uint                 `json:"like_count" bson:"like_count"`
 	LikeIDs      []primitive.ObjectID `json:"like_ids,omitempty" bson:"like_ids,omitempty"`
+	LikedBy      []primitive.ObjectID `json:"liked_by,omitempty" bson:"liked_by,omitempty"`
 	CommentCount uint                 `json:"comment_count" bson:"comment_count"`
 
 	Caption  string   `json:"caption,omitempty" bson:"caption,omitempty"`

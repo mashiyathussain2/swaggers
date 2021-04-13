@@ -1241,12 +1241,12 @@ func TestLiveImpl_JoinLiveStream(t *testing.T) {
 		name       string
 		fields     fields
 		args       args
-		want       string
+		want       *schema.JoinLiveStreamResp
 		wantErr    bool
 		err        error
 		prepare    func(*TC)
 		buildStubs func(*TC, *mock.MockIVS)
-		validate   func(*testing.T, *TC, string)
+		validate   func(*testing.T, *TC, *schema.JoinLiveStreamResp)
 	}
 	tests := []TC{
 		{
@@ -1261,7 +1261,10 @@ func TestLiveImpl_JoinLiveStream(t *testing.T) {
 				resp, _ := tt.fields.App.Live.CreateLiveStream(tt.args.createOpts)
 				tt.fields.App.Live.StartLiveStream(resp.ID)
 				tt.args.id = resp.ID
-				tt.want = *tt.args.ivsResp.Channel.PlaybackUrl
+				tt.want = &schema.JoinLiveStreamResp{
+					PlaybackURL: *tt.args.ivsResp.Channel.PlaybackUrl,
+					ARN:         *tt.args.ivsResp.Channel.Arn,
+				}
 			},
 			buildStubs: func(tt *TC, mc *mock.MockIVS) {
 				tt.args.createOpts = schema.GetRandomCreateLiveStreamOpts()
@@ -1291,7 +1294,7 @@ func TestLiveImpl_JoinLiveStream(t *testing.T) {
 				mc.EXPECT().CreateChannel(name).Times(1).Return(&resp, nil)
 				tt.args.ivsResp = &resp
 			},
-			validate: func(t *testing.T, tt *TC, resp string) {
+			validate: func(t *testing.T, tt *TC, resp *schema.JoinLiveStreamResp) {
 				assert.Equal(t, tt.want, resp)
 				var doc model.Live
 				err := tt.fields.DB.Collection(model.LiveColl).FindOne(context.TODO(), bson.M{"_id": tt.args.id}).Decode(&doc)
