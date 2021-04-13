@@ -323,6 +323,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	tp := uint(0)
 	td := uint(0)
 	for _, cartItem := range cart.Items {
+		tp = tp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
