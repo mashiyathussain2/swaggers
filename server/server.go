@@ -71,17 +71,20 @@ func NewServer() *Server {
 
 	// Initializing api endpoints and controller
 	server.API = api.NewAPI(&api.Options{
-		MainRouter: r,
-		Logger:     server.Log,
-		Config:     &c.APIConfig,
-		TokenAuth:  auth.NewTokenAuthentication(&c.TokenAuthConfig),
-		Validator:  validator.NewValidation(),
+		MainRouter:  r,
+		Logger:      server.Log,
+		Config:      &c.APIConfig,
+		TokenAuth:   auth.NewTokenAuthentication(&c.TokenAuthConfig),
+		SessionAuth: auth.NewSessionAuth(&auth.SessionAuthOpts{Config: &c.SessionConfig, Client: server.Redis}),
+		Validator:   validator.NewValidation(),
 	})
 	// Initializing app and services
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
 	app.InitService(server.API.App)
+	app.InitProcessor(server.API.App)
 	app.InitConsumer(server.API.App)
+	app.InitProducer(server.API.App)
 	return server
 }
 
@@ -100,10 +103,8 @@ func (s *Server) StartServer() {
 		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
 	})
 	n.Use(cors)
-	n.UseHandler(s.Router)
-
+	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
 	s.httpServer = &http.Server{
-		Handler:      n,
 		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
 		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,

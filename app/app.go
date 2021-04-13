@@ -2,6 +2,8 @@ package app
 
 import (
 	"go-app/server/config"
+	"go-app/server/kafka"
+
 	mongostorage "go-app/server/storage/mongodb"
 
 	"github.com/rs/zerolog"
@@ -21,22 +23,46 @@ type App struct {
 	Config  *config.APPConfig
 
 	// List of services this app is implementing
-	SNS        SNS
-	SES        SES
-	User       User
-	Customer   Customer
-	Brand      Brand
-	Influencer Influencer
+	SNS             SNS
+	SES             SES
+	Elasticsearch   Elasticsearch
+	User            User
+	Customer        Customer
+	Brand           Brand
+	Influencer      Influencer
+	Cart            Cart
+	KeeperUser      KeeperUser
+	ExpressCheckout ExpressCheckout
+	Wishlist        Wishlist
+
+	// Consumer
+	CustomerChanges   kafka.Consumer
+	CatalogChanges    kafka.Consumer
+	InventoryChanges  kafka.Consumer
+	BrandChanges      kafka.Consumer
+	InfluencerChanges kafka.Consumer
+	DiscountChanges   kafka.Consumer
+
+	// Producer
+	BrandFullProducer      kafka.Producer
+	InfluencerFullProducer kafka.Producer
+
+	// Processor
+	UserProcessor       *UserProcessor
+	BrandProcessor      *BrandProcessor
+	InfluencerProcessor *InfluencerProcessor
+	CartProcessor       *CartProcessor
 }
 
 // NewApp returns new app instance
 func NewApp(opts *Options) *App {
 	return &App{
-		MongoDB: opts.MongoDB,
-		Logger:  opts.Logger,
-		Config:  opts.Config,
-		SNS:     NewSNSImpl(&SNSOpts{Config: &opts.Config.SNSConfig}),
-		SES:     NewSESImpl(&SESImplOpts{Config: &opts.Config.SESConfig}),
+		MongoDB:       opts.MongoDB,
+		Logger:        opts.Logger,
+		Config:        opts.Config,
+		SNS:           NewSNSImpl(&SNSOpts{Config: &opts.Config.SNSConfig}),
+		SES:           NewSESImpl(&SESImplOpts{Config: &opts.Config.SESConfig}),
+		Elasticsearch: InitElasticsearch(&ElasticsearchOpts{Config: &opts.Config.ElasticsearchConfig, Logger: opts.Logger}),
 	}
 }
 
@@ -44,4 +70,5 @@ func NewApp(opts *Options) *App {
 func (a *App) Close() {
 	// terminating connections to all consumes
 	CloseConsumer(a)
+	CloseProducer(a)
 }

@@ -21,6 +21,14 @@ type Customer interface {
 	Login(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	SignUp(*schema.CreateUserOpts) (auth.Claim, error)
 	UpdateCustomer(*schema.UpdateCustomerOpts) (*schema.GetCustomerInfoResp, error)
+
+	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
+	RemoveBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
+	AddInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
+	RemoveInfluencerFollowing(mongo.SessionContext, *schema.AddInfluencerFollowerOpts) error
+	AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error)
+	GetAddresses(primitive.ObjectID) ([]model.Address, error)
+	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
 }
 
 // CustomerImpl implements Customer interface methods
@@ -68,6 +76,9 @@ func (ci *CustomerImpl) SignUp(opts *schema.CreateUserOpts) (auth.Claim, error) 
 		CreatedAt: time.Now().UTC(),
 	}
 	res, err := ci.DB.Collection(model.CustomerColl).InsertOne(context.TODO(), customer)
+	if err != nil {
+		return nil, err
+	}
 	customer.ID = res.InsertedID.(primitive.ObjectID)
 
 	claim := auth.UserClaim{
@@ -119,4 +130,230 @@ func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (*schema
 		return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
 	}
 	return &resp, nil
+}
+
+func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"brand_following": opts.BrandID,
+		},
+		"$inc": bson.M{
+			"brand_follow_count": 1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed add brand id into following field")
+		return errors.Wrap(err, "failed to add brand following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) RemoveBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"brand_following": opts.BrandID,
+		},
+		"$inc": bson.M{
+			"brand_follow_count": -1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed remove brand id from following field")
+		return errors.Wrap(err, "failed to remove brand following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) AddInfluencerFollowing(sc mongo.SessionContext, opts *schema.AddInfluencerFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$addToSet": bson.M{
+			"influencer_following": opts.InfluencerID,
+		},
+		"$inc": bson.M{
+			"influencer_follow_count": 1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed add influencer id into following field")
+		return errors.Wrap(err, "failed to add influencer following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with user_id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) RemoveInfluencerFollowing(sc mongo.SessionContext, opts *schema.AddInfluencerFollowerOpts) error {
+	filter := bson.M{
+		"_id": opts.CustomerID,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"influencer_following": opts.InfluencerID,
+		},
+		"$inc": bson.M{
+			"influencer_follow_count": -1,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(sc, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed remove influencer id into following field")
+		return errors.Wrap(err, "failed to remove influencer following")
+	}
+
+	if res.MatchedCount == 0 {
+		return errors.Errorf("customer with id:%s not found", opts.CustomerID.Hex())
+	}
+
+	return nil
+}
+
+func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error) {
+	findQuery := bson.M{
+		"user_id": opts.UserID,
+	}
+	address := model.Address{
+		ID:                primitive.NewObjectID(),
+		DisplayName:       opts.DisplayName,
+		Line1:             opts.Line1,
+		Line2:             opts.Line2,
+		District:          opts.District,
+		City:              opts.City,
+		State:             opts.State,
+		PostalCode:        opts.PostalCode,
+		Country:           opts.Country,
+		PlainAddress:      opts.PlainAddress,
+		IsBillingAddress:  opts.IsBillingAddress,
+		IsShippingAddress: opts.IsShippingAddress,
+		IsDefaultAddress:  opts.IsDefaultAddress,
+		ContactNumber:     opts.ContactNumber,
+	}
+	updateQuery := bson.M{
+		"$push": bson.M{
+			"addresses": address,
+		},
+	}
+	res, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to add address")
+	}
+	if res.MatchedCount == 0 {
+		return nil, errors.Errorf("unable to find user with id: %s", opts.UserID.Hex())
+	}
+	addressRes := schema.AddAddressResp{
+		ID:            address.ID,
+		DisplayName:   address.DisplayName,
+		ContactNumber: address.ContactNumber,
+		Line1:         address.Line1,
+		Line2:         address.Line2,
+		District:      address.District,
+		City:          address.City,
+		State:         address.State,
+		PostalCode:    address.PostalCode,
+		PlainAddress:  address.PlainAddress,
+	}
+	return &addressRes, nil
+}
+
+func (ci *CustomerImpl) GetAddresses(id primitive.ObjectID) ([]model.Address, error) {
+	findQuery := bson.M{
+		"user_id": id,
+	}
+	var customer model.Customer
+	err := ci.DB.Collection(model.CustomerColl).FindOne(context.TODO(), findQuery).Decode(&customer)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to fetch addresses")
+	}
+	return customer.Addresses, nil
+}
+
+func (ci *CustomerImpl) GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error) {
+	var resp []schema.GetCustomerProfileInfoResp
+
+	matchStage := bson.D{
+		{
+			Key: "$match",
+			Value: bson.M{
+				"_id": id,
+			},
+		},
+	}
+
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.UserColl,
+				"localField":   "user_id",
+				"foreignField": "_id",
+				"as":           "user_info",
+			},
+		},
+	}
+
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"user_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$user_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.CustomerColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get customer profile info")
+	}
+
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to find customer info")
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	if !resp[0].UserInfo.EmailVerifiedAt.IsZero() {
+		resp[0].UserInfo.EmailVerified = true
+	}
+	if !resp[0].UserInfo.PhoneVerifiedAt.IsZero() {
+		resp[0].UserInfo.PhoneVerified = true
+	}
+	return &resp[0], nil
 }
