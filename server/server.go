@@ -104,6 +104,8 @@ func (s *Server) StartServer() {
 	})
 	n.Use(cors)
 	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
+	n.UseHandler(s.Router)
+
 	s.httpServer = &http.Server{
 		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
