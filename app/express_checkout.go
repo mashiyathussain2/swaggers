@@ -205,7 +205,18 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 		var s model.GetAllCatalogInfoResp
 
 		url := ec.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex()
-		resp, err := http.Get(url)
+		// resp, err := http.Get(url)
+		// if err != nil {
+		// 	return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		// }
+		// defer resp.Body.Close()
+		client := http.Client{}
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+		}
+		req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
+		resp, err := client.Do(req)
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to fetch catlog data")
 		}
