@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"go-app/server/config"
 	"log"
 	"os"
@@ -27,6 +28,7 @@ type SESImplOpts struct {
 }
 
 func NewSESImpl(opts *SESImplOpts) SES {
+	fmt.Println(opts.Config)
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(opts.Config.Region),
 		Credentials: credentials.NewStaticCredentials(
