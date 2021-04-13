@@ -322,7 +322,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	}
 	tp := uint(0)
 	td := uint(0)
-	for _, cartItem := range cart.Items {
+	for i, cartItem := range cart.Items {
 		tp = tp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
@@ -344,11 +344,11 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 							d = cartItem.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(d))
-						td = td + d*cartItem.Quantity
+						td = td + (d * cartItem.Quantity)
 					default:
 					}
-					cartItem.DiscountedPrice = dp
-					cartItem.DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
+					cart.Items[i].DiscountedPrice = dp
+					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 				}
 			}
 		}
