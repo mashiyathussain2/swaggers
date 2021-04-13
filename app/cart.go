@@ -349,6 +349,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					}
 					cart.Items[i].DiscountedPrice = dp
 					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
+					cart.Items[i].TransferPrice = model.SetINRPrice(0)
 				}
 			}
 		}
