@@ -40,10 +40,26 @@ func (rh *Request) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			goto SKIP_REQUEST
 		} else {
 			if rh.IsSudoUser {
-				if requestCTX.UserClaim.IsAdmin() {
-					requestCTX.SetErr(errors.New("permission denied: required admin user role", &errors.PermissionDenied), http.StatusForbidden)
+				if !requestCTX.UserClaim.IsSudo() {
+					requestCTX.SetErr(errors.New("permission denied: required keeper user type", &errors.PermissionDenied), http.StatusForbidden)
 					goto SKIP_REQUEST
 				}
+			} else {
+				if requestCTX.UserClaim.IsSudo() {
+					requestCTX.SetErr(errors.New("permission denied: required customer type", &errors.PermissionDenied), http.StatusForbidden)
+					goto SKIP_REQUEST
+				}
+			}
+		}
+	} else {
+		if rh.IsSudoUser {
+			if requestCTX.UserClaim == nil {
+				requestCTX.SetErr(errors.New("auth token required", &errors.PermissionDenied), http.StatusUnauthorized)
+				goto SKIP_REQUEST
+			}
+			if !requestCTX.UserClaim.IsInternal() {
+				requestCTX.SetErr(errors.New("permission denied: must be internal-user", &errors.PermissionDenied), http.StatusForbidden)
+				goto SKIP_REQUEST
 			}
 		}
 	}

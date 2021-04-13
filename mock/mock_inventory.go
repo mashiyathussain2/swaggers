@@ -35,6 +35,21 @@ func (m *MockInventory) EXPECT() *MockInventoryMockRecorder {
 	return m.recorder
 }
 
+// CheckInventoryExists mocks base method.
+func (m *MockInventory) CheckInventoryExists(arg0, arg1 primitive.ObjectID, arg2 int) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckInventoryExists", arg0, arg1, arg2)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckInventoryExists indicates an expected call of CheckInventoryExists.
+func (mr *MockInventoryMockRecorder) CheckInventoryExists(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckInventoryExists", reflect.TypeOf((*MockInventory)(nil).CheckInventoryExists), arg0, arg1, arg2)
+}
+
 // CreateInventory mocks base method.
 func (m *MockInventory) CreateInventory(arg0 *schema.CreateInventoryOpts) (primitive.ObjectID, error) {
 	m.ctrl.T.Helper()

@@ -11,15 +11,16 @@ import (
 
 // Config struct stores entire project configurations
 type Config struct {
-	ServerConfig     ServerConfig     `mapstructure:"server"`
-	APIConfig        APIConfig        `mapstructure:"api"`
-	APPConfig        APPConfig        `mapstructure:"app"`
-	KafkaConfig      KafkaConfig      `mapstructure:"kafka"`
-	LoggerConfig     LoggerConfig     `mapstructure:"logger"`
-	DatabaseConfig   DatabaseConfig   `mapstructure:"database"`
-	RedisConfig      RedisConfig      `mapstructure:"redis"`
-	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
-	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
+	ServerConfig        ServerConfig        `mapstructure:"server"`
+	APIConfig           APIConfig           `mapstructure:"api"`
+	APPConfig           APPConfig           `mapstructure:"app"`
+	KafkaConfig         KafkaConfig         `mapstructure:"kafka"`
+	LoggerConfig        LoggerConfig        `mapstructure:"logger"`
+	DatabaseConfig      DatabaseConfig      `mapstructure:"database"`
+	RedisConfig         RedisConfig         `mapstructure:"redis"`
+	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
+	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
+	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 }
 
 // ServerConfig has only server specific configuration
@@ -56,6 +57,8 @@ type APIConfig struct {
 // APPConfig contains api package related configurations
 type APPConfig struct {
 	DatabaseConfig      DatabaseConfig
+	HypdApiConfig       HypdApiConfig
+	ElasticsearchConfig ElasticsearchConfig
 	KeeperCatalogConfig ServiceConfig `mapstructure:"keeperCatalog"`
 	CategoryConfig      ServiceConfig `mapstructure:"category"`
 	BrandConfig         ServiceConfig `mapstructure:"brand"`
@@ -64,25 +67,40 @@ type APPConfig struct {
 	CollectionConfig    ServiceConfig `mapstructure:"collection"`
 	InventoryConfig     ServiceConfig `mapstructure:"inventory"`
 	PageSize            int           `mapstructure:"pageSize"`
-	HypdApiConfig       HypdApiConfig
+
+	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	CollectionCatalogChangeConfig ListenerConfig `mapstructure:"collectionCatalogChangeConsumer"`
+	CollectionChangeConfig        ListenerConfig `mapstructure:"collectionChangeConsumer"`
+	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
+	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	ContentChangeConfig           ListenerConfig `mapstructure:"contentChangeConsumer"`
+	GroupChangeConfig             ListenerConfig `mapstructure:"groupChangeConsumer"`
+
+	CatalogFullProducerConfig    ProducerConfig `mapstructure:"catalogFullProducer"`
+	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
 }
 
+// ElasticsearchConfig contains elasticsearch related configurations
+type ElasticsearchConfig struct {
+	Endpoint            string `mapstructure:"endpoint"`
+	Username            string `mapstructure:"username"`
+	Password            string `mapstructure:"password"`
+	CollectionFullIndex string `mapstructure:"collectionFullIndex"`
+	CatalogFullIndex    string `mapstructure:"catalogFullIndex"`
+	BrandFullIndex      string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
+	ContentFullIndex    string `mapstructure:"contentFullIndex"`
+}
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`
 	EntityApi string `mapstructure:"entityApi"`
+	Token     string `mapstructure:"token"`
 }
 
 // ServiceConfig contains app service related config
 type ServiceConfig struct {
 	DBName            string `mapstructure:"dbName"`
 	CatalogContentURL string `mapstructure:"catalogContentUrl"`
-}
-
-// ListenerConfig contains app kafka topic listener related config
-type ListenerConfig struct {
-	GroupID string   `mapstructure:"groupId"`
-	Brokers []string `mapstructure:"brokers"`
-	Topic   string   `mapstructure:"topic"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
@@ -98,6 +116,26 @@ type KafkaConfig struct {
 	BrokerURL   string   `mapstructure:"brokerUrl"`
 	BrokerPort  string   `mapstructure:"brokerPort"`
 	Brokers     []string `mapstructure:"brokers"`
+	Username    string   `mapstructure:"username"`
+	Password    string   `mapstructure:"password"`
+}
+
+// ListenerConfig contains app kafka topic listener related config
+type ListenerConfig struct {
+	GroupID  string   `mapstructure:"groupId"`
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+}
+
+// ListenerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // LoggerConfig contains different logger configurations
@@ -215,5 +253,6 @@ func GetConfigFromFile(fileName string) *Config {
 	}
 	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	return config
 }

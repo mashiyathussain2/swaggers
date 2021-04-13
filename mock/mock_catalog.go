@@ -139,6 +139,21 @@ func (mr *MockKeeperCatalogMockRecorder) EditCatalog(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).EditCatalog), arg0)
 }
 
+// GetAllCatalogInfo mocks base method.
+func (m *MockKeeperCatalog) GetAllCatalogInfo(arg0 primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllCatalogInfo", arg0)
+	ret0, _ := ret[0].(*schema.GetAllCatalogInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCatalogInfo indicates an expected call of GetAllCatalogInfo.
+func (mr *MockKeeperCatalogMockRecorder) GetAllCatalogInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCatalogInfo", reflect.TypeOf((*MockKeeperCatalog)(nil).GetAllCatalogInfo), arg0)
+}
+
 // GetBasicCatalogInfo mocks base method.
 func (m *MockKeeperCatalog) GetBasicCatalogInfo(arg0 *schema.GetBasicCatalogFilter) ([]schema.GetBasicCatalogResp, error) {
 	m.ctrl.T.Helper()
@@ -155,10 +170,10 @@ func (mr *MockKeeperCatalogMockRecorder) GetBasicCatalogInfo(arg0 interface{}) *
 }
 
 // GetCatalogByIDs mocks base method.
-func (m *MockKeeperCatalog) GetCatalogByIDs(arg0 context.Context, arg1 []primitive.ObjectID) ([]schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogByIDs(arg0 context.Context, arg1 []primitive.ObjectID) ([]schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogByIDs", arg0, arg1)
-	ret0, _ := ret[0].([]schema.CreateCatalogResp)
+	ret0, _ := ret[0].([]schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -170,10 +185,10 @@ func (mr *MockKeeperCatalogMockRecorder) GetCatalogByIDs(arg0, arg1 interface{})
 }
 
 // GetCatalogBySlug mocks base method.
-func (m *MockKeeperCatalog) GetCatalogBySlug(arg0 string) (*schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogBySlug(arg0 string) (*schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogBySlug", arg0)
-	ret0, _ := ret[0].(*schema.CreateCatalogResp)
+	ret0, _ := ret[0].(*schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -182,6 +197,21 @@ func (m *MockKeeperCatalog) GetCatalogBySlug(arg0 string) (*schema.CreateCatalog
 func (mr *MockKeeperCatalogMockRecorder) GetCatalogBySlug(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogBySlug", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogBySlug), arg0)
+}
+
+// GetCatalogContent mocks base method.
+func (m *MockKeeperCatalog) GetCatalogContent(arg0 primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCatalogContent", arg0)
+	ret0, _ := ret[0].([]schema.CatalogContentInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCatalogContent indicates an expected call of GetCatalogContent.
+func (mr *MockKeeperCatalogMockRecorder) GetCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogContent", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogContent), arg0)
 }
 
 // GetCatalogFilter mocks base method.
@@ -199,11 +229,26 @@ func (mr *MockKeeperCatalogMockRecorder) GetCatalogFilter() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogFilter", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogFilter))
 }
 
+// GetCatalogVariant mocks base method.
+func (m *MockKeeperCatalog) GetCatalogVariant(arg0, arg1 primitive.ObjectID) (*schema.GetCatalogVariantResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCatalogVariant", arg0, arg1)
+	ret0, _ := ret[0].(*schema.GetCatalogVariantResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCatalogVariant indicates an expected call of GetCatalogVariant.
+func (mr *MockKeeperCatalogMockRecorder) GetCatalogVariant(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogVariant", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogVariant), arg0, arg1)
+}
+
 // GetCatalogsByFilter mocks base method.
-func (m *MockKeeperCatalog) GetCatalogsByFilter(arg0 *schema.GetCatalogsByFilterOpts) ([]schema.CreateCatalogResp, error) {
+func (m *MockKeeperCatalog) GetCatalogsByFilter(arg0 *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCatalogsByFilter", arg0)
-	ret0, _ := ret[0].([]schema.CreateCatalogResp)
+	ret0, _ := ret[0].([]schema.GetCatalogResp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -212,6 +257,36 @@ func (m *MockKeeperCatalog) GetCatalogsByFilter(arg0 *schema.GetCatalogsByFilter
 func (mr *MockKeeperCatalogMockRecorder) GetCatalogsByFilter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCatalogsByFilter", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCatalogsByFilter), arg0)
+}
+
+// GetCollectionCatalogInfo mocks base method.
+func (m *MockKeeperCatalog) GetCollectionCatalogInfo(arg0 []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCollectionCatalogInfo", arg0)
+	ret0, _ := ret[0].([]schema.GetAllCatalogInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCollectionCatalogInfo indicates an expected call of GetCollectionCatalogInfo.
+func (mr *MockKeeperCatalogMockRecorder) GetCollectionCatalogInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCollectionCatalogInfo", reflect.TypeOf((*MockKeeperCatalog)(nil).GetCollectionCatalogInfo), arg0)
+}
+
+// GetKeeperCatalogContent mocks base method.
+func (m *MockKeeperCatalog) GetKeeperCatalogContent(arg0 primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetKeeperCatalogContent", arg0)
+	ret0, _ := ret[0].([]schema.CatalogContentInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetKeeperCatalogContent indicates an expected call of GetKeeperCatalogContent.
+func (mr *MockKeeperCatalogMockRecorder) GetKeeperCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeeperCatalogContent", reflect.TypeOf((*MockKeeperCatalog)(nil).GetKeeperCatalogContent), arg0)
 }
 
 // KeeperSearchCatalog mocks base method.
@@ -227,6 +302,56 @@ func (m *MockKeeperCatalog) KeeperSearchCatalog(arg0 *schema.KeeperSearchCatalog
 func (mr *MockKeeperCatalogMockRecorder) KeeperSearchCatalog(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "KeeperSearchCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).KeeperSearchCatalog), arg0)
+}
+
+// RemoveContent mocks base method.
+func (m *MockKeeperCatalog) RemoveContent(arg0 *schema.RemoveContentOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveContent", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveContent indicates an expected call of RemoveContent.
+func (mr *MockKeeperCatalogMockRecorder) RemoveContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveContent", reflect.TypeOf((*MockKeeperCatalog)(nil).RemoveContent), arg0)
+}
+
+// SyncCatalog mocks base method.
+func (m *MockKeeperCatalog) SyncCatalog(arg0 primitive.ObjectID) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SyncCatalog", arg0)
+}
+
+// SyncCatalog indicates an expected call of SyncCatalog.
+func (mr *MockKeeperCatalogMockRecorder) SyncCatalog(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).SyncCatalog), arg0)
+}
+
+// SyncCatalogContent mocks base method.
+func (m *MockKeeperCatalog) SyncCatalogContent(arg0 primitive.ObjectID) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SyncCatalogContent", arg0)
+}
+
+// SyncCatalogContent indicates an expected call of SyncCatalogContent.
+func (mr *MockKeeperCatalogMockRecorder) SyncCatalogContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCatalogContent", reflect.TypeOf((*MockKeeperCatalog)(nil).SyncCatalogContent), arg0)
+}
+
+// SyncCatalogs mocks base method.
+func (m *MockKeeperCatalog) SyncCatalogs(arg0 []primitive.ObjectID) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SyncCatalogs", arg0)
+}
+
+// SyncCatalogs indicates an expected call of SyncCatalogs.
+func (mr *MockKeeperCatalogMockRecorder) SyncCatalogs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCatalogs", reflect.TypeOf((*MockKeeperCatalog)(nil).SyncCatalogs), arg0)
 }
 
 // UpdateCatalogStatus mocks base method.

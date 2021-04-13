@@ -6,6 +6,7 @@ package mock
 
 import (
 	context "context"
+	schema "go-app/schema"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -48,4 +49,19 @@ func (m *MockBrand) CheckBrandIDExists(arg0 context.Context, arg1 primitive.Obje
 func (mr *MockBrandMockRecorder) CheckBrandIDExists(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBrandIDExists", reflect.TypeOf((*MockBrand)(nil).CheckBrandIDExists), arg0, arg1)
+}
+
+// GetBrandInfo mocks base method.
+func (m *MockBrand) GetBrandInfo(arg0 []string) (*schema.BrandInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBrandInfo", arg0)
+	ret0, _ := ret[0].(*schema.BrandInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBrandInfo indicates an expected call of GetBrandInfo.
+func (mr *MockBrandMockRecorder) GetBrandInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBrandInfo", reflect.TypeOf((*MockBrand)(nil).GetBrandInfo), arg0)
 }
