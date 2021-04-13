@@ -11,17 +11,20 @@ import (
 
 // Config struct stores entire project configurations
 type Config struct {
-	ServerConfig     ServerConfig     `mapstructure:"server"`
-	APIConfig        APIConfig        `mapstructure:"api"`
-	APPConfig        APPConfig        `mapstructure:"app"`
-	KafkaConfig      KafkaConfig      `mapstructure:"kafka"`
-	LoggerConfig     LoggerConfig     `mapstructure:"logger"`
-	DatabaseConfig   DatabaseConfig   `mapstructure:"database"`
-	RedisConfig      RedisConfig      `mapstructure:"redis"`
-	MiddlewareConfig MiddlewareConfig `mapstructure:"middleware"`
-	TokenAuthConfig  TokenAuthConfig  `mapstructure:"token"`
-	SNSConfig        SNSConfig        `mapstructure:"sns"`
-	SESConfig        SESConfig        `mapstructure:"ses"`
+	ServerConfig        ServerConfig        `mapstructure:"server"`
+	APIConfig           APIConfig           `mapstructure:"api"`
+	APPConfig           APPConfig           `mapstructure:"app"`
+	KafkaConfig         KafkaConfig         `mapstructure:"kafka"`
+	LoggerConfig        LoggerConfig        `mapstructure:"logger"`
+	DatabaseConfig      DatabaseConfig      `mapstructure:"database"`
+	RedisConfig         RedisConfig         `mapstructure:"redis"`
+	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
+	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
+	SNSConfig           SNSConfig           `mapstructure:"sns"`
+	SESConfig           SESConfig           `mapstructure:"ses"`
+	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
+	GoogleOAuth         GoogleOAuth         `mapstructure:"googleOAuth"`
+	SessionConfig       SessionConfig       `mapstructure:"session"`
 }
 
 // ServerConfig has only server specific configuration
@@ -34,27 +37,83 @@ type ServerConfig struct {
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	CORSConfig     CORSConfig    `mapstructure:"cors"`
+	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
+}
+
+type GoogleOAuth struct {
+	ClientID     string   `mapstructure:"clientID"`
+	ClientSecret string   `mapstructure:"clientSecret"`
+	RedirectURL  string   `mapstructure:"redirectURL"`
+	Scopes       []string `mapstructure:"scopes"`
+	State        string   `mapstructure:"state"`
 }
 
 // APIConfig contains api package related configurations
 type APIConfig struct {
-	Mode               string `mapstructure:"mode"`
-	EnableTestRoute    bool   `mapstructure:"enableTestRoute"`
-	EnableMediaRoute   bool   `mapstructure:"enableMediaRoute"`
-	EnableStaticRoute  bool   `mapstructure:"enableStaticRoute"`
-	MaxRequestDataSize int    `mapstructure:"maxRequestDataSize"`
+	Mode                   string `mapstructure:"mode"`
+	EnableTestRoute        bool   `mapstructure:"enableTestRoute"`
+	EnableMediaRoute       bool   `mapstructure:"enableMediaRoute"`
+	EnableStaticRoute      bool   `mapstructure:"enableStaticRoute"`
+	MaxRequestDataSize     int    `mapstructure:"maxRequestDataSize"`
+	KeeperLoginRedirectURL string `mapstructure:"keeperLoginRedirectURL"`
+	HypdApiConfig          HypdApiConfig
+}
+
+type SessionConfig struct {
+	CookieConfig CookieConfig `mapstructure:"cookie"`
+	RedisConfig  RedisConfig
+}
+
+type CookieConfig struct {
+	Name     string `mapstructure:"name"`
+	Path     string `mapstructure:"path"`
+	HttpOnly bool   `mapstructure:"httpOnly"`
+	Domain   string `mapstructure:"domain"`
+	Secure   bool   `mapstructure:"secure"`
 }
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig   DatabaseConfig
-	TokenAuthConfig  TokenAuthConfig
-	SNSConfig        SNSConfig
-	SESConfig        SESConfig
-	UserConfig       ServiceConfig `mapstructure:"user"`
-	CustomerConfig   ServiceConfig `mapstructure:"customer"`
-	BrandConfig      ServiceConfig `mapstructure:"brand"`
-	InfluencerConfig ServiceConfig `mapstructure:"influencer"`
+	DatabaseConfig        DatabaseConfig
+	TokenAuthConfig       TokenAuthConfig
+	SNSConfig             SNSConfig
+	SESConfig             SESConfig
+	HypdApiConfig         HypdApiConfig
+	ElasticsearchConfig   ElasticsearchConfig
+	GoogleOAuth           GoogleOAuth
+	UserConfig            ServiceConfig `mapstructure:"user"`
+	CustomerConfig        ServiceConfig `mapstructure:"customer"`
+	BrandConfig           ServiceConfig `mapstructure:"brand"`
+	InfluencerConfig      ServiceConfig `mapstructure:"influencer"`
+	CartConfig            ServiceConfig `mapstructure:"cart"`
+	ExpressCheckoutConfig ServiceConfig `mapstructure:"expressCheckout"`
+	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
+
+	CustomerChangeConfig   ListenerConfig `mapstructure:"customerChangeConsumer"`
+	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
+	CatalogChangeConfig    ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
+	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
+
+	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
+	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
+}
+
+// ElasticsearchConfig contains elasticsearch related configurations
+type ElasticsearchConfig struct {
+	Endpoint            string `mapstructure:"endpoint"`
+	Username            string `mapstructure:"username"`
+	Password            string `mapstructure:"password"`
+	BrandFullIndex      string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
+}
+
+//HypdApiConfig contains config related to other services
+type HypdApiConfig struct {
+	CatalogApi string `mapstructure:"catalogApi"`
+	OrderApi   string `mapstructure:"orderApi"`
+	Token      string `mapstructure:"token"`
 }
 
 // ServiceConfig contains app service related config
@@ -64,9 +123,20 @@ type ServiceConfig struct {
 
 // ListenerConfig contains app kafka topic listener related config
 type ListenerConfig struct {
-	GroupID string   `mapstructure:"groupId"`
-	Brokers []string `mapstructure:"brokers"`
-	Topic   string   `mapstructure:"topic"`
+	GroupID  string   `mapstructure:"groupId"`
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+}
+
+// ProducerConfig contains app kafka topic producer related config
+type ProducerConfig struct {
+	Brokers  []string `mapstructure:"brokers"`
+	Topic    string   `mapstructure:"topic"`
+	Async    bool     `mapstructure:"async"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
 }
 
 // TokenAuthConfig contains token authentication related configuration
@@ -226,5 +296,10 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.TokenAuthConfig = config.TokenAuthConfig
 	config.APPConfig.SNSConfig = config.SNSConfig
 	config.APPConfig.SESConfig = config.SESConfig
+	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
+	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
+	config.APPConfig.GoogleOAuth = config.GoogleOAuth
+	config.SessionConfig.RedisConfig = config.RedisConfig
 	return config
 }

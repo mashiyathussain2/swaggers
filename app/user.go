@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"go-app/model"
 	"go-app/schema"
@@ -39,6 +40,7 @@ type User interface {
 	MobileLoginCustomerUser(*schema.MobileLoginCustomerUserOpts) (auth.Claim, error)
 	GenerateMobileLoginOTP(*schema.GenerateMobileLoginOTPOpts) (bool, error)
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
+	GetUserByID(primitive.ObjectID) (*model.User, error)
 }
 
 // UserImpl implements user interface methods
@@ -225,6 +227,7 @@ func (ui *UserImpl) getUserClaim(user *model.User, customer *model.Customer) aut
 	claim := auth.UserClaim{
 		ID:           user.ID.Hex(),
 		CustomerID:   customer.ID.Hex(),
+		CartID:       customer.CartID.Hex(),
 		Type:         user.Type,
 		Role:         user.Role,
 		Email:        user.Email,
@@ -422,12 +425,35 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 		return nil, errors.New("otp expired")
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		filter := bson.M{
+			"_id": user.ID,
+		}
+		update := bson.D{
+			{
+				Key: "$unset",
+				Value: bson.M{
+					"login_otp": 1,
+				},
+			},
+		}
+		if user.PhoneVerifiedAt.IsZero() {
+			update = append(update, bson.E{Key: "$set", Value: bson.M{"phone_verified_at": time.Now().UTC()}})
+		}
+		_, err := ui.DB.Collection(model.UserColl).UpdateOne(context.TODO(), filter, update)
+		ui.Logger.Err(err).Msg("failed to unset otp")
+	}()
+
 	var customer model.Customer
 	if err := ui.DB.Collection(model.CustomerColl).FindOne(context.TODO(), bson.M{"user_id": user.ID}).Decode(&customer); err != nil {
 		return nil, errors.Wrapf(err, "customer with phone_no:%s%s not found", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
-
 	claim := ui.getUserClaim(&user, &customer)
+
+	wg.Wait()
 	return claim, nil
 }
 
@@ -435,13 +461,14 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 // If phone number does not exists then it create a new user and sends the otp.
 func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOpts) (bool, error) {
 	ctx := context.TODO()
-	filter := bson.M{"phone_no": bson.M{"prefix": opts.PhoneNo.Prefix, "number": opts.PhoneNo.Number}}
+	filter := bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
 	count, err := ui.DB.Collection(model.UserColl).CountDocuments(context.TODO(), filter)
 	if err != nil {
 		ui.Logger.Err(err).Msgf("failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 		return false, errors.Wrapf(err, "failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
 	otp, _ := GenerateOTP(6)
+	fmt.Println(count, "count is")
 	switch count {
 	// When no user exists thus creating a new one
 	case 0:
@@ -673,4 +700,15 @@ func (ui *UserImpl) GetUserInfoByID(opts *schema.GetUserInfoByIDOpts) (bson.M, e
 		return nil, errors.Errorf("user with id: %s not found", opts.ID.Hex())
 	}
 	return res[0], nil
+}
+
+func (ui *UserImpl) GetUserByID(id primitive.ObjectID) (*model.User, error) {
+	filter := bson.M{
+		"_id": id,
+	}
+	var user model.User
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), filter).Decode(&user); err != nil {
+		return nil, errors.Wrap(err, "failed to find user with id")
+	}
+	return &user, nil
 }

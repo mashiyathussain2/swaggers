@@ -2,6 +2,7 @@ package api
 
 import (
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -68,6 +69,7 @@ func (a *API) getBrandByID(requestCTX *handler.RequestContext, w http.ResponseWr
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["brandID"])
 	if err != nil {
 		requestCTX.SetErr(errors.Errorf("invalid brand id:%s in url", mux.Vars(r)["brandID"]), http.StatusBadRequest)
+		return
 	}
 	res, err := a.App.Brand.GetBrandByID(id)
 	if err != nil {
@@ -81,6 +83,7 @@ func (a *API) checkBrandByID(requestCTX *handler.RequestContext, w http.Response
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["brandID"])
 	if err != nil {
 		requestCTX.SetErr(errors.Errorf("invalid brand id:%s in url", mux.Vars(r)["brandID"]), http.StatusBadRequest)
+		return
 	}
 	res, err := a.App.Brand.CheckBrandByID(id)
 	if err != nil {
@@ -93,6 +96,45 @@ func (a *API) checkBrandByID(requestCTX *handler.RequestContext, w http.Response
 func (a *API) getBrands(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	res, err := a.App.Brand.GetBrands()
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getBrandsBasic(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetBrandsByIDBasicOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetBrandsByIDBasic(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getBrandInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["brandID"])
+	if err != nil {
+		requestCTX.SetErr(errors.Errorf("invalid brand id:%s in url", mux.Vars(r)["brandID"]), http.StatusBadRequest)
+		return
+	}
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetBrandInfoByID(&schema.GetBrandsInfoByIDOpts{ID: id, CustomerID: userID})
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
