@@ -24,7 +24,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/user/forgot-password", a.requestHandler(a.forgotPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
-	a.Router.APIRoot.Handle("/user/verify-email", a.requestHandler(a.verifyEmail)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/verify-email", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email/resend", a.requestHandler(a.resendEmailVerificationCode)).Methods("POST")
 
 	// LOGIN AND SIGNUP APIS

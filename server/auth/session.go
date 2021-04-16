@@ -2,7 +2,7 @@ package auth
 
 import (
 	"encoding/json"
-	"fmt"
+	"sync"
 
 	"go-app/server/config"
 	"go-app/server/storage"
@@ -40,6 +40,7 @@ func (us *UserSession) ToJSON() string {
 type SessionAuthImpl struct {
 	Client storage.Redis
 	Config *config.SessionConfig
+	mux    sync.Mutex
 }
 
 type SessionAuthOpts struct {
@@ -61,7 +62,9 @@ func (s *SessionAuthImpl) Get(r *http.Request) (*UserSession, error) {
 	if err != nil {
 		return nil, err
 	}
+	s.mux.Lock()
 	result, err := s.get(cookie.Value)
+	s.mux.Unlock()
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +100,6 @@ func (s *SessionAuthImpl) Create(st string, w http.ResponseWriter) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(s.Config.CookieConfig)
 	cookie := &http.Cookie{
 		Name:     s.Config.CookieConfig.Name,
 		Value:    sessionID,
