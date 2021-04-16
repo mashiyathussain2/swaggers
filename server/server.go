@@ -112,7 +112,6 @@ func (s *Server) StartServer() {
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
 		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
 	}
-	n.UseHandler(s.Router)
 
 	s.Log.Info().Msgf("Staring server at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
 	go func() {
