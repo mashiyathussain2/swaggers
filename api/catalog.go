@@ -349,7 +349,7 @@ func (a *API) getPebbleCatalogInfo(requestCTX *handler.RequestContext, w http.Re
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.KeeperCatalog.GetCollectionCatalogInfo(s.IDs)
+	resp, err := a.App.KeeperCatalog.GetPebbleCatalogInfo(s.IDs)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
