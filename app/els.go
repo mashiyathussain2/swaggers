@@ -58,8 +58,19 @@ func InitElasticsearch(opts *ElasticsearchOpts) Elasticsearch {
 }
 
 func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESResp, error) {
-	query := elastic.NewTermQuery("status", model.Publish)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(query).Do(context.Background())
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("status", model.Publish))
+	queries = append(queries, elastic.NewNestedQuery(
+		"sub_collections",
+		elastic.NewNestedQuery(
+			"sub_collections.catalog_info",
+			elastic.NewMatchQuery("sub_collections.catalog_info.status.value", model.Publish),
+		).InnerHit(elastic.NewInnerHit().Size(4)),
+	).InnerHit(elastic.NewInnerHit().FetchSource(false)))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+	fsctx := elastic.NewFetchSourceContext(true).Include([]string{"id", "name", "title", "type", "sub_collections.catalog_ids", "sub_collections.id", "sub_collections.name", "sub_collections.title", "inner_hits.sub_collections"}...)
+	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
@@ -71,6 +82,22 @@ func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESRes
 		if err := json.Unmarshal(hit.Source, &s); err != nil {
 			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
 			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+
+		if s.Type == model.ProductCollection {
+			// Fetching Inner Hits
+			var catalogInfo []schema.GetCollectionCatalogInfoResp
+			for _, innerHit := range hit.InnerHits["sub_collections"].Hits.Hits[0].InnerHits["sub_collections.catalog_info"].Hits.Hits {
+				var ci schema.GetCollectionCatalogInfoResp
+				if err := json.Unmarshal(innerHit.Source, &ci); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					return nil, errors.Wrap(err, "failed to decode content json")
+				}
+				catalogInfo = append(catalogInfo, ci)
+			}
+			if len(s.SubCollections) == 1 {
+				s.SubCollections[0].CatalogInfo = catalogInfo
+			}
 		}
 		resp = append(resp, s)
 	}

@@ -212,7 +212,7 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
 			Value: nil,
 		}
-		cp.App.CatalogFullProducer.Publish(m)
+		cp.App.CollectionFullProducer.Publish(m)
 		return
 	}
 
@@ -262,6 +262,7 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 	for _, subColl := range collectionSchema.SubCollections {
 		subCollData := schema.SubCollectionInfoResp{
 			ID:         subColl.ID,
+			Name:       subColl.Name,
 			CatalogIDs: subColl.CatalogIDs,
 			Image:      subColl.Image,
 			CreatedAt:  subColl.CreatedAt,
@@ -276,6 +277,7 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 				FeaturedImage: catalogInfo.FeaturedImage,
 				Slug:          catalogInfo.Slug,
 				VariantType:   catalogInfo.VariantType,
+				Status:        catalogInfo.Status,
 				BasePrice:     catalogInfo.BasePrice,
 				RetailPrice:   catalogInfo.RetailPrice,
 				DiscountID:    catalogInfo.DiscountID,
@@ -311,7 +313,6 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 		Value: val,
 	}
 	cp.App.CollectionFullProducer.Publish(m)
-
 }
 
 func (cp *CollectionProcessor) ProcessCatalogUpdate(msg kafka.Message) {
@@ -321,16 +322,6 @@ func (cp *CollectionProcessor) ProcessCatalogUpdate(msg kafka.Message) {
 		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
 		return
 	}
-
-	if s.Meta.Operation == "d" {
-		m := segKafka.Message{
-			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
-			Value: nil,
-		}
-		cp.App.CatalogFullProducer.Publish(m)
-		return
-	}
-
 	if s.Meta.Operation == "u" {
 		cp.App.Collection.UpdateCollectionCatalogInfo(s.Meta.ID.(primitive.ObjectID))
 		return
