@@ -2,7 +2,6 @@ package schema
 
 import (
 	"go-app/model"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -41,8 +40,6 @@ type GetSubCollectionESResp struct {
 	Image       *model.IMG                     `json:"image,omitempty"`
 	CatalogIDs  []primitive.ObjectID           `json:"catalog_ids,omitempty"`
 	CatalogInfo []GetCollectionCatalogInfoResp `json:"catalog_info,omitempty"`
-	CreatedAt   time.Time                      `json:"created_at,omitempty"`
-	UpdatedAt   time.Time                      `json:"updated_at,omitempty"`
 }
 
 type GetCollectionESResp struct {
@@ -52,8 +49,6 @@ type GetCollectionESResp struct {
 	Genders        []string                 `json:"genders,omitempty"`
 	Title          string                   `json:"title,omitempty"`
 	SubCollections []GetSubCollectionESResp `json:"sub_collections,omitempty"`
-	CreatedAt      time.Time                `json:"created_at,omitempty"`
-	UpdatedAt      time.Time                `json:"updated_at,omitempty"`
 	Status         string                   `json:"status,omitempty"`
 	Order          int                      `json:"order,omitempty"`
 }
