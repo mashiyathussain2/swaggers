@@ -44,6 +44,7 @@ type KeeperCatalog interface {
 	GetCatalogBySlug(string) (*schema.GetCatalogResp, error)
 	GetAllCatalogInfo(primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error)
 	GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
+	GetPebbleCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
 	SyncCatalog(primitive.ObjectID)
 	SyncCatalogs([]primitive.ObjectID)
 	SyncCatalogContent(id primitive.ObjectID)
@@ -1342,7 +1343,7 @@ func (kc *KeeperCatalogImpl) SyncCatalogContent(id primitive.ObjectID) {
 	}
 }
 
-func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
+func (kc *KeeperCatalogImpl) GetPebbleCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
 	ctx := context.TODO()
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
@@ -1394,6 +1395,70 @@ func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) 
 		return nil, errors.Wrap(err, "error decoding Catalogs")
 	}
 
+	// if len(catalogs) == 0 {
+	// 	return nil, errors.Errorf("unable to find info for catalog for collection")
+	// }
+	for i, catalog := range catalogs {
+		bi, err := kc.App.Brand.GetBrandInfo([]string{catalog.BrandID.Hex()})
+		if err != nil {
+			kc.Logger.Err(err).Msgf("failed to get brand info for catalog with brand-id: %s", catalog.BrandID.Hex())
+			continue
+		}
+		catalogs[i].BrandInfo = bi
+	}
+	return catalogs, nil
+}
+
+func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error) {
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": bson.M{
+				"$in": ids,
+			},
+		},
+	}}
+	lookupDiscountStage := bson.D{{
+		Key: "$lookup",
+		Value: bson.M{
+			"from": "discount",
+			"let":  bson.M{"catalog_id": "$_id"},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr": bson.M{
+							"$and": bson.A{
+								bson.M{"$eq": bson.A{"$catalog_id", "$$catalog_id"}},
+								bson.M{"$eq": bson.A{"$is_active", true}},
+							},
+						},
+					},
+				},
+			},
+			"as": "discount_info",
+		},
+	}}
+	setStage0 := bson.D{{
+		Key: "$set", Value: bson.M{
+			"discount_info": bson.M{
+				"$first": "$discount_info",
+			},
+		},
+	}}
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupDiscountStage,
+		setStage0,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalog with id")
+	}
+
+	var catalogs []schema.GetAllCatalogInfoResp
+	if err := catalogsCursor.All(ctx, &catalogs); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
 	if len(catalogs) == 0 {
 		return nil, errors.Errorf("unable to find info for catalog for collection")
 	}
