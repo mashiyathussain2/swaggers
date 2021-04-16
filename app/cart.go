@@ -322,39 +322,41 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	}
 	tp := uint(0)
 	td := uint(0)
-	for _, cartItem := range cart.Items {
+	for i, cartItem := range cart.Items {
+		tp = tp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
 					var dp *model.Price
-					cartItem.DiscountInfo = &model.DiscountInfo{
+					cart.Items[i].DiscountInfo = &model.DiscountInfo{
 						ID:    cartItem.CatalogInfo.DiscountInfo.ID,
 						Type:  cartItem.CatalogInfo.DiscountInfo.Type,
 						Value: cartItem.CatalogInfo.DiscountInfo.Value,
 					}
-					switch cartItem.DiscountInfo.Type {
+					switch cartItem.CatalogInfo.DiscountInfo.Type {
 					case model.FlatOffType:
-						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.DiscountInfo.Value))
-						td = td + cartItem.DiscountInfo.Value*cartItem.Quantity
+						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(cartItem.CatalogInfo.DiscountInfo.Value))
+						td = td + cartItem.CatalogInfo.DiscountInfo.Value*cartItem.Quantity
 					case model.PercentOffType:
-						cartItem.DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
-						d := uint(float64((cartItem.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
-						if d > cartItem.DiscountInfo.MaxValue && cartItem.DiscountInfo.MaxValue > 0 {
-							d = cartItem.DiscountInfo.MaxValue
+						cart.Items[i].DiscountInfo.MaxValue = cartItem.CatalogInfo.DiscountInfo.MaxValue
+						d := uint(float64((cartItem.CatalogInfo.DiscountInfo.Value * uint(cartItem.RetailPrice.Value)) / 100.0))
+						if d > cartItem.CatalogInfo.DiscountInfo.MaxValue && cartItem.CatalogInfo.DiscountInfo.MaxValue > 0 {
+							d = cartItem.CatalogInfo.DiscountInfo.MaxValue
 						}
 						dp = model.SetINRPrice(cartItem.RetailPrice.Value - float32(d))
-						td = td + d*cartItem.Quantity
+						td = td + (d * cartItem.Quantity)
 					default:
 					}
-					cartItem.DiscountedPrice = dp
-					cartItem.DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
+					cart.Items[i].DiscountedPrice = dp
+					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
+					cart.Items[i].TransferPrice = model.SetINRPrice(0)
 				}
 			}
 		}
 	}
-	cart.TotalPrice.Value = float32(tp)
-	cart.TotalDiscount.Value = float32(td)
-	cart.GrandTotal.Value = float32(tp - td)
+	cart.TotalPrice = model.SetINRPrice(float32(tp))
+	cart.TotalDiscount = model.SetINRPrice(float32(td))
+	cart.GrandTotal = model.SetINRPrice(float32(tp - td))
 	return &cart, nil
 }
 
