@@ -407,12 +407,12 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 		operation := mongo.NewUpdateOneModel()
 		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
 		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
-		if catalogInfo == nil {
-			continue
-		}
 		if err != nil {
 			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
 			return
+		}
+		if catalogInfo == nil {
+			continue
 		}
 		operation.SetUpdate(bson.M{
 			"$set": bson.M{
@@ -434,6 +434,53 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	}
 }
 
+// func (ci *CollectionImpl) SyncCatalogInfoToCollection(id primitive.ObjectID) {
+// 	ctx := context.TODO()
+// 	filter := bson.M{
+// 		"type":                        model.ProductCollection,
+// 		"sub_collections.catalog_ids": id,
+// 	}
+// 	var collections []model.Collection
+// 	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, filter)
+// 	if err != nil {
+// 		ci.Logger.Err(err).Msgf("failed to collection with id: %s", id.Hex())
+// 		return
+// 	}
+// 	if err := cur.All(ctx, &collections); err != nil {
+// 		ci.Logger.Err(err).Msgf("failed to collections with catalog_id: %s", id.Hex())
+// 		return
+// 	}
+// 	var operations []mongo.WriteModel
+// 	for _, collection := range collections {
+// 		for _, subColl := range collection.SubCollections {
+// 			operation := mongo.NewUpdateOneModel()
+// 			operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
+// 			catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
+// 			if catalogInfo == nil {
+// 				continue
+// 			}
+// 			if err != nil {
+// 				ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
+// 				return
+// 			}
+// 			operation.SetUpdate(bson.M{
+// 				"$set": bson.M{
+// 					"sub_collections.$.catalog_info": catalogInfo,
+// 				},
+// 			})
+// 			operations = append(operations, operation)
+// 		}
+// 	}
+// 	if len(operations) == 0 {
+// 		return
+// 	}
+// 	bulkOption := options.BulkWriteOptions{}
+// 	bulkOption.SetOrdered(true)
+// 	if _, err := ci.DB.Collection(model.CollectionColl).BulkWrite(context.TODO(), operations, &bulkOption); err != nil {
+// 		ci.Logger.Err(err).Msgf("failed to add catalog info inside collection with id:%s", id.Hex())
+// 	}
+// }
+
 func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 	filter := bson.M{
 		"type":                             model.ProductCollection,
@@ -444,17 +491,17 @@ func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to find catalog with id: %s", id.Hex())
 		return
-	}
 
+	}
 	update := bson.M{
 		"$set": bson.M{
-			"sub_collections.$[elem].catalog_info.$": catalogInfo[0],
+			"sub_collections.$[].catalog_info.$[elem]": catalogInfo[0],
 		},
 	}
 
 	af := []interface{}{
 		bson.M{
-			"elem.catalog_info._id": id,
+			"elem._id": id,
 		},
 	}
 	queryOpts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: af})

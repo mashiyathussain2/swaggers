@@ -87,6 +87,7 @@ type SubCollectionCatalogInfoKafkaMessageResp struct {
 		IsDeleted bool               `json:"is_deleted,omitempty"`
 	} `json:"variants,omitempty"`
 	BasePrice    *model.Price       `json:"base_price,omitempty"`
+	Status       *model.Status      `json:"status,omitempty"`
 	RetailPrice  *model.Price       `json:"retail_price,omitempty"`
 	DiscountID   primitive.ObjectID `json:"discount_id,omitempty"`
 	DiscountInfo *struct {
@@ -167,6 +168,7 @@ type SubCollectionCatalogInfoSchema struct {
 	Variants      []SubCollectionCatalogInfoVariantsResp    `json:"variants,omitempty"`
 	BasePrice     *model.Price                              `json:"base_price,omitempty"`
 	RetailPrice   *model.Price                              `json:"retail_price,omitempty"`
+	Status        *model.Status                             `json:"status,omitempty"`
 	DiscountID    primitive.ObjectID                        `json:"discount_id,omitempty"`
 	DiscountInfo  *SubCollectionCatalogInfoDiscountInfoResp `json:"discount_info,omitempty"`
 }
