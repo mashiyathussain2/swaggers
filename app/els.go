@@ -68,7 +68,7 @@ func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESRes
 		).InnerHit(elastic.NewInnerHit().Size(4)),
 	).InnerHit(elastic.NewInnerHit().FetchSource(false)))
 
-	boolQuery := elastic.NewBoolQuery().Must(queries...)
+	boolQuery := elastic.NewBoolQuery().Must(queries[0]).Should(queries[1])
 	fsctx := elastic.NewFetchSourceContext(true).Include([]string{"id", "name", "title", "type", "sub_collections.catalog_ids", "sub_collections.id", "sub_collections.name", "sub_collections.title", "inner_hits.sub_collections"}...)
 	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Do(context.Background())
 	if err != nil {
