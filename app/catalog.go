@@ -325,7 +325,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		HSNCode:         c.HSNCode,
 		BasePrice:       *c.BasePrice,
 		RetailPrice:     *c.RetailPrice,
-		TransferPrice:   *c.TransferPrice,
+		TransferPrice:   c.TransferPrice,
 		ETA:             c.ETA,
 		UpdatedAt:       c.UpdatedAt,
 		Tax:             *c.Tax,
