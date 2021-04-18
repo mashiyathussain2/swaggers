@@ -209,7 +209,7 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
 	// If cloudfront url is provided then set the url as cloudfront url otherwise s3 bucket url
 	if i.CloudfrontURL != "" {
-		i.URL = fmt.Sprintf("%s/%s", mi.App.Config.S3Config.ImageCloudfrontURL, *params.Key)
+		i.URL = fmt.Sprintf("%s%s", mi.App.Config.S3Config.ImageCloudfrontURL, *params.Key)
 	} else {
 		i.URL = i.SRCBucketURL
 	}
