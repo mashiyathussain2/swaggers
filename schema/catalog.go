@@ -149,7 +149,7 @@ type EditCatalogResp struct {
 	RetailPrice     model.Price           `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	TransferPrice   model.Price           `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	TransferPrice   *model.Price          `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 	Tax             model.Tax             `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
