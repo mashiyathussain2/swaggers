@@ -540,9 +540,12 @@ func (kc *KeeperCatalogImpl) KeeperSearchCatalog(keeperSearchCatalogOpts *schema
 func (kc *KeeperCatalogImpl) DeleteVariant(opts *schema.DeleteVariantOpts) error {
 	ctx := context.TODO()
 	filter := bson.M{"_id": opts.CatalogID, "variants._id": opts.VariantID}
-	deleteQuery := bson.M{"$set": bson.M{
-		"variants.$.is_deleted": true,
-	},
+	deleteQuery := bson.M{
+		"$pull": bson.M{
+			"variants": bson.M{
+				"_id": opts.VariantID,
+			},
+		},
 	}
 	resp, err := kc.DB.Collection(model.CatalogColl).UpdateOne(ctx, filter, deleteQuery)
 	if err != nil {
