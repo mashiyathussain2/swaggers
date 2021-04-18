@@ -22,6 +22,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestWithInternalHandler(a.getBrandsById)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/user/get", a.requestWithInternalHandler(a.getUserInfoByID)).Methods("POST")
 
+	a.Router.APIRoot.Handle("/user/auth", a.requestWithAuthHandler(a.updateUserAuthInfo)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/auth/verify", a.requestWithAuthHandler(a.verifyUserAuthUpdate)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/forgot-password", a.requestHandler(a.forgotPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")

@@ -131,3 +131,16 @@ type KeeperUserInfoResp struct {
 	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+type UpdateUserAuthOpts struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	Email     string             `json:"email" validate:"isdefault|email"`
+	ContactNo *model.PhoneNumber `json:"contact_no"`
+}
+
+type VerifyUserAuthUpdate struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	Email     string             `json:"email" validate:"isdefault|email"`
+	ContactNo *model.PhoneNumber `json:"contact_no"`
+	OTP       string             `json:"otp" validate:"required"`
+}
