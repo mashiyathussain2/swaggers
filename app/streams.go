@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -297,7 +296,6 @@ func (csp *ContentUpdateProcessor) ProcessLike(msg kafka.Message) {
 		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
 		return
 	}
-
 	// creating a like
 	if s.Meta.Operation == "i" {
 		var likeSchema schema.ProcessLikeOpts
