@@ -648,6 +648,9 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 }
 
 func (ci *CartImpl) AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts) {
+	if opts.CatalogID.IsZero() || len(opts.VariantsID) == 0 {
+		return
+	}
 	filter := bson.M{
 		"items.catalog_id": opts.CatalogID,
 		"items.variant_id": bson.M{
@@ -673,6 +676,9 @@ func (ci *CartImpl) AddDiscountInCartItems(opts *schema.DiscountInCartItemsOpts)
 }
 
 func (ci *CartImpl) RemoveDiscountInCartItems(opts *schema.DiscountInCartItemsOpts) {
+	if opts.CatalogID.IsZero() || len(opts.VariantsID) == 0 {
+		return
+	}
 	filter := bson.M{
 		"catalog_id": opts.CatalogID,
 		"variant_id": bson.M{

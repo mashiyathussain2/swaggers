@@ -93,9 +93,6 @@ func NewServer() *Server {
 func (s *Server) StartServer() {
 	n := negroni.New()
 
-	if s.Config.MiddlewareConfig.EnableRequestLog {
-		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
-	}
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   s.Config.ServerConfig.CORSConfig.AllowedOrigins,
 		AllowedMethods:   s.Config.ServerConfig.CORSConfig.AllowedMethods,
@@ -104,6 +101,9 @@ func (s *Server) StartServer() {
 	})
 	n.Use(cors)
 	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
+	if s.Config.MiddlewareConfig.EnableRequestLog {
+		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
+	}
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
