@@ -138,6 +138,21 @@ func (mr *MockKeeperCatalogMockRecorder) EditCatalog(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).EditCatalog), arg0)
 }
 
+// EditVariantSKU mocks base method
+func (m *MockKeeperCatalog) EditVariantSKU(arg0 *schema.EditVariantSKU) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditVariantSKU", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// EditVariantSKU indicates an expected call of EditVariantSKU
+func (mr *MockKeeperCatalogMockRecorder) EditVariantSKU(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditVariantSKU", reflect.TypeOf((*MockKeeperCatalog)(nil).EditVariantSKU), arg0)
+}
+
 // GetAllCatalogInfo mocks base method
 func (m *MockKeeperCatalog) GetAllCatalogInfo(arg0 primitive.ObjectID) (*schema.GetAllCatalogInfoResp, error) {
 	m.ctrl.T.Helper()
