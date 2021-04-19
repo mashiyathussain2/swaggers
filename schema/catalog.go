@@ -128,7 +128,7 @@ type EditCatalogOpts struct {
 	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
 	FilterAttribute []FilterAttribute    `json:"filter_attr" validate:"dive"`
 	HSNCode         string               `json:"hsn_code"`
-	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtfield=RetailPrice"`
+	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtefield=RetailPrice"`
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
 	TransferPrice   uint32               `json:"transfer_price" validate:"isdefault|gt=0"`
 	Tax             *TaxOpts             `json:"tax"`
