@@ -296,6 +296,9 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		}
 
 	}
+	if opts.VariantType != "" {
+		c.VariantType = opts.VariantType
+	}
 
 	if reflect.DeepEqual(model.Catalog{}, c) {
 		return nil, errors.New("no fields found to update")
@@ -327,6 +330,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		BasePrice:       *c.BasePrice,
 		RetailPrice:     *c.RetailPrice,
 		TransferPrice:   c.TransferPrice,
+		VariantType:     c.VariantType,
 		ETA:             c.ETA,
 		UpdatedAt:       c.UpdatedAt,
 		Tax:             *c.Tax,
