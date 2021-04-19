@@ -128,6 +128,7 @@ type EditCatalogOpts struct {
 	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
 	FilterAttribute []FilterAttribute    `json:"filter_attr" validate:"dive"`
 	HSNCode         string               `json:"hsn_code"`
+	VariantType     string               `json:"variant_type"`
 	BasePrice       uint32               `json:"base_price" validate:"isdefault|gtefield=RetailPrice"`
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
 	TransferPrice   uint32               `json:"transfer_price" validate:"isdefault|gt=0"`
@@ -147,6 +148,7 @@ type EditCatalogResp struct {
 	HSNCode         string                `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 	BasePrice       model.Price           `json:"base_price,omitempty" bson:"base_price,omitempty"`
 	RetailPrice     model.Price           `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	VariantType     string                `json:"variant_type,omitempty" bson:"variant_type,omitempty"`
 	ETA             *model.ETA            `json:"eta,omitempty" bson:"eta,omitempty"`
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	TransferPrice   *model.Price          `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
