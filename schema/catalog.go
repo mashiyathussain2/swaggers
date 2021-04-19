@@ -494,3 +494,8 @@ type RemoveContentOpts struct {
 	CatalogID primitive.ObjectID `json:"catalog_id"`
 	ContentID primitive.ObjectID `json:"content_id"`
 }
+
+type EditVariantSKU struct {
+	ID  primitive.ObjectID `json:"id" validate:"required"`
+	SKU string             `json:"sku" validate:"required"`
+}
