@@ -598,6 +598,9 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		}
 		customer.ID = res.InsertedID.(primitive.ObjectID)
 	default:
+		if user.CreatedVia != model.CreatedViaFacebook && user.CreatedVia != model.CreatedViaGoogle {
+			return nil, errors.New("cannot use social login for this user, please use email/otp login")
+		}
 		if user.CreatedVia == model.CreatedViaGoogle {
 			if opts.Type == model.CreatedViaFacebook {
 				return nil, errors.New("cannot use facebook login: this account was created via google")
