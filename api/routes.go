@@ -19,6 +19,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/catalog/variant", a.requestWithSudoHandler(a.addVariants)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/status", a.requestWithSudoHandler(a.updateCatalogStatus)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/variant", a.requestWithSudoHandler(a.deleteVariant)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/keeper/catalog/variant", a.requestWithSudoHandler(a.editVariantSKU)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/catalog/search", a.requestWithSudoHandler(a.keeperSearchCatalog)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/get", a.requestWithSudoHandler(a.getCatalogsByFilter)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/catalog/content/video", a.requestWithSudoHandler(a.addCatalogContent)).Methods("POST")

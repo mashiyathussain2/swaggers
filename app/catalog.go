@@ -31,6 +31,7 @@ type KeeperCatalog interface {
 	GetBasicCatalogInfo(*schema.GetBasicCatalogFilter) ([]schema.GetBasicCatalogResp, error)
 	GetCatalogFilter() (*schema.GetCatalogFilterResp, error)
 	AddVariant(*schema.AddVariantOpts) (*schema.AddVariantResp, error)
+	EditVariantSKU(opts *schema.EditVariantSKU) (bool, error)
 	KeeperSearchCatalog(*schema.KeeperSearchCatalogOpts) ([]schema.KeeperSearchCatalogResp, error)
 	DeleteVariant(*schema.DeleteVariantOpts) error
 	UpdateCatalogStatus(*schema.UpdateCatalogStatusOpts) ([]schema.UpdateCatalogStatusResp, error)
@@ -442,9 +443,9 @@ func (kc *KeeperCatalogImpl) validateAddVariant(ctx context.Context, opts *schem
 		if v.Attribute == opts.Attribute {
 			return errors.Errorf("variant with attribute %s already exists", opts.Attribute)
 		}
-		if v.SKU == opts.SKU {
-			return errors.Errorf("variant with sku %s already exists", opts.SKU)
-		}
+		// if v.SKU == opts.SKU {
+		// 	return errors.Errorf("variant with sku %s already exists", opts.SKU)
+		// }
 	}
 	return nil
 }
@@ -1592,4 +1593,69 @@ func (kc *KeeperCatalogImpl) RemoveContent(opts *schema.RemoveContentOpts) error
 		return errors.Wrap(err, "error deleting content from cms")
 	}
 	return nil
+}
+
+func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, error) {
+	ctx := context.TODO()
+	session, err := kc.DB.Client().StartSession()
+	if err != nil {
+		kc.Logger.Err(err).Msg("unable to create db session")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		kc.Logger.Err(err).Msg("unable to start transaction")
+		return false, errors.Wrap(err, "failed to add follower")
+	}
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+		filter := bson.M{
+			"variants._id": opts.ID,
+		}
+		update := bson.M{
+			"$set": bson.M{
+				"variants.$.sku": opts.SKU,
+			},
+		}
+		res, err := kc.DB.Collection(model.CatalogColl).UpdateOne(sc, filter, update)
+		if err != nil {
+			kc.Logger.Err(err).Interface("opts", opts).Msg("failed to update variant sku")
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "failed to update variant sku")
+		}
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			return errors.New("failed to find variant")
+		}
+
+		filter2 := bson.M{
+			"variant_id": opts.ID,
+		}
+		update2 := bson.M{
+			"$set": bson.M{
+				"sku": opts.SKU,
+			},
+		}
+
+		res, err = kc.DB.Collection(model.InventoryColl).UpdateOne(sc, filter2, update2)
+		if err != nil {
+			session.AbortTransaction(sc)
+			kc.Logger.Err(err).Interface("opts", opts).Msgf("failed update inventory sku")
+			return errors.Wrap(err, "failed update inventory sku")
+		}
+		if res.MatchedCount == 0 {
+			session.AbortTransaction(sc)
+			kc.Logger.Err(err).Interface("opts", opts).Msgf("failed update inventory sku")
+			return errors.New("failed find inventory sku")
+		}
+
+		if err := session.CommitTransaction(sc); err != nil {
+			kc.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to update sku")
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	return true, nil
 }
