@@ -41,6 +41,8 @@ type User interface {
 	GenerateMobileLoginOTP(*schema.GenerateMobileLoginOTPOpts) (bool, error)
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
 	GetUserByID(primitive.ObjectID) (*model.User, error)
+	UpdateUserAuthInfo(*schema.UpdateUserAuthOpts) error
+	VerifyUserAuthUpdate(*schema.VerifyUserAuthUpdate) (auth.Claim, error)
 }
 
 // UserImpl implements user interface methods
@@ -711,4 +713,167 @@ func (ui *UserImpl) GetUserByID(id primitive.ObjectID) (*model.User, error) {
 		return nil, errors.Wrap(err, "failed to find user with id")
 	}
 	return &user, nil
+}
+
+func (ui *UserImpl) UpdateUserAuthInfo(opts *schema.UpdateUserAuthOpts) error {
+	ctx := context.TODO()
+	// Checking if another user with email already exists
+	var filter bson.M
+	var update bson.M
+	claimOTP, _ := GenerateOTP(6)
+	if opts.Email != "" {
+		var claimUser model.User
+		filter := bson.M{"email": opts.Email, "_id": bson.M{"$ne": opts.ID}}
+		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&claimUser); err != nil {
+			if err != mongo.ErrNoDocuments {
+				return errors.Wrap(err, "failed to check for user with provided email")
+			}
+		}
+
+		// If there is a profile with provided email
+		if (claimUser != model.User{}) {
+			_, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, bson.M{"_id": claimUser.ID}, bson.M{"$set": bson.M{"email_verification_code": claimOTP}})
+			if err != nil {
+				return errors.Wrap(err, "failed to generate otp for verification")
+			}
+			claimUser.EmailVerificationCode = claimOTP
+			if err := ui.sendConfirmationEmail(&claimUser); err != nil {
+			}
+			return nil
+		}
+		update = bson.M{
+			"$set": bson.M{
+				"email":                   opts.Email,
+				"email_verification_code": claimOTP,
+			},
+		}
+	} else {
+		filter := bson.M{"phone_no.prefix": opts.ContactNo.Prefix, "phone_no.number": opts.ContactNo.Number, "_id": bson.M{"$ne": opts.ID}}
+		count, err := ui.DB.Collection(model.UserColl).CountDocuments(ctx, filter)
+		if err != nil {
+			return errors.Wrap(err, "failed to check for user with provided phone number")
+		}
+		if count != 0 {
+			return errors.New("user with phone number already exists")
+		}
+		filter = bson.M{
+			"_id": opts.ID,
+		}
+		update = bson.M{
+			"$set": bson.M{
+				"phone_no": &model.PhoneNumber{
+					Prefix: opts.ContactNo.Prefix,
+					Number: opts.ContactNo.Number,
+				},
+				"phone_verification_code": claimOTP,
+			},
+		}
+	}
+
+	if _, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, filter, update); err != nil {
+		return errors.Wrap(err, "failed to update user info")
+	}
+
+	return nil
+}
+
+func (ui *UserImpl) VerifyUserAuthUpdate(opts *schema.VerifyUserAuthUpdate) (auth.Claim, error) {
+	var user model.User
+	ctx := context.TODO()
+	var update bson.M
+	if opts.Email != "" {
+		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"email": opts.Email}).Decode(&user); err != nil {
+			return nil, errors.Wrapf(err, "failed to find user with email: %s", opts.Email)
+		}
+		if user.EmailVerificationCode != opts.OTP {
+			return nil, errors.New("invalid otp")
+		}
+		update = bson.M{
+			"$set": bson.M{
+				"email_verified_at": time.Now().UTC(),
+			},
+			"$unset": bson.M{
+				"email_verification_code": 1,
+			},
+		}
+	} else {
+		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"phone_no.prefix": opts.ContactNo.Prefix, "phone_no.number": opts.ContactNo.Number}).Decode(&user); err != nil {
+			return nil, errors.Wrapf(err, "failed to find user with phone number: %s", opts.ContactNo.Number)
+		}
+		if user.PhoneVerificationCode != opts.OTP {
+			return nil, errors.New("invalid otp")
+		}
+		update = bson.M{
+			"$set": bson.M{
+				"phone_verified_at": time.Now().UTC(),
+			},
+			"$unset": bson.M{
+				"phone_verification_code": 1,
+			},
+		}
+	}
+
+	var wg sync.WaitGroup
+	if opts.Email != "" {
+		if opts.ID != user.ID {
+			var wg1 sync.WaitGroup
+			var newUser model.User
+			var newCart model.Cart
+			if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"_id": opts.ID}).Decode(&newUser); err != nil {
+				return nil, errors.Wrapf(err, "failed to find link user account")
+			}
+			update = bson.M{
+				"$set": bson.M{
+					"email_verified_at": time.Now().UTC(),
+					"phone_no":          newUser.PhoneNo,
+					"phone_verified_at": newUser.PhoneVerifiedAt,
+				},
+				"$unset": bson.M{
+					"email_verification_code": 1,
+				},
+			}
+
+			wg1.Add(1)
+			go func() {
+				defer wg1.Done()
+				_, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, bson.M{"_id": newUser.ID}, bson.M{"$unset": bson.M{"phone_no": 1}})
+				ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset old user phone no")
+			}()
+
+			wg1.Add(1)
+			go func() {
+				defer wg1.Done()
+				// Linking NewUser Cart to OldUser
+				if err := ui.DB.Collection(model.CartColl).FindOneAndUpdate(ctx, bson.M{"user_id": newUser.ID}, bson.M{"$set": bson.M{"user_id": user.ID}}).Decode(&newCart); err != nil {
+					ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to link new cart to old user")
+				}
+				if _, err := ui.DB.Collection(model.CartColl).UpdateOne(ctx, bson.M{"user_id": user.ID, "_id": bson.M{"$ne": newCart.ID}}, bson.M{"$unset": bson.M{"user_id": 1}}); err != nil {
+					ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset old user phone no")
+				}
+			}()
+
+			wg1.Wait()
+			_, err := ui.DB.Collection(model.CustomerColl).UpdateOne(ctx, bson.M{"user_id": user.ID}, bson.M{"$set": bson.M{"cart_id": newCart.ID}})
+			if err != nil {
+				ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset move cart to old customer")
+			}
+
+		}
+	}
+
+	var customer model.Customer
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ui.DB.Collection(model.CustomerColl).FindOne(ctx, bson.M{"user_id": user.ID}).Decode(&customer)
+	}()
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, update, queryOpts).Decode(&user); err != nil {
+		return nil, errors.Wrap(err, "failed to update user")
+	}
+	wg.Wait()
+	claim := ui.getUserClaim(&user, &customer)
+
+	return claim, nil
 }

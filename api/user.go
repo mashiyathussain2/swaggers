@@ -7,6 +7,8 @@ import (
 	"go-app/server/handler"
 	"net/http"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -239,4 +241,65 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 	}
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
+}
+
+func (a *API) updateUserAuthInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.UpdateUserAuthOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	err := a.App.User.UpdateUserAuthInfo(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusAccepted)
+}
+
+func (a *API) verifyUserAuthUpdate(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.VerifyUserAuthUpdate
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
+
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	claim, err := a.App.User.VerifyUserAuthUpdate(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	token, err := a.TokenAuth.SignToken(claim)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
+		return
+	}
+	requestCTX.SetAppResponse(token, http.StatusAccepted)
 }
