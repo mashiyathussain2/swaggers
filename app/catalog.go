@@ -690,6 +690,14 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 			})
 		}
 
+		if catalog.TransferPrice == nil {
+			resp = append(resp, schema.UpdateCatalogStatusResp{
+				Type:    "Field Missing",
+				Message: "Transfer Price" + isRequiredString,
+				Field:   "Transfer Price",
+			})
+		}
+
 	}
 	if len(resp) > 0 {
 		return resp, errors.Errorf("Catalog Data not Complete")
