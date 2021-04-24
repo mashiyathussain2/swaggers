@@ -232,6 +232,7 @@ type GetPebbleFilter struct {
 	UserID    string   `json:"user_id,omitempty" queryparam:"user_id"`
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
 	Interests []string `json:"interests,omitempty" queryparam:"interests"`
+	Page      uint     `json:"page,omitempty" queryparam:"page"`
 }
 
 type GetPebbleMediaESResp struct {
