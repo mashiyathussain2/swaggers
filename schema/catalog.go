@@ -341,6 +341,7 @@ type GetAllCatalogInfoResp struct {
 	DiscountInfo *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	ContentInfo  []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
 	BrandInfo    *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax          *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
 type CatalogKafkaMessage struct {
