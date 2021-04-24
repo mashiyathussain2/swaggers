@@ -67,7 +67,11 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 
 	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
 	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
-	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Do(context.Background())
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).From(from).Size(10).SearchSource(builder).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
 		return nil, errors.Wrap(err, "failed to get pebbles")
