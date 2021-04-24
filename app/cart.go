@@ -187,9 +187,9 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			HSNCode:       s.Payload.HSNCode,
 			TransferPrice: s.Payload.TransferPrice,
 
-			ETA:    s.Payload.ETA,
-			Status: s.Payload.Status,
-
+			ETA:          s.Payload.ETA,
+			Status:       s.Payload.Status,
+			Tax:          s.Payload.Tax,
 			DiscountInfo: s.Payload.DiscountInfo,
 		},
 		BasePrice:     &s.Payload.BasePrice,
@@ -558,6 +558,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 					ETA:           item.CatalogInfo.ETA,
 					HSNCode:       item.CatalogInfo.HSNCode,
 					TransferPrice: cv.Payload.TransferPrice,
+					Tax:           item.CatalogInfo.Tax,
 				},
 				BasePrice:   &cv.Payload.BasePrice,
 				RetailPrice: &cv.Payload.RetailPrice,
