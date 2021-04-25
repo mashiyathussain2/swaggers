@@ -89,6 +89,7 @@ type CatalogSearchResp struct {
 	Variants      []struct {
 		ID primitive.ObjectID `json:"id"`
 	} `json:"variants"`
+	BrandInfoResp *BrandInfoResp `json:"brand_info"`
 }
 
 type ContentSearchResp struct {
