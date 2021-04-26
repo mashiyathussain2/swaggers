@@ -53,6 +53,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestWithAuthHandler(a.getCartInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/{userID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
+	//TODO AUTH HANDLER
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestHandler(a.applyCoupon)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestHandler(a.removeCoupon)).Methods("DELETE")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
 
