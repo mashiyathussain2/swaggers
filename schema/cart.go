@@ -63,8 +63,8 @@ type OrderItemOpts struct {
 	ShippingAddress *OrderAddressOpts  `json:"shipping_address"`
 	BillingAddress  *OrderAddressOpts  `json:"billing_address"`
 	Source          string             `json:"source"`
-	// SourceID        primitive.ObjectID `json:"source_id,omitempty"`
-	OrderItems []OrderItem `json:"order_items" bson:"order_items"`
+	SourceID        primitive.ObjectID `json:"source_id,omitempty"`
+	OrderItems      []OrderItem        `json:"order_items" bson:"order_items"`
 }
 
 type OrderResp struct {
