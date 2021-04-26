@@ -589,21 +589,26 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	if cartUnwindBrands[0].Coupon != nil {
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
-		coupon.CouponInfo.Code = cartUnwindBrands[0].Coupon.Code
+		coupon.Code = cartUnwindBrands[0].Coupon.Code
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
-			coupon.CouponInfo.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
+			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
 		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
 			av := grandTotal * cartUnwindBrands[0].Coupon.Value
 			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
 				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
 			}
-			coupon.CouponInfo.AppliedValue = model.SetINRPrice(float32(av))
+			coupon.AppliedValue = model.SetINRPrice(float32(av))
 		}
 
 	}
 	if coupon != nil {
 		orderOpts.Coupon = coupon
 	}
+	b, err := json.MarshalIndent(orderOpts, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Print(string(b))
 
 	//Create Order
 	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"

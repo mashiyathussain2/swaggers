@@ -224,13 +224,9 @@ type ApplyCouponOpts struct {
 }
 
 type CouponOrderOpts struct {
-	ID         primitive.ObjectID `json:"id" validate:"required"`
-	CouponInfo *CouponInfoOpts    `json:"coupon_info" validate:"required"`
-}
-
-type CouponInfoOpts struct {
-	Code         string       `json:"code" validate:"required"`
-	AppliedValue *model.Price `json:"applied_value" validate:"required"`
+	ID           primitive.ObjectID `json:"id" validate:"required"`
+	Code         string             `json:"code" validate:"required"`
+	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
 }
 
 type OrderOpts struct {
