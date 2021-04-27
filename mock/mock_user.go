@@ -141,6 +141,21 @@ func (mr *MockUserMockRecorder) GetUserInfoByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfoByID", reflect.TypeOf((*MockUser)(nil).GetUserInfoByID), arg0)
 }
 
+// LoginWithApple mocks base method
+func (m *MockUser) LoginWithApple(arg0 *schema.LoginWithApple) (auth.Claim, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoginWithApple", arg0)
+	ret0, _ := ret[0].(auth.Claim)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoginWithApple indicates an expected call of LoginWithApple
+func (mr *MockUserMockRecorder) LoginWithApple(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginWithApple", reflect.TypeOf((*MockUser)(nil).LoginWithApple), arg0)
+}
+
 // LoginWithSocial mocks base method
 func (m *MockUser) LoginWithSocial(arg0 *schema.LoginWithSocial) (auth.Claim, error) {
 	m.ctrl.T.Helper()
@@ -201,6 +216,20 @@ func (mr *MockUserMockRecorder) ResetPassword(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetPassword", reflect.TypeOf((*MockUser)(nil).ResetPassword), arg0)
 }
 
+// UpdateUserAuthInfo mocks base method
+func (m *MockUser) UpdateUserAuthInfo(arg0 *schema.UpdateUserAuthOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserAuthInfo", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserAuthInfo indicates an expected call of UpdateUserAuthInfo
+func (mr *MockUserMockRecorder) UpdateUserAuthInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserAuthInfo", reflect.TypeOf((*MockUser)(nil).UpdateUserAuthInfo), arg0)
+}
+
 // VerifyEmail mocks base method
 func (m *MockUser) VerifyEmail(arg0 *schema.VerifyEmailOpts) (bool, error) {
 	m.ctrl.T.Helper()
@@ -214,4 +243,19 @@ func (m *MockUser) VerifyEmail(arg0 *schema.VerifyEmailOpts) (bool, error) {
 func (mr *MockUserMockRecorder) VerifyEmail(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyEmail", reflect.TypeOf((*MockUser)(nil).VerifyEmail), arg0)
+}
+
+// VerifyUserAuthUpdate mocks base method
+func (m *MockUser) VerifyUserAuthUpdate(arg0 *schema.VerifyUserAuthUpdate) (auth.Claim, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyUserAuthUpdate", arg0)
+	ret0, _ := ret[0].(auth.Claim)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyUserAuthUpdate indicates an expected call of VerifyUserAuthUpdate
+func (mr *MockUserMockRecorder) VerifyUserAuthUpdate(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyUserAuthUpdate", reflect.TypeOf((*MockUser)(nil).VerifyUserAuthUpdate), arg0)
 }
