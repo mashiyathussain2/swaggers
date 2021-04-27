@@ -188,6 +188,7 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 	}
 	if len(opts.SizeProfiles) != 0 {
 		update = append(update, bson.E{Key: "size_profiles", Value: opts.SizeProfiles})
+		bi.App.SizeProfile.AddBrandToSizeProfile(&schema.AddBrandToSizeProfileOpts{IDs: opts.SizeProfiles, BrandID: opts.ID})
 	}
 	update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
 
