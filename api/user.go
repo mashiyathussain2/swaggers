@@ -170,6 +170,40 @@ func (a *API) loginViaSocial(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
+func (a *API) loginViaApple(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.LoginWithApple
+	var isWeb bool
+	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.User.LoginWithApple(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	token, err := a.TokenAuth.SignToken(res)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(true, http.StatusOK)
+		return
+	}
+	requestCTX.SetAppResponse(token, http.StatusOK)
+}
+
 func (a *API) confirmLoginViaMobileOTP(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.MobileLoginCustomerUserOpts
 	var isWeb bool
