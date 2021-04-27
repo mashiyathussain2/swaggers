@@ -71,11 +71,12 @@ func NewServer() *Server {
 
 	// Initializing api endpoints and controller
 	server.API = api.NewAPI(&api.Options{
-		MainRouter: r,
-		Logger:     server.Log,
-		Config:     &c.APIConfig,
-		TokenAuth:  auth.NewTokenAuthentication(&c.TokenAuthConfig),
-		Validator:  validator.NewValidation(),
+		MainRouter:  r,
+		Logger:      server.Log,
+		Config:      &c.APIConfig,
+		TokenAuth:   auth.NewTokenAuthentication(&c.TokenAuthConfig),
+		SessionAuth: auth.NewSessionAuth(&auth.SessionAuthOpts{Config: &c.SessionConfig, Client: server.Redis}),
+		Validator:   validator.NewValidation(),
 	})
 
 	// Initializing app and services
