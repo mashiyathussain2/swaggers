@@ -88,6 +88,7 @@ type APPConfig struct {
 	CartConfig            ServiceConfig `mapstructure:"cart"`
 	ExpressCheckoutConfig ServiceConfig `mapstructure:"expressCheckout"`
 	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
+	SizeProfileConfig     ServiceConfig `mapstructure:"sizeProfile"`
 
 	CustomerChangeConfig   ListenerConfig `mapstructure:"customerChangeConsumer"`
 	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`

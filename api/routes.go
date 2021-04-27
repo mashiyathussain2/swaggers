@@ -74,6 +74,13 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestWithAuthHandler(a.getWishlist)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/size/create", a.requestHandler(a.createSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/link-brand", a.requestHandler(a.addBrandToSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/brand", a.requestHandler(a.getSizeProfilesForBrand)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/get", a.requestHandler(a.getSizeProfile)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/all", a.requestHandler(a.getAllSizeProfiles)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
