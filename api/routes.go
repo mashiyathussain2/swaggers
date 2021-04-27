@@ -31,6 +31,7 @@ func (a *API) InitRoutes() {
 
 	// LOGIN AND SIGNUP APIS
 	a.Router.APIRoot.Handle("/customer/social/login", a.requestHandler(a.loginViaSocial)).Methods("POST")
+	a.Router.APIRoot.Handle("/customer/apple/login", a.requestHandler(a.loginViaApple)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/email/signup", a.requestHandler(a.signUpViaEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/email/login", a.requestHandler(a.loginViaEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/otp/generate", a.requestHandler(a.loginViaMobileOTP)).Methods("POST")

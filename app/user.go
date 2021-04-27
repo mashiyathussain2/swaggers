@@ -40,6 +40,7 @@ type User interface {
 	MobileLoginCustomerUser(*schema.MobileLoginCustomerUserOpts) (auth.Claim, error)
 	GenerateMobileLoginOTP(*schema.GenerateMobileLoginOTPOpts) (bool, error)
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
+	LoginWithApple(*schema.LoginWithApple) (auth.Claim, error)
 	GetUserByID(primitive.ObjectID) (*model.User, error)
 	UpdateUserAuthInfo(*schema.UpdateUserAuthOpts) error
 	VerifyUserAuthUpdate(*schema.VerifyUserAuthUpdate) (auth.Claim, error)
@@ -559,7 +560,7 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		// creating new user
 		user = model.User{
 			Type:            model.CustomerType,
-			Role:            model.UserColl,
+			Role:            model.UserRole,
 			Email:           opts.Email,
 			EmailVerifiedAt: time.Now().UTC(),
 			CreatedAt:       time.Now().UTC(),
@@ -598,17 +599,22 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		}
 		customer.ID = res.InsertedID.(primitive.ObjectID)
 	default:
-		if user.CreatedVia != model.CreatedViaFacebook && user.CreatedVia != model.CreatedViaGoogle {
+		if user.CreatedVia != model.CreatedViaFacebook && user.CreatedVia != model.CreatedViaGoogle && user.CreatedVia != model.CreatedViaApple {
 			return nil, errors.New("cannot use social login for this user, please use email/otp login")
 		}
 		if user.CreatedVia == model.CreatedViaGoogle {
-			if opts.Type == model.CreatedViaFacebook {
-				return nil, errors.New("cannot use facebook login: this account was created via google")
+			if opts.Type == model.CreatedViaFacebook || opts.Type == model.CreatedViaApple {
+				return nil, errors.New("cannot use facebook login: this account was created via other social login")
 			}
 		}
 		if user.CreatedVia == model.CreatedViaFacebook {
-			if opts.Type == model.CreatedViaGoogle {
-				return nil, errors.New("cannot use google login: this account was created via facebook")
+			if opts.Type == model.CreatedViaGoogle || opts.Type == model.CreatedViaApple {
+				return nil, errors.New("cannot use google login: this account was created via other social login")
+			}
+		}
+		if user.CreatedVia == model.CreatedViaApple {
+			if opts.Type == model.CreatedViaGoogle || opts.Type == model.CreatedViaFacebook {
+				return nil, errors.New("cannot use google login: this account was created via other social login")
 			}
 		}
 		filterQuery := bson.M{"user_id": user.ID}
@@ -630,6 +636,62 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		optsQuery := options.FindOneAndUpdate().SetReturnDocument(options.After)
 		if err := ui.DB.Collection(model.CustomerColl).FindOneAndUpdate(ctx, filterQuery, updateQuery, optsQuery).Decode(&customer); err != nil {
 			return nil, errors.Wrapf(err, "failed to update social customer with email:%s", user.Email)
+		}
+	}
+
+	claim := ui.getUserClaim(&user, &customer)
+	return claim, nil
+}
+
+func (ui *UserImpl) LoginWithApple(opts *schema.LoginWithApple) (auth.Claim, error) {
+	ctx := context.TODO()
+	var user model.User
+	var customer model.Customer
+	var newUser bool
+	filter := bson.M{"social_id": opts.AppleID, "created_via": "apple"}
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), filter).Decode(&user); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			newUser = true
+		} else {
+			ui.Logger.Err(err).Msgf("failed to check for apple social user with id:%s", opts.AppleID)
+			return nil, errors.Wrapf(err, "failed to check for apple social user with id:%s", opts.AppleID)
+		}
+	}
+
+	switch newUser {
+	case true:
+		// creating new user
+		user = model.User{
+			Type:            model.CustomerType,
+			Role:            model.UserRole,
+			Email:           opts.Email,
+			EmailVerifiedAt: time.Now().UTC(),
+			CreatedAt:       time.Now().UTC(),
+			CreatedVia:      model.CreatedViaApple,
+		}
+		res, err := ui.DB.Collection(model.UserColl).InsertOne(ctx, user)
+		if err != nil {
+			ui.Logger.Err(err).Interface("opts", opts).Msgf("failed to create social user using email:%s", opts.Email)
+			return nil, errors.Wrapf(err, "failed to create social user using email:%s", opts.Email)
+		}
+		user.ID = res.InsertedID.(primitive.ObjectID)
+
+		// creating customer and linking user_id
+		customer = model.Customer{
+			UserID:    user.ID,
+			FullName:  opts.FullName,
+			CreatedAt: time.Now().UTC(),
+		}
+		res, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
+		if err != nil {
+			ui.Logger.Err(err).Interface("opts", opts).Msgf("failed to create social customer using email:%s", opts.Email)
+			return nil, errors.Wrapf(err, "failed to create social customer using email:%s", opts.Email)
+		}
+		customer.ID = res.InsertedID.(primitive.ObjectID)
+	default:
+		filterQuery := bson.M{"user_id": user.ID}
+		if err := ui.DB.Collection(model.CustomerColl).FindOne(ctx, filterQuery).Decode(&customer); err != nil {
+			return nil, errors.Wrapf(err, "failed to apple social customer with id:%s", user.ID)
 		}
 	}
 

@@ -45,6 +45,7 @@ const (
 	CreateViaMobile    string = "mobile"
 	CreatedViaGoogle   string = "google"
 	CreatedViaFacebook string = "facebook"
+	CreatedViaApple    string = "apple"
 )
 
 // User represents an entity-user

@@ -104,6 +104,13 @@ type LoginWithSocial struct {
 	ProfileImage *Img   `json:"profile_image" validate:"required"`
 }
 
+type LoginWithApple struct {
+	Type     string `json:"type" validate:"required,oneof=apple"`
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	AppleID  string `json:"apple_id" validate:"required"`
+}
+
 type GetUserInfoByIDOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
 }
