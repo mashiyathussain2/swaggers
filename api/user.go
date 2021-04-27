@@ -7,6 +7,7 @@ import (
 	"go-app/server/handler"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -296,6 +297,20 @@ func (a *API) updateUserAuthInfo(requestCTX *handler.RequestContext, w http.Resp
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	requestCTX.SetAppResponse(true, http.StatusAccepted)
+}
+
+func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	if requestCTX.UserClaim != nil {
+		a.SessionAuth.Delete(r)
+	}
+	cookie := &http.Cookie{
+		Name:     "",
+		Value:    "",
+		SameSite: http.SameSiteNoneMode,
+		Expires:  time.Now(),
+	}
+	http.SetCookie(w, cookie)
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
 }
 
