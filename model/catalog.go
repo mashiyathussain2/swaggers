@@ -108,10 +108,17 @@ type Catalog struct {
 
 	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
+	SizeProfile *SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty" `
 	// CatalogContentInfo []C
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+type SizeProfile struct {
+	ID    primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`
+	Name  string              `json:"name,omitempty" bson:"name,omitempty"`
+	Specs []map[string]string `json:"specs,omitempty" bson:"specs,omitempty"`
 }
 
 type Tax struct {
