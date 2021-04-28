@@ -65,6 +65,7 @@ type OrderItemOpts struct {
 	Source          string             `json:"source"`
 	SourceID        primitive.ObjectID `json:"source_id,omitempty"`
 	OrderItems      []OrderItem        `json:"order_items" bson:"order_items"`
+	Coupon          *CouponOrderOpts   `json:"coupon_info"`
 }
 
 type OrderResp struct {
@@ -227,9 +228,4 @@ type CouponOrderOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
 	Code         string             `json:"code" validate:"required"`
 	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
-}
-
-type OrderOpts struct {
-	OrderItems []OrderItemOpts  `json:"order_items" validate:"required"`
-	Coupon     *CouponOrderOpts `json:"coupon_info"`
 }
