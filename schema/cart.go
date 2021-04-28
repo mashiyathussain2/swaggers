@@ -89,6 +89,7 @@ type OrderItem struct {
 	BasePrice       *model.Price        `json:"base_price" bson:"base_price"`
 	RetailPrice     *model.Price        `json:"retail_price" bson:"retail_price"`
 	DiscountedPrice *model.Price        `json:"discounted_price" bson:"discounted_price"`
+	Tax             *model.Tax          `json:"tax,omitempty" bson:"tax,omitempty"`
 	Quantity        uint                `json:"quantity" bson:"quantity"`
 }
 
