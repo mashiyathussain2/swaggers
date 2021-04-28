@@ -597,10 +597,10 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			}
 			coupon.AppliedValue = model.SetINRPrice(float32(av))
 		}
+		for i, _ := range orderItemsOpts {
+			orderItemsOpts[i].Coupon = &coupon
+		}
 
-	}
-	for i, _ := range orderItemsOpts {
-		orderItemsOpts[i].Coupon = &coupon
 	}
 
 	// b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
