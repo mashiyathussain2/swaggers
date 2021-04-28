@@ -471,23 +471,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	outOfStockString := ""
 
-	var coupon *schema.CouponOrderOpts
-
-	if cartUnwindBrands[0].Coupon != nil {
-		coupon.ID = cartUnwindBrands[0].Coupon.ID
-		coupon.Code = cartUnwindBrands[0].Coupon.Code
-		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
-			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
-		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
-			av := grandTotal * cartUnwindBrands[0].Coupon.Value
-			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
-				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
-			}
-			coupon.AppliedValue = model.SetINRPrice(float32(av))
-		}
-
-	}
-
 	for _, c := range cartUnwindBrands {
 		order := schema.OrderItemOpts{
 			UserID:          c.UserID,
@@ -496,7 +479,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			BillingAddress:  c.BillingAddress,
 			OrderItems:      []schema.OrderItem{},
 			Source:          source,
-			Coupon:          coupon,
 		}
 		for _, item := range c.Items {
 
@@ -600,11 +582,31 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		return nil, errors.Errorf(outOfStockString)
 	}
 
-	b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
-	if err != nil {
-		fmt.Println(err)
+	var coupon *schema.CouponOrderOpts
+
+	if cartUnwindBrands[0].Coupon != nil {
+		coupon.ID = cartUnwindBrands[0].Coupon.ID
+		coupon.Code = cartUnwindBrands[0].Coupon.Code
+		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
+			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
+		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
+			av := grandTotal * cartUnwindBrands[0].Coupon.Value
+			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
+				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+			}
+			coupon.AppliedValue = model.SetINRPrice(float32(av))
+		}
+
 	}
-	fmt.Print(string(b))
+	for i, _ := range orderItemsOpts {
+		orderItemsOpts[i].Coupon = coupon
+	}
+
+	// b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Print(string(b))
 
 	//Create Order
 	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
