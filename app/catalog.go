@@ -106,9 +106,7 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		Type: opts.Tax.Type,
 	}
 	if opts.Tax.Type == model.SingleTax {
-		if opts.Tax.Rate == 0 {
-			return nil, errors.Errorf("tax rate cannot be 0")
-		}
+
 		tax.Rate = opts.Tax.Rate
 	} else {
 		if len(opts.Tax.TaxRanges) == 0 {

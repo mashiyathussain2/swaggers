@@ -25,9 +25,9 @@ type FilterAttribute struct {
 }
 
 type TaxOpts struct {
-	Type      string           `json:"type,omitempty" validate:"required,oneof=single multiple"`
-	Rate      float32          `json:"rate,omitempty"`
-	TaxRanges []model.TaxRange `json:"tax_ranges,omitempty" validate:"required_without=Rate" `
+	Type      string           `json:"type" validate:"required,oneof=single multiple"`
+	Rate      float32          `json:"rate" validate:"gte=0"`
+	TaxRanges []model.TaxRange `json:"tax_ranges"`
 }
 
 // CreateCatalogOpts serialize the create catalog api arguments
