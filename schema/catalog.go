@@ -20,7 +20,6 @@ type OrderCatalogInfo struct {
 
 	TransferPrice model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 	ETA           *model.ETA  `json:"eta,omitempty" bson:"eta,omitempty"`
-	Tax           *model.Tax  `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
 type OrderVariant struct {
