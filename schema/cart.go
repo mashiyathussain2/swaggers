@@ -231,5 +231,5 @@ type CouponOrderOpts struct {
 
 type OrderOpts struct {
 	OrderItems []OrderItemOpts  `json:"order_items" validate:"required"`
-	Coupon     *CouponOrderOpts `json:"coupon"`
+	Coupon     *CouponOrderOpts `json:"coupon_info"`
 }
