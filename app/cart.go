@@ -582,7 +582,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		return nil, errors.Errorf(outOfStockString)
 	}
 
-	var coupon *schema.CouponOrderOpts
+	var coupon schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
 		fmt.Println(cartUnwindBrands[0])
@@ -600,7 +600,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	}
 	for i, _ := range orderItemsOpts {
-		orderItemsOpts[i].Coupon = coupon
+		orderItemsOpts[i].Coupon = &coupon
 	}
 
 	// b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
