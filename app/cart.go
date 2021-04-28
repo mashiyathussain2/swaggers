@@ -471,6 +471,23 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	outOfStockString := ""
 
+	var coupon *schema.CouponOrderOpts
+
+	if cartUnwindBrands[0].Coupon != nil {
+		coupon.ID = cartUnwindBrands[0].Coupon.ID
+		coupon.Code = cartUnwindBrands[0].Coupon.Code
+		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
+			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
+		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
+			av := grandTotal * cartUnwindBrands[0].Coupon.Value
+			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
+				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+			}
+			coupon.AppliedValue = model.SetINRPrice(float32(av))
+		}
+
+	}
+
 	for _, c := range cartUnwindBrands {
 		order := schema.OrderItemOpts{
 			UserID:          c.UserID,
@@ -479,6 +496,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			BillingAddress:  c.BillingAddress,
 			OrderItems:      []schema.OrderItem{},
 			Source:          source,
+			Coupon:          coupon,
 		}
 		for _, item := range c.Items {
 
@@ -582,29 +600,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		return nil, errors.Errorf(outOfStockString)
 	}
 
-	orderOpts := schema.OrderOpts{
-		OrderItems: orderItemsOpts,
-	}
-	var coupon *schema.CouponOrderOpts
-
-	if cartUnwindBrands[0].Coupon != nil {
-		coupon.ID = cartUnwindBrands[0].Coupon.ID
-		coupon.Code = cartUnwindBrands[0].Coupon.Code
-		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
-			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
-		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
-			av := grandTotal * cartUnwindBrands[0].Coupon.Value
-			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
-				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
-			}
-			coupon.AppliedValue = model.SetINRPrice(float32(av))
-		}
-
-	}
-	if coupon != nil {
-		orderOpts.Coupon = coupon
-	}
-	b, err := json.MarshalIndent(orderOpts, "", "  ")
+	b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -614,15 +610,15 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
 
 	var orderResp schema.OrderResp
-	reqBody, err := json.Marshal(orderOpts)
+	reqBody, err := json.Marshal(orderItemsOpts)
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to create request to create order %s", coURL)
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to create request to create order %s", coURL)
 		return nil, errors.Wrap(err, "failed to create request to generete order")
 	}
 	req.Header.Add("Content-Type", "application/json")
