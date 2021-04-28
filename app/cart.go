@@ -585,6 +585,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	var coupon *schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
+		fmt.Println(cartUnwindBrands[0])
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
