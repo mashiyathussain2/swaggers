@@ -428,6 +428,16 @@ type GetCatalogBasicResp struct {
 	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 }
 
+type GetCatalogByCategoryIDFilterResp struct {
+	Key   string `json:"key"`
+	Count int    `json:"doc_count"`
+}
+
+type GetCatalogByCategoryIDResp struct {
+	Data        []GetCatalogBasicResp              `json:"data,omitempty"`
+	BrandFilter []GetCatalogByCategoryIDFilterResp `json:"brand_filter,omitempty"`
+}
+
 type GetCatalogPebbleResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string             `json:"name,omitempty" bson:"name,omitempty"`

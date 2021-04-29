@@ -59,8 +59,9 @@ type GetCatalogBySaleIDOpts struct {
 }
 
 type GetCatalogByCategoryIDOpts struct {
-	Page       uint   `qs:"page"`
-	CategoryID string `qs:"categoryID"`
+	Page       uint     `qs:"page"`
+	CategoryID string   `qs:"categoryID"`
+	BrandName  []string `qs:"brandName"`
 }
 
 type SearchOpts struct {
