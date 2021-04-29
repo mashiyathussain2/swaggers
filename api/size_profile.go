@@ -48,9 +48,9 @@ func (a *API) addBrandToSizeProfile(requestCTX *handler.RequestContext, w http.R
 }
 func (a *API) getSizeProfilesForBrand(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
-	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("brandID"))
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 	if err != nil {
-		requestCTX.SetErr(errors.Wrapf(err, "brandID provided is not in correct format"), http.StatusBadRequest)
+		requestCTX.SetErr(errors.Wrapf(err, "size profile id provided is not in correct format"), http.StatusBadRequest)
 	}
 
 	resp, err := a.App.SizeProfile.GetSizeProfilesForBrand(id)
@@ -65,7 +65,7 @@ func (a *API) getSizeProfile(requestCTX *handler.RequestContext, w http.Response
 
 	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 	if err != nil {
-		requestCTX.SetErr(errors.Wrapf(err, "brandID provided is not in correct format"), http.StatusBadRequest)
+		requestCTX.SetErr(errors.Wrapf(err, "size profile id provided is not in correct format"), http.StatusBadRequest)
 	}
 
 	resp, err := a.App.SizeProfile.GetSizeProfile(id)
@@ -79,6 +79,21 @@ func (a *API) getSizeProfile(requestCTX *handler.RequestContext, w http.Response
 func (a *API) getAllSizeProfiles(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	resp, err := a.App.SizeProfile.GetAllSizeProfiles()
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getSizeProfileKeeper(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	if err != nil {
+		requestCTX.SetErr(errors.Wrapf(err, "size profile id provided is not in correct format"), http.StatusBadRequest)
+	}
+
+	resp, err := a.App.SizeProfile.GetSizeProfile(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
