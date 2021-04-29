@@ -51,6 +51,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestWithAuthHandler(a.getCartInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/{userID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestWithAuthHandler(a.applyCoupon)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestWithAuthHandler(a.removeCoupon)).Methods("DELETE")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
 
@@ -70,6 +74,15 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestWithAuthHandler(a.getWishlist)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/size/create", a.requestWithSudoHandler(a.createSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/link-brand", a.requestWithSudoHandler(a.addBrandToSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/brand", a.requestWithSudoHandler(a.getSizeProfilesForBrand)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/get", a.requestWithSudoHandler(a.getSizeProfile)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/all", a.requestWithSudoHandler(a.getAllSizeProfiles)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/size/get", a.requestHandler(a.getSizeProfile)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
