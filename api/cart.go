@@ -168,10 +168,10 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	// if userID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
-	// 	requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-	// 	return
-	// }
+	if userID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	err = a.App.Cart.ApplyCoupon(userID, &s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -186,10 +186,10 @@ func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	// if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
-	// 	requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-	// 	return
-	// }
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	err = a.App.Cart.RemoveCoupon(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)

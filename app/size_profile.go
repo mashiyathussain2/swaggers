@@ -74,6 +74,22 @@ func (sp *SizeProfileImpl) GetSizeProfile(id primitive.ObjectID) (*schema.GetSiz
 	return &sizeProfile, nil
 }
 
+func (sp *SizeProfileImpl) GetSizeProfileKeeper(id primitive.ObjectID) (*schema.GetSizeProfileResp, error) {
+
+	ctx := context.TODO()
+	findQuery := bson.M{
+		"_id": id,
+	}
+	var sizeProfile schema.GetSizeProfileResp
+
+	err := sp.DB.Collection(model.SizeProfileColl).FindOne(ctx, findQuery).Decode(&sizeProfile)
+	if err != nil {
+		sp.Logger.Err(err).Interface("size profile id", id).Msg("failed to get size profile  with id")
+		return nil, errors.Wrapf(err, "failed to get size profile for brand with id %s", id.Hex())
+	}
+	return &sizeProfile, nil
+}
+
 func (sp *SizeProfileImpl) GetAllSizeProfiles() ([]schema.GetAllSizeProfilesResp, error) {
 
 	ctx := context.TODO()
