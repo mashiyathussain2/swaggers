@@ -165,7 +165,14 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogB
 	}
 
 	aggs := elastic.NewTermsAggregation().Field("brand_info.name.name")
-	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(int(opts.Page) * 20).Size(20).Do(context.Background())
+	q := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(int(opts.Page) * 20).Size(20)
+	switch opts.Sort {
+	case -1:
+		q = q.Sort("retail_price.value", false)
+	case 1:
+		q = q.Sort("retail_price.value", true)
+	}
+	res, err := q.Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get catalogs")
 		return nil, errors.Wrap(err, "failed to get catalogs")

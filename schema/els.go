@@ -62,6 +62,7 @@ type GetCatalogByCategoryIDOpts struct {
 	Page       uint     `qs:"page"`
 	CategoryID string   `qs:"categoryID"`
 	BrandName  []string `qs:"brandName"`
+	Sort       int      `qs:"sort"`
 }
 
 type SearchOpts struct {
