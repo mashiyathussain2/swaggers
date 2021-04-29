@@ -101,6 +101,7 @@ type CatalogInfo struct {
 	ETA          *ETA              `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status       *Status           `json:"status,omitempty" bson:"status,omitempty"`
 	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	Tax          *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
 }
 
 //Defined Multiple Status for Inventory
@@ -247,8 +248,18 @@ type AllCatalogInfoResp struct {
 	UpdatedAt    time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	BrandInfo    *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax          *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
 }
-
+type Tax struct {
+	Type      string     `json:"type,omitempty" bson:"type,omitempty"`
+	Rate      float32    `json:"rate,omitempty" bson:"rate,omitempty"`
+	TaxRanges []TaxRange `json:"tax_ranges,omitempty" bson:"tax_ranges,omitempty"`
+}
+type TaxRange struct {
+	MinValue int     `json:"min_value" bson:"min_value"`
+	MaxValue int     `json:"max_value,omitempty" bson:"max_value,omitempty"`
+	Rate     float32 `json:"rate,omitempty" bson:"rate,omitempty"`
+}
 type BrandInfoResp struct {
 	ID          primitive.ObjectID `json:"id,omitempty"`
 	Name        string             `json:"name,omitempty"`

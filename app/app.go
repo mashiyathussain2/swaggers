@@ -34,6 +34,7 @@ type App struct {
 	KeeperUser      KeeperUser
 	ExpressCheckout ExpressCheckout
 	Wishlist        Wishlist
+	SizeProfile     SizeProfile
 
 	// Consumer
 	CustomerChanges   kafka.Consumer

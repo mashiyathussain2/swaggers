@@ -33,6 +33,8 @@ type Cart interface {
 	RemoveDiscountInCartItems(*schema.DiscountInCartItemsOpts)
 	UpdateInventoryStatus(*schema.InventoryUpdateOpts)
 	UpdateCatalogInfo(id primitive.ObjectID)
+	ApplyCoupon(primitive.ObjectID, *schema.ApplyCouponOpts) error
+	RemoveCoupon(primitive.ObjectID) error
 }
 
 // CartImpl implements Cart interface methods
@@ -187,9 +189,9 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			HSNCode:       s.Payload.HSNCode,
 			TransferPrice: s.Payload.TransferPrice,
 
-			ETA:    s.Payload.ETA,
-			Status: s.Payload.Status,
-
+			ETA:          s.Payload.ETA,
+			Status:       s.Payload.Status,
+			Tax:          s.Payload.Tax,
 			DiscountInfo: s.Payload.DiscountInfo,
 		},
 		BasePrice:     &s.Payload.BasePrice,
@@ -405,6 +407,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 
 	ctx := context.TODO()
 
+	grandTotal := 0
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
 			"user_id": id,
@@ -464,13 +467,12 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	if err := cartCursor.All(ctx, &cartUnwindBrands); err != nil {
 		return nil, errors.Wrap(err, "error decoding cart")
 	}
-
-	var orderOpts []schema.OrderOpts
+	var orderItemsOpts []schema.OrderItemOpts
 
 	outOfStockString := ""
 
 	for _, c := range cartUnwindBrands {
-		order := schema.OrderOpts{
+		order := schema.OrderItemOpts{
 			UserID:          c.UserID,
 			BrandID:         c.BrandID,
 			ShippingAddress: c.ShippingAddress,
@@ -559,6 +561,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 					HSNCode:       item.CatalogInfo.HSNCode,
 					TransferPrice: cv.Payload.TransferPrice,
 				},
+				Tax:         item.CatalogInfo.Tax,
 				BasePrice:   &cv.Payload.BasePrice,
 				RetailPrice: &cv.Payload.RetailPrice,
 				Quantity:    item.Quantity,
@@ -567,30 +570,58 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				it.DiscountID = cv.Payload.DiscountInfo.ID
 				it.DiscountInfo = cv.Payload.DiscountInfo
 				it.DiscountedPrice = dp
-
+				grandTotal -= int(dp.Value)
 			}
+			grandTotal += int(cv.Payload.RetailPrice.Value)
 			order.OrderItems = append(order.OrderItems, it)
 		}
-		orderOpts = append(orderOpts, order)
+		orderItemsOpts = append(orderItemsOpts, order)
 	}
 
 	if len(outOfStockString) > 0 {
 		return nil, errors.Errorf(outOfStockString)
 	}
 
+	var coupon schema.CouponOrderOpts
+
+	if cartUnwindBrands[0].Coupon != nil {
+		fmt.Println(cartUnwindBrands[0])
+		coupon.ID = cartUnwindBrands[0].Coupon.ID
+		coupon.Code = cartUnwindBrands[0].Coupon.Code
+		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
+			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
+		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
+			av := grandTotal * cartUnwindBrands[0].Coupon.Value
+			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
+				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+			}
+			coupon.AppliedValue = model.SetINRPrice(float32(av))
+		}
+		for i, _ := range orderItemsOpts {
+			orderItemsOpts[i].Coupon = &coupon
+		}
+
+	}
+
+	// b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Print(string(b))
+
 	//Create Order
 	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
 
 	var orderResp schema.OrderResp
-	reqBody, err := json.Marshal(orderOpts)
+	reqBody, err := json.Marshal(orderItemsOpts)
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to create request to create order %s", coURL)
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to create request to create order %s", coURL)
 		return nil, errors.Wrap(err, "failed to create request to generete order")
 	}
 	req.Header.Add("Content-Type", "application/json")
@@ -784,4 +815,52 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update); err != nil {
 		ci.Logger.Err(err).Interface("id", id).Msg("failed to update catalog info in cart items")
 	}
+}
+
+func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCouponOpts) error {
+
+	coupon := model.Coupon{
+		ID:               opts.CouponID,
+		Code:             opts.Code,
+		Description:      opts.Description,
+		Type:             opts.Type,
+		Value:            opts.Value,
+		ApplicableON:     opts.ApplicableON,
+		MaxDiscount:      opts.MaxDiscount,
+		MinPurchaseValue: opts.MinPurchaseValue,
+		ValidAfter:       opts.ValidAfter,
+		ValidBefore:      opts.ValidBefore,
+		Status:           opts.Status,
+	}
+
+	findQuery := bson.M{"user_id": user_id}
+	updateQuery := bson.M{"$set": bson.M{
+		"coupon": coupon,
+	}}
+
+	res, err := ci.DB.Collection(model.CartColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to add coupon to cart")
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find cart for user")
+	}
+
+	return nil
+}
+
+func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
+	findQuery := bson.M{"user_id": user_id}
+	updateQuery := bson.M{"$unset": bson.M{
+		"coupon": 0,
+	}}
+
+	res, err := ci.DB.Collection(model.CartColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+	if err != nil {
+		return errors.Wrapf(err, "unable to add coupon to cart")
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("unable to find cart for user")
+	}
+	return nil
 }

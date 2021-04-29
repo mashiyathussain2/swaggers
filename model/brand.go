@@ -30,6 +30,7 @@ type Brand struct {
 	FollowingID        []primitive.ObjectID `json:"following_id,omitempty" bson:"following_id,omitempty"`
 	CreatedAt          time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	SizeProfiles       []primitive.ObjectID `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
 }
 
 // SocialMedia contains followers_count for a specific account
