@@ -99,14 +99,14 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		TransferPrice: model.SetINRPrice(float32(opts.TransferPrice)),
 		CreatedAt:     currentTime,
 	}
-
+	if opts.SizeProfile != nil {
+		c.SizeProfile = opts.SizeProfile
+	}
 	tax := &model.Tax{
 		Type: opts.Tax.Type,
 	}
 	if opts.Tax.Type == model.SingleTax {
-		if opts.Tax.Rate == 0 {
-			return nil, errors.Errorf("tax rate cannot be 0")
-		}
+
 		tax.Rate = opts.Tax.Rate
 	} else {
 		if len(opts.Tax.TaxRanges) == 0 {
@@ -212,6 +212,7 @@ func (kc *KeeperCatalogImpl) CreateCatalog(opts *schema.CreateCatalogOpts) (*sch
 		HSNCode:         c.HSNCode,
 		Status:          c.Status,
 		ETA:             c.ETA,
+		SizeProfile:     c.SizeProfile,
 		CreatedAt:       c.CreatedAt,
 	}
 
@@ -247,6 +248,11 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		}
 		c.FeaturedImage = &img
 	}
+
+	if opts.SizeProfile != nil {
+		c.SizeProfile = opts.SizeProfile
+	}
+
 	if opts.ETA != nil {
 		c.ETA = &model.ETA{
 			Min:  int(opts.ETA.Min),
@@ -334,6 +340,7 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 		ETA:             c.ETA,
 		UpdatedAt:       c.UpdatedAt,
 		Tax:             *c.Tax,
+		SizeProfile:     c.SizeProfile,
 	}, nil
 }
 
