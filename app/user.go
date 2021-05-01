@@ -877,7 +877,7 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) error {
 	var filter bson.M
 	var update bson.M
 	var user model.User
-	var wg sync.WaitGroup
+	// var wg sync.WaitGroup
 	filter = bson.M{"email": opts.Email}
 	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
 		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
@@ -906,13 +906,13 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) error {
 	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
 		return errors.Wrap(err, "failed to update user info")
 	}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		ui.sendConfirmationEmail(&user)
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	ui.sendConfirmationEmail(&user)
+	// }()
 
-	wg.Wait()
+	// wg.Wait()
 	return nil
 }
 
@@ -921,7 +921,7 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error 
 	// Checking if another user with phone no already exists
 	var filter bson.M
 	var update bson.M
-	var wg sync.WaitGroup
+	// var wg sync.WaitGroup
 	var user model.User
 	filter = bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
 	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
@@ -953,11 +953,11 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error 
 	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
 		return errors.Wrap(err, "failed to update user info")
 	}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		ui.sendConfirmationOTP(&user)
-	}()
-	wg.Wait()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	ui.sendConfirmationOTP(&user)
+	// }()
+	// wg.Wait()
 	return nil
 }
