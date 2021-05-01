@@ -160,5 +160,5 @@ type UpdateUserEmailOpts struct {
 
 type UpdateUserPhoneNoOpts struct {
 	ID      primitive.ObjectID `json:"id" validate:"required"`
-	PhoneNo *model.PhoneNumber `json:"phone_no" validate:"required"`
+	PhoneNo *PhoneNoOpts       `json:"phone_no" validate:"required"`
 }

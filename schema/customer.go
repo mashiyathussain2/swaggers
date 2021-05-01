@@ -47,10 +47,13 @@ type EmailLoginCustomerResp struct {
 // UpdateCustomerOpts contains fields and validations to update existing customer
 type UpdateCustomerOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
 	FullName     string             `json:"full_name"`
 	DOB          time.Time          `json:"dob"`
 	Gender       string             `json:"gender"`
 	ProfileImage *Img               `json:"profile_image"`
+	Email        string             `json:"email"`
+	PhoneNo      *PhoneNoOpts       `json:"phone_no"`
 }
 
 //AddAddressOpts contains field required to add new address
