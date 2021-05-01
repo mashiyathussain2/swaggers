@@ -274,3 +274,47 @@ func (a *API) getCustomerInfo(requestCTX *handler.RequestContext, w http.Respons
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) removeAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	userID, err := primitive.ObjectIDFromHex(r.FormValue("user_id"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if userID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	addressID, err := primitive.ObjectIDFromHex(r.FormValue("address_id"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	err = a.App.Customer.RemoveAddress(userID, addressID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) editAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.EditAddressOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	//TODO:WHY this not just check?
+	s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.Customer.EditAddress(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
