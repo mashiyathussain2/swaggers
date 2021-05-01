@@ -29,6 +29,9 @@ type Customer interface {
 	AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error)
 	GetAddresses(primitive.ObjectID) ([]model.Address, error)
 	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
+
+	RemoveAddress(primitive.ObjectID, primitive.ObjectID) error
+	EditAddress(opts *schema.EditAddressOpts) error
 }
 
 // CustomerImpl implements Customer interface methods
@@ -356,4 +359,67 @@ func (ci *CustomerImpl) GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCu
 		resp[0].UserInfo.PhoneVerified = true
 	}
 	return &resp[0], nil
+}
+
+func (ci *CustomerImpl) RemoveAddress(userID, addressID primitive.ObjectID) error {
+
+	filter := bson.M{
+		"user_id":       userID,
+		"addresses._id": addressID,
+	}
+	update := bson.M{
+		"$pull": bson.M{
+			"addresses": bson.M{
+				"_id": addressID,
+			},
+		},
+	}
+	resp, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrapf(err, "unable to remove address with id: %s, from user with id %s", addressID, userID)
+	}
+	if resp.MatchedCount == 0 {
+		return errors.Errorf("unable to find from user with id %s", addressID, userID)
+	}
+	return nil
+}
+
+func (ci *CustomerImpl) EditAddress(opts *schema.EditAddressOpts) error {
+
+	filter := bson.M{
+		"user_id":       opts.UserID,
+		"addresses._id": opts.AddressID,
+	}
+
+	address := model.Address{
+		ID:                opts.AddressID,
+		DisplayName:       opts.DisplayName,
+		Line1:             opts.Line1,
+		Line2:             opts.Line2,
+		District:          opts.District,
+		City:              opts.City,
+		State:             opts.State,
+		PostalCode:        opts.PostalCode,
+		Country:           opts.Country,
+		PlainAddress:      opts.PlainAddress,
+		IsBillingAddress:  opts.IsBillingAddress,
+		IsShippingAddress: opts.IsShippingAddress,
+		IsDefaultAddress:  opts.IsDefaultAddress,
+		ContactNumber:     opts.ContactNumber,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"addresses.$": address,
+		},
+	}
+
+	resp, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrapf(err, "unable to edit address with id: %s, from user with id %s", opts.AddressID, opts.UserID)
+	}
+	if resp.MatchedCount == 0 {
+		return errors.Errorf("unable to find from user with id %s", opts.AddressID, opts.UserID)
+	}
+	return nil
 }
