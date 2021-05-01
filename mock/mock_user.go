@@ -217,7 +217,7 @@ func (mr *MockUserMockRecorder) ResetPassword(arg0 interface{}) *gomock.Call {
 }
 
 // UpdateUserAuthInfo mocks base method
-func (m *MockUser) UpdateUserAuthInfo(arg0 *schema.UpdateUserAuthOpts) error {
+func (m *MockUser) UpdateUserAuthInfo(arg0 *schema.UpdateUserEmailOpts) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUserAuthInfo", arg0)
 	ret0, _ := ret[0].(error)
