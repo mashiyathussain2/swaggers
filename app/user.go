@@ -890,29 +890,28 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) error {
 		// If its a different user return error
 		if user.ID != opts.ID {
 			return errors.Errorf("email: %s is associated with different user", opts.Email)
-		} else {
-			// If its the same user simply return nil
 		}
-	} else {
-		// no account has provided email thus added email to provided user
-		claimOTP, _ := GenerateOTP(6)
-		update = bson.M{
-			"$set": bson.M{
-				"email":                   opts.Email,
-				"email_verification_code": claimOTP,
-			},
-		}
-		filter := bson.M{"_id": opts.ID}
-		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-		if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
-			return errors.Wrap(err, "failed to update user info")
-		}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			ui.sendConfirmationEmail(&user)
-		}()
 	}
+
+	// no account has provided email thus added email to provided user
+	claimOTP, _ := GenerateOTP(6)
+	update = bson.M{
+		"$set": bson.M{
+			"email":                   opts.Email,
+			"email_verification_code": claimOTP,
+		},
+	}
+	filter = bson.M{"_id": opts.ID}
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
+		return errors.Wrap(err, "failed to update user info")
+	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ui.sendConfirmationEmail(&user)
+	}()
+
 	wg.Wait()
 	return nil
 }
@@ -936,32 +935,29 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error 
 		// If its a different user return error
 		if user.ID != opts.ID {
 			return errors.Errorf("phone no: %s is associated with different user", opts.PhoneNo.Number)
-		} else {
-			// If its the same user do nothing
 		}
-	} else {
-		// no account has provided phone no thus added phone no to provided user
-		claimOTP, _ := GenerateOTP(6)
-		filter := bson.M{"_id": opts.ID}
-		update = bson.M{
-			"$set": bson.M{
-				"phone_no": model.PhoneNumber{
-					Prefix: opts.PhoneNo.Prefix,
-					Number: opts.PhoneNo.Number,
-				},
-				"phone_verification_code": claimOTP,
-			},
-		}
-		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-		if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
-			return errors.Wrap(err, "failed to update user info")
-		}
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			ui.sendConfirmationOTP(&user)
-		}()
 	}
+	// no account has provided phone no thus added phone no to provided user
+	claimOTP, _ := GenerateOTP(6)
+	filter = bson.M{"_id": opts.ID}
+	update = bson.M{
+		"$set": bson.M{
+			"phone_no": model.PhoneNumber{
+				Prefix: opts.PhoneNo.Prefix,
+				Number: opts.PhoneNo.Number,
+			},
+			"phone_verification_code": claimOTP,
+		},
+	}
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
+		return errors.Wrap(err, "failed to update user info")
+	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ui.sendConfirmationOTP(&user)
+	}()
 	wg.Wait()
 	return nil
 }
