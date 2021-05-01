@@ -299,6 +299,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			TransferPrice: s.Payload.TransferPrice,
 			ETA:           s.Payload.ETA,
 		}
+		orderItem.Tax = s.Payload.Tax
 		// orderItems = append(orderItems, orderItem)
 		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
 	}

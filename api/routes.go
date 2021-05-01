@@ -42,6 +42,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/customer", a.requestWithAuthHandler(a.updateCustomerInfo)).Methods("PUT")
 	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.addAddress)).Methods("PUT")
 	a.Router.APIRoot.Handle("/customer/{userID}/address", a.requestWithAuthHandler(a.getAddress)).Methods("GET")
+	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.removeAddress)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/customer/address/edit", a.requestWithAuthHandler(a.editAddress)).Methods("PUT")
 
 	// TODO: Shall i remove this api??
 	a.Router.APIRoot.Handle("/brand/{brandID}", a.requestWithAuthHandler(a.getBrandByID)).Methods("GET")
