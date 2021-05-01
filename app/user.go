@@ -759,6 +759,7 @@ func (ui *UserImpl) LoginWithApple(opts *schema.LoginWithApple) (auth.Claim, err
 			EmailVerifiedAt: time.Now().UTC(),
 			CreatedAt:       time.Now().UTC(),
 			CreatedVia:      model.CreatedViaApple,
+			SocialID:        opts.AppleID,
 		}
 		res, err := ui.DB.Collection(model.UserColl).InsertOne(ctx, user)
 		if err != nil {
