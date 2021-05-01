@@ -84,10 +84,9 @@ func (a *API) signUpViaEmail(requestCTX *handler.RequestContext, w http.Response
 
 func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.UpdateCustomerOpts
-	var returnToken bool
 	var isWeb bool
 	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
-	returnToken, _ = strconv.ParseBool(r.URL.Query().Get("returnToken"))
+	resp := make(map[string]interface{})
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -97,22 +96,12 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 		return
 	}
 	s.ID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
-	res, err := a.App.Customer.UpdateCustomer(&s)
+	claim, err := a.App.Customer.UpdateCustomer(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
-	resp := make(map[string]interface{})
-	resp["user"] = res
-	claim := requestCTX.UserClaim.(*auth.UserClaim)
-	claim.CartID = res.CartID.Hex()
-	claim.FullName = res.FullName
-	if res.Gender != nil {
-		claim.Gender = *res.Gender
-	}
-	claim.ProfileImage = res.ProfileImage
-	claim.DOB = res.DOB
+	resp["user"] = claim
 	token, err := a.TokenAuth.SignToken(claim)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -123,12 +112,10 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
 			return
 		}
-		requestCTX.SetAppResponse(resp, http.StatusOK)
+		requestCTX.SetAppResponse(true, http.StatusOK)
 		return
 	}
-	if returnToken {
-		resp["token"] = token
-	}
+	resp["token"] = token
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 

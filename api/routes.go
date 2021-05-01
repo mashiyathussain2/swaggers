@@ -22,8 +22,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestWithInternalHandler(a.getBrandsById)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/user/get", a.requestWithInternalHandler(a.getUserInfoByID)).Methods("POST")
 
-	a.Router.APIRoot.Handle("/user/auth/email", a.requestWithAuthHandler(a.updateUserEmail)).Methods("PUT")
-	a.Router.APIRoot.Handle("/user/auth/phone", a.requestWithAuthHandler(a.updateUserPhoneNo)).Methods("PUT")
+	// a.Router.APIRoot.Handle("/user/auth/email", a.requestWithAuthHandler(a.updateUserEmail)).Methods("PUT")
+	// a.Router.APIRoot.Handle("/user/auth/phone", a.requestWithAuthHandler(a.updateUserPhoneNo)).Methods("PUT")
 	a.Router.APIRoot.Handle("/user/auth/email/check", a.requestHandler(a.checkEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/auth/phone/check", a.requestHandler(a.checkPhoneNo)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/auth/email/verify", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")

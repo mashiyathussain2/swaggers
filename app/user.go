@@ -45,9 +45,10 @@ type User interface {
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
 	LoginWithApple(*schema.LoginWithApple) (auth.Claim, error)
 	GetUserByID(primitive.ObjectID) (*model.User, error)
+	GetUserClaim(*model.User, *model.Customer) auth.Claim
 
-	UpdateUserEmail(*schema.UpdateUserEmailOpts) (auth.Claim, error)
-	UpdateUserPhoneNo(*schema.UpdateUserPhoneNoOpts) (auth.Claim, error)
+	UpdateUserEmail(*schema.UpdateUserEmailOpts) error
+	UpdateUserPhoneNo(*schema.UpdateUserPhoneNoOpts) error
 }
 
 // UserImpl implements user interface methods
@@ -243,7 +244,7 @@ func (ui *UserImpl) sendForgotPasswordOTPEmail(u *model.User) error {
 	return nil
 }
 
-func (ui *UserImpl) getUserClaim(user *model.User, customer *model.Customer) auth.Claim {
+func (ui *UserImpl) GetUserClaim(user *model.User, customer *model.Customer) auth.Claim {
 	claim := auth.UserClaim{
 		ID:           user.ID.Hex(),
 		CustomerID:   customer.ID.Hex(),
@@ -413,7 +414,7 @@ func (ui *UserImpl) EmailLoginCustomerUser(opts *schema.EmailLoginCustomerOpts) 
 		return nil, errors.Wrapf(err, "customer with email:%s not found", opts.Email)
 	}
 
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 	return claim, nil
 }
 
@@ -545,7 +546,7 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 	if err := ui.DB.Collection(model.CustomerColl).FindOne(context.TODO(), bson.M{"user_id": user.ID}).Decode(&customer); err != nil {
 		return nil, errors.Wrapf(err, "customer with phone_no:%s%s not found", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 
 	wg.Wait()
 	return claim, nil
@@ -729,7 +730,7 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		}
 	}
 
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 	return claim, nil
 }
 
@@ -785,7 +786,7 @@ func (ui *UserImpl) LoginWithApple(opts *schema.LoginWithApple) (auth.Claim, err
 		}
 	}
 
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 	return claim, nil
 }
 
@@ -870,18 +871,17 @@ func (ui *UserImpl) GetUserByID(id primitive.ObjectID) (*model.User, error) {
 	return &user, nil
 }
 
-func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) (auth.Claim, error) {
+func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) error {
 	ctx := context.TODO()
 	// Checking if another user with email already exists
 	var filter bson.M
 	var update bson.M
 	var user model.User
 	var wg sync.WaitGroup
-	var customer model.Customer
 	filter = bson.M{"email": opts.Email}
 	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
 		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
-			return nil, errors.Wrapf(err, "failed to check for user with email: %s", opts.Email)
+			return errors.Wrapf(err, "failed to check for user with email: %s", opts.Email)
 		}
 	}
 
@@ -889,7 +889,7 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) (auth.Clai
 	if (user != model.User{}) {
 		// If its a different user return error
 		if user.ID != opts.ID {
-			return nil, errors.Errorf("email: %s is associated with different user", opts.Email)
+			return errors.Errorf("email: %s is associated with different user", opts.Email)
 		} else {
 			// If its the same user simply return nil
 		}
@@ -905,7 +905,7 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) (auth.Clai
 		filter := bson.M{"_id": opts.ID}
 		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 		if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
-			return nil, errors.Wrap(err, "failed to update user info")
+			return errors.Wrap(err, "failed to update user info")
 		}
 		wg.Add(1)
 		go func() {
@@ -913,27 +913,21 @@ func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) (auth.Clai
 			ui.sendConfirmationEmail(&user)
 		}()
 	}
-	filter = bson.M{"user_id": user.ID}
-	if err := ui.DB.Collection(model.CustomerColl).FindOne(ctx, filter).Decode(&customer); err != nil {
-		return nil, errors.Wrapf(err, "failed to find linked user profile associated with email: %s", opts.Email)
-	}
-	claim := ui.getUserClaim(&user, &customer)
 	wg.Wait()
-	return claim, nil
+	return nil
 }
 
-func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) (auth.Claim, error) {
+func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error {
 	ctx := context.TODO()
 	// Checking if another user with phone no already exists
 	var filter bson.M
 	var update bson.M
 	var wg sync.WaitGroup
 	var user model.User
-	var customer model.Customer
 	filter = bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
 	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
 		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
-			return nil, errors.Wrapf(err, "failed to check for user with phone: %s", opts.PhoneNo.Number)
+			return errors.Wrapf(err, "failed to check for user with phone: %s", opts.PhoneNo.Number)
 		}
 	}
 
@@ -941,7 +935,7 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) (auth.
 	if (user != model.User{}) {
 		// If its a different user return error
 		if user.ID != opts.ID {
-			return nil, errors.Errorf("phone no: %s is associated with different user", opts.PhoneNo.Number)
+			return errors.Errorf("phone no: %s is associated with different user", opts.PhoneNo.Number)
 		} else {
 			// If its the same user do nothing
 		}
@@ -960,7 +954,7 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) (auth.
 		}
 		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 		if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
-			return nil, errors.Wrap(err, "failed to update user info")
+			return errors.Wrap(err, "failed to update user info")
 		}
 		wg.Add(1)
 		go func() {
@@ -968,10 +962,6 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) (auth.
 			ui.sendConfirmationOTP(&user)
 		}()
 	}
-	filter = bson.M{"user_id": user.ID}
-	if err := ui.DB.Collection(model.CustomerColl).FindOne(ctx, filter).Decode(&customer); err != nil {
-		return nil, errors.Wrapf(err, "failed to find linked user profile associated with phone no: %s", opts.PhoneNo.Number)
-	}
-	claim := ui.getUserClaim(&user, &customer)
-	return claim, nil
+	wg.Wait()
+	return nil
 }
