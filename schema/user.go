@@ -9,7 +9,7 @@ import (
 
 // PhoneNoOpts contains fields and validations for mobile no
 type PhoneNoOpts struct {
-	Prefix string `json:"prefix" validate:"required"`
+	Prefix string `json:"prefix" validate:"required,oneof=+91"`
 	Number string `json:"number" validate:"required"`
 }
 
