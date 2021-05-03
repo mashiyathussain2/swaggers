@@ -337,6 +337,7 @@ func (li *LiveImpl) PushComment(opts *schema.CreateLiveCommentOpts) {
 		s := schema.IVSMetaData{
 			Type: "comment",
 			Data: schema.CreateIVSCommentMetaData{
+				ID:           opts.UserID,
 				Name:         opts.Name,
 				ProfileImage: opts.ProfileImage,
 				Description:  opts.Description,
@@ -365,6 +366,7 @@ func (li *LiveImpl) PushJoin(opts *schema.PushJoinOpts) {
 	s := schema.IVSMetaData{
 		Type: "join",
 		Data: schema.CreateIVSNewJoinMetaData{
+			ID:   opts.ID,
 			Name: opts.Name,
 		},
 	}
