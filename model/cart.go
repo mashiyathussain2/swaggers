@@ -11,6 +11,11 @@ const (
 	CartColl string = "cart"
 )
 
+//CouponType
+const (
+	FreeDelivery string = "free_delivery"
+)
+
 //Cart contains the users cart details
 type Cart struct {
 	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -44,7 +49,7 @@ type Coupon struct {
 	Code             string             `json:"code,omitempty" bson:"code,omitempty"`
 	Description      string             `json:"description,omitempty" bson:"description"`
 	Type             DiscountType       `json:"type,omitempty" bson:"type,omitempty"`
-	Value            int                `json:"value,omitempty" bson:"value,omitempty"`
+	Value            int                `json:"value" bson:"value"`
 	ApplicableON     *ApplicableON      `json:"applicable_on,omitempty" bson:"applicable_on,omitempty"`
 	MaxDiscount      *Price             `json:"max_discount,omitempty" bson:"max_discount,omitempty"`
 	MinPurchaseValue *Price             `json:"min_purchase_value,omitempty" bson:"min_purchase_value,omitempty"`

@@ -597,8 +597,11 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			}
 			coupon.AppliedValue = model.SetINRPrice(float32(av))
 		}
-		for i, _ := range orderItemsOpts {
-			orderItemsOpts[i].Coupon = &coupon
+
+		if cartUnwindBrands[0].Coupon.Type != model.FreeDelivery {
+			for i := range orderItemsOpts {
+				orderItemsOpts[i].Coupon = &coupon
+			}
 		}
 
 	}
@@ -663,7 +666,8 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 			"grand_total.value":    0,
 		},
 		"$unset": bson.M{
-			"items": "",
+			"items":  "",
+			"coupon": "",
 		},
 	}
 

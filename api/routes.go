@@ -51,7 +51,7 @@ func (a *API) InitRoutes() {
 
 	// TODO: Shall i remove this api??
 	a.Router.APIRoot.Handle("/brand/{brandID}", a.requestWithAuthHandler(a.getBrandByID)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/cart/{userID}", a.requestWithInternalHandler(a.clearCart)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/cart/{userID}", a.requestWithInternalHandler(a.clearCart)).Methods("DELETE")
 
 	a.Router.APIRoot.Handle("/app/cart", a.requestWithAuthHandler(a.addToCart)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/item", a.requestWithAuthHandler(a.updateItemQty)).Methods("PUT")
