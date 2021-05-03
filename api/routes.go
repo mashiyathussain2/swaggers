@@ -27,7 +27,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}/stop", a.requestWithSudoHandler(a.stopLiveStream)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/live", a.requestHandler(a.getAppLiveStreams)).Methods("GET")
-
+	a.Router.APIRoot.Handle("/live/{liveID}", a.requestHandler(a.getAppLiveStreamByID)).Methods("GET")
 	a.Router.APIRoot.Handle("/live/{liveID}/join", a.requestHandler(a.joinLiveStream)).Methods("GET")
 	a.Router.APIRoot.Handle("/live/{liveID}/joined", a.requestHandler(a.joinedLiveStream)).Methods("POST")
 	a.Router.APIRoot.Handle("/live/{liveID}/comment", a.requestHandler(a.pushComment)).Methods("POST")

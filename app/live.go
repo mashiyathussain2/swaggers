@@ -40,6 +40,7 @@ type Live interface {
 	CreateLiveComment(*schema.CreateLiveCommentOpts)
 
 	GetAppLiveStreams(*schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error)
+	GetAppLiveStreamByID(primitive.ObjectID) (*schema.GetAppLiveStreamResp, error)
 }
 
 // LiveImpl implemethods Live interface methods
@@ -468,17 +469,17 @@ func (li *LiveImpl) PushOrder(opts *schema.PushNewOrderOpts) {
 	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
 }
 
-// func (li *LiveImpl) GetAppLiveStreamByID(id primitive.ObjectID) (*schema.GetLiveStreamResp, error) {
-// 	var resp schema.GetLiveStreamResp
-// 	filter := bson.M{"_id": id}
-// 	if err := li.DB.Collection(model.LiveColl).FindOne(context.TODO(), filter).Decode(&resp); err != nil {
-// 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
-// 			return nil, errors.Wrapf(err, "live stream by id:%s not found", id.Hex())
-// 		}
-// 		return nil, errors.Wrapf(err, "failed to find live stream by id:%s", id.Hex())
-// 	}
-// 	return &resp, nil
-// }
+func (li *LiveImpl) GetAppLiveStreamByID(id primitive.ObjectID) (*schema.GetAppLiveStreamResp, error) {
+	var resp schema.GetAppLiveStreamResp
+	filter := bson.M{"_id": id}
+	if err := li.DB.Collection(model.LiveColl).FindOne(context.TODO(), filter).Decode(&resp); err != nil {
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return nil, errors.Wrapf(err, "live stream by id:%s not found", id.Hex())
+		}
+		return nil, errors.Wrapf(err, "failed to find live stream by id:%s", id.Hex())
+	}
+	return &resp, nil
+}
 
 func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error) {
 	ctx := context.TODO()
