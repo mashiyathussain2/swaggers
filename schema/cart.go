@@ -216,7 +216,7 @@ type ApplyCouponOpts struct {
 	Code             string              `json:"code" validate:"required"`
 	Description      string              `json:"description" validate:"required"`
 	Type             model.DiscountType  `json:"type" validate:"required"`
-	Value            int                 `json:"value" validate:"required"`
+	Value            int                 `json:"value" validate:"gte=0"`
 	ApplicableON     *model.ApplicableON `json:"applicable_on" validate:"required"`
 	MaxDiscount      *model.Price        `json:"max_discount"`
 	MinPurchaseValue *model.Price        `json:"min_purchase_value"`
