@@ -663,7 +663,8 @@ func (ci *CartImpl) ClearCart(id primitive.ObjectID) error {
 			"grand_total.value":    0,
 		},
 		"$unset": bson.M{
-			"items": "",
+			"items":  "",
+			"coupon": "",
 		},
 	}
 
