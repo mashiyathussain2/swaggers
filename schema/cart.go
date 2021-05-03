@@ -54,16 +54,18 @@ type CartUnwindBrand struct {
 	Items           []model.Item       `json:"items" bson:"items"`
 	ShippingAddress *OrderAddressOpts  `json:"shipping_address" bson:"shipping_address"`
 	BillingAddress  *OrderAddressOpts  `json:"billing_address" bson:"billing_address"`
+	Coupon          *model.Coupon      `json:"coupon" bson:"coupon"`
 }
 
-type OrderOpts struct {
+type OrderItemOpts struct {
 	UserID          primitive.ObjectID `json:"user_id"`
 	BrandID         primitive.ObjectID `json:"brand_id"`
 	ShippingAddress *OrderAddressOpts  `json:"shipping_address"`
 	BillingAddress  *OrderAddressOpts  `json:"billing_address"`
 	Source          string             `json:"source"`
-	// SourceID        primitive.ObjectID `json:"source_id,omitempty"`
-	OrderItems []OrderItem `json:"order_items" bson:"order_items"`
+	SourceID        primitive.ObjectID `json:"source_id,omitempty"`
+	OrderItems      []OrderItem        `json:"order_items" bson:"order_items"`
+	Coupon          *CouponOrderOpts   `json:"coupon_info"`
 }
 
 type OrderResp struct {
@@ -87,6 +89,7 @@ type OrderItem struct {
 	BasePrice       *model.Price        `json:"base_price" bson:"base_price"`
 	RetailPrice     *model.Price        `json:"retail_price" bson:"retail_price"`
 	DiscountedPrice *model.Price        `json:"discounted_price" bson:"discounted_price"`
+	Tax             *model.Tax          `json:"tax,omitempty" bson:"tax,omitempty"`
 	Quantity        uint                `json:"quantity" bson:"quantity"`
 }
 
@@ -206,4 +209,24 @@ type UpdateCatalogInfo struct {
 	CreatedAt     time.Time               `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt     time.Time               `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	DiscountInfo  *model.DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+}
+
+type ApplyCouponOpts struct {
+	CouponID         primitive.ObjectID  `json:"coupon_id" validate:"required"`
+	Code             string              `json:"code" validate:"required"`
+	Description      string              `json:"description" validate:"required"`
+	Type             model.DiscountType  `json:"type" validate:"required"`
+	Value            int                 `json:"value" validate:"required"`
+	ApplicableON     *model.ApplicableON `json:"applicable_on" validate:"required"`
+	MaxDiscount      *model.Price        `json:"max_discount"`
+	MinPurchaseValue *model.Price        `json:"min_purchase_value"`
+	ValidAfter       time.Time           `json:"valid_after" validate:"required"`
+	ValidBefore      time.Time           `json:"valid_before" validate:"required"`
+	Status           string              `json:"status" validate:"required"`
+}
+
+type CouponOrderOpts struct {
+	ID           primitive.ObjectID `json:"id" validate:"required"`
+	Code         string             `json:"code" validate:"required"`
+	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
 }

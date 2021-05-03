@@ -93,11 +93,27 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 			b.SocialAccount.Twitter = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount)}
 		}
 	}
+	if len(opts.SizeProfiles) > 0 {
+		b.SizeProfiles = opts.SizeProfiles
+	}
 
 	res, err := bi.DB.Collection(model.BrandColl).InsertOne(context.TODO(), b)
 	if err != nil {
 		bi.Logger.Err(err).Interface("opts", opts).Msg("failed to insert brand")
 		return nil, errors.Wrap(err, "failed to create brand")
+	}
+
+	err = bi.App.SizeProfile.AddBrandToSizeProfile(&schema.AddBrandToSizeProfileOpts{
+		IDs:     opts.SizeProfiles,
+		BrandID: res.InsertedID.(primitive.ObjectID),
+	})
+	if err != nil {
+		bi.Logger.Err(err).Interface("opts", opts).Msg("failed to link size profiles with brand id")
+	}
+	var sp []schema.GetSizeProfileForBrandResp
+	sp, err = bi.App.SizeProfile.GetSizeProfilesForBrand(res.InsertedID.(primitive.ObjectID))
+	if err != nil {
+		bi.Logger.Err(err).Interface("opts", opts).Msg("failed to get size profiles for brand with id")
 	}
 
 	resp := schema.CreateBrandResp{
@@ -113,6 +129,7 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 		SocialAccount:      b.SocialAccount,
 		Bio:                b.Bio,
 		CreatedAt:          b.CreatedAt,
+		SizeProfiles:       sp,
 	}
 	return &resp, nil
 }
@@ -169,7 +186,10 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 	if opts.Bio != "" {
 		update = append(update, bson.E{Key: "bio", Value: opts.Bio})
 	}
-
+	if len(opts.SizeProfiles) != 0 {
+		update = append(update, bson.E{Key: "size_profiles", Value: opts.SizeProfiles})
+		bi.App.SizeProfile.AddBrandToSizeProfile(&schema.AddBrandToSizeProfileOpts{IDs: opts.SizeProfiles, BrandID: opts.ID})
+	}
 	update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
 
 	filterQuery := bson.M{"_id": opts.ID}
@@ -182,6 +202,11 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 			return nil, errors.Wrapf(err, "brand with id:%s not found", opts.ID.Hex())
 		}
 		return nil, errors.Wrapf(err, "failed to update brand with id:%s", opts.ID.Hex())
+	}
+	var sp []schema.GetSizeProfileForBrandResp
+	sp, err := bi.App.SizeProfile.GetSizeProfilesForBrand(brand.ID)
+	if err != nil {
+		bi.Logger.Err(err).Interface("opts", opts).Msg("failed to get size profiles for brand with id")
 	}
 
 	resp := schema.EditBrandResp{
@@ -196,6 +221,7 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 		CoverImg:           brand.CoverImg,
 		SocialAccount:      brand.SocialAccount,
 		Bio:                brand.Bio,
+		SizeProfiles:       sp,
 		CreatedAt:          brand.CreatedAt,
 		UpdatedAt:          brand.UpdatedAt,
 	}
@@ -204,18 +230,37 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 
 // GetBrandByID returns brand info with matching id
 func (bi *BrandImpl) GetBrandByID(id primitive.ObjectID) (*schema.GetBrandResp, error) {
-	var resp schema.GetBrandResp
 
-	filter := bson.M{"_id": id}
-	if err := bi.DB.Collection(model.BrandColl).FindOne(context.TODO(), filter).Decode(&resp); err != nil {
-		bi.Logger.Err(err).Msgf("failed to get brand with id:%s", id.Hex())
-		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Wrapf(err, "brand with id:%s not found", id.Hex())
-		}
-		return nil, errors.Wrapf(err, "failed to get brand with id:%s", id.Hex())
+	var resp []schema.GetBrandResp
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": id,
+		},
+	}}
+	lookupStage := bson.D{{
+
+		Key: "$lookup", Value: bson.M{
+			"from":         model.SizeProfileColl,
+			"localField":   "size_profiles",
+			"foreignField": "_id",
+			"as":           "size_profiles",
+		},
+	}}
+
+	cursor, err := bi.DB.Collection(model.BrandColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get brand data")
 	}
 
-	return &resp, nil
+	if err := cursor.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding brands")
+	}
+
+	return &resp[0], nil
 }
 
 // CheckBrandByID check if brand exists with matching id
@@ -235,32 +280,63 @@ func (bi *BrandImpl) CheckBrandByID(id primitive.ObjectID) (bool, error) {
 
 // GetBrandByID returns brand info with matching id
 func (bi *BrandImpl) GetBrandsByID(ids []primitive.ObjectID) ([]schema.GetBrandResp, error) {
-	ctx := context.TODO()
-	filter := bson.M{"_id": bson.M{"$in": ids}}
-	cur, err := bi.DB.Collection(model.BrandColl).Find(context.TODO(), filter)
-	if err != nil {
-		bi.Logger.Err(err).Interface("ids", ids).Msg("failed to get brands with ids")
-		return nil, errors.Wrap(err, "failed to get brand with id")
-	}
 	var resp []schema.GetBrandResp
-	if err := cur.All(ctx, &resp); err != nil {
-		return nil, errors.Wrap(err, "failed to find brands")
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": bson.M{"$in": ids},
+		},
+	}}
+	lookupStage := bson.D{{
+
+		Key: "$lookup", Value: bson.M{
+			"from":         model.SizeProfileColl,
+			"localField":   "size_profiles",
+			"foreignField": "_id",
+			"as":           "size_profiles",
+		},
+	}}
+
+	cursor, err := bi.DB.Collection(model.BrandColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get brand data")
 	}
+
+	if err := cursor.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding brands")
+	}
+
 	return resp, nil
 }
 
 func (bi *BrandImpl) GetBrands() ([]schema.GetBrandResp, error) {
-	ctx := context.TODO()
-	filter := bson.M{}
-	cur, err := bi.DB.Collection(model.BrandColl).Find(context.TODO(), filter)
-	if err != nil {
-		bi.Logger.Err(err).Msg("failed to get brands")
-		return nil, errors.Wrap(err, "failed to get brands")
-	}
 	var resp []schema.GetBrandResp
-	if err := cur.All(ctx, &resp); err != nil {
-		return nil, errors.Wrap(err, "failed to find brands")
+	ctx := context.TODO()
+
+	lookupStage := bson.D{{
+
+		Key: "$lookup", Value: bson.M{
+			"from":         model.SizeProfileColl,
+			"localField":   "size_profiles",
+			"foreignField": "_id",
+			"as":           "size_profiles",
+		},
+	}}
+
+	cursor, err := bi.DB.Collection(model.BrandColl).Aggregate(ctx, mongo.Pipeline{
+		lookupStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get brands data")
 	}
+
+	if err := cursor.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding brands")
+	}
+
 	return resp, nil
 }
 

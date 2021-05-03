@@ -47,10 +47,13 @@ type EmailLoginCustomerResp struct {
 // UpdateCustomerOpts contains fields and validations to update existing customer
 type UpdateCustomerOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
 	FullName     string             `json:"full_name"`
 	DOB          time.Time          `json:"dob"`
 	Gender       string             `json:"gender"`
 	ProfileImage *Img               `json:"profile_image"`
+	Email        string             `json:"email"`
+	PhoneNo      *PhoneNoOpts       `json:"phone_no"`
 }
 
 //AddAddressOpts contains field required to add new address
@@ -83,4 +86,23 @@ type AddAddressResp struct {
 	State         *model.State       `json:"state,omitempty" bson:"state,omitempty"`
 	PostalCode    string             `json:"postal_code,omitempty" bson:"postal_code,omitempty"`
 	PlainAddress  string             `json:"plain_address,omitempty" bson:"plain_address,omitempty"`
+}
+
+//EditAddressOpts contains field required to add new address
+type EditAddressOpts struct {
+	UserID            primitive.ObjectID `json:"user_id" validate:"required"`
+	AddressID         primitive.ObjectID `json:"address_id" validate:"required"`
+	DisplayName       string             `json:"display_name"`
+	Line1             string             `json:"line1" validate:"required"`
+	Line2             string             `json:"line2"`
+	District          string             `json:"district"`
+	City              string             `json:"city" validate:"required"`
+	State             *model.State       `json:"state" validate:"required"`
+	PostalCode        string             `json:"postal_code" validate:"required"`
+	Country           *model.Country     `json:"country" validate:"required"`
+	PlainAddress      string             `json:"plain_address" validate:"required"`
+	IsBillingAddress  bool               `json:"is_billing_address" validate:"required"`
+	IsShippingAddress bool               `json:"is_shipping_address" validate:"required"`
+	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
+	ContactNumber     *model.PhoneNumber `json:"contact_number" validate:"required"`
 }

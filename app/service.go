@@ -46,4 +46,9 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.WishlistConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.SizeProfile = InitSizeProfile(&SizeProfileImplOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.SizeProfileConfig.DBName),
+		Logger: a.Logger,
+	})
 }

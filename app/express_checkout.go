@@ -142,7 +142,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 		TransferPrice: s.Payload.TransferPrice,
 		ETA:           s.Payload.ETA,
 	}
-	orderOpts := []schema.OrderOpts{
+	orderOpts := []schema.OrderItemOpts{
 		{
 			UserID:          opts.UserID,
 			BrandID:         s.Payload.BrandID,
@@ -189,7 +189,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 
 func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheckoutOpts) (*schema.OrderInfo, error) {
 
-	var orderOpts []schema.OrderOpts
+	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
 
 	oiBrandMap := make(map[primitive.ObjectID][]schema.OrderItem)
@@ -299,19 +299,20 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			TransferPrice: s.Payload.TransferPrice,
 			ETA:           s.Payload.ETA,
 		}
+		orderItem.Tax = s.Payload.Tax
 		// orderItems = append(orderItems, orderItem)
 		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
 	}
 
 	for brand, oi := range oiBrandMap {
-		orderOpts = append(orderOpts, schema.OrderOpts{
+		orderOpts = append(orderOpts, schema.OrderItemOpts{
 			UserID:          opts.UserID,
 			BrandID:         brand,
 			ShippingAddress: opts.Address,
 			BillingAddress:  opts.Address,
 			Source:          opts.Source,
 			OrderItems:      oi,
-			// SourceID:        opts.SourceID,
+			SourceID:        opts.SourceID,
 		})
 	}
 	//Create Order

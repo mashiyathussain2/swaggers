@@ -9,7 +9,7 @@ import (
 
 // PhoneNoOpts contains fields and validations for mobile no
 type PhoneNoOpts struct {
-	Prefix string `json:"prefix" validate:"required"`
+	Prefix string `json:"prefix" validate:"required,oneof=+91"`
 	Number string `json:"number" validate:"required"`
 }
 
@@ -34,6 +34,20 @@ type CreateUserResp struct {
 type VerifyEmailOpts struct {
 	Email            string `json:"email" validate:"required,email"`
 	VerificationCode string `json:"verification_code" validate:"required"`
+}
+
+type CheckEmailOpts struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type CheckPhoneNoOpts struct {
+	PhoneNo *PhoneNoOpts `json:"phone_no" validate:"required"`
+}
+
+// VerifyEmailOpts contains fields and validations required to verify an email
+type VerifyPhoneNoOpts struct {
+	PhoneNo          *PhoneNoOpts `json:"phone_no" validate:"required"`
+	VerificationCode string       `json:"verification_code" validate:"required"`
 }
 
 // GetUserResp returns fields in response to get user
@@ -104,6 +118,13 @@ type LoginWithSocial struct {
 	ProfileImage *Img   `json:"profile_image" validate:"required"`
 }
 
+type LoginWithApple struct {
+	Type     string `json:"type" validate:"required,oneof=apple"`
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	AppleID  string `json:"apple_id" validate:"required"`
+}
+
 type GetUserInfoByIDOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
 }
@@ -132,15 +153,12 @@ type KeeperUserInfoResp struct {
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
-type UpdateUserAuthOpts struct {
-	ID        primitive.ObjectID `json:"id" validate:"required"`
-	Email     string             `json:"email" validate:"isdefault|email"`
-	ContactNo *model.PhoneNumber `json:"contact_no"`
+type UpdateUserEmailOpts struct {
+	ID    primitive.ObjectID `json:"id" validate:"required"`
+	Email string             `json:"email" validate:"email"`
 }
 
-type VerifyUserAuthUpdate struct {
-	ID        primitive.ObjectID `json:"id" validate:"required"`
-	Email     string             `json:"email" validate:"isdefault|email"`
-	ContactNo *model.PhoneNumber `json:"contact_no"`
-	OTP       string             `json:"otp" validate:"required"`
+type UpdateUserPhoneNoOpts struct {
+	ID      primitive.ObjectID `json:"id" validate:"required"`
+	PhoneNo *PhoneNoOpts       `json:"phone_no" validate:"required"`
 }
