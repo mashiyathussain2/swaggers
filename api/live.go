@@ -192,17 +192,17 @@ func (a *API) getAppLiveStreams(requestCTX *handler.RequestContext, w http.Respo
 	return
 }
 
-// func (a *API) getAppLiveStreamByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-// 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["liveID"])
-// 	if err != nil {
-// 		requestCTX.SetErr(errors.Errorf("invalid live id: %s in url", mux.Vars(r)["liveID"]), http.StatusBadRequest)
-// 		return
-// 	}
-// 	res, err := a.App.Live.GetLiveStreamByID(id)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	requestCTX.SetAppResponse(res, http.StatusCreated)
-// 	return
-// }
+func (a *API) getAppLiveStreamByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["liveID"])
+	if err != nil {
+		requestCTX.SetErr(errors.Errorf("invalid live id: %s in url", mux.Vars(r)["liveID"]), http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Live.GetAppLiveStreamByID(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
