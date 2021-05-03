@@ -21,6 +21,7 @@ type Config struct {
 	MiddlewareConfig    MiddlewareConfig    `mapstructure:"middleware"`
 	TokenAuthConfig     TokenAuthConfig     `mapstructure:"token"`
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
+	SessionConfig       SessionConfig       `mapstructure:"session"`
 }
 
 // ServerConfig has only server specific configuration
@@ -34,6 +35,19 @@ type ServerConfig struct {
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
 	CORSConfig     CORSConfig    `mapstructure:"cors"`
+}
+
+type SessionConfig struct {
+	CookieConfig CookieConfig `mapstructure:"cookie"`
+	RedisConfig  RedisConfig
+}
+
+type CookieConfig struct {
+	Name     string `mapstructure:"name"`
+	Path     string `mapstructure:"path"`
+	HttpOnly bool   `mapstructure:"httpOnly"`
+	Domain   string `mapstructure:"domain"`
+	Secure   bool   `mapstructure:"secure"`
 }
 
 // CORSConfig contains cors related config
@@ -254,5 +268,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APIConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.HypdApiConfig = config.ServerConfig.HypdApiConfig
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
+	config.SessionConfig.RedisConfig = config.RedisConfig
 	return config
 }

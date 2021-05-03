@@ -108,21 +108,31 @@ type Catalog struct {
 
 	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
+	SizeProfile *SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty" `
 	// CatalogContentInfo []C
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
+// type SizeProfile struct {
+// 	ID    primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`
+// 	Name  string              `json:"name,omitempty" bson:"name,omitempty"`
+// 	Specs []map[string]string `json:"specs,omitempty" bson:"specs,omitempty"`
+// }
+
+//Sizeprofile stores the id for the size profile to reference
+type SizeProfile = primitive.ObjectID
+
 type Tax struct {
 	Type      string     `json:"type,omitempty" bson:"type,omitempty"`
-	Rate      float32    `json:"rate,omitempty" bson:"rate,omitempty"`
+	Rate      float32    `json:"rate" bson:"rate"`
 	TaxRanges []TaxRange `json:"tax_ranges,omitempty" bson:"tax_ranges,omitempty"`
 }
 type TaxRange struct {
 	MinValue int     `json:"min_value" bson:"min_value"`
 	MaxValue int     `json:"max_value,omitempty" bson:"max_value,omitempty"`
-	Rate     float32 `json:"rate,omitempty" bson:"rate,omitempty"`
+	Rate     float32 `json:"rate" bson:"rate"`
 }
 
 // VariantType is a paramater which defines the variant classification for a particular catalog such as size or color or design etc.
