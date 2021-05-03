@@ -36,6 +36,36 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
 }
 
+// CheckEmail mocks base method
+func (m *MockUser) CheckEmail(arg0 *schema.CheckEmailOpts) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckEmail", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckEmail indicates an expected call of CheckEmail
+func (mr *MockUserMockRecorder) CheckEmail(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckEmail", reflect.TypeOf((*MockUser)(nil).CheckEmail), arg0)
+}
+
+// CheckPhoneNo mocks base method
+func (m *MockUser) CheckPhoneNo(arg0 *schema.CheckPhoneNoOpts) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckPhoneNo", arg0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckPhoneNo indicates an expected call of CheckPhoneNo
+func (mr *MockUserMockRecorder) CheckPhoneNo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPhoneNo", reflect.TypeOf((*MockUser)(nil).CheckPhoneNo), arg0)
+}
+
 // CreateUser mocks base method
 func (m *MockUser) CreateUser(arg0 *schema.CreateUserOpts) (*schema.CreateUserResp, error) {
 	m.ctrl.T.Helper()
@@ -124,6 +154,20 @@ func (m *MockUser) GetUserByID(arg0 primitive.ObjectID) (*model.User, error) {
 func (mr *MockUserMockRecorder) GetUserByID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockUser)(nil).GetUserByID), arg0)
+}
+
+// GetUserClaim mocks base method
+func (m *MockUser) GetUserClaim(arg0 *model.User, arg1 *model.Customer) auth.Claim {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserClaim", arg0, arg1)
+	ret0, _ := ret[0].(auth.Claim)
+	return ret0
+}
+
+// GetUserClaim indicates an expected call of GetUserClaim
+func (mr *MockUserMockRecorder) GetUserClaim(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserClaim", reflect.TypeOf((*MockUser)(nil).GetUserClaim), arg0, arg1)
 }
 
 // GetUserInfoByID mocks base method
@@ -216,18 +260,32 @@ func (mr *MockUserMockRecorder) ResetPassword(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetPassword", reflect.TypeOf((*MockUser)(nil).ResetPassword), arg0)
 }
 
-// UpdateUserAuthInfo mocks base method
-func (m *MockUser) UpdateUserAuthInfo(arg0 *schema.UpdateUserEmailOpts) error {
+// UpdateUserEmail mocks base method
+func (m *MockUser) UpdateUserEmail(arg0 *schema.UpdateUserEmailOpts) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserAuthInfo", arg0)
+	ret := m.ctrl.Call(m, "UpdateUserEmail", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateUserAuthInfo indicates an expected call of UpdateUserAuthInfo
-func (mr *MockUserMockRecorder) UpdateUserAuthInfo(arg0 interface{}) *gomock.Call {
+// UpdateUserEmail indicates an expected call of UpdateUserEmail
+func (mr *MockUserMockRecorder) UpdateUserEmail(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserAuthInfo", reflect.TypeOf((*MockUser)(nil).UpdateUserAuthInfo), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserEmail", reflect.TypeOf((*MockUser)(nil).UpdateUserEmail), arg0)
+}
+
+// UpdateUserPhoneNo mocks base method
+func (m *MockUser) UpdateUserPhoneNo(arg0 *schema.UpdateUserPhoneNoOpts) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserPhoneNo", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserPhoneNo indicates an expected call of UpdateUserPhoneNo
+func (mr *MockUserMockRecorder) UpdateUserPhoneNo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPhoneNo", reflect.TypeOf((*MockUser)(nil).UpdateUserPhoneNo), arg0)
 }
 
 // VerifyEmail mocks base method
@@ -245,17 +303,17 @@ func (mr *MockUserMockRecorder) VerifyEmail(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyEmail", reflect.TypeOf((*MockUser)(nil).VerifyEmail), arg0)
 }
 
-// VerifyUserAuthUpdate mocks base method
-func (m *MockUser) VerifyUserAuthUpdate(arg0 *schema.VerifyUserAuthUpdate) (auth.Claim, error) {
+// VerifyPhoneNo mocks base method
+func (m *MockUser) VerifyPhoneNo(arg0 *schema.VerifyPhoneNoOpts) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifyUserAuthUpdate", arg0)
-	ret0, _ := ret[0].(auth.Claim)
+	ret := m.ctrl.Call(m, "VerifyPhoneNo", arg0)
+	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VerifyUserAuthUpdate indicates an expected call of VerifyUserAuthUpdate
-func (mr *MockUserMockRecorder) VerifyUserAuthUpdate(arg0 interface{}) *gomock.Call {
+// VerifyPhoneNo indicates an expected call of VerifyPhoneNo
+func (mr *MockUserMockRecorder) VerifyPhoneNo(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyUserAuthUpdate", reflect.TypeOf((*MockUser)(nil).VerifyUserAuthUpdate), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyPhoneNo", reflect.TypeOf((*MockUser)(nil).VerifyPhoneNo), arg0)
 }

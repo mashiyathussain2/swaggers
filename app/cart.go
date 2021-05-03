@@ -599,7 +599,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 		}
 
 		if cartUnwindBrands[0].Coupon.Type != model.FreeDelivery {
-			for i, _ := range orderItemsOpts {
+			for i := range orderItemsOpts {
 				orderItemsOpts[i].Coupon = &coupon
 			}
 		}
