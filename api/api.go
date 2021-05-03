@@ -14,12 +14,13 @@ import (
 
 // API := returns API struct
 type API struct {
-	Router     *Router
-	MainRouter *mux.Router
-	Logger     *zerolog.Logger
-	Config     *config.APIConfig
-	TokenAuth  auth.TokenAuth
-	Validator  *validator.Validator
+	Router      *Router
+	MainRouter  *mux.Router
+	Logger      *zerolog.Logger
+	Config      *config.APIConfig
+	TokenAuth   auth.TokenAuth
+	SessionAuth auth.SessionAuth
+	Validator   *validator.Validator
 
 	App *app.App
 }
@@ -27,11 +28,12 @@ type API struct {
 // Options contain all the dependencies required to create a new instance of api
 // and is passed in NewAPI func as argument
 type Options struct {
-	MainRouter *mux.Router
-	Logger     *zerolog.Logger
-	Config     *config.APIConfig
-	TokenAuth  auth.TokenAuth
-	Validator  *validator.Validator
+	MainRouter  *mux.Router
+	Logger      *zerolog.Logger
+	Config      *config.APIConfig
+	TokenAuth   auth.TokenAuth
+	SessionAuth auth.SessionAuth
+	Validator   *validator.Validator
 }
 
 // Router stores all the endpoints available for the server to respond.
@@ -45,12 +47,13 @@ type Router struct {
 // NewAPI returns API instance
 func NewAPI(opts *Options) *API {
 	api := API{
-		MainRouter: opts.MainRouter,
-		Router:     &Router{},
-		Config:     opts.Config,
-		TokenAuth:  opts.TokenAuth,
-		Logger:     opts.Logger,
-		Validator:  opts.Validator,
+		MainRouter:  opts.MainRouter,
+		Router:      &Router{},
+		Config:      opts.Config,
+		TokenAuth:   opts.TokenAuth,
+		SessionAuth: opts.SessionAuth,
+		Logger:      opts.Logger,
+		Validator:   opts.Validator,
 	}
 	api.setupRoutes()
 	return &api

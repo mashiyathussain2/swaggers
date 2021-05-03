@@ -36,3 +36,8 @@ func NewRedisStorage(c *config.RedisConfig) *RedisStorage {
 	}
 	return r
 }
+
+// Close closes redis connection
+func (rs *RedisStorage) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
+	return rs.Conn.Do(commandName, args...)
+}

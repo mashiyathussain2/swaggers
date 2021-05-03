@@ -559,8 +559,8 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 		return errors.Wrap(err, "failed to check if like exists")
 	}
 
-	// like does not exists for the user for the specific resource thus creating a new like
-	if exists == 0 {
+	// like does not exists for the user for the specific resource thus creating a new like and creating multiple likes in case of live
+	if exists == 0 || opts.ResourceType == model.LiveType {
 		v := model.Like{
 			ResourceType: opts.ResourceType,
 			ResourceID:   opts.ResourceID,
@@ -574,31 +574,34 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 		return nil
 	}
 
-	// like exists thus removing the like
-	var wg sync.WaitGroup
-
+	// like exists thus removing the like if content is pebble
 	if opts.ResourceType == model.PebbleType {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			filter := bson.M{
-				"_id": opts.ResourceID,
-			}
-			update := bson.M{
-				"$pull": bson.M{
-					"liked_by": opts.UserID,
-				},
-			}
-			if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
-				ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
-			}
-		}()
-	}
+		var wg sync.WaitGroup
 
-	if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
-		return errors.Wrap(err, "failed to unlike")
+		if opts.ResourceType == model.PebbleType {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				filter := bson.M{
+					"_id": opts.ResourceID,
+				}
+				update := bson.M{
+					"$pull": bson.M{
+						"liked_by": opts.UserID,
+					},
+				}
+				if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
+					ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
+				}
+			}()
+		}
+
+		if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
+			return errors.Wrap(err, "failed to unlike")
+		}
+		wg.Wait()
+		return nil
 	}
-	wg.Wait()
 	return nil
 }
 
@@ -668,6 +671,8 @@ func (ci *ContentImpl) AddContentLike(opts *schema.ProcessLikeOpts) {
 	update := bson.M{
 		"$push": bson.M{
 			"like_ids": opts.ID,
+		},
+		"$addToSet": bson.M{
 			"liked_by": opts.UserID,
 		},
 		"$inc": bson.M{

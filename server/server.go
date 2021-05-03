@@ -67,15 +67,16 @@ func NewServer() *Server {
 	} else {
 		server.Redis = redisstorage.NewRedisStorage(&c.RedisConfig)
 	}
-
 	// Initializing api endpoints and controller
 	server.API = api.NewAPI(&api.Options{
-		MainRouter: r,
-		Logger:     server.Log,
-		Config:     &c.APIConfig,
-		TokenAuth:  auth.NewTokenAuthentication(&c.TokenAuthConfig),
-		Validator:  validator.NewValidation(),
+		MainRouter:  r,
+		Logger:      server.Log,
+		Config:      &c.APIConfig,
+		TokenAuth:   auth.NewTokenAuthentication(&c.TokenAuthConfig),
+		SessionAuth: auth.NewSessionAuth(&auth.SessionAuthOpts{Config: &c.SessionConfig, Client: server.Redis}),
+		Validator:   validator.NewValidation(),
 	})
+
 	// Initializing app and services
 	server.API.App = app.NewApp(&app.Options{MongoDB: ms, Logger: server.Log, Config: &c.APPConfig})
 	// server.API.App.Example = app.InitExample(&app.ExampleOpts{DBName: "example", MongoStorage: ms, Logger: server.Log})
@@ -99,6 +100,7 @@ func (s *Server) StartServer() {
 	})
 
 	n.Use(cors)
+	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
 	if s.Config.MiddlewareConfig.EnableRequestLog {
 		n.UseFunc(middleware.NewRequestLoggerMiddleware(s.Log).GetMiddlewareHandler())
 	}
