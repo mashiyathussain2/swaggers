@@ -387,5 +387,4 @@ func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, 
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
-
 }

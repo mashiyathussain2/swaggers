@@ -25,9 +25,9 @@ type FilterAttribute struct {
 }
 
 type TaxOpts struct {
-	Type      string           `json:"type,omitempty" validate:"required,oneof=single multiple"`
-	Rate      float32          `json:"rate,omitempty"`
-	TaxRanges []model.TaxRange `json:"tax_ranges,omitempty" validate:"required_without=Rate" `
+	Type      string           `json:"type" validate:"required,oneof=single multiple"`
+	Rate      float32          `json:"rate" validate:"gte=0"`
+	TaxRanges []model.TaxRange `json:"tax_ranges"`
 }
 
 // CreateCatalogOpts serialize the create catalog api arguments
@@ -47,11 +47,11 @@ type CreateCatalogOpts struct {
 	VariantType model.VariantType   `json:"variant_type" validate:"required_with_field=Variants"`
 	Variants    []CreateVariantOpts `json:"variants" validate:"dive"`
 
-	BasePrice     uint32 `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
-	RetailPrice   uint32 `json:"retail_price" validate:"gt=0"`
-	TransferPrice uint32 `json:"transfer_price" validate:"gt=0"`
-
-	Tax *TaxOpts `json:"tax" validate:"required"`
+	BasePrice     uint32             `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
+	RetailPrice   uint32             `json:"retail_price" validate:"gt=0"`
+	TransferPrice uint32             `json:"transfer_price" validate:"gt=0"`
+	SizeProfile   *model.SizeProfile `json:"size_profile"`
+	Tax           *TaxOpts           `json:"tax" validate:"required"`
 }
 
 // CreateCatalogResp response
@@ -80,8 +80,9 @@ type CreateCatalogResp struct {
 	RetailPrice   model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	TransferPrice model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
-	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
-	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
+	ETA         *model.ETA         `json:"eta,omitempty" bson:"eta,omitempty"`
+	Status      *model.Status      `json:"status,omitempty" bson:"status,omitempty"`
+	SizeProfile *model.SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -133,6 +134,7 @@ type EditCatalogOpts struct {
 	RetailPrice     uint32               `json:"retail_price" validate:"isdefault|gt=0"`
 	TransferPrice   uint32               `json:"transfer_price" validate:"isdefault|gt=0"`
 	Tax             *TaxOpts             `json:"tax"`
+	SizeProfile     *model.SizeProfile   `json:"size_profile"`
 }
 
 // EditCatalogResp contains fields which are returned when a catalog is edited
@@ -153,6 +155,7 @@ type EditCatalogResp struct {
 	UpdatedAt       time.Time             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	TransferPrice   *model.Price          `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 	Tax             model.Tax             `json:"tax,omitempty" bson:"tax,omitempty"`
+	SizeProfile     *model.SizeProfile    `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 }
 
 // GetBasicCatalogFilter contains filter fields for GetCatalog
@@ -246,7 +249,8 @@ type GetCatalogResp struct {
 	UpdatedAt      time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
-	Tax *model.Tax `json:"tax,omitempty" bson:"tax,omitempty"`
+	Tax         *model.Tax         `json:"tax,omitempty" bson:"tax,omitempty"`
+	SizeProfile *model.SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 }
 
 //AddCatalogContentOpts contains fields which are passed on add content api
@@ -341,6 +345,8 @@ type GetAllCatalogInfoResp struct {
 	DiscountInfo *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	ContentInfo  []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
 	BrandInfo    *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax          *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
+	SizeProfile  *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 }
 
 type CatalogKafkaMessage struct {
@@ -422,6 +428,16 @@ type GetCatalogBasicResp struct {
 	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 }
 
+type GetCatalogByCategoryIDFilterResp struct {
+	Key   string `json:"key"`
+	Count int    `json:"doc_count"`
+}
+
+type GetCatalogByCategoryIDResp struct {
+	Data        []GetCatalogBasicResp              `json:"data,omitempty"`
+	BrandFilter []GetCatalogByCategoryIDFilterResp `json:"brand_filter,omitempty"`
+}
+
 type GetCatalogPebbleResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
@@ -451,6 +467,7 @@ type GetCatalogInfoResp struct {
 	VariantType     model.VariantType        `json:"variant_type,omitempty"`
 	Variants        []VariantInfo            `json:"variants,omitempty"`
 	ContentInfo     []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
+	SizeProfile     *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 }
 
 type GetCatalogByIDFilter struct {

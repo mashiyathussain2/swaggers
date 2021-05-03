@@ -19,7 +19,7 @@ type Elasticsearch interface {
 	GetActiveCollections() ([]schema.GetCollectionESResp, error)
 	GetCatalogByIDs([]string) ([]schema.GetCatalogBasicResp, error)
 	GetCatalogInfoByID(string) (*schema.GetCatalogInfoResp, error)
-	GetCatalogInfoByCategoryID(*schema.GetCatalogByCategoryIDOpts) ([]schema.GetCatalogBasicResp, error)
+	GetCatalogInfoByCategoryID(*schema.GetCatalogByCategoryIDOpts) (*schema.GetCatalogByCategoryIDResp, error)
 
 	GetCatalogBySaleID(*schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error)
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
@@ -155,18 +155,32 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByID(id string) (*schema.GetCatalogIn
 	return &resp[0], nil
 }
 
-func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogByCategoryIDOpts) ([]schema.GetCatalogBasicResp, error) {
+func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogByCategoryIDOpts) (*schema.GetCatalogByCategoryIDResp, error) {
 	var queries []elastic.Query
 	queries = append(queries, elastic.NewTermQuery("status.value", model.Publish))
 	queries = append(queries, elastic.NewTermQuery("category_path", opts.CategoryID))
 	query := elastic.NewBoolQuery().Must(queries...)
-	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(int(opts.Page) * 20).Size(20).Do(context.Background())
+	if len(opts.BrandName) > 0 {
+		query = query.Filter(elastic.NewTermsQueryFromStrings("brand_info.name.name", opts.BrandName...))
+	}
+
+	aggs := elastic.NewTermsAggregation().Field("brand_info.name.name")
+	q := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(int(opts.Page) * 20).Size(20)
+	switch opts.Sort {
+	case -1:
+		q = q.Sort("retail_price.value", false)
+	case 1:
+		q = q.Sort("retail_price.value", true)
+	}
+	res, err := q.Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get catalogs")
 		return nil, errors.Wrap(err, "failed to get catalogs")
 	}
 
+	result := schema.GetCatalogByCategoryIDResp{}
 	var resp []schema.GetCatalogBasicResp
+	var filter []schema.GetCatalogByCategoryIDFilterResp
 	for _, hit := range res.Hits.Hits {
 		// Deserialize hit.Source into a GetPebbleESResp
 		var s schema.GetCatalogBasicResp
@@ -176,8 +190,14 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogB
 		}
 		resp = append(resp, s)
 	}
-
-	return resp, nil
+	if aggs, ok := res.Aggregations.Terms("brands"); ok {
+		for _, bucket := range aggs.Buckets {
+			filter = append(filter, schema.GetCatalogByCategoryIDFilterResp{Key: bucket.Key.(string), Count: int(bucket.DocCount)})
+		}
+	}
+	result.Data = resp
+	result.BrandFilter = filter
+	return &result, nil
 }
 
 func (ei *ElasticsearchImpl) GetCatalogBySaleID(opts *schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error) {
@@ -210,7 +230,7 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
 	mustQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"brand_info.name.autocomplete", "name.autocomplete", "keywords.autocomplete"}...).Operator("or").Type("cross_fields")
 	catalogQuery := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
-	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id"}, nil))
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id", "brand_info"}, nil))
 
 	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))

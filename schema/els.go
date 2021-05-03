@@ -59,8 +59,10 @@ type GetCatalogBySaleIDOpts struct {
 }
 
 type GetCatalogByCategoryIDOpts struct {
-	Page       uint   `qs:"page"`
-	CategoryID string `qs:"categoryID"`
+	Page       uint     `qs:"page"`
+	CategoryID string   `qs:"categoryID"`
+	BrandName  []string `qs:"brandName"`
+	Sort       int      `qs:"sort"`
 }
 
 type SearchOpts struct {
@@ -89,6 +91,7 @@ type CatalogSearchResp struct {
 	Variants      []struct {
 		ID primitive.ObjectID `json:"id"`
 	} `json:"variants"`
+	BrandInfoResp *BrandInfoResp `json:"brand_info"`
 }
 
 type ContentSearchResp struct {
