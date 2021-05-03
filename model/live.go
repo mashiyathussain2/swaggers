@@ -34,7 +34,8 @@ type Live struct {
 	StatusHistory []StreamStatus       `json:"status_history,omitempty" bson:"status_history,omitempty"`
 
 	LikeCount    uint                 `json:"like_count" bson:"like_count"`
-	LikeIDs      []primitive.ObjectID `json:"like_ids" bson:"like_ids"`
+	LikeIDs      []primitive.ObjectID `json:"like_ids,omitempty" bson:"like_ids,omitempty"`
+	LikedBy      []primitive.ObjectID `json:"liked_by,omitempty" bson:"liked_by,omitempty"`
 	CommentCount uint                 `json:"comment_count" bson:"comment_count"`
 
 	CatalogIDs     []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`

@@ -8,6 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/felixge/httpsnoop v1.0.1
 	github.com/frankban/quicktest v1.11.3 // indirect
+	github.com/garyburd/redigo v1.6.2
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1

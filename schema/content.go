@@ -235,6 +235,11 @@ type GetPebbleFilter struct {
 	Page      uint     `json:"page,omitempty" queryparam:"page"`
 }
 
+type GetPebbleByIDFilter struct {
+	UserID string `queryparam:"user_id"`
+	ID     string `queryparam:"id"`
+}
+
 type GetPebbleMediaESResp struct {
 	ID          primitive.ObjectID `json:"id,omitempty"`
 	IsPortrait  bool               `json:"is_portrait,omitempty"`
