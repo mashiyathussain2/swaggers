@@ -1,8 +1,8 @@
 package api
 
 import (
-	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -18,7 +18,6 @@ func (a *API) getLiveStreams(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(r.URL.Query().Encode())
 	res, err := a.App.Live.GetLiveStreams(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -72,6 +71,10 @@ func (a *API) pushComment(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	a.App.Live.PushComment(&s)
 	requestCTX.SetAppResponse(true, http.StatusCreated)
 	return
@@ -119,7 +122,10 @@ func (a *API) joinedLiveStream(requestCTX *handler.RequestContext, w http.Respon
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
 	a.App.Live.PushJoin(&s)
 	requestCTX.SetAppResponse(true, http.StatusCreated)
 	return

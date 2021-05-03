@@ -37,7 +37,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/content/comment", a.requestWithAuthHandler(a.createContentComment)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/pebble", a.requestHandler(a.getPebble)).Methods("GET")
-
+	a.Router.APIRoot.Handle("/pebble/id", a.requestHandler(a.getPebbleByID)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

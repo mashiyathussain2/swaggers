@@ -24,6 +24,7 @@ type Config struct {
 	IVSConfig           IVSConfig           `mapstructure:"ivs"`
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 	HypdAPIConfig       HypdAPIConfig       `mapstructure:"hypdAPI"`
+	SessionConfig       SessionConfig       `mapstructure:"session"`
 }
 
 // HypdAPIConfig contains other HYPD service apis
@@ -182,6 +183,18 @@ type DatabaseConfig struct {
 	Password   string `mapstructure:"password"`
 	ReplicaSet string `mapstructure:"replicaSet"`
 }
+type SessionConfig struct {
+	CookieConfig CookieConfig `mapstructure:"cookie"`
+	RedisConfig  RedisConfig
+}
+
+type CookieConfig struct {
+	Name     string `mapstructure:"name"`
+	Path     string `mapstructure:"path"`
+	HttpOnly bool   `mapstructure:"httpOnly"`
+	Domain   string `mapstructure:"domain"`
+	Secure   bool   `mapstructure:"secure"`
+}
 
 // S3Config stores s3 configurations
 type S3Config struct {
@@ -283,5 +296,6 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.IVSConfig = config.IVSConfig
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	config.APPConfig.HypdAPIConfig = config.HypdAPIConfig
+	config.SessionConfig.RedisConfig = config.RedisConfig
 	return config
 }

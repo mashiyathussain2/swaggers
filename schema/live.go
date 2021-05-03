@@ -79,9 +79,10 @@ type CreateLiveCommentOpts struct {
 
 // CreateIVSCommentMetaData contains fields to be returned to aws putmeta data api
 type CreateIVSCommentMetaData struct {
-	Name         string `json:"name"`
-	ProfileImage *Img   `json:"profile_image"`
-	Description  string `json:"description"`
+	ID           primitive.ObjectID `json:"id"`
+	Name         string             `json:"name"`
+	ProfileImage *Img               `json:"profile_image"`
+	Description  string             `json:"description"`
 }
 
 type CreateIVSCatalogMetaData struct {
@@ -94,7 +95,8 @@ type CreateIVSOrderMetaData struct {
 }
 
 type CreateIVSNewJoinMetaData struct {
-	Name string `json:"name"`
+	ID   primitive.ObjectID `json:"id"`
+	Name string             `json:"name"`
 }
 
 type IVSMetaData struct {
@@ -132,8 +134,9 @@ type JoinLiveStreamResp struct {
 }
 
 type PushJoinOpts struct {
-	ARN  string `json:"arn"`
-	Name string `json:"name"`
+	ID   primitive.ObjectID `json:"id"`
+	ARN  string             `json:"arn"`
+	Name string             `json:"name"`
 }
 
 type LiveOrderKafkaMessage struct {
