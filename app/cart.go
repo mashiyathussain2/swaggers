@@ -596,12 +596,12 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
 			}
 			coupon.AppliedValue = model.SetINRPrice(float32(av))
-		} else if cartUnwindBrands[0].Coupon.Type == model.FreeDelivery {
-			coupon.AppliedValue = model.SetINRPrice(0)
 		}
 
-		for i, _ := range orderItemsOpts {
-			orderItemsOpts[i].Coupon = &coupon
+		if cartUnwindBrands[0].Coupon.Type != model.FreeDelivery {
+			for i, _ := range orderItemsOpts {
+				orderItemsOpts[i].Coupon = &coupon
+			}
 		}
 
 	}
