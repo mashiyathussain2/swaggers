@@ -22,8 +22,13 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/brand/get", a.requestWithInternalHandler(a.getBrandsById)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/user/get", a.requestWithInternalHandler(a.getUserInfoByID)).Methods("POST")
 
-	a.Router.APIRoot.Handle("/user/auth", a.requestWithAuthHandler(a.updateUserAuthInfo)).Methods("POST")
-	a.Router.APIRoot.Handle("/user/auth/verify", a.requestWithAuthHandler(a.verifyUserAuthUpdate)).Methods("POST")
+	// a.Router.APIRoot.Handle("/user/auth/email", a.requestWithAuthHandler(a.updateUserEmail)).Methods("PUT")
+	// a.Router.APIRoot.Handle("/user/auth/phone", a.requestWithAuthHandler(a.updateUserPhoneNo)).Methods("PUT")
+	a.Router.APIRoot.Handle("/user/auth/email/check", a.requestHandler(a.checkEmail)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/auth/phone/check", a.requestHandler(a.checkPhoneNo)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/auth/email/verify", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/auth/phone/verify", a.requestWithAuthHandler(a.verifyPhoneNo)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/auth/logout", a.requestHandler(a.logoutUser)).Methods("GET")
 	a.Router.APIRoot.Handle("/user/forgot-password", a.requestHandler(a.forgotPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")
@@ -31,6 +36,7 @@ func (a *API) InitRoutes() {
 
 	// LOGIN AND SIGNUP APIS
 	a.Router.APIRoot.Handle("/customer/social/login", a.requestHandler(a.loginViaSocial)).Methods("POST")
+	a.Router.APIRoot.Handle("/customer/apple/login", a.requestHandler(a.loginViaApple)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/email/signup", a.requestHandler(a.signUpViaEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/email/login", a.requestHandler(a.loginViaEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/customer/otp/generate", a.requestHandler(a.loginViaMobileOTP)).Methods("POST")
@@ -40,6 +46,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/customer", a.requestWithAuthHandler(a.updateCustomerInfo)).Methods("PUT")
 	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.addAddress)).Methods("PUT")
 	a.Router.APIRoot.Handle("/customer/{userID}/address", a.requestWithAuthHandler(a.getAddress)).Methods("GET")
+	a.Router.APIRoot.Handle("/customer/address", a.requestWithAuthHandler(a.removeAddress)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/customer/address/edit", a.requestWithAuthHandler(a.editAddress)).Methods("PUT")
 
 	// TODO: Shall i remove this api??
 	a.Router.APIRoot.Handle("/brand/{brandID}", a.requestWithAuthHandler(a.getBrandByID)).Methods("GET")
@@ -51,6 +59,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/cart/{userID}", a.requestWithAuthHandler(a.getCartInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/cart/{userID}/checkout", a.requestWithAuthHandler(a.checkoutCart)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/cart/address", a.requestWithAuthHandler(a.setCartAddress)).Methods("POST")
+
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestWithAuthHandler(a.applyCoupon)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/cart/{userID}/coupon", a.requestWithAuthHandler(a.removeCoupon)).Methods("DELETE")
 
 	a.Router.APIRoot.Handle("/app/customer/{customerID}", a.requestWithAuthHandler(a.getCustomerInfo)).Methods("GET")
 
@@ -70,6 +82,14 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")
 	a.Router.APIRoot.Handle("/app/wishlist/{userID}", a.requestWithAuthHandler(a.getWishlist)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/size/create", a.requestWithSudoHandler(a.createSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/link-brand", a.requestWithSudoHandler(a.addBrandToSizeProfile)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/size/brand", a.requestWithSudoHandler(a.getSizeProfilesForBrand)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/get", a.requestWithSudoHandler(a.getSizeProfile)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/size/all", a.requestWithSudoHandler(a.getAllSizeProfiles)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/size/get", a.requestHandler(a.getSizeProfile)).Methods("GET")
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

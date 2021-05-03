@@ -151,3 +151,50 @@ func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 	requestCTX.SetAppResponse(true, http.StatusOK)
 
 }
+
+func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	var s schema.ApplyCouponOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if userID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	err = a.App.Cart.ApplyCoupon(userID, &s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	err = a.App.Cart.RemoveCoupon(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+
+}

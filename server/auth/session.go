@@ -107,6 +107,7 @@ func (s *SessionAuthImpl) Create(st string, w http.ResponseWriter) error {
 		HttpOnly: s.Config.CookieConfig.HttpOnly,
 		Domain:   s.Config.CookieConfig.Domain,
 		Secure:   s.Config.CookieConfig.Secure,
+		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, cookie)
 	return err

@@ -20,6 +20,7 @@ type Cart struct {
 	Items           []Item             `json:"items,omitempty" bson:"items,omitempty"`
 	CreatedAt       time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt       time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	Coupon          *Coupon            `json:"coupon,omitempty" bson:"coupon,omitempty"`
 }
 
 //Item is a unique catalogs data inside the cart
@@ -37,4 +38,21 @@ type Item struct {
 	Quantity      uint               `json:"quantity,omitempty" bson:"quantity,omitempty"`
 	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 	InStock       *bool              `json:"in_stock,omitempty" bson:"in_stock,omitempty"`
+}
+type Coupon struct {
+	ID               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Code             string             `json:"code,omitempty" bson:"code,omitempty"`
+	Description      string             `json:"description,omitempty" bson:"description"`
+	Type             DiscountType       `json:"type,omitempty" bson:"type,omitempty"`
+	Value            int                `json:"value,omitempty" bson:"value,omitempty"`
+	ApplicableON     *ApplicableON      `json:"applicable_on,omitempty" bson:"applicable_on,omitempty"`
+	MaxDiscount      *Price             `json:"max_discount,omitempty" bson:"max_discount,omitempty"`
+	MinPurchaseValue *Price             `json:"min_purchase_value,omitempty" bson:"min_purchase_value,omitempty"`
+	ValidAfter       time.Time          `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
+	ValidBefore      time.Time          `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
+	Status           string             `json:"status,omitempty" bson:"status,omitempty"`
+}
+type ApplicableON struct {
+	Name string               `json:"name,omitempty" bson:"name,omitempty"`
+	IDs  []primitive.ObjectID `json:"ids,omitempty" bson:"ids,omitempty"`
 }

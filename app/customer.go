@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-app/model"
 	"go-app/schema"
+	"sync"
 
 	"go-app/server/auth"
 	"time"
@@ -20,7 +21,7 @@ import (
 type Customer interface {
 	Login(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	SignUp(*schema.CreateUserOpts) (auth.Claim, error)
-	UpdateCustomer(*schema.UpdateCustomerOpts) (*schema.GetCustomerInfoResp, error)
+	UpdateCustomer(*schema.UpdateCustomerOpts) (auth.Claim, error)
 
 	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
 	RemoveBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
@@ -29,6 +30,9 @@ type Customer interface {
 	AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddressResp, error)
 	GetAddresses(primitive.ObjectID) ([]model.Address, error)
 	GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCustomerProfileInfoResp, error)
+
+	RemoveAddress(primitive.ObjectID, primitive.ObjectID) error
+	EditAddress(opts *schema.EditAddressOpts) error
 }
 
 // CustomerImpl implements Customer interface methods
@@ -93,8 +97,16 @@ func (ci *CustomerImpl) SignUp(opts *schema.CreateUserOpts) (auth.Claim, error) 
 }
 
 // UpdateCustomer update existing customer fields
-func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (*schema.GetCustomerInfoResp, error) {
+func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (auth.Claim, error) {
 	var update bson.D
+	var wg sync.WaitGroup
+	if opts.Email != "" {
+		ci.App.User.UpdateUserEmail(&schema.UpdateUserEmailOpts{ID: opts.UserID, Email: opts.Email})
+	}
+	if opts.PhoneNo != nil {
+		ci.App.User.UpdateUserPhoneNo(&schema.UpdateUserPhoneNoOpts{ID: opts.UserID, PhoneNo: opts.PhoneNo})
+	}
+
 	if opts.FullName != "" {
 		update = append(update, bson.E{Key: "full_name", Value: opts.FullName})
 	}
@@ -115,21 +127,35 @@ func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (*schema
 		}
 		update = append(update, bson.E{Key: "profile_image", Value: img})
 	}
-
+	var user *model.User
+	var customer model.Customer
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		user, _ = ci.App.User.GetUserByID(opts.UserID)
+	}()
 	if update == nil {
-		return nil, errors.New("no field update found for customer")
-	}
-	filter := bson.M{"_id": opts.ID}
-	updateQuery := bson.M{"$set": update}
-	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	var resp schema.GetCustomerInfoResp
-	if err := ci.DB.Collection(model.CustomerColl).FindOneAndUpdate(context.TODO(), filter, updateQuery, queryOpts).Decode(&resp); err != nil {
-		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Wrapf(err, "customer with id:%s not found", opts.ID.Hex())
+		filter := bson.M{"_id": opts.ID}
+		if err := ci.DB.Collection(model.CustomerColl).FindOne(context.TODO(), filter).Decode(&customer); err != nil {
+			if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+				return nil, errors.Wrapf(err, "customer with id:%s not found", opts.ID.Hex())
+			}
+			return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
 		}
-		return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
+	} else {
+		filter := bson.M{"_id": opts.ID}
+		updateQuery := bson.M{"$set": update}
+		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+		if err := ci.DB.Collection(model.CustomerColl).FindOneAndUpdate(context.TODO(), filter, updateQuery, queryOpts).Decode(&customer); err != nil {
+			if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+				return nil, errors.Wrapf(err, "customer with id:%s not found", opts.ID.Hex())
+			}
+			return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
+		}
 	}
-	return &resp, nil
+	wg.Wait()
+	claim := ci.App.User.GetUserClaim(user, &customer)
+	return claim, nil
 }
 
 func (ci *CustomerImpl) AddBrandFollowing(sc mongo.SessionContext, opts *schema.AddBrandFollowerOpts) error {
@@ -356,4 +382,67 @@ func (ci *CustomerImpl) GetAppCustomerInfo(id primitive.ObjectID) (*schema.GetCu
 		resp[0].UserInfo.PhoneVerified = true
 	}
 	return &resp[0], nil
+}
+
+func (ci *CustomerImpl) RemoveAddress(userID, addressID primitive.ObjectID) error {
+
+	filter := bson.M{
+		"user_id":       userID,
+		"addresses._id": addressID,
+	}
+	update := bson.M{
+		"$pull": bson.M{
+			"addresses": bson.M{
+				"_id": addressID,
+			},
+		},
+	}
+	resp, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrapf(err, "unable to remove address with id: %s, from user with id %s", addressID, userID)
+	}
+	if resp.MatchedCount == 0 {
+		return errors.Errorf("unable to find from user with id %s", addressID, userID)
+	}
+	return nil
+}
+
+func (ci *CustomerImpl) EditAddress(opts *schema.EditAddressOpts) error {
+
+	filter := bson.M{
+		"user_id":       opts.UserID,
+		"addresses._id": opts.AddressID,
+	}
+
+	address := model.Address{
+		ID:                opts.AddressID,
+		DisplayName:       opts.DisplayName,
+		Line1:             opts.Line1,
+		Line2:             opts.Line2,
+		District:          opts.District,
+		City:              opts.City,
+		State:             opts.State,
+		PostalCode:        opts.PostalCode,
+		Country:           opts.Country,
+		PlainAddress:      opts.PlainAddress,
+		IsBillingAddress:  opts.IsBillingAddress,
+		IsShippingAddress: opts.IsShippingAddress,
+		IsDefaultAddress:  opts.IsDefaultAddress,
+		ContactNumber:     opts.ContactNumber,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"addresses.$": address,
+		},
+	}
+
+	resp, err := ci.DB.Collection(model.CustomerColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrapf(err, "unable to edit address with id: %s, from user with id %s", opts.AddressID, opts.UserID)
+	}
+	if resp.MatchedCount == 0 {
+		return errors.Errorf("unable to find from user with id %s", opts.AddressID, opts.UserID)
+	}
+	return nil
 }

@@ -34,15 +34,21 @@ type User interface {
 	GetUserInfoByID(*schema.GetUserInfoByIDOpts) (bson.M, error)
 	EmailLoginCustomerUser(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	VerifyEmail(*schema.VerifyEmailOpts) (bool, error)
+	CheckEmail(*schema.CheckEmailOpts) (bool, error)
+	VerifyPhoneNo(*schema.VerifyPhoneNoOpts) (bool, error)
+	CheckPhoneNo(*schema.CheckPhoneNoOpts) (bool, error)
 	ResendConfirmationEmail(*schema.ResendVerificationEmailOpts) (bool, error)
 	ForgotPassword(*schema.ForgotPasswordOpts) (bool, error)
 	ResetPassword(*schema.ResetPasswordOpts) (bool, error)
 	MobileLoginCustomerUser(*schema.MobileLoginCustomerUserOpts) (auth.Claim, error)
 	GenerateMobileLoginOTP(*schema.GenerateMobileLoginOTPOpts) (bool, error)
 	LoginWithSocial(*schema.LoginWithSocial) (auth.Claim, error)
+	LoginWithApple(*schema.LoginWithApple) (auth.Claim, error)
 	GetUserByID(primitive.ObjectID) (*model.User, error)
-	UpdateUserAuthInfo(*schema.UpdateUserAuthOpts) error
-	VerifyUserAuthUpdate(*schema.VerifyUserAuthUpdate) (auth.Claim, error)
+	GetUserClaim(*model.User, *model.Customer) auth.Claim
+
+	UpdateUserEmail(*schema.UpdateUserEmailOpts) error
+	UpdateUserPhoneNo(*schema.UpdateUserPhoneNoOpts) error
 }
 
 // UserImpl implements user interface methods
@@ -188,6 +194,19 @@ func (ui *UserImpl) sendConfirmationEmail(u *model.User) error {
 	return nil
 }
 
+func (ui *UserImpl) sendConfirmationOTP(u *model.User) error {
+	// Sending OTP to phone number via SNS
+	params := &sns.PublishInput{
+		Message:     aws.String(fmt.Sprintf("OTP for login: %s", u.PhoneVerificationCode)),
+		PhoneNumber: aws.String(fmt.Sprintf("%s%s", u.PhoneNo.Prefix, u.PhoneNo.Number)),
+	}
+	if _, err := ui.App.SNS.Publish(params); err != nil {
+		ui.Logger.Err(err).Interface("phone  no", u.PhoneNo.Number).Msg("failed to send otp")
+		return errors.Wrap(err, "failed to send otp")
+	}
+	return nil
+}
+
 func (ui *UserImpl) sendForgotPasswordOTPEmail(u *model.User) error {
 	htmlBody := fmt.Sprintf(`
 		<p>Here's is your to reset your account's otp:</p>
@@ -225,7 +244,7 @@ func (ui *UserImpl) sendForgotPasswordOTPEmail(u *model.User) error {
 	return nil
 }
 
-func (ui *UserImpl) getUserClaim(user *model.User, customer *model.Customer) auth.Claim {
+func (ui *UserImpl) GetUserClaim(user *model.User, customer *model.Customer) auth.Claim {
 	claim := auth.UserClaim{
 		ID:           user.ID.Hex(),
 		CustomerID:   customer.ID.Hex(),
@@ -268,13 +287,87 @@ func (ui *UserImpl) VerifyEmail(opts *schema.VerifyEmailOpts) (bool, error) {
 	}
 
 	f := bson.M{"_id": user.ID}
-	u := bson.M{"$set": bson.M{
-		"email_verification_code": "",
-		"email_verified_at":       time.Now().UTC(),
-	}}
+	u := bson.M{
+		"$set": bson.M{
+			"email_verified_at": time.Now().UTC(),
+		},
+		"$unset": bson.M{
+			"email_verification_code": 1,
+		},
+	}
 	_, err := ui.DB.Collection(model.UserColl).UpdateOne(context.TODO(), f, u)
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to update email:%s as verified", user.Email)
+	}
+
+	return true, nil
+}
+
+// CheckEmail checks email if valid of not
+func (ui *UserImpl) CheckEmail(opts *schema.CheckEmailOpts) (bool, error) {
+	ctx := context.TODO()
+	var user model.User
+	filter := bson.M{"email": opts.Email}
+	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
+		fmt.Println(user)
+		fmt.Println(user == model.User{})
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return true, nil
+		}
+		return false, errors.Errorf("failed to check for user with email: %s", opts.Email)
+	}
+	fmt.Println(user)
+	fmt.Println(user == model.User{})
+	if user != (model.User{}) {
+		return false, errors.Errorf("user with email: %s already exists", opts.Email)
+	}
+	return true, nil
+}
+
+// CheckPhoneNo checks phone no if valid of not
+func (ui *UserImpl) CheckPhoneNo(opts *schema.CheckPhoneNoOpts) (bool, error) {
+	ctx := context.TODO()
+	var user model.User
+	filter := bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
+	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
+		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+			return true, nil
+		}
+		return false, errors.Errorf("failed to check for user with phone no: %s", opts.PhoneNo.Number)
+	}
+	if user != (model.User{}) {
+		return false, errors.Errorf("user with phone no: %s already exists", opts.PhoneNo.Number)
+	}
+	return true, nil
+}
+
+// VerifyEmail verify phone no with received verification code
+func (ui *UserImpl) VerifyPhoneNo(opts *schema.VerifyPhoneNoOpts) (bool, error) {
+	var user model.User
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}).Decode(&user); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return false, errors.Wrapf(err, "user with phone no:%s not found", opts.PhoneNo.Number)
+		}
+	}
+	if !user.PhoneVerifiedAt.IsZero() {
+		return false, errors.Errorf("phone :%s already verified", user.PhoneNo.Number)
+	}
+	if user.PhoneVerificationCode != opts.VerificationCode {
+		return false, errors.New("invalid verification code")
+	}
+
+	f := bson.M{"_id": user.ID}
+	u := bson.M{
+		"$set": bson.M{
+			"phone_verified_at": time.Now().UTC(),
+		},
+		"$unset": bson.M{
+			"phone_verification_code": 1,
+		},
+	}
+	_, err := ui.DB.Collection(model.UserColl).UpdateOne(context.TODO(), f, u)
+	if err != nil {
+		return false, errors.Wrapf(err, "failed to update phone no:%s as verified", user.PhoneNo.Number)
 	}
 
 	return true, nil
@@ -321,7 +414,7 @@ func (ui *UserImpl) EmailLoginCustomerUser(opts *schema.EmailLoginCustomerOpts) 
 		return nil, errors.Wrapf(err, "customer with email:%s not found", opts.Email)
 	}
 
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 	return claim, nil
 }
 
@@ -453,7 +546,7 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 	if err := ui.DB.Collection(model.CustomerColl).FindOne(context.TODO(), bson.M{"user_id": user.ID}).Decode(&customer); err != nil {
 		return nil, errors.Wrapf(err, "customer with phone_no:%s%s not found", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
 
 	wg.Wait()
 	return claim, nil
@@ -470,7 +563,6 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		return false, errors.Wrapf(err, "failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
 	otp, _ := GenerateOTP(6)
-	fmt.Println(count, "count is")
 	switch count {
 	// When no user exists thus creating a new one
 	case 0:
@@ -559,7 +651,7 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		// creating new user
 		user = model.User{
 			Type:            model.CustomerType,
-			Role:            model.UserColl,
+			Role:            model.UserRole,
 			Email:           opts.Email,
 			EmailVerifiedAt: time.Now().UTC(),
 			CreatedAt:       time.Now().UTC(),
@@ -598,17 +690,22 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		}
 		customer.ID = res.InsertedID.(primitive.ObjectID)
 	default:
-		if user.CreatedVia != model.CreatedViaFacebook && user.CreatedVia != model.CreatedViaGoogle {
+		if user.CreatedVia != model.CreatedViaFacebook && user.CreatedVia != model.CreatedViaGoogle && user.CreatedVia != model.CreatedViaApple {
 			return nil, errors.New("cannot use social login for this user, please use email/otp login")
 		}
 		if user.CreatedVia == model.CreatedViaGoogle {
-			if opts.Type == model.CreatedViaFacebook {
-				return nil, errors.New("cannot use facebook login: this account was created via google")
+			if opts.Type == model.CreatedViaFacebook || opts.Type == model.CreatedViaApple {
+				return nil, errors.New("cannot use facebook login: this account was created via other social login")
 			}
 		}
 		if user.CreatedVia == model.CreatedViaFacebook {
-			if opts.Type == model.CreatedViaGoogle {
-				return nil, errors.New("cannot use google login: this account was created via facebook")
+			if opts.Type == model.CreatedViaGoogle || opts.Type == model.CreatedViaApple {
+				return nil, errors.New("cannot use google login: this account was created via other social login")
+			}
+		}
+		if user.CreatedVia == model.CreatedViaApple {
+			if opts.Type == model.CreatedViaGoogle || opts.Type == model.CreatedViaFacebook {
+				return nil, errors.New("cannot use google login: this account was created via other social login")
 			}
 		}
 		filterQuery := bson.M{"user_id": user.ID}
@@ -633,7 +730,64 @@ func (ui *UserImpl) LoginWithSocial(opts *schema.LoginWithSocial) (auth.Claim, e
 		}
 	}
 
-	claim := ui.getUserClaim(&user, &customer)
+	claim := ui.GetUserClaim(&user, &customer)
+	return claim, nil
+}
+
+func (ui *UserImpl) LoginWithApple(opts *schema.LoginWithApple) (auth.Claim, error) {
+	ctx := context.TODO()
+	var user model.User
+	var customer model.Customer
+	var newUser bool
+	filter := bson.M{"social_id": opts.AppleID, "created_via": "apple"}
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), filter).Decode(&user); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			newUser = true
+		} else {
+			ui.Logger.Err(err).Msgf("failed to check for apple social user with id:%s", opts.AppleID)
+			return nil, errors.Wrapf(err, "failed to check for apple social user with id:%s", opts.AppleID)
+		}
+	}
+
+	switch newUser {
+	case true:
+		// creating new user
+		user = model.User{
+			Type:            model.CustomerType,
+			Role:            model.UserRole,
+			Email:           opts.Email,
+			EmailVerifiedAt: time.Now().UTC(),
+			CreatedAt:       time.Now().UTC(),
+			CreatedVia:      model.CreatedViaApple,
+			SocialID:        opts.AppleID,
+		}
+		res, err := ui.DB.Collection(model.UserColl).InsertOne(ctx, user)
+		if err != nil {
+			ui.Logger.Err(err).Interface("opts", opts).Msgf("failed to create social user using email:%s", opts.Email)
+			return nil, errors.Wrapf(err, "failed to create social user using email:%s", opts.Email)
+		}
+		user.ID = res.InsertedID.(primitive.ObjectID)
+
+		// creating customer and linking user_id
+		customer = model.Customer{
+			UserID:    user.ID,
+			FullName:  opts.FullName,
+			CreatedAt: time.Now().UTC(),
+		}
+		res, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
+		if err != nil {
+			ui.Logger.Err(err).Interface("opts", opts).Msgf("failed to create social customer using email:%s", opts.Email)
+			return nil, errors.Wrapf(err, "failed to create social customer using email:%s", opts.Email)
+		}
+		customer.ID = res.InsertedID.(primitive.ObjectID)
+	default:
+		filterQuery := bson.M{"user_id": user.ID}
+		if err := ui.DB.Collection(model.CustomerColl).FindOne(ctx, filterQuery).Decode(&customer); err != nil {
+			return nil, errors.Wrapf(err, "failed to apple social customer with id:%s", user.ID)
+		}
+	}
+
+	claim := ui.GetUserClaim(&user, &customer)
 	return claim, nil
 }
 
@@ -718,165 +872,93 @@ func (ui *UserImpl) GetUserByID(id primitive.ObjectID) (*model.User, error) {
 	return &user, nil
 }
 
-func (ui *UserImpl) UpdateUserAuthInfo(opts *schema.UpdateUserAuthOpts) error {
+func (ui *UserImpl) UpdateUserEmail(opts *schema.UpdateUserEmailOpts) error {
 	ctx := context.TODO()
 	// Checking if another user with email already exists
 	var filter bson.M
 	var update bson.M
-	claimOTP, _ := GenerateOTP(6)
-	if opts.Email != "" {
-		var claimUser model.User
-		filter := bson.M{"email": opts.Email, "_id": bson.M{"$ne": opts.ID}}
-		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&claimUser); err != nil {
-			if err != mongo.ErrNoDocuments {
-				return errors.Wrap(err, "failed to check for user with provided email")
-			}
-		}
-
-		// If there is a profile with provided email
-		if (claimUser != model.User{}) {
-			_, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, bson.M{"_id": claimUser.ID}, bson.M{"$set": bson.M{"email_verification_code": claimOTP}})
-			if err != nil {
-				return errors.Wrap(err, "failed to generate otp for verification")
-			}
-			claimUser.EmailVerificationCode = claimOTP
-			if err := ui.sendConfirmationEmail(&claimUser); err != nil {
-			}
-			return nil
-		}
-		update = bson.M{
-			"$set": bson.M{
-				"email":                   opts.Email,
-				"email_verification_code": claimOTP,
-			},
-		}
-	} else {
-		filter := bson.M{"phone_no.prefix": opts.ContactNo.Prefix, "phone_no.number": opts.ContactNo.Number, "_id": bson.M{"$ne": opts.ID}}
-		count, err := ui.DB.Collection(model.UserColl).CountDocuments(ctx, filter)
-		if err != nil {
-			return errors.Wrap(err, "failed to check for user with provided phone number")
-		}
-		if count != 0 {
-			return errors.New("user with phone number already exists")
-		}
-		filter = bson.M{
-			"_id": opts.ID,
-		}
-		update = bson.M{
-			"$set": bson.M{
-				"phone_no": &model.PhoneNumber{
-					Prefix: opts.ContactNo.Prefix,
-					Number: opts.ContactNo.Number,
-				},
-				"phone_verification_code": claimOTP,
-			},
+	var user model.User
+	// var wg sync.WaitGroup
+	filter = bson.M{"email": opts.Email}
+	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
+		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
+			return errors.Wrapf(err, "failed to check for user with email: %s", opts.Email)
 		}
 	}
 
-	if _, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, filter, update); err != nil {
+	// user already exists with the email
+	if (user != model.User{}) {
+		// If its a different user return error
+		if user.ID != opts.ID {
+			return errors.Errorf("email: %s is associated with different user", opts.Email)
+		}
+	}
+
+	// no account has provided email thus added email to provided user
+	claimOTP, _ := GenerateOTP(6)
+	update = bson.M{
+		"$set": bson.M{
+			"email":                   opts.Email,
+			"email_verification_code": claimOTP,
+		},
+	}
+	filter = bson.M{"_id": opts.ID}
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
 		return errors.Wrap(err, "failed to update user info")
 	}
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	ui.sendConfirmationEmail(&user)
+	// }()
 
+	// wg.Wait()
 	return nil
 }
 
-func (ui *UserImpl) VerifyUserAuthUpdate(opts *schema.VerifyUserAuthUpdate) (auth.Claim, error) {
-	var user model.User
+func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error {
 	ctx := context.TODO()
+	// Checking if another user with phone no already exists
+	var filter bson.M
 	var update bson.M
-	if opts.Email != "" {
-		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"email": opts.Email}).Decode(&user); err != nil {
-			return nil, errors.Wrapf(err, "failed to find user with email: %s", opts.Email)
-		}
-		if user.EmailVerificationCode != opts.OTP {
-			return nil, errors.New("invalid otp")
-		}
-		update = bson.M{
-			"$set": bson.M{
-				"email_verified_at": time.Now().UTC(),
-			},
-			"$unset": bson.M{
-				"email_verification_code": 1,
-			},
-		}
-	} else {
-		if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"phone_no.prefix": opts.ContactNo.Prefix, "phone_no.number": opts.ContactNo.Number}).Decode(&user); err != nil {
-			return nil, errors.Wrapf(err, "failed to find user with phone number: %s", opts.ContactNo.Number)
-		}
-		if user.PhoneVerificationCode != opts.OTP {
-			return nil, errors.New("invalid otp")
-		}
-		update = bson.M{
-			"$set": bson.M{
-				"phone_verified_at": time.Now().UTC(),
-			},
-			"$unset": bson.M{
-				"phone_verification_code": 1,
-			},
+	// var wg sync.WaitGroup
+	var user model.User
+	filter = bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
+	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
+		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
+			return errors.Wrapf(err, "failed to check for user with phone: %s", opts.PhoneNo.Number)
 		}
 	}
 
-	var wg sync.WaitGroup
-	if opts.Email != "" {
-		if opts.ID != user.ID {
-			var wg1 sync.WaitGroup
-			var newUser model.User
-			var newCart model.Cart
-			if err := ui.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"_id": opts.ID}).Decode(&newUser); err != nil {
-				return nil, errors.Wrapf(err, "failed to find link user account")
-			}
-			update = bson.M{
-				"$set": bson.M{
-					"email_verified_at": time.Now().UTC(),
-					"phone_no":          newUser.PhoneNo,
-					"phone_verified_at": newUser.PhoneVerifiedAt,
-				},
-				"$unset": bson.M{
-					"email_verification_code": 1,
-				},
-			}
-
-			wg1.Add(1)
-			go func() {
-				defer wg1.Done()
-				_, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, bson.M{"_id": newUser.ID}, bson.M{"$unset": bson.M{"phone_no": 1}})
-				ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset old user phone no")
-			}()
-
-			wg1.Add(1)
-			go func() {
-				defer wg1.Done()
-				// Linking NewUser Cart to OldUser
-				if err := ui.DB.Collection(model.CartColl).FindOneAndUpdate(ctx, bson.M{"user_id": newUser.ID}, bson.M{"$set": bson.M{"user_id": user.ID}}).Decode(&newCart); err != nil {
-					ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to link new cart to old user")
-				}
-				if _, err := ui.DB.Collection(model.CartColl).UpdateOne(ctx, bson.M{"user_id": user.ID, "_id": bson.M{"$ne": newCart.ID}}, bson.M{"$unset": bson.M{"user_id": 1}}); err != nil {
-					ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset old user phone no")
-				}
-			}()
-
-			wg1.Wait()
-			_, err := ui.DB.Collection(model.CustomerColl).UpdateOne(ctx, bson.M{"user_id": user.ID}, bson.M{"$set": bson.M{"cart_id": newCart.ID}})
-			if err != nil {
-				ui.Logger.Err(err).Str("_id", newUser.ID.Hex()).Msg("failed to unset move cart to old customer")
-			}
-
+	// user already exists with the phone
+	if (user != model.User{}) {
+		// If its a different user return error
+		if user.ID != opts.ID {
+			return errors.Errorf("phone no: %s is associated with different user", opts.PhoneNo.Number)
 		}
 	}
-
-	var customer model.Customer
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		ui.DB.Collection(model.CustomerColl).FindOne(ctx, bson.M{"user_id": user.ID}).Decode(&customer)
-	}()
+	// no account has provided phone no thus added phone no to provided user
+	claimOTP, _ := GenerateOTP(6)
+	filter = bson.M{"_id": opts.ID}
+	update = bson.M{
+		"$set": bson.M{
+			"phone_no": model.PhoneNumber{
+				Prefix: opts.PhoneNo.Prefix,
+				Number: opts.PhoneNo.Number,
+			},
+			"phone_verification_code": claimOTP,
+		},
+	}
 	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, update, queryOpts).Decode(&user); err != nil {
-		return nil, errors.Wrap(err, "failed to update user")
+	if err := ui.DB.Collection(model.UserColl).FindOneAndUpdate(ctx, filter, update, queryOpts).Decode(&user); err != nil {
+		return errors.Wrap(err, "failed to update user info")
 	}
-	wg.Wait()
-	claim := ui.getUserClaim(&user, &customer)
-
-	return claim, nil
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	ui.sendConfirmationOTP(&user)
+	// }()
+	// wg.Wait()
+	return nil
 }
