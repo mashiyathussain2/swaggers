@@ -45,6 +45,7 @@ type CreateDiscountResp struct {
 type CreateSaleOpts struct {
 	Name        string    `json:"name" validate:"required"`
 	Banner      Img       `json:"banner" validate:"required"`
+	WebBanner   Img       `json:"web_banner" validate:"required"`
 	Genders     []string  `json:"genders" validate:"required,dive,oneof=M F O"`
 	ValidAfter  time.Time `json:"valid_after" validate:"required"`
 	ValidBefore time.Time `json:"valid_before" validate:"required,gtfield=ValidAfter"`
@@ -57,7 +58,8 @@ type CreateSaleResp struct {
 	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
 	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
 
-	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	Banner    *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	WebBanner *model.IMG `json:"web_banner" bson:"web_banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
@@ -67,19 +69,21 @@ type CreateSaleResp struct {
 
 //EditSaleOpts validates schema for editing a sale
 type EditSaleOpts struct {
-	ID      primitive.ObjectID `json:"id" validate:"required"`
-	Name    string             `json:"name" `
-	Banner  *Img               `json:"banner" `
-	Genders []string           `json:"genders" validate:"dive,oneof=M F O"`
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	Name      string             `json:"name"`
+	Banner    *Img               `json:"banner"`
+	WebBanner *Img               `json:"web_banner"`
+	Genders   []string           `json:"genders" validate:"dive,oneof=M F O"`
 }
 
 // EditSaleResp contains fields to be returned as response when a sale is edited
 type EditSaleResp struct {
-	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
-	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
-	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
-	Banner  *model.IMG         `json:"banner,omitempty" bson:"banner,omitempty"`
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name      string             `json:"name,omitempty" bson:"name,omitempty"`
+	Slug      string             `json:"slug,omitempty" bson:"slug,omitempty"`
+	Genders   []string           `json:"genders,omitempty" bson:"genders,omitempty"`
+	Banner    *model.IMG         `json:"banner,omitempty" bson:"banner,omitempty"`
+	WebBanner *model.IMG         `json:"web_banner,omitempty" bson:"web_banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
@@ -170,7 +174,8 @@ type GetSalesResp struct {
 	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
 	Genders []string           `json:"genders,omitempty" bson:"genders,omitempty"`
 
-	Banner *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	Banner    *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
+	WebBanner *model.IMG `json:"web_banner,omitempty" bson:"web_banner,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`

@@ -182,6 +182,9 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		Banner: &model.IMG{
 			SRC: opts.Banner.SRC,
 		},
+		WebBanner: &model.IMG{
+			SRC: opts.WebBanner.SRC,
+		},
 		Genders:     opts.Genders,
 		Status:      model.Schedule,
 		ValidAfter:  opts.ValidAfter,
@@ -190,6 +193,10 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 	}
 	if err := s.Banner.LoadFromURL(); err != nil {
 		return nil, errors.Wrap(err, "failed to load banner image")
+	}
+
+	if err := s.WebBanner.LoadFromURL(); err != nil {
+		return nil, errors.Wrap(err, "failed to load web banner image")
 	}
 
 	res, err := di.DB.Collection(model.SaleColl).InsertOne(context.TODO(), s)
@@ -202,6 +209,7 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		Name:        s.Name,
 		Slug:        s.Slug,
 		Banner:      s.Banner,
+		WebBanner:   s.WebBanner,
 		Genders:     s.Genders,
 		ValidAfter:  s.ValidAfter,
 		ValidBefore: s.ValidBefore,
@@ -250,6 +258,18 @@ func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleRes
 		sale.Banner = &banner
 	}
 
+	if opts.WebBanner != nil {
+		webBanner := model.IMG{SRC: opts.WebBanner.SRC}
+		err := webBanner.LoadFromURL()
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to load WebBanner image")
+		}
+		updateData = append(updateData, bson.E{
+			Key: "web_banner", Value: webBanner,
+		})
+		sale.WebBanner = &webBanner
+	}
+
 	if len(opts.Genders) != 0 {
 		sale.Genders = opts.Genders
 		updateData = append(updateData, bson.E{
@@ -277,6 +297,7 @@ func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleRes
 		Name:        sale.Name,
 		Slug:        sale.Slug,
 		Banner:      sale.Banner,
+		WebBanner:   sale.WebBanner,
 		Genders:     sale.Genders,
 		ValidAfter:  sale.ValidAfter,
 		ValidBefore: sale.ValidBefore,
