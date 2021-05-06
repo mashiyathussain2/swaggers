@@ -48,6 +48,7 @@ type CreateSaleOpts struct {
 	WebBanner   Img       `json:"web_banner" validate:"required"`
 	Genders     []string  `json:"genders" validate:"required,dive,oneof=M F O"`
 	ValidAfter  time.Time `json:"valid_after" validate:"required"`
+	Order       int       `json:"order"`
 	ValidBefore time.Time `json:"valid_before" validate:"required,gtfield=ValidAfter"`
 }
 
@@ -60,6 +61,7 @@ type CreateSaleResp struct {
 
 	Banner    *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 	WebBanner *model.IMG `json:"web_banner" bson:"web_banner,omitempty"`
+	Order     int        `json:"order" bson:"order"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
@@ -73,6 +75,7 @@ type EditSaleOpts struct {
 	Name      string             `json:"name"`
 	Banner    *Img               `json:"banner"`
 	WebBanner *Img               `json:"web_banner"`
+	Order     int                `json:"order"`
 	Genders   []string           `json:"genders" validate:"dive,oneof=M F O"`
 }
 
@@ -84,6 +87,7 @@ type EditSaleResp struct {
 	Genders   []string           `json:"genders,omitempty" bson:"genders,omitempty"`
 	Banner    *model.IMG         `json:"banner,omitempty" bson:"banner,omitempty"`
 	WebBanner *model.IMG         `json:"web_banner,omitempty" bson:"web_banner,omitempty"`
+	Order     int                `json:"order" bson:"order"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
@@ -176,6 +180,7 @@ type GetSalesResp struct {
 
 	Banner    *model.IMG `json:"banner,omitempty" bson:"banner,omitempty"`
 	WebBanner *model.IMG `json:"web_banner,omitempty" bson:"web_banner,omitempty"`
+	Order     int        `json:"order" bson:"order"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
