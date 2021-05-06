@@ -185,6 +185,7 @@ func (di *DiscountImpl) CreateSale(opts *schema.CreateSaleOpts) (*schema.CreateS
 		WebBanner: &model.IMG{
 			SRC: opts.WebBanner.SRC,
 		},
+		Order:       opts.Order,
 		Genders:     opts.Genders,
 		Status:      model.Schedule,
 		ValidAfter:  opts.ValidAfter,
@@ -274,6 +275,11 @@ func (di *DiscountImpl) EditSale(opts *schema.EditSaleOpts) (*schema.EditSaleRes
 		sale.Genders = opts.Genders
 		updateData = append(updateData, bson.E{
 			Key: "genders", Value: opts.Genders,
+		})
+	}
+	if opts.Order > 0 {
+		updateData = append(updateData, bson.E{
+			Key: "order", Value: opts.Order,
 		})
 	}
 
@@ -619,7 +625,8 @@ func (di *DiscountImpl) GetAppActiveSale(opts *schema.GetAppActiveSaleOpts) ([]s
 		filter = append(filter, bson.E{Key: "genders", Value: bson.M{"$in": opts.Genders}})
 	}
 	ctx := context.TODO()
-	cur, err := di.DB.Collection(model.SaleColl).Find(ctx, filter)
+	queryOpts := options.Find().SetSort(bson.M{"order": 1})
+	cur, err := di.DB.Collection(model.SaleColl).Find(ctx, filter, queryOpts)
 	if err != nil {
 		di.Logger.Err(err).Msg("query failed to find sale")
 		return nil, errors.New("failed to find active sale")
