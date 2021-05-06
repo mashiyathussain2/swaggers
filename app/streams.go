@@ -243,7 +243,13 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 		return
 	}
+
 	if collectionSchema.Status != model.Publish {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		cp.App.CollectionFullProducer.Publish(m)
 		return
 	}
 

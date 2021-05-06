@@ -70,7 +70,7 @@ func (ei *ElasticsearchImpl) GetActiveCollections() ([]schema.GetCollectionESRes
 
 	boolQuery := elastic.NewBoolQuery().Must(queries[0]).Should(queries[1])
 	fsctx := elastic.NewFetchSourceContext(true).Include([]string{"id", "name", "title", "type", "sub_collections.catalog_ids", "sub_collections.id", "sub_collections.name", "sub_collections.image", "sub_collections.title", "inner_hits.sub_collections"}...)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).Sort("order", true).FetchSourceContext(fsctx).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")

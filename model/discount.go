@@ -67,6 +67,7 @@ type Sale struct {
 	Genders   []string           `json:"genders" bson:"genders"`
 	Banner    *IMG               `json:"banner,omitempty" bson:"banner,omitempty"`
 	WebBanner *IMG               `json:"web_banner,omitempty" bson:"web_banner,omitempty"`
+	Order     int                `json:"order,omitempty" bson:"order,omitempty"`
 
 	ValidAfter  time.Time `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore time.Time `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
