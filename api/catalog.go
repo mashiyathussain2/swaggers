@@ -278,7 +278,6 @@ func (a *API) getAllCatalogInfo(requestCTX *handler.RequestContext, w http.Respo
 
 func (a *API) getCatalogBasicByIds(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogByIDFilter
-	fmt.Println(r.URL.Query().Encode())
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
