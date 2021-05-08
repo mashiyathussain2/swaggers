@@ -354,7 +354,6 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 						td = td + (d * cartItem.Quantity)
 					default:
 					}
-					fmt.Println(dp)
 					cart.Items[i].DiscountedPrice = dp
 					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 					cart.Items[i].TransferPrice = model.SetINRPrice(0)
@@ -366,8 +365,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		}
 
 	}
-	fmt.Println(gt)
-	fmt.Println(rp - td)
+
 	cart.TotalPrice = model.SetINRPrice(float32(tp))
 	cart.TotalDiscount = model.SetINRPrice(float32(td))
 	cart.GrandTotal = model.SetINRPrice(float32(gt))
@@ -597,7 +595,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	var coupon schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
-		fmt.Println(cartUnwindBrands[0])
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
