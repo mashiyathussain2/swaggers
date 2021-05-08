@@ -324,8 +324,9 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	}
 	tp := uint(0)
 	td := uint(0)
+	gt := uint(0)
 	for i, cartItem := range cart.Items {
-		tp = tp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
+		tp = tp + uint(cartItem.BasePrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
@@ -352,13 +353,17 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					cart.Items[i].DiscountedPrice = dp
 					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 					cart.Items[i].TransferPrice = model.SetINRPrice(0)
+					gt = gt - uint(dp.Value)*cartItem.Quantity
 				}
 			}
 		}
+		gt = gt + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
+		td = td + uint(cartItem.BasePrice.Value-cartItem.RetailPrice.Value)*cartItem.Quantity
+
 	}
 	cart.TotalPrice = model.SetINRPrice(float32(tp))
-	cart.TotalDiscount = model.SetINRPrice(float32(td))
-	cart.GrandTotal = model.SetINRPrice(float32(tp - td))
+	cart.TotalDiscount = model.SetINRPrice(float32(tp - gt))
+	cart.GrandTotal = model.SetINRPrice(float32(gt))
 	return &cart, nil
 }
 
