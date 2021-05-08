@@ -58,14 +58,14 @@ type CartUnwindBrand struct {
 }
 
 type OrderItemOpts struct {
-	UserID          primitive.ObjectID `json:"user_id"`
-	BrandID         primitive.ObjectID `json:"brand_id"`
-	ShippingAddress *OrderAddressOpts  `json:"shipping_address"`
-	BillingAddress  *OrderAddressOpts  `json:"billing_address"`
-	Source          string             `json:"source"`
-	SourceID        primitive.ObjectID `json:"source_id,omitempty"`
-	OrderItems      []OrderItem        `json:"order_items" bson:"order_items"`
-	Coupon          *CouponOrderOpts   `json:"coupon_info"`
+	UserID          primitive.ObjectID  `json:"user_id"`
+	BrandID         primitive.ObjectID  `json:"brand_id"`
+	ShippingAddress *OrderAddressOpts   `json:"shipping_address"`
+	BillingAddress  *OrderAddressOpts   `json:"billing_address"`
+	Source          string              `json:"source"`
+	SourceID        *primitive.ObjectID `json:"source_id,omitempty"`
+	OrderItems      []OrderItem         `json:"order_items" bson:"order_items"`
+	Coupon          *CouponOrderOpts    `json:"coupon_info"`
 }
 
 type OrderResp struct {
