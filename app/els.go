@@ -110,11 +110,10 @@ func (ei *ElasticsearchImpl) GetActiveCollections(opts *schema.GetActiveCollecti
 }
 
 func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogBasicResp, error) {
-
 	mustQuery := elastic.NewTermsQueryFromStrings("id", ids...)
 	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
 	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
-	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(0).Size(100).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
