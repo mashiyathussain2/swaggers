@@ -323,10 +323,14 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		return nil, errors.Wrapf(err, "unable to query for cart")
 	}
 	tp := uint(0)
+	rp := uint(0)
 	td := uint(0)
 	gt := uint(0)
 	for i, cartItem := range cart.Items {
 		tp = tp + uint(cartItem.BasePrice.Value)*cartItem.Quantity
+		rp = rp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
+		// gt = gt + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
+		td = td + uint(cartItem.BasePrice.Value-cartItem.RetailPrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
@@ -353,16 +357,17 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					cart.Items[i].DiscountedPrice = dp
 					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 					cart.Items[i].TransferPrice = model.SetINRPrice(0)
-					gt = gt - uint(dp.Value)*cartItem.Quantity
+					gt = gt + uint(dp.Value)*cartItem.Quantity
 				}
 			}
+		} else {
+			gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
 		}
-		gt = gt + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
-		td = td + uint(cartItem.BasePrice.Value-cartItem.RetailPrice.Value)*cartItem.Quantity
 
 	}
+
 	cart.TotalPrice = model.SetINRPrice(float32(tp))
-	cart.TotalDiscount = model.SetINRPrice(float32(tp - gt))
+	cart.TotalDiscount = model.SetINRPrice(float32(td))
 	cart.GrandTotal = model.SetINRPrice(float32(gt))
 	return &cart, nil
 }
@@ -590,7 +595,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 	var coupon schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
-		fmt.Println(cartUnwindBrands[0])
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
