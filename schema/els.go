@@ -106,3 +106,7 @@ type SearchResp struct {
 	Influencer []InfluencerSearchResp `json:"influencer"`
 	Content    []ContentSearchResp    `json:"content"`
 }
+
+type GetActiveCollectionsOpts struct {
+	Gender string `qs:"gender"`
+}

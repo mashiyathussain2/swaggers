@@ -3,10 +3,12 @@ package api
 import (
 	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pasztorpisti/qs"
 	"github.com/vasupal1996/goerror"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -161,7 +163,19 @@ func (a *API) getCollections(requestCTX *handler.RequestContext, w http.Response
 }
 
 func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	resp, err := a.App.Elasticsearch.GetActiveCollections()
+	var s schema.GetActiveCollectionsOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	} else {
+		if requestCTX.UserClaim != nil {
+			s = schema.GetActiveCollectionsOpts{
+				Gender: requestCTX.UserClaim.(*auth.UserClaim).Gender,
+			}
+		}
+	}
+	fmt.Println(&s)
+	resp, err := a.App.Elasticsearch.GetActiveCollections(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
