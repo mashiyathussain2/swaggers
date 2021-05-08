@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -140,6 +141,12 @@ func (a *API) getAppActiveSale(requestCTX *handler.RequestContext, w http.Respon
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
+	} else {
+		if requestCTX.UserClaim != nil {
+			s = schema.GetAppActiveSaleOpts{
+				Genders: []string{requestCTX.UserClaim.(*auth.UserClaim).Gender},
+			}
+		}
 	}
 	res, err := a.App.Discount.GetAppActiveSale(&s)
 	if err != nil {
