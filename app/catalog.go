@@ -1468,7 +1468,6 @@ func (kc *KeeperCatalogImpl) GetCollectionCatalogInfo(ids []primitive.ObjectID) 
 			},
 		},
 	}}
-
 	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
 		matchStage,
 		lookupDiscountStage,
