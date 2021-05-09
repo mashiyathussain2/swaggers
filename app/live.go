@@ -110,7 +110,7 @@ func (li *LiveImpl) CreateLiveStream(opts *schema.CreateLiveStreamOpts) (*schema
 	ivs := model.IVS{
 		Channel: &model.IVSChannel{
 			ARN:                   *resp.Channel.Arn,
-			Name:                  *resp.Channel.Name,
+			Name:                  UniqueSlug(*resp.Channel.Name),
 			Type:                  *resp.Channel.Type,
 			LatencyMode:           *resp.Channel.LatencyMode,
 			PlaybackAuthorization: *resp.Channel.Authorized,
