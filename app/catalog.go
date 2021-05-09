@@ -287,9 +287,6 @@ func (kc *KeeperCatalogImpl) EditCatalog(opts *schema.EditCatalogOpts) (*schema.
 			Type: opts.Tax.Type,
 		}
 		if opts.Tax.Type == model.SingleTax {
-			if opts.Tax.Rate == 0 {
-				return nil, errors.Errorf("rate cannot be 0")
-			}
 			c.Tax.Rate = opts.Tax.Rate
 			c.Tax.TaxRanges = []model.TaxRange{}
 		}
