@@ -221,16 +221,10 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 		return
 	}
 
-	cp.Logger.Info().RawJSON("update", message.Value).Msg("got the collection update")
 	if s.Meta.Operation == "u" {
 		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
-			cp.Logger.Debug().Interface("updates.(primitive.D).Map()", updates.(primitive.D).Map()).Msg("got the change update")
-			cp.Logger.Debug().Interface("sub_collections.0", updates.(primitive.D).Map()["sub_collections.0.catalog_ids"]).Msg("got the subcollection change update")
-			if subCollectionUpdate, ok := updates.(primitive.D).Map()["sub_collections.0.catalog_ids"]; ok {
-				cp.Logger.Debug().Interface("subCollectionUpdate", subCollectionUpdate).Msg("got the subcollection update")
-				cp.Logger.Debug().Msgf("updating collection id: %s", s.Meta.ID.(primitive.ObjectID).Hex())
+			if _, ok := updates.(primitive.D).Map()["sub_collections.0.catalog_ids"]; ok {
 				cp.App.Collection.AddCatalogInfoToCollection(s.Meta.ID.(primitive.ObjectID))
-
 			}
 		}
 	}
