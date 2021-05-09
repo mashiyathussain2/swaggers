@@ -227,6 +227,7 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 				for _, field := range subCollectionUpdate.(bson.A) {
 					if _, ok := field.(bson.D).Map()["catalog_ids"]; ok {
 						cp.App.Collection.AddCatalogInfoToCollection(s.Meta.ID.(primitive.ObjectID))
+						break
 					}
 				}
 			}

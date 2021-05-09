@@ -412,6 +412,7 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 			return
 		}
 		if catalogInfo == nil {
+			ci.Logger.Err(err).Msgf("empty catalog info for subcollection with id: %s", subColl.ID.Hex())
 			continue
 		}
 		operation.SetUpdate(bson.M{
@@ -423,6 +424,7 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	}
 
 	if len(operations) == 0 {
+		ci.Logger.Info().Msgf("no operations for subcollection with id: %s", id.Hex())
 		return
 	}
 
