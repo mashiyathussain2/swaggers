@@ -6,6 +6,7 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
+	"strings"
 	"sync"
 	"time"
 
@@ -103,14 +104,14 @@ func (li *LiveImpl) CreateLiveStream(opts *schema.CreateLiveStreamOpts) (*schema
 	if err := li.validateCreateLiveStream(&s); err != nil {
 		return nil, err
 	}
-	resp, err := li.IVS.CreateChannel(opts.Name)
+	resp, err := li.IVS.CreateChannel(strings.ToLower(strings.ReplaceAll(opts.Name, " ", "")))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate live stream")
 	}
 	ivs := model.IVS{
 		Channel: &model.IVSChannel{
 			ARN:                   *resp.Channel.Arn,
-			Name:                  *resp.Channel.Name,
+			Name:                  strings.ToLower(strings.ReplaceAll(opts.Name, " ", "")),
 			Type:                  *resp.Channel.Type,
 			LatencyMode:           *resp.Channel.LatencyMode,
 			PlaybackAuthorization: *resp.Channel.Authorized,
