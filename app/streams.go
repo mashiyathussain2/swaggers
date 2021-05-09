@@ -223,7 +223,7 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 
 	if s.Meta.Operation == "u" {
 		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
-			if subCollectionUpdate, ok := updates.(primitive.D).Map()["sub_collections"]; ok {
+			if subCollectionUpdate, ok := updates.(primitive.D).Map()["sub_collections.0"]; ok {
 				for _, field := range subCollectionUpdate.(bson.A) {
 					if _, ok := field.(bson.D).Map()["catalog_ids"]; ok {
 						cp.App.Collection.AddCatalogInfoToCollection(s.Meta.ID.(primitive.ObjectID))
