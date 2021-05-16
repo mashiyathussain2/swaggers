@@ -25,6 +25,7 @@ type Config struct {
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 	GoogleOAuth         GoogleOAuth         `mapstructure:"googleOAuth"`
 	SessionConfig       SessionConfig       `mapstructure:"session"`
+	SentryConfig        SentryConfig        `mapstructure:"sentry"`
 }
 
 // ServerConfig has only server specific configuration
@@ -46,6 +47,12 @@ type GoogleOAuth struct {
 	RedirectURL  string   `mapstructure:"redirectURL"`
 	Scopes       []string `mapstructure:"scopes"`
 	State        string   `mapstructure:"state"`
+}
+
+// SentryConfig contains sentry related configuration
+type SentryConfig struct {
+	EnableSentry bool   `mapstructure:"enable"`
+	DSN          string `mapstructure:"dsn"`
 }
 
 // APIConfig contains api package related configurations
