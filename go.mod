@@ -9,6 +9,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.1
 	github.com/frankban/quicktest v1.10.2 // indirect
 	github.com/garyburd/redigo v1.6.2
+	github.com/getsentry/sentry-go v0.10.0
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1

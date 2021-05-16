@@ -29,10 +29,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
+
+	sentrynegroni "github.com/getsentry/sentry-go/negroni"
 )
 
 // Server object encapsulates api, business logic (app),router, storage layer and loggers
@@ -92,13 +95,23 @@ func NewServer() *Server {
 // After setting up the server it runs the server on specified address and port.
 func (s *Server) StartServer() {
 	n := negroni.New()
-
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   s.Config.ServerConfig.CORSConfig.AllowedOrigins,
 		AllowedMethods:   s.Config.ServerConfig.CORSConfig.AllowedMethods,
 		AllowCredentials: s.Config.ServerConfig.CORSConfig.AllowCredentials,
 		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
 	})
+
+	recovery := negroni.NewRecovery()
+	fmt.Println(s.Config.SentryConfig)
+	if s.Config.SentryConfig.EnableSentry {
+		if err := sentry.Init(sentry.ClientOptions{Dsn: s.Config.SentryConfig.DSN}); err != nil {
+			s.Log.Err(err).Msg("failed to initialize sentry")
+			os.Exit(1)
+		}
+		recovery.PanicHandlerFunc = sentrynegroni.PanicHandlerFunc
+	}
+	n.Use(recovery)
 	n.Use(cors)
 	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
 	if s.Config.MiddlewareConfig.EnableRequestLog {
