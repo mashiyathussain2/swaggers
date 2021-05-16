@@ -25,6 +25,7 @@ type Config struct {
 	ElasticsearchConfig ElasticsearchConfig `mapstructure:"elasticsearch"`
 	HypdAPIConfig       HypdAPIConfig       `mapstructure:"hypdAPI"`
 	SessionConfig       SessionConfig       `mapstructure:"session"`
+	SentryConfig        SentryConfig        `mapstructure:"sentry"`
 }
 
 // HypdAPIConfig contains other HYPD service apis
@@ -44,6 +45,12 @@ type ServerConfig struct {
 	Env            string        `mapstructure:"env"`
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	CORSConfig     CORSConfig    `mapstructure:"cors"`
+}
+
+// SentryConfig contains sentry related configuration
+type SentryConfig struct {
+	EnableSentry bool   `mapstructure:"enable"`
+	DSN          string `mapstructure:"dsn"`
 }
 
 // APIConfig contains api package related configurations

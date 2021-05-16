@@ -29,6 +29,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/getsentry/sentry-go"
+	sentrynegroni "github.com/getsentry/sentry-go/negroni"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/rs/zerolog"
@@ -98,6 +100,15 @@ func (s *Server) StartServer() {
 		AllowCredentials: s.Config.ServerConfig.CORSConfig.AllowCredentials,
 		AllowedHeaders:   s.Config.ServerConfig.CORSConfig.AllowedHeaders,
 	})
+	recovery := negroni.NewRecovery()
+	if s.Config.SentryConfig.EnableSentry {
+		if err := sentry.Init(sentry.ClientOptions{Dsn: s.Config.SentryConfig.DSN}); err != nil {
+			s.Log.Err(err).Msg("failed to initialize sentry")
+			os.Exit(1)
+		}
+		recovery.PanicHandlerFunc = sentrynegroni.PanicHandlerFunc
+	}
+	n.Use(recovery)
 
 	n.Use(cors)
 	n.UseFunc(middleware.NewAuthenticationMiddleware(s.API.SessionAuth).GetMiddlewareHandler())
