@@ -144,3 +144,11 @@ type LiveOrderKafkaMessage struct {
 	Name         string             `json:"name"`
 	ProfileImage *ImgResp           `json:"profile_image"`
 }
+
+type PushViewerCount struct {
+	ARN string `json:"arn"`
+}
+
+type ViewerCountMetadata struct {
+	Count uint `json:"count"`
+}
