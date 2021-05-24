@@ -299,6 +299,7 @@ type ContentLabel struct {
 type GetCatalogsByFilterOpts struct {
 	Page     int                  `json:"page" validate:"gte=0"`
 	BrandIDs []primitive.ObjectID `json:"brands"`
+	IDs      []primitive.ObjectID `json:"ids"`
 	Status   []string             `json:"status"`
 	Name     string               `json:"name"`
 }
