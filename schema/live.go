@@ -42,6 +42,8 @@ type GetLiveStreamResp struct {
 	StreamEndImage *model.IMG           `json:"stream_end_image,omitempty" bson:"stream_end_image,omitempty"`
 	IVS            *model.IVS           `json:"ivs,omitempty" bson:"ivs,omitempty"`
 	CreatedAt      time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	Status         *model.StreamStatus  `json:"status,omitempty" bson:"status,omitempty"`
+	StatusHistory  []model.StreamStatus `json:"status_history,omitempty" bson:"status_history,omitempty"`
 }
 
 // GetLiveStreamsFilter contains and validates supported filter to get live streams
