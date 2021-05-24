@@ -485,14 +485,16 @@ func (li *LiveImpl) GetAppLiveStreamByID(id primitive.ObjectID) (*schema.GetAppL
 func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error) {
 	ctx := context.TODO()
 	filter := bson.M{
-		"$or": bson.A{
+		"$and": bson.A{
 			bson.M{
 				"scheduled_at": bson.M{
 					"$gte": time.Now().UTC(),
 				},
 			},
 			bson.M{
-				"status.name": model.ActiveStatus,
+				"status.name": bson.M{
+					"$ne": model.EndStatus,
+				},
 			},
 		},
 	}
