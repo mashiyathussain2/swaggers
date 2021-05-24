@@ -958,7 +958,7 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		cMatchStage := bson.D{{
 			Key: "$match", Value: bson.M{
 				"_id": bson.M{
-					"$in": opts.BrandIDs,
+					"$in": opts.IDs,
 				},
 			},
 		}}
