@@ -954,6 +954,17 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 		pipeline = append(pipeline, bMatchStage)
 	}
 
+	if len(opts.IDs) > 0 {
+		cMatchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"_id": bson.M{
+					"$in": opts.BrandIDs,
+				},
+			},
+		}}
+		pipeline = append(pipeline, cMatchStage)
+	}
+
 	if len(opts.Status) > 0 {
 		sMatchStage := bson.D{{
 			Key: "$match", Value: bson.M{
