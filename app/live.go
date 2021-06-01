@@ -375,6 +375,12 @@ func (li *LiveImpl) PushJoin(opts *schema.PushJoinOpts) {
 	bytes, err := json.Marshal(s)
 	metaData := string(bytes)
 	if err == nil {
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			li.pushViewerCount(&schema.PushViewerCount{ARN: opts.ARN})
+		}()
 		params := ivs.PutMetadataInput{
 			ChannelArn: &opts.ARN,
 			Metadata:   &metaData,
@@ -383,9 +389,26 @@ func (li *LiveImpl) PushJoin(opts *schema.PushJoinOpts) {
 		if err != nil {
 			li.Logger.Err(err).RawJSON("metadata", bytes).Msg("failed to push join in ivs metadata")
 		}
+		wg.Wait()
 		return
 	}
 	li.Logger.Err(err).Interface("metadata_struct", s).Msg("failed to convert struct to bytes")
+}
+
+func (li *LiveImpl) pushViewerCount(opts *schema.PushViewerCount) {
+	out, err := li.IVS.GetStream(opts.ARN)
+	if err != nil {
+		li.Logger.Err(err).Msgf("failed to get stream by arn: %s", opts.ARN)
+		return
+	}
+	if bytes, err := json.Marshal(schema.IVSMetaData{Type: "live", Data: schema.ViewerCountMetadata{Count: uint(*out.Stream.ViewerCount)}}); err == nil {
+		metadata := string(bytes)
+		params := ivs.PutMetadataInput{
+			ChannelArn: out.Stream.ChannelArn,
+			Metadata:   &metadata,
+		}
+		li.IVS.PutMetadata(&params)
+	}
 }
 
 func (li *LiveImpl) ConsumeComment(m kafka.Message) {
