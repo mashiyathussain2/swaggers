@@ -26,7 +26,7 @@ type Cart interface {
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
 	GetCartInfo(primitive.ObjectID) (*schema.GetCartInfoResp, error)
 	SetCartAddress(*schema.AddressOpts) error
-	CheckoutCart(primitive.ObjectID, string) (*schema.OrderInfo, error)
+	CheckoutCart(primitive.ObjectID, string, string) (*schema.OrderInfo, error)
 	ClearCart(primitive.ObjectID) error
 
 	AddDiscountInCartItems(*schema.DiscountInCartItemsOpts)
@@ -413,10 +413,14 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 	return nil
 }
 
-func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.OrderInfo, error) {
+func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform string) (*schema.OrderInfo, error) {
 
 	ctx := context.TODO()
 
+	isWeb := false
+	if platform == "web" {
+		isWeb = true
+	}
 	grandTotal := 0
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
@@ -489,6 +493,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source string) (*schema.
 			BillingAddress:  c.BillingAddress,
 			OrderItems:      []schema.OrderItem{},
 			Source:          source,
+			IsWeb:           isWeb,
 		}
 		for _, item := range c.Items {
 
