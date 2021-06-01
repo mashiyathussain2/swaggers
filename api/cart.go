@@ -121,14 +121,25 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 	}
 	source := r.URL.Query().Get("source")
 	if source == "" {
-		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid source :%s in url", mux.Vars(r)["source"]), &goerror.BadRequest), http.StatusBadRequest)
+		requestCTX.SetErr(goerror.New("empty source in query", &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
+
+	platform := r.URL.Query().Get("platform")
+
+	// To remove after app update
+	if platform == "" {
+		platform = "android"
+	}
+	if platform != "web" && platform != "android" && platform != "ios" {
+		requestCTX.SetErr(goerror.New("platform incorrect", &goerror.BadRequest), http.StatusBadRequest)
+	}
+
 	if id.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
-	resp, err := a.App.Cart.CheckoutCart(id, source)
+	resp, err := a.App.Cart.CheckoutCart(id, source, platform)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
