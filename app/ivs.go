@@ -18,6 +18,7 @@ type IVS interface {
 	CreateChannel(string) (*ivs.CreateChannelOutput, error)
 	PutMetadata(*ivs.PutMetadataInput) (*ivs.PutMetadataOutput, error)
 	StopStream(string) (*ivs.StopStreamOutput, error)
+	GetStream(string) (*ivs.GetStreamOutput, error)
 }
 
 // IVSImpl implements IVS interface methods
@@ -94,4 +95,12 @@ func (ivsi *IVSImpl) StopStream(arn string) (*ivs.StopStreamOutput, error) {
 		ChannelArn: &arn,
 	}
 	return ivsi.IVS.StopStream(opts)
+}
+
+// GetStream returns stream info
+func (ivsi *IVSImpl) GetStream(arn string) (*ivs.GetStreamOutput, error) {
+	opts := &ivs.GetStreamInput{
+		ChannelArn: &arn,
+	}
+	return ivsi.IVS.GetStream(opts)
 }
