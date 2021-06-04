@@ -47,6 +47,7 @@ type KeeperCatalog interface {
 	GetCollectionCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
 	GetPebbleCatalogInfo(ids []primitive.ObjectID) ([]schema.GetAllCatalogInfoResp, error)
 	SyncCatalog(primitive.ObjectID)
+	SyncCatalogByBrandID(primitive.ObjectID)
 	SyncCatalogs([]primitive.ObjectID)
 	SyncCatalogContent(id primitive.ObjectID)
 	GetCatalogVariant(primitive.ObjectID, primitive.ObjectID) (*schema.GetCatalogVariantResp, error)
@@ -1356,6 +1357,21 @@ func (kc *KeeperCatalogImpl) SyncCatalogs(ids []primitive.ObjectID) {
 	}
 	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
 		kc.Logger.Err(err).Interface("opts", ids).Msg("failed to sync catalogs")
+	}
+}
+
+func (kc *KeeperCatalogImpl) SyncCatalogByBrandID(id primitive.ObjectID) {
+	filter := bson.M{
+		"brand_id":     id,
+		"status.value": model.Publish,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"last_sync": time.Now().UTC(),
+		},
+	}
+	if _, err := kc.DB.Collection(model.CatalogColl).UpdateMany(context.TODO(), filter, update); err != nil {
+		kc.Logger.Err(err).Interface("opts", id).Msg("failed to sync catalog brand")
 	}
 }
 
