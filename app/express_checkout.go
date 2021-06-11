@@ -7,6 +7,7 @@ import (
 	"go-app/schema"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -17,7 +18,7 @@ import (
 // ExpressCheckout contains methods for ExpressCheckout service functionality
 type ExpressCheckout interface {
 	ExpressCheckout(*schema.ExpressCheckoutOpts) (*schema.OrderInfo, error)
-	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts) (*schema.OrderInfo, error)
+	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts, string) (*schema.OrderInfo, error)
 }
 
 // ExpressCheckoutImpl implements ExpressCheckout interface methods
@@ -187,10 +188,15 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 	return &orderResp.Payload, nil
 }
 
-func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheckoutOpts) (*schema.OrderInfo, error) {
+func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheckoutOpts, userName string) (*schema.OrderInfo, error) {
 
 	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
+
+	displayName := strings.ToLower(opts.Address.DisplayName)
+	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
+		opts.Address.DisplayName = userName
+	}
 
 	oiBrandMap := make(map[primitive.ObjectID][]schema.OrderItem)
 

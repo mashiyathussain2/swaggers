@@ -270,6 +270,17 @@ func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddr
 	findQuery := bson.M{
 		"user_id": opts.UserID,
 	}
+
+	//if line 2 exist addding comma (,) after it
+	if opts.Line2 != "" {
+		opts.Line2 += ", "
+
+	}
+	if opts.District != "" {
+		opts.District += ", "
+	}
+	plainAddress := opts.Line1 + ", " + opts.Line2 + opts.District + opts.City + ", " + opts.State.Name + ", " + opts.Country.Name + " - " + opts.PostalCode
+
 	address := model.Address{
 		ID:                primitive.NewObjectID(),
 		DisplayName:       opts.DisplayName,
@@ -280,7 +291,7 @@ func (ci *CustomerImpl) AddAddress(opts *schema.AddAddressOpts) (*schema.AddAddr
 		State:             opts.State,
 		PostalCode:        opts.PostalCode,
 		Country:           opts.Country,
-		PlainAddress:      opts.PlainAddress,
+		PlainAddress:      plainAddress,
 		IsBillingAddress:  opts.IsBillingAddress,
 		IsShippingAddress: opts.IsShippingAddress,
 		IsDefaultAddress:  opts.IsDefaultAddress,
@@ -414,6 +425,16 @@ func (ci *CustomerImpl) EditAddress(opts *schema.EditAddressOpts) error {
 		"addresses._id": opts.AddressID,
 	}
 
+	//if line 2 or district exist addding comma (,) after it
+	if opts.Line2 != "" {
+		opts.Line2 += ", "
+
+	}
+	if opts.District != "" {
+		opts.District += ", "
+	}
+	plainAddress := opts.Line1 + ", " + opts.Line2 + opts.District + opts.City + ", " + opts.State.Name + ", " + opts.Country.Name + " - " + opts.PostalCode
+
 	address := model.Address{
 		ID:                opts.AddressID,
 		DisplayName:       opts.DisplayName,
@@ -424,7 +445,7 @@ func (ci *CustomerImpl) EditAddress(opts *schema.EditAddressOpts) error {
 		State:             opts.State,
 		PostalCode:        opts.PostalCode,
 		Country:           opts.Country,
-		PlainAddress:      opts.PlainAddress,
+		PlainAddress:      plainAddress,
 		IsBillingAddress:  opts.IsBillingAddress,
 		IsShippingAddress: opts.IsShippingAddress,
 		IsDefaultAddress:  opts.IsDefaultAddress,

@@ -139,7 +139,8 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
-	resp, err := a.App.Cart.CheckoutCart(id, source, platform)
+	fullName := requestCTX.UserClaim.(*auth.UserClaim).FullName
+	resp, err := a.App.Cart.CheckoutCart(id, source, platform, fullName)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
