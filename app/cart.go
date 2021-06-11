@@ -9,6 +9,7 @@ import (
 	"go-app/schema"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -26,7 +27,7 @@ type Cart interface {
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
 	GetCartInfo(primitive.ObjectID) (*schema.GetCartInfoResp, error)
 	SetCartAddress(*schema.AddressOpts) error
-	CheckoutCart(primitive.ObjectID, string, string) (*schema.OrderInfo, error)
+	CheckoutCart(primitive.ObjectID, string, string, string) (*schema.OrderInfo, error)
 	ClearCart(primitive.ObjectID) error
 
 	AddDiscountInCartItems(*schema.DiscountInCartItemsOpts)
@@ -413,7 +414,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 	return nil
 }
 
-func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform string) (*schema.OrderInfo, error) {
+func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userName string) (*schema.OrderInfo, error) {
 
 	ctx := context.TODO()
 
@@ -495,6 +496,13 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform string)
 			Source:          source,
 			IsWeb:           isWeb,
 		}
+
+		displayName := strings.ToLower(c.ShippingAddress.DisplayName)
+		if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
+			order.ShippingAddress.DisplayName = userName
+			order.BillingAddress.DisplayName = userName
+		}
+
 		for _, item := range c.Items {
 
 			var cv model.GetCatalogVariant

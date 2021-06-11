@@ -67,7 +67,7 @@ type AddAddressOpts struct {
 	State             *model.State       `json:"state" validate:"required"`
 	PostalCode        string             `json:"postal_code" validate:"required"`
 	Country           *model.Country     `json:"country" validate:"required"`
-	PlainAddress      string             `json:"plain_address" validate:"required"`
+	PlainAddress      string             `json:"plain_address"`
 	IsBillingAddress  bool               `json:"is_billing_address" validate:"required"`
 	IsShippingAddress bool               `json:"is_shipping_address" validate:"required"`
 	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
@@ -100,7 +100,7 @@ type EditAddressOpts struct {
 	State             *model.State       `json:"state" validate:"required"`
 	PostalCode        string             `json:"postal_code" validate:"required"`
 	Country           *model.Country     `json:"country" validate:"required"`
-	PlainAddress      string             `json:"plain_address" validate:"required"`
+	PlainAddress      string             `json:"plain_address" `
 	IsBillingAddress  bool               `json:"is_billing_address" validate:"required"`
 	IsShippingAddress bool               `json:"is_shipping_address" validate:"required"`
 	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
