@@ -23,7 +23,9 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
-	resp, err := a.App.ExpressCheckout.ExpressCheckoutComplete(&s)
+	fullName := requestCTX.UserClaim.(*auth.UserClaim).FullName
+
+	resp, err := a.App.ExpressCheckout.ExpressCheckoutComplete(&s, fullName)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
