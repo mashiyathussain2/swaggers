@@ -204,9 +204,7 @@ func (ci *ContentImpl) DeleteContent(id primitive.ObjectID) (bool, error) {
 
 	// Deleting media document reference from media collection
 	if !c.MediaID.IsZero() {
-		if _, err := ci.App.Media.DeleteMedia(c.MediaID); err != nil {
-			return false, err
-		}
+		ci.App.Media.DeleteMedia(c.MediaID)
 	}
 
 	// Deleting content document from cotent collection
