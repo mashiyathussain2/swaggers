@@ -213,21 +213,16 @@ type UpdateCatalogInfo struct {
 }
 
 type ApplyCouponOpts struct {
-	CouponID         primitive.ObjectID  `json:"coupon_id" validate:"required"`
-	Code             string              `json:"code" validate:"required"`
-	Description      string              `json:"description" validate:"required"`
-	Type             model.DiscountType  `json:"type" validate:"required"`
-	Value            int                 `json:"value" validate:"gte=0"`
-	ApplicableON     *model.ApplicableON `json:"applicable_on" validate:"required"`
-	MaxDiscount      *model.Price        `json:"max_discount"`
-	MinPurchaseValue *model.Price        `json:"min_purchase_value"`
-	ValidAfter       time.Time           `json:"valid_after" validate:"required"`
-	ValidBefore      time.Time           `json:"valid_before" validate:"required"`
-	Status           string              `json:"status" validate:"required"`
+	Code string `json:"code" validate:"required"`
 }
 
 type CouponOrderOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
 	Code         string             `json:"code" validate:"required"`
 	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
+}
+
+type GetCouponResp struct {
+	Success bool         `json:"success"`
+	Payload model.Coupon `json:"payload"`
 }

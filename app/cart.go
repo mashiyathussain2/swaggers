@@ -608,6 +608,15 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 	var coupon schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
+
+		getCoupon, err := ci.getCoupon(cartUnwindBrands[0].Coupon.Code)
+		if err != nil {
+			return nil, err
+		}
+		if getCoupon.Status != "active" {
+			ci.RemoveCoupon(cartUnwindBrands[0].UserID)
+			return nil, errors.Errorf("coupon has expired")
+		}
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
@@ -845,20 +854,13 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 
 func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCouponOpts) error {
 
-	coupon := model.Coupon{
-		ID:               opts.CouponID,
-		Code:             opts.Code,
-		Description:      opts.Description,
-		Type:             opts.Type,
-		Value:            opts.Value,
-		ApplicableON:     opts.ApplicableON,
-		MaxDiscount:      opts.MaxDiscount,
-		MinPurchaseValue: opts.MinPurchaseValue,
-		ValidAfter:       opts.ValidAfter,
-		ValidBefore:      opts.ValidBefore,
-		Status:           opts.Status,
+	coupon, err := ci.getCoupon(opts.Code)
+	if err != nil {
+		return err
 	}
-
+	if coupon.Status != "active" {
+		return errors.Errorf("coupon is not active")
+	}
 	findQuery := bson.M{"user_id": user_id}
 	updateQuery := bson.M{"$set": bson.M{
 		"coupon": coupon,
@@ -871,7 +873,6 @@ func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCo
 	if res.MatchedCount == 0 {
 		return errors.Errorf("unable to find cart for user")
 	}
-
 	return nil
 }
 
@@ -889,4 +890,40 @@ func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
 		return errors.Errorf("unable to find cart for user")
 	}
 	return nil
+}
+
+func (ci *CartImpl) getCoupon(code string) (*model.Coupon, error) {
+	var s schema.GetCouponResp
+
+	url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/get-coupon?code=" + code
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "failed to request to get catalog info"))
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "unable to fetch catlog data"))
+	}
+	defer resp.Body.Close()
+
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to read response from api %s", url)
+		ci.Logger.Err(errors.Wrap(err, "failed to get coupon info"))
+		return nil, errors.Wrap(err, "failed to get coupon info")
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		ci.Logger.Err(errors.Wrap(err, "failed to decode body into struct"))
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from coupon")
+		ci.Logger.Err(errors.New("got success false response from coupon"))
+		return nil, errors.New("got success false response from coupon")
+	}
+	return &s.Payload, nil
 }
