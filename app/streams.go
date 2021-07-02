@@ -180,6 +180,31 @@ func (cp *CatalogProcessor) ProcessGroupUpdate(msg kafka.Message) {
 	}
 }
 
+func (cp *CatalogProcessor) ProcessBrandUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode brand update message")
+		return
+	}
+	if s.Meta.Operation == "u" {
+		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+			var updateCatalog bool
+
+			if _, ok := updates.(primitive.D).Map()["name"]; ok {
+				updateCatalog = true
+			}
+			if _, ok := updates.(primitive.D).Map()["logo"]; ok {
+				updateCatalog = true
+			}
+
+			if updateCatalog {
+				cp.App.KeeperCatalog.SyncCatalogByBrandID(s.Meta.ID.(primitive.ObjectID))
+			}
+		}
+	}
+}
+
 type CollectionProcessor struct {
 	App    *App
 	Logger *zerolog.Logger
