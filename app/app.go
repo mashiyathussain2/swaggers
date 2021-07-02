@@ -35,6 +35,7 @@ type App struct {
 	CatalogChanges           kafka.Consumer
 	CollectionCatalogChanges kafka.Consumer
 	CollectionChanges        kafka.Consumer
+	BrandChanges             kafka.Consumer
 	InventoryChanges         kafka.Consumer
 	DiscountChanges          kafka.Consumer
 	ContentChanges           kafka.Consumer
