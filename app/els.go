@@ -167,7 +167,7 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogB
 		query = query.Filter(elastic.NewTermsQueryFromStrings("brand_info.name.name", opts.BrandName...))
 	}
 
-	aggs := elastic.NewTermsAggregation().Field("brand_info.name.name")
+	aggs := elastic.NewTermsAggregation().Field("brand_info.name.name").Size(99)
 	q := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(int(opts.Page) * 20).Size(20)
 	switch opts.Sort {
 	case -1:
