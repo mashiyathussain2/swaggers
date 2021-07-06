@@ -49,6 +49,9 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/inventory/outofstock", a.requestWithSudoHandler(a.setOutOfStock)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}/quantity/{quantity}", a.requestWithSudoHandler(a.checkInventoryExists)).Methods("POST")
 
+	//Internal API for Inventory
+	a.Router.APIRoot.Handle("/inventory", a.requestWithInternalHandler(a.updateInventoryInternal)).Methods("POST")
+
 	//KEEPER COLLECTION
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestWithSudoHandler(a.createCollection)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/collection", a.requestWithSudoHandler(a.editCollection)).Methods("PUT")
@@ -75,6 +78,7 @@ func (a *API) InitRoutes() {
 
 	//APP CATALOG
 	a.Router.APIRoot.Handle("/app/groups/catalog", a.requestHandler(a.getGroupsByCatalogID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/brand/catalog", a.requestHandler(a.getCatalogInfoByBrandId)).Methods("GET")
 
 	//APP CATEGORY
 	a.Router.APIRoot.Handle("/app/category/lvl1", a.requestHandler(a.getParentCategory)).Methods("GET")

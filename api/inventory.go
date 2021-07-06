@@ -73,3 +73,25 @@ func (a *API) checkInventoryExists(requestCTX *handler.RequestContext, w http.Re
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+func (a *API) updateInventoryInternal(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	var s []schema.UpdateInventoryCVOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, inventory := range s {
+		if errs := a.Validator.Validate(&inventory); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+
+	err := a.App.Inventory.UpdateInventoryInternal(s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
