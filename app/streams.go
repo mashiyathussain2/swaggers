@@ -306,7 +306,8 @@ func (cp *CartProcessor) ProcessInventoryUpdate(msg kafka.Message) {
 			UnitInStock: inventory.UnitInStock,
 		}
 
-		cp.App.Cart.UpdateInventoryStatus(&opts)
+		// cp.App.Cart.UpdateInventoryStatus(&opts)
+		cp.App.Cart.UpdateInventoryStatusInsideCatalogInfo(&opts)
 	}
 
 }

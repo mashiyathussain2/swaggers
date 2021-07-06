@@ -356,7 +356,7 @@ func (bi *BrandImpl) AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
-		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"_id": opts.BrandID, "followers_id": opts.CustomerID})
 		if err != nil {
 			bi.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow brand")
 			session.AbortTransaction(sc)
@@ -425,7 +425,7 @@ func (bi *BrandImpl) RemoveFollower(opts *schema.AddBrandFollowerOpts) (bool, er
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
-		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		isFollowing, err := bi.DB.Collection(model.BrandColl).CountDocuments(sc, bson.M{"_id": opts.BrandID, "followers_id": opts.CustomerID})
 		if err != nil {
 			bi.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow brand")
 			session.AbortTransaction(sc)

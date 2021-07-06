@@ -36,6 +36,7 @@ type Cart interface {
 	UpdateCatalogInfo(id primitive.ObjectID)
 	ApplyCoupon(primitive.ObjectID, *schema.ApplyCouponOpts) error
 	RemoveCoupon(primitive.ObjectID) error
+	UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts)
 }
 
 // CartImpl implements Cart interface methods
@@ -333,6 +334,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		// gt = gt + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		td = td + uint(cartItem.BasePrice.Value-cartItem.RetailPrice.Value)*cartItem.Quantity
 		if cartItem.CatalogInfo.DiscountInfo != nil {
+			applied := false
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
 				if v == cartItem.VariantID {
 					var dp *model.Price
@@ -359,7 +361,11 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					cart.Items[i].DiscountID = cartItem.CatalogInfo.DiscountInfo.ID
 					cart.Items[i].TransferPrice = model.SetINRPrice(0)
 					gt = gt + uint(dp.Value)*cartItem.Quantity
+					applied = true
 				}
+			}
+			if applied == false {
+				gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
 			}
 		} else {
 			gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
@@ -670,7 +676,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 	}
 	if !orderResp.Success {
 		ci.Logger.Err(errors.New("success false from order")).Str("body", string(body)).Msg("got success false response from order")
-		return nil, errors.New("got success false response from order")
+		return nil, errors.Errorf("%s - got success false response from order", string(body))
 	}
 
 	return &orderResp.Payload, nil
@@ -889,4 +895,40 @@ func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
 		return errors.Errorf("unable to find cart for user")
 	}
 	return nil
+}
+
+func (ci *CartImpl) UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts) {
+	filter := bson.M{
+		"items.catalog_id": opts.CatalogID,
+	}
+
+	var update bson.M
+	if opts.UnitInStock > 0 {
+		update = bson.M{
+			"$set": bson.M{
+				"items.$.catalog_info.variants.$[elem].inventory_info.unit_in_stock": opts.UnitInStock,
+				"items.$.catalog_info.variants.$[elem].inventory_info.status.value":  model.InStockStatus,
+			},
+		}
+	} else {
+		update = bson.M{
+			"$set": bson.M{
+				"items.$.catalog_info.variants.$[elem].inventory_info.unit_in_stock": 0,
+				"items.$.catalog_info.variants.$[elem].inventory_info.status.value":  model.OutOfStockStatus,
+			},
+		}
+	}
+	updateOpts := options.UpdateOptions{
+		ArrayFilters: &options.ArrayFilters{
+			Filters: bson.A{
+				bson.M{
+					"elem._id": opts.VariantID,
+				},
+			},
+		},
+	}
+
+	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update, &updateOpts); err != nil {
+		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update stock in cart items")
+	}
 }

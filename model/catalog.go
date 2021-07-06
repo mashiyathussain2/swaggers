@@ -31,6 +31,7 @@ type Variant struct {
 	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
 	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
 	IsDeleted   bool               `json:"is_deleted" bson:"is_deleted"`
+	Inventory   *Inventory         `json:"inventory_info" bson:"inventory_info"`
 }
 
 // VariantType is a paramater which defines the variant classification for a particular catalog such as size or color or design etc.
@@ -118,14 +119,14 @@ type InventoryStatus struct {
 
 //Inventory contains inventory specific data
 type Inventory struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CatalogID   primitive.ObjectID `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`
-	VariantID   primitive.ObjectID `json:"variant_id,omitempty" bson:"variant_id,omitempty"`
-	SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
-	Status      *InventoryStatus   `json:"status,omitempty" bson:"status,omitempty"`
-	UnitInStock int                `json:"unit_in_stock,omitempty" bson:"unit_in_stock,omitempty"`
-	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	// ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	// CatalogID   primitive.ObjectID `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`
+	// VariantID   primitive.ObjectID `json:"variant_id,omitempty" bson:"variant_id,omitempty"`
+	// SKU         string             `json:"sku,omitempty" bson:"sku,omitempty"`
+	Status      *InventoryStatus `json:"status,omitempty" bson:"status,omitempty"`
+	UnitInStock int              `json:"unit_in_stock,omitempty" bson:"unit_in_stock,omitempty"`
+	// CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	// UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 // DiscountType is type of discount applicable on catalog

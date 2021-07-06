@@ -31,7 +31,7 @@ func InitConsumer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.InventoryChangeConfig,
 	})
-	go a.InventoryChanges.ConsumeAndCommit(ctx, a.CartProcessor.ProcessDiscountUpdate)
+	go a.InventoryChanges.ConsumeAndCommit(ctx, a.CartProcessor.ProcessInventoryUpdate)
 
 	a.BrandChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
