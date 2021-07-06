@@ -110,3 +110,8 @@ type SearchResp struct {
 type GetActiveCollectionsOpts struct {
 	Gender string `qs:"gender"`
 }
+
+type GetCatalogByBrandIDOpts struct {
+	Page    uint   `qs:"page"`
+	BrandID string `qs:"brand_id"`
+}

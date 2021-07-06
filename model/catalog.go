@@ -161,3 +161,7 @@ const (
 	Archive string = "archive"
 	Publish string = "publish"
 )
+
+type VaraintIDs struct {
+	VariantIDs []primitive.ObjectID `json:"variants" bson:"variants"`
+}
