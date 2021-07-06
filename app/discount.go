@@ -60,6 +60,11 @@ func InitDiscount(opts *DiscountOpts) Discount {
 // Note only 1 discount can be active for a catalog at a given time
 func (di *DiscountImpl) CreateDiscount(opts *schema.CreateDiscountOpts) (*schema.CreateDiscountResp, error) {
 	ctx := context.TODO()
+
+	if err := di.validateVariants(ctx, opts.CatalogID, opts.VariantsID); err != nil {
+		return nil, err
+	}
+
 	if err := di.validateCreateDiscount(ctx, opts); err != nil {
 		return nil, err
 	}
@@ -93,6 +98,34 @@ func (di *DiscountImpl) CreateDiscount(opts *schema.CreateDiscountOpts) (*schema
 		ValidBefore: d.ValidBefore,
 		CreatedAt:   d.CreatedAt,
 	}, nil
+}
+
+func (di *DiscountImpl) validateVariants(ctx context.Context, cat_id primitive.ObjectID, var_ids []primitive.ObjectID) error {
+	filter := bson.M{
+		"_id": cat_id,
+	}
+	filterOpts := options.FindOne().SetProjection(bson.M{"variants": "$variants._id", "_id": 0})
+
+	var variantIDs model.VaraintIDs
+	varMap := make(map[primitive.ObjectID]bool)
+	err := di.DB.Collection(model.CatalogColl).FindOne(ctx, filter, filterOpts).Decode(&variantIDs)
+	if err != nil {
+		return errors.Wrapf(err, "unable to decode variants")
+	}
+
+	for _, v := range variantIDs.VariantIDs {
+		varMap[v] = true
+	}
+	for _, v := range var_ids {
+		if !varMap[v] {
+			return errors.Errorf("variant mismatch, variant with id %s not found", v.Hex())
+		}
+	}
+
+	// if !reflect.DeepEqual(variants, var_ids) {
+	// 	return errors.New("variant mismatch")
+	// }
+	return nil
 }
 
 func (di *DiscountImpl) validateCreateDiscount(ctx context.Context, opts *schema.CreateDiscountOpts) error {

@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Inventory service allows `Inventory` to execute admin operations.
@@ -21,6 +22,7 @@ type Inventory interface {
 	UpdateInventory(*schema.UpdateInventoryOpts) error
 	SetOutOfStock(primitive.ObjectID) error
 	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID, int) (bool, error)
+	UpdateInventoryInternal([]schema.UpdateInventoryCVOpts) error
 }
 
 // InventoryImpl implements Inventory related operations
@@ -95,6 +97,9 @@ func (ii *InventoryImpl) UpdateInventory(opts *schema.UpdateInventoryOpts) error
 	var inventory model.Inventory
 	err := ii.DB.Collection(model.InventoryColl).FindOne(ctx, findQuery).Decode(&inventory)
 
+	if err != nil {
+		return errors.Wrap(err, "unable to query for inventory")
+	}
 	switch opts.Operation.Operator {
 	case "set":
 		updateQuery = append(updateQuery, bson.E{
@@ -230,4 +235,129 @@ func (ii *InventoryImpl) CheckInventoryExists(cat_id, var_id primitive.ObjectID,
 		return false, nil
 	}
 	return true, nil
+}
+
+//UpdateInventory updates inventory in 3 ways - set(replace), add and remove
+func (ii *InventoryImpl) UpdateInventoryInternal(opts []schema.UpdateInventoryCVOpts) error {
+
+	ctx := context.TODO()
+
+	var operations []mongo.WriteModel
+
+	for i := range opts {
+
+		operation := mongo.NewUpdateOneModel()
+
+		findQuery := bson.M{
+			"catalog_id": opts[i].CatalogID,
+			"variant_id": opts[i].VariantID,
+		}
+
+		updateQuery := bson.D{}
+		var inventory model.Inventory
+		err := ii.DB.Collection(model.InventoryColl).FindOne(ctx, findQuery).Decode(&inventory)
+
+		if err != nil {
+			return errors.Wrapf(err, "unable to query for inventory with catalog id %s", opts[i].CatalogID.Hex())
+		}
+		switch opts[i].Operation.Operator {
+		case "set":
+			updateQuery = append(updateQuery, bson.E{
+				Key: "$set", Value: bson.M{
+					"unit_in_stock": opts[i].Operation.Unit,
+				},
+			})
+			if opts[i].Operation.Unit == 0 {
+				updateQuery = append(updateQuery, bson.E{
+					Key: "$set", Value: bson.M{
+						"status": model.InventoryStatus{
+							Value:     model.OutOfStockStatus,
+							CreatedAt: time.Now().UTC(),
+						},
+					},
+				})
+			}
+			if inventory.UnitInStock == 0 && opts[i].Operation.Unit != 0 {
+				updateQuery = append(updateQuery, bson.E{
+					Key: "$set", Value: bson.M{
+						"status": model.InventoryStatus{
+							Value:     model.InStockStatus,
+							CreatedAt: time.Now().UTC(),
+						},
+					},
+				})
+			}
+		case "add":
+			updateQuery = append(updateQuery, bson.E{
+				Key: "$inc", Value: bson.M{
+					"unit_in_stock": opts[i].Operation.Unit,
+				},
+			})
+			if inventory.Status.Value == model.OutOfStockStatus {
+				updateQuery = append(updateQuery, bson.E{
+					Key: "$set", Value: bson.M{
+						"status": model.InventoryStatus{
+							Value:     model.InStockStatus,
+							CreatedAt: time.Now().UTC(),
+						},
+					},
+				})
+			}
+
+		case "subtract":
+
+			if inventory.UnitInStock-opts[i].Operation.Unit < 0 {
+				return errors.Errorf("inventory for catalog id: %s, cannot be negative", opts[i].CatalogID)
+			}
+
+			updateQuery = append(updateQuery, bson.E{
+				Key: "$inc", Value: bson.M{
+					"unit_in_stock": -opts[i].Operation.Unit,
+				},
+			})
+
+			if inventory.UnitInStock-opts[i].Operation.Unit == 0 {
+				updateQuery = append(updateQuery, bson.E{
+					Key: "$set", Value: bson.M{
+						"status": model.InventoryStatus{
+							Value:     model.OutOfStockStatus,
+							CreatedAt: time.Now().UTC(),
+						},
+					},
+				})
+			}
+		}
+		// updateQuery = append(updateQuery, bson.E{
+		// 	Key: "$set", Value: bson.M{
+		// 		"updated_at": time.Now(),
+		// 	},
+		// })
+
+		operation.SetFilter(findQuery)
+		operation.SetUpdate(updateQuery)
+		operations = append(operations, operation)
+		// res, err := ii.DB.Collection(model.InventoryColl).UpdateOne(ctx, findQuery, updateQuery)
+		// if err != nil {
+		// 	return errors.Wrapf(err, "unable to update inventory with id: %s", opts[i].ID.Hex())
+		// }
+		// if res.MatchedCount == 0 {
+		// 	return errors.Errorf("unable to find the inventory with id: %s", opts[i].ID.Hex())
+		// }
+		// if res.ModifiedCount == 0 {
+		// 	return errors.Errorf("unable to update the inventory with id: %s", opts[i].ID.Hex())
+		// }
+	}
+
+	if len(operations) == 0 {
+		ii.Logger.Info().Msgf("no operations")
+		return nil
+	}
+
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	_, err := ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		ii.Logger.Err(err).Msgf("failed to update inventory")
+	}
+	return nil
 }

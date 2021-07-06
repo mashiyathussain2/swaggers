@@ -23,6 +23,8 @@ type Elasticsearch interface {
 
 	GetCatalogBySaleID(*schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error)
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
+
+	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -301,4 +303,27 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	}
 
 	return &res, nil
+}
+
+func (ei *ElasticsearchImpl) GetCatalogByBrandID(opts *schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error) {
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("status.value", model.Publish))
+	queries = append(queries, elastic.NewTermQuery("brand_id", opts.BrandID))
+	query := elastic.NewBoolQuery().Must(queries...)
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(int(opts.Page * 20)).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get catalogs")
+		return nil, errors.Wrap(err, "failed to get catalogs")
+	}
+	var resp []schema.GetCatalogBasicResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetCatalogBasicResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode catalog basic json")
+		}
+		resp = append(resp, s)
+	}
+	return resp, nil
 }
