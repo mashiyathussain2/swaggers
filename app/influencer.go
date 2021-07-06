@@ -240,7 +240,7 @@ func (ii *InfluencerImpl) AddFollower(opts *schema.AddInfluencerFollowerOpts) (b
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
-		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"_id": opts.InfluencerID, "followers_id": opts.CustomerID})
 		if err != nil {
 			ii.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow influencer")
 			session.AbortTransaction(sc)
@@ -306,7 +306,7 @@ func (ii *InfluencerImpl) RemoveFollower(opts *schema.AddInfluencerFollowerOpts)
 
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
-		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"followers_id": opts.CustomerID})
+		isFollowing, err := ii.DB.Collection(model.InfluencerColl).CountDocuments(sc, bson.M{"_id": opts.InfluencerID, "followers_id": opts.CustomerID})
 		if err != nil {
 			ii.Logger.Err(err).Interface("opts", opts).Msg("failed to check is user already follow influencer")
 			session.AbortTransaction(sc)
