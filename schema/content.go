@@ -241,11 +241,12 @@ type GetPebbleByIDFilter struct {
 }
 
 type GetPebbleMediaESResp struct {
-	ID          primitive.ObjectID `json:"id,omitempty"`
-	IsPortrait  bool               `json:"is_portrait,omitempty"`
-	Dimensions  *model.Dimensions  `json:"dimensions,omitempty"`
-	PlaybackURL string             `json:"hls_playback_url,omitempty"`
-	Duration    float32            `json:"duration,omitempty"`
+	ID            primitive.ObjectID `json:"id,omitempty"`
+	IsPortrait    bool               `json:"is_portrait,omitempty"`
+	Dimensions    *model.Dimensions  `json:"dimensions,omitempty"`
+	PlaybackURL   string             `json:"hls_playback_url,omitempty"`
+	Duration      float32            `json:"duration,omitempty"`
+	ThumbnailURLS []string           `json:"thumbnail_url,omitempty"`
 }
 
 type GetPebbleESResp struct {
@@ -320,4 +321,16 @@ type GetPebblesKeeperFilter struct {
 type ChangeContentStatusOpts struct {
 	ID       primitive.ObjectID `json:"id,omitempty" validate:"required"`
 	IsActive *bool              `json:"is_active" validate:"required"`
+}
+
+type GetPebbleByBrandID struct {
+	UserID  string `json:"user_id,omitempty" queryparam:"user_id"`
+	BrandID string `queryparam:"brand_id"`
+	Page    int    `queryparam:"page"`
+}
+
+type GetPebbleByInfluencerID struct {
+	UserID       string `json:"user_id,omitempty" queryparam:"user_id"`
+	InfluencerID string `queryparam:"influencer_id"`
+	Page         int    `queryparam:"page"`
 }

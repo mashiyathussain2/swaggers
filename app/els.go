@@ -18,6 +18,8 @@ import (
 type Elasticsearch interface {
 	GetPebble(opts *schema.GetPebbleFilter) ([]schema.GetPebbleESResp, error)
 	GetPebbleByID(opts *schema.GetPebbleByIDFilter) (*schema.GetPebbleESResp, error)
+	GetPebblesByInfluencerID(opts *schema.GetPebbleByInfluencerID) ([]schema.GetPebbleESResp, error)
+	GetPebblesByBrandID(opts *schema.GetPebbleByBrandID) ([]schema.GetPebbleESResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -139,4 +141,100 @@ func (ei *ElasticsearchImpl) GetPebbleByID(opts *schema.GetPebbleByIDFilter) (*s
 		return nil, nil
 	}
 	return &resp[0], nil
+}
+
+// GetPebblesByBrandID returns pebble with matching brand id
+func (ei *ElasticsearchImpl) GetPebblesByBrandID(opts *schema.GetPebbleByBrandID) ([]schema.GetPebbleESResp, error) {
+
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	queries = append(queries, elastic.NewTermQuery("brand_ids", opts.BrandID))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
+		}
+		resp = append(resp, s)
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
+}
+
+// GetPebblesByInfluencerID returns pebble with matching influencer_id
+func (ei *ElasticsearchImpl) GetPebblesByInfluencerID(opts *schema.GetPebbleByInfluencerID) ([]schema.GetPebbleESResp, error) {
+
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	queries = append(queries, elastic.NewTermQuery("influencer_ids", opts.InfluencerID))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
+		}
+		resp = append(resp, s)
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
 }

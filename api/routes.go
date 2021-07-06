@@ -38,6 +38,9 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/pebble", a.requestHandler(a.getPebble)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/id", a.requestHandler(a.getPebbleByID)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/brand", a.requestHandler(a.getPebblesByBrandID)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/influencer", a.requestHandler(a.getPebblesByInfluencerID)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
