@@ -27,3 +27,14 @@ type UpdateInventoryResp struct {
 	ID   primitive.ObjectID `json:"inventory_id"`
 	Unit int                `json:"unit"`
 }
+
+//UpdateInventoryOpts serializes the input for update inventory internal api with catalog and variant id
+
+type UpdateInventoryCVOpts struct {
+	CatalogID primitive.ObjectID        `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID        `json:"variant_id" validate:"required"`
+	Operation *UpdateInventoryOperation `json:"operation" validate:"required"`
+}
+type UpdateInventoryInternalOpts struct {
+	Updates []UpdateInventoryCVOpts `json:"updates" validate:"required"`
+}

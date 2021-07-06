@@ -387,3 +387,17 @@ func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, 
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) getCatalogInfoByBrandId(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCatalogByBrandIDOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Elasticsearch.GetCatalogByBrandID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
