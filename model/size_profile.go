@@ -11,4 +11,5 @@ type SizeProfile struct {
 	Name     string               `json:"name,omitempty" bson:"name,omitempty"`
 	Specs    []map[string]string  `json:"specs,omitempty" bson:"specs,omitempty"`
 	BrandIDs []primitive.ObjectID `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
+	Image    *IMG                 `json:"image,omitempty" bson:"image,omitempty"`
 }

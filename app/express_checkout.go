@@ -18,7 +18,7 @@ import (
 // ExpressCheckout contains methods for ExpressCheckout service functionality
 type ExpressCheckout interface {
 	ExpressCheckout(*schema.ExpressCheckoutOpts) (*schema.OrderInfo, error)
-	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts, string) (*schema.OrderInfo, error)
+	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts, string, string) (*schema.OrderInfo, error)
 }
 
 // ExpressCheckoutImpl implements ExpressCheckout interface methods
@@ -188,7 +188,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 	return &orderResp.Payload, nil
 }
 
-func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheckoutOpts, userName string) (*schema.OrderInfo, error) {
+func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheckoutOpts, userName, platform string) (*schema.OrderInfo, error) {
 
 	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
@@ -319,6 +319,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			Source:          opts.Source,
 			OrderItems:      oi,
 			SourceID:        &opts.SourceID,
+			Platform:        platform,
 		})
 	}
 	//Create Order

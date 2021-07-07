@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/vasupal1996/goerror"
 )
 
 func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,17 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 	}
 	fullName := requestCTX.UserClaim.(*auth.UserClaim).FullName
 
-	resp, err := a.App.ExpressCheckout.ExpressCheckoutComplete(&s, fullName)
+	platform := r.URL.Query().Get("platform")
+
+	// To remove after app update
+	if platform == "" {
+		platform = "android"
+	}
+	if platform != "web" && platform != "android" && platform != "ios" {
+		requestCTX.SetErr(goerror.New("platform incorrect", &goerror.BadRequest), http.StatusBadRequest)
+	}
+
+	resp, err := a.App.ExpressCheckout.ExpressCheckoutComplete(&s, fullName, platform)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
