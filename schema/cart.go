@@ -63,8 +63,9 @@ type OrderItemOpts struct {
 	ShippingAddress *OrderAddressOpts   `json:"shipping_address"`
 	BillingAddress  *OrderAddressOpts   `json:"billing_address"`
 	Source          string              `json:"source"`
-	IsWeb           bool                `json:"is_web"`
 	SourceID        *primitive.ObjectID `json:"source_id,omitempty"`
+	IsWeb           bool                `json:"is_web"`
+	Platform        string              `json:"platform"`
 	OrderItems      []OrderItem         `json:"order_items" bson:"order_items"`
 	Coupon          *CouponOrderOpts    `json:"coupon_info"`
 }

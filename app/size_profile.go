@@ -50,6 +50,12 @@ func (sp *SizeProfileImpl) CreateSizeProfile(opts *schema.CreateSizeProfileOpts)
 	sizeProfile := model.SizeProfile{
 		Name:  opts.Name,
 		Specs: opts.Specs,
+		Image: &model.IMG{
+			SRC: opts.Image.SRC,
+		},
+	}
+	if err := sizeProfile.Image.LoadFromURL(); err != nil {
+		return primitive.NilObjectID, errors.Wrap(err, "invalid image for size profile")
 	}
 	res, err := sp.DB.Collection(model.SizeProfileColl).InsertOne(ctx, sizeProfile)
 	if err != nil {
@@ -145,4 +151,29 @@ func (sp *SizeProfileImpl) GetSizeProfilesForBrand(brandID primitive.ObjectID) (
 		return nil, errors.Wrap(err, "failed to find brands")
 	}
 	return sizeProfiles, nil
+}
+
+func (sp *SizeProfileImpl) EditSizeProfile(opts *schema.EditSizeProfileOpts) error {
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+	image := &model.IMG{
+		SRC: opts.Image.SRC,
+	}
+	if err := image.LoadFromURL(); err != nil {
+		return errors.Wrap(err, "invalid image for size profile")
+	}
+
+	update := bson.M{
+		"image": image,
+	}
+
+	res, err := sp.DB.Collection(model.SizeProfileColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrap(err, "unable to update image")
+	}
+	if res.MatchedCount == 0 {
+		return errors.New("unable to find the size profile")
+	}
+	return nil
 }
