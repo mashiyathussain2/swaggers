@@ -23,7 +23,7 @@ type Elasticsearch interface {
 
 	GetCatalogBySaleID(*schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error)
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
-
+	GetReviewsByCatalogID(*schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error)
 	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
 }
 
@@ -303,6 +303,28 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	}
 
 	return &res, nil
+}
+
+func (ei *ElasticsearchImpl) GetReviewsByCatalogID(opts *schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error) {
+	var resp []schema.GetReviewsByCatalogIDResp
+
+	mustQuery := elastic.NewTermQuery("catalog_id", opts.CatalogID)
+	filterQuery := elastic.NewTermQuery("is_processed", true)
+	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
+	res, err := ei.Client.Search().Index(ei.Config.ReviewFullIndex).Query(query).Sort("created_at", false).From(int(opts.Page) * 10).Size(10).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msgf("failed to get reviews for catalog id: %s", opts.CatalogID)
+		return nil, errors.Wrap(err, "failed to get search results")
+	}
+	for _, hit := range res.Hits.Hits {
+		var s schema.GetReviewsByCatalogIDResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode review")
+		}
+		resp = append(resp, s)
+	}
+	return resp, nil
 }
 
 func (ei *ElasticsearchImpl) GetCatalogByBrandID(opts *schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error) {

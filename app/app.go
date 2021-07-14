@@ -30,6 +30,7 @@ type App struct {
 	Group         Group
 	Collection    Collection
 	Inventory     Inventory
+	Review        Review
 
 	// Consumers
 	CatalogChanges           kafka.Consumer
@@ -40,13 +41,16 @@ type App struct {
 	DiscountChanges          kafka.Consumer
 	ContentChanges           kafka.Consumer
 	GroupChanges             kafka.Consumer
+	ReviewChanges            kafka.Consumer
 
 	CatalogFullProducer    kafka.Producer
 	CollectionFullProducer kafka.Producer
+	ReviewFullProducer     kafka.Producer
 
 	// Processor
 	CatalogProcessor    *CatalogProcessor
 	CollectionProcessor *CollectionProcessor
+	ReviewProcessor     *ReviewProcessor
 }
 
 // NewApp returns new app instance
