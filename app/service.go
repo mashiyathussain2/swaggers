@@ -33,7 +33,13 @@ func InitService(a *App) {
 	})
 	a.Inventory = InitInventory(&InventoryOpts{
 		App:    a,
-		DB:     a.MongoDB.Client.Database(a.Config.CollectionConfig.DBName),
+		DB:     a.MongoDB.Client.Database(a.Config.InventoryConfig.DBName),
+		Logger: a.Logger,
+	})
+
+	a.Review = InitReview(&ReviewOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.ReviewConfig.DBName),
 		Logger: a.Logger,
 	})
 }

@@ -64,6 +64,12 @@ func InitConsumer(a *App) {
 	})
 	go a.CollectionCatalogChanges.ConsumeAndCommit(ctx, a.CollectionProcessor.ProcessCatalogUpdate)
 
+	a.ReviewChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.ReviewChangeConfig,
+	})
+	go a.ReviewChanges.ConsumeAndCommit(ctx, a.ReviewProcessor.ProcessReviewUpdate)
+
 	go RunEvery(10*time.Second, a.Discount.CheckAndUpdateStatus)
 
 }
@@ -91,6 +97,11 @@ func InitProducer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.CollectionFullProducerConfig,
 	})
+
+	a.ReviewFullProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.ReviewFullProducerConfig,
+	})
 }
 
 // CloseProducer terminates all producer connections
@@ -106,6 +117,11 @@ func InitProcessor(a *App) {
 	})
 
 	a.CollectionProcessor = InitCollectionProcessor(&CollectionProcessorOpts{
+		App:    a,
+		Logger: a.Logger,
+	})
+
+	a.ReviewProcessor = InitReviewProcessor(&ReviewProcessorOpts{
 		App:    a,
 		Logger: a.Logger,
 	})
