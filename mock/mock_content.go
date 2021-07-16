@@ -160,6 +160,21 @@ func (mr *MockContentMockRecorder) CreatePebble(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePebble", reflect.TypeOf((*MockContent)(nil).CreatePebble), arg0)
 }
 
+// CreateVideoReviewContent mocks base method
+func (m *MockContent) CreateVideoReviewContent(arg0 *schema.CreateVideoReviewContentOpts) (*schema.CreatePebbleResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateVideoReviewContent", arg0)
+	ret0, _ := ret[0].(*schema.CreatePebbleResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateVideoReviewContent indicates an expected call of CreateVideoReviewContent
+func (mr *MockContentMockRecorder) CreateVideoReviewContent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVideoReviewContent", reflect.TypeOf((*MockContent)(nil).CreateVideoReviewContent), arg0)
+}
+
 // CreateView mocks base method
 func (m *MockContent) CreateView(arg0 *schema.CreateViewOpts) error {
 	m.ctrl.T.Helper()

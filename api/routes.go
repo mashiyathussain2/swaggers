@@ -18,6 +18,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/content/catalog/video", a.requestWithInternalHandler(a.createVideoCatalogContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/catalog/image", a.requestWithInternalHandler(a.createImageCatalogContent)).Methods("POST")
 
+	a.Router.APIRoot.Handle("/keeper/content/review/video", a.requestWithInternalHandler(a.createVideoReviewContent)).Methods("POST")
+
 	a.Router.APIRoot.Handle("/keeper/live", a.requestWithSudoHandler(a.getLiveStreams)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/live/create", a.requestWithSudoHandler(a.createLiveStream)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/live/{liveID}", a.requestWithSudoHandler(a.getLiveStreamByID)).Methods("GET")

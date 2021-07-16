@@ -140,6 +140,25 @@ func (a *API) createVideoCatalogContent(requestCTX *handler.RequestContext, w ht
 	return
 }
 
+func (a *API) createVideoReviewContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.CreateVideoReviewContentOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.CreateVideoReviewContent(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
 func (a *API) createImageCatalogContent(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreateImageCatalogContentOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
