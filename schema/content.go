@@ -88,10 +88,11 @@ type GetContentFilter struct {
 	IsActive    *bool                `json:"is_active"`
 	IsProcessed *bool                `json:"is_processed"`
 	MediaType   string               `json:"media_type" validate:"isdefault|oneof=image video"`
-	Type        string               `json:"type" validate:"isdefault|oneof=pebble catalog_content"`
+	Type        string               `json:"type" validate:"isdefault|oneof=pebble catalog_content review_story"`
 	BrandIDs    []primitive.ObjectID `json:"brand_ids"`
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids"`
 	Hashtags    []string             `json:"hashtags"`
+	IDs         []primitive.ObjectID `json:"ids"`
 
 	// Date range filter applied on CreatedAt field
 	From time.Time `json:"from"`
@@ -107,6 +108,14 @@ type CreateVideoCatalogContentOpts struct {
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 }
 
+// CreateVideoReviewContentOpts contains and validates args required to create a catalog story review
+type CreateVideoReviewContentOpts struct {
+	FileName  string             `json:"file_name" validate:"required"`
+	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
+	BrandID   primitive.ObjectID `json:"brand_id" validate:"required"`
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+}
+
 // CreateImageCatalogContentOpts contains and validates args required to create an image content
 type CreateImageCatalogContentOpts struct {
 	MediaID   primitive.ObjectID `json:"media_id" validate:"required"`
@@ -116,6 +125,9 @@ type CreateImageCatalogContentOpts struct {
 
 // CreateVideoCatalogContentResp returns content id and video upload token
 type CreateVideoCatalogContentResp = CreatePebbleResp
+
+// CreateVideoReviewContentResp returns content id and video upload token
+type CreateVideoReviewContentResp = CreatePebbleResp
 
 // CreateImageCatalogContentResp contains fields to be returned for image catalog content
 type CreateImageCatalogContentResp struct {

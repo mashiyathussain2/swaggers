@@ -19,6 +19,7 @@ const (
 	PebbleType         string = "pebble"
 	CatalogContentType string = "catalog_content"
 	LiveType           string = "live"
+	ReviewStoryType    string = "review_story"
 )
 
 type BrandInfo struct {

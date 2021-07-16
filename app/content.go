@@ -39,6 +39,8 @@ type Content interface {
 	CreateCatalogImageContent(*schema.CreateImageCatalogContentOpts) (*schema.CreateImageCatalogContentResp, error)
 	EditCatalogContent(*schema.EditCatalogContentOpts) (*schema.EditCatalogContentResp, error)
 
+	CreateVideoReviewContent(opts *schema.CreateVideoReviewContentOpts) (*schema.CreateVideoReviewContentResp, error)
+
 	CreateComment(*schema.CreateCommentOpts) (*schema.CreateCommentResp, error)
 	CreateView(*schema.CreateViewOpts) error
 	CreateLike(*schema.CreateLikeOpts) error
@@ -246,7 +248,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 	var c model.Content
 	filter := bson.M{"_id": cID}
 	var update bson.M
-	if content.Type != model.CatalogContentType {
+	if content.Type != model.CatalogContentType && content.Type != model.ReviewStoryType {
 		update = bson.M{
 			"$set": bson.M{
 				"is_processed": true,
@@ -302,6 +304,9 @@ func (ci *ContentImpl) GetContent(filterOpts *schema.GetContentFilter) ([]schema
 	var filter bson.D
 
 	// Setting up filters
+	if len(filterOpts.IDs) > 0 {
+		filter = append(filter, bson.E{Key: "_id", Value: bson.M{"$in": filterOpts.IDs}})
+	}
 	if len(filterOpts.BrandIDs) > 0 {
 		filter = append(filter, bson.E{Key: "brand_ids", Value: bson.M{"$in": filterOpts.BrandIDs}})
 	}
@@ -415,6 +420,40 @@ func (ci *ContentImpl) CreateCatalogVideoContent(opts *schema.CreateVideoCatalog
 	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create catalog content")
+	}
+	cc.ID = res.InsertedID.(primitive.ObjectID)
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get video file extension")
+	}
+
+	// Getting s3 upload token with provided args
+	// This token is then used by frontend to directly upload media to s3
+	res1, err1 := ci.App.Media.GenerateVideoUploadToken(
+		&schema.GenerateVideoUploadTokenOpts{
+			FileName: fmt.Sprintf("%s.%s", cc.ID.Hex(), fType),
+		},
+	)
+	if err1 != nil {
+		return nil, err1
+	}
+	return &schema.CreateVideoCatalogContentResp{ID: cc.ID, Token: res1.Token}, nil
+}
+
+// CreateCatalogVideoContent creates video content for catalog
+func (ci *ContentImpl) CreateVideoReviewContent(opts *schema.CreateVideoReviewContentOpts) (*schema.CreateVideoReviewContentResp, error) {
+	cc := model.Content{
+		Type:       model.ReviewStoryType,
+		MediaType:  model.VideoType,
+		BrandIDs:   []primitive.ObjectID{opts.BrandID},
+		CatalogIDs: []primitive.ObjectID{opts.CatalogID},
+		UserID:     opts.UserID,
+		CreatedAt:  time.Now().UTC(),
+	}
+
+	res, err := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), cc)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create review content")
 	}
 	cc.ID = res.InsertedID.(primitive.ObjectID)
 	fType, err := FileTypeFromFileName(opts.FileName)
