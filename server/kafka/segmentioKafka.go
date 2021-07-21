@@ -5,10 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"go-app/server/config"
-	"log"
-	"net"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -16,61 +12,19 @@ import (
 	"github.com/segmentio/kafka-go/sasl/plain"
 )
 
-// SegmentioKafkaImpl has kafka cluster config and connection instance
-type SegmentioKafkaImpl struct {
-	Config *config.KafkaConfig
-	Conn   *kafka.Conn
-}
-
-// Close closes the connection
-func (k *SegmentioKafkaImpl) Close() {
-	k.Conn.Close()
-}
-
-// NewSegmentioKafka returns new segmentio kafka client instance
-func NewSegmentioKafka(c *config.KafkaConfig) *SegmentioKafkaImpl {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
-	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
-		DualStack:     true,
-		TLS:           &tls.Config{},
-		SASLMechanism: mechanism,
-	}
-
-	conn, err := dialer.Dial(c.BrokerDial, fmt.Sprintf("%s:%s", c.BrokerURL, c.BrokerPort))
-
-	if err != nil {
-		log.Fatalf("failed to establish kafka connection: %s", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
-	controller, err := conn.Controller()
-	if err != nil {
-		log.Fatalf("failed while establishing connection to controller kafka: %s", err)
-		os.Exit(1)
-	}
-	controllerConn, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
-	if err != nil {
-		log.Fatalf("failed to establish connection to controller kafka: %s", err)
-		os.Exit(1)
-	}
-	return &SegmentioKafkaImpl{Config: c, Conn: controllerConn}
-}
-
 // NewSegmentioKafkaDialer returns new segmentio kafka dialer instance
 func NewSegmentioKafkaDialer(c *config.KafkaConfig) *kafka.Dialer {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
-		DualStack:     true,
-		TLS:           &tls.Config{},
-		SASLMechanism: mechanism,
+		Timeout: 10 * time.Second,
+	}
+	if c.Username != "" && c.Password != "" {
+		fmt.Println("implementing plain mechanism")
+		mechanism := plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
+		dialer.TLS = &tls.Config{}
+		dialer.SASLMechanism = mechanism
 	}
 	return dialer
 }
@@ -96,16 +50,17 @@ func NewSegmentioKafkaConsumer(opts *SegmentioConsumerOpts) *SegmentioConsumer {
 
 // Init initialize kafka consumer group
 func (cl *SegmentioConsumer) Init(c *config.ListenerConfig) {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
 		Timeout: 10 * time.Second,
-		// DualStack:     true,
-		SASLMechanism: mechanism,
-		ClientID:      "catalog-kafka",
-		TLS:           &tls.Config{},
+	}
+	if c.Username != "" && c.Password != "" {
+		fmt.Println("implementing plain mechanism")
+		mechanism := plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
+		dialer.TLS = &tls.Config{}
+		dialer.SASLMechanism = mechanism
 	}
 	cl.Reader = kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  c.Brokers,
@@ -121,7 +76,7 @@ func (cl *SegmentioConsumer) Consume(ctx context.Context, f func(Message)) {
 	for {
 		m, err := cl.Reader.FetchMessage(ctx)
 		if err != nil {
-			cl.Logger.Err(err).Str("topic", cl.Reader.Config().Topic).Msg("failed to fetch messages")
+			cl.Logger.Err(err).Msg("failed to fetch messages")
 			break
 		}
 		f(m)
@@ -131,7 +86,7 @@ func (cl *SegmentioConsumer) Consume(ctx context.Context, f func(Message)) {
 // Commit commits an existing message
 func (cl *SegmentioConsumer) Commit(ctx context.Context, m Message) {
 	if err := cl.Reader.CommitMessages(ctx, m.(kafka.Message)); err != nil {
-		cl.Logger.Err(err).Str("topic", cl.Reader.Config().Topic).Msg("failed to commit messages")
+		cl.Logger.Err(err).Msg("failed to commit messages")
 	}
 }
 
@@ -140,7 +95,7 @@ func (cl *SegmentioConsumer) ConsumeAndCommit(ctx context.Context, f func(Messag
 	for {
 		m, err := cl.Reader.ReadMessage(ctx)
 		if err != nil {
-			cl.Logger.Err(err).Str("topic", cl.Reader.Config().Topic).Msg("failed to fetch messages")
+			cl.Logger.Err(err).Msg("failed to fetch messages")
 			break
 		}
 		f(m)
@@ -175,16 +130,19 @@ func NewSegmentioProducer(opts *SegmentioProducerOpts) *SegmentioProducer {
 }
 
 func (pl *SegmentioProducer) Init(c *config.ProducerConfig) {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
 		Timeout: 10 * time.Second,
-		// DualStack:     true,
-		SASLMechanism: mechanism,
-		TLS:           &tls.Config{},
 	}
+	if c.Username != "" && c.Password != "" {
+		fmt.Println("implementing plain mechanism")
+		mechanism := plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
+		dialer.TLS = &tls.Config{}
+		dialer.SASLMechanism = mechanism
+	}
+
 	pl.Writer = kafka.NewWriter(kafka.WriterConfig{
 		Brokers: c.Brokers,
 		Topic:   c.Topic,
@@ -196,12 +154,12 @@ func (pl *SegmentioProducer) Init(c *config.ProducerConfig) {
 func (pl *SegmentioProducer) Publish(m Message) {
 	ctx := context.TODO()
 	if err := pl.Writer.WriteMessages(ctx, m.(kafka.Message)); err != nil {
-		pl.Logger.Err(err).Interface("m", m).Msg("failed to publish kafka message")
+		pl.Logger.Err(err).Interface("m", m).Msg("Failed to publish kafka message")
 	}
 }
 
 func (pl *SegmentioProducer) Close() {
 	if err := pl.Writer.Close(); err != nil {
-		pl.Logger.Err(err).Msg("failed to close producer")
+		pl.Logger.Err(err).Msg("Failed to close producer")
 	}
 }
