@@ -318,6 +318,21 @@ func (mr *MockKeeperCatalogMockRecorder) GetPebbleCatalogInfo(arg0 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPebbleCatalogInfo", reflect.TypeOf((*MockKeeperCatalog)(nil).GetPebbleCatalogInfo), arg0)
 }
 
+// GetReviewStoryByID mocks base method
+func (m *MockKeeperCatalog) GetReviewStoryByID(arg0 primitive.ObjectID) ([]schema.CatalogContentInfoResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReviewStoryByID", arg0)
+	ret0, _ := ret[0].([]schema.CatalogContentInfoResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetReviewStoryByID indicates an expected call of GetReviewStoryByID
+func (mr *MockKeeperCatalogMockRecorder) GetReviewStoryByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReviewStoryByID", reflect.TypeOf((*MockKeeperCatalog)(nil).GetReviewStoryByID), arg0)
+}
+
 // KeeperSearchCatalog mocks base method
 func (m *MockKeeperCatalog) KeeperSearchCatalog(arg0 *schema.KeeperSearchCatalogOpts) ([]schema.KeeperSearchCatalogResp, error) {
 	m.ctrl.T.Helper()
@@ -357,6 +372,18 @@ func (m *MockKeeperCatalog) SyncCatalog(arg0 primitive.ObjectID) {
 func (mr *MockKeeperCatalogMockRecorder) SyncCatalog(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCatalog", reflect.TypeOf((*MockKeeperCatalog)(nil).SyncCatalog), arg0)
+}
+
+// SyncCatalogByBrandID mocks base method
+func (m *MockKeeperCatalog) SyncCatalogByBrandID(arg0 primitive.ObjectID) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SyncCatalogByBrandID", arg0)
+}
+
+// SyncCatalogByBrandID indicates an expected call of SyncCatalogByBrandID
+func (mr *MockKeeperCatalogMockRecorder) SyncCatalogByBrandID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncCatalogByBrandID", reflect.TypeOf((*MockKeeperCatalog)(nil).SyncCatalogByBrandID), arg0)
 }
 
 // SyncCatalogContent mocks base method

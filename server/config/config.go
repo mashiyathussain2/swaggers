@@ -79,6 +79,7 @@ type APPConfig struct {
 	DiscountConfig      ServiceConfig `mapstructure:"discount"`
 	GroupConfig         ServiceConfig `mapstructure:"group"`
 	CollectionConfig    ServiceConfig `mapstructure:"collection"`
+	ReviewConfig        ServiceConfig `mapstructure:"review"`
 	InventoryConfig     ServiceConfig `mapstructure:"inventory"`
 	PageSize            int           `mapstructure:"pageSize"`
 
@@ -90,9 +91,11 @@ type APPConfig struct {
 	BrandChangeConfig             ListenerConfig `mapstructure:"brandChangeConsumer"`
 	ContentChangeConfig           ListenerConfig `mapstructure:"contentChangeConsumer"`
 	GroupChangeConfig             ListenerConfig `mapstructure:"groupChangeConsumer"`
+	ReviewChangeConfig            ListenerConfig `mapstructure:"reviewChangeConsumer"`
 
 	CatalogFullProducerConfig    ProducerConfig `mapstructure:"catalogFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
+	ReviewFullProducerConfig     ProducerConfig `mapstructure:"reviewFullProducer"`
 }
 
 // ElasticsearchConfig contains elasticsearch related configurations
@@ -101,6 +104,7 @@ type ElasticsearchConfig struct {
 	Username            string `mapstructure:"username"`
 	Password            string `mapstructure:"password"`
 	CollectionFullIndex string `mapstructure:"collectionFullIndex"`
+	ReviewFullIndex     string `mapstructure:"reviewFullIndex"`
 	CatalogFullIndex    string `mapstructure:"catalogFullIndex"`
 	BrandFullIndex      string `mapstructure:"brandFullIndex"`
 	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`

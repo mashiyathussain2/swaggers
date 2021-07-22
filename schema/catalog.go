@@ -340,14 +340,16 @@ type GetAllCatalogInfoResp struct {
 	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
 
-	CreatedAt    time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt    time.Time                `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	GroupInfo    []model.Group            `json:"group_info,omitempty" bson:"group_info,omitempty"`
-	DiscountInfo *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	ContentInfo  []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
-	BrandInfo    *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
-	Tax          *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
-	SizeProfile  *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	CreatedAt        time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt        time.Time                `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	GroupInfo        []model.Group            `json:"group_info,omitempty" bson:"group_info,omitempty"`
+	DiscountInfo     *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	ContentInfo      []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
+	BrandInfo        *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax              *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
+	SizeProfile      *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	AvgRating        float32                  `json:"avg_rating,omitempty" bson:"avg_rating,omitempty"`
+	TotalRatingCount uint                     `json:"total_rating_count,omitempty" bson:"total_rating_count,omitempty"`
 }
 
 type CatalogKafkaMessage struct {
@@ -452,23 +454,25 @@ type GetCatalogPebbleResp struct {
 }
 
 type GetCatalogInfoResp struct {
-	ID              primitive.ObjectID       `json:"id,omitempty"`
-	Name            string                   `json:"name,omitempty"`
-	BrandID         primitive.ObjectID       `json:"brand_id,omitempty"`
-	BrandInfo       *BrandInfoResp           `json:"brand_info,omitempty"`
-	DiscountID      primitive.ObjectID       `json:"discount_id,omitempty"`
-	DiscountInfo    *DiscountBasicResp       `json:"discount_info,omitempty"`
-	FeaturedImage   *model.IMG               `json:"featured_image,omitempty"`
-	BasePrice       model.Price              `json:"base_price,omitempty"`
-	RetailPrice     model.Price              `json:"retail_price,omitempty"`
-	Slug            string                   `json:"slug,omitempty"`
-	Description     string                   `json:"description,omitempty"`
-	Specifications  []model.Specification    `json:"specs,omitempty"`
-	FilterAttribute []model.Attribute        `json:"filter_attr,omitempty"`
-	VariantType     model.VariantType        `json:"variant_type,omitempty"`
-	Variants        []VariantInfo            `json:"variants,omitempty"`
-	ContentInfo     []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
-	SizeProfile     *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	ID               primitive.ObjectID       `json:"id,omitempty"`
+	Name             string                   `json:"name,omitempty"`
+	BrandID          primitive.ObjectID       `json:"brand_id,omitempty"`
+	BrandInfo        *BrandInfoResp           `json:"brand_info,omitempty"`
+	DiscountID       primitive.ObjectID       `json:"discount_id,omitempty"`
+	DiscountInfo     *DiscountBasicResp       `json:"discount_info,omitempty"`
+	FeaturedImage    *model.IMG               `json:"featured_image,omitempty"`
+	BasePrice        model.Price              `json:"base_price,omitempty"`
+	RetailPrice      model.Price              `json:"retail_price,omitempty"`
+	Slug             string                   `json:"slug,omitempty"`
+	Description      string                   `json:"description,omitempty"`
+	Specifications   []model.Specification    `json:"specs,omitempty"`
+	FilterAttribute  []model.Attribute        `json:"filter_attr,omitempty"`
+	VariantType      model.VariantType        `json:"variant_type,omitempty"`
+	Variants         []VariantInfo            `json:"variants,omitempty"`
+	ContentInfo      []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
+	SizeProfile      string                   `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	AvgRating        float32                  `json:"avg_rating,omitempty"`
+	TotalRatingCount uint                     `json:"total_rating_count,omitempty"`
 }
 
 type GetCatalogByIDFilter struct {

@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -153,6 +154,20 @@ func (cp *CatalogProcessor) ProcessCatalogContentUpdate(msg kafka.Message) {
 	if content.Type == "catalog_content" {
 		cp.Logger.Info().Msg("syncing catalog content")
 		cp.App.KeeperCatalog.SyncCatalogContent(content.ID)
+		return
+	}
+
+	if content.Type == "review_story" {
+		if s.Meta.Operation == "u" {
+			if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+				if val, ok := updates.(primitive.D).Map()["is_active"]; ok {
+					if val.(bool) {
+						cp.Logger.Info().Msg("syncing catalog review")
+						cp.App.Review.ProcessReviewStory(s.Meta.ID.(primitive.ObjectID))
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -352,5 +367,60 @@ func (cp *CollectionProcessor) ProcessCatalogUpdate(msg kafka.Message) {
 	if s.Meta.Operation == "u" {
 		cp.App.Collection.UpdateCollectionCatalogInfo(s.Meta.ID.(primitive.ObjectID))
 		return
+	}
+}
+
+type ReviewProcessor struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+type ReviewProcessorOpts struct {
+	App    *App
+	Logger *zerolog.Logger
+}
+
+// InitCollectionProcessor returns a new instance of CollectionProcessor
+func InitReviewProcessor(opts *ReviewProcessorOpts) *ReviewProcessor {
+	rp := ReviewProcessor{
+		App:    opts.App,
+		Logger: opts.Logger,
+	}
+	return &rp
+}
+
+func (rp *ReviewProcessor) ProcessReviewUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		rp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	if s.Meta.Operation == "u" {
+		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+			if val, ok := updates.(primitive.D).Map()["is_processed"]; ok {
+				if val.(bool) {
+					rp.Logger.Info().Msg("syncing review stories")
+					resp, err := rp.App.Review.GetReviewInfo(s.Meta.ID.(primitive.ObjectID))
+					if err != nil {
+						rp.Logger.Err(err).Msgf("failed to sync review story with id: %s", s.Meta.ID.(primitive.ObjectID).Hex())
+						return
+					}
+					fmt.Println("got review info", resp)
+					val, err := json.Marshal(resp)
+					if err != nil {
+						rp.Logger.Err(err).Interface("storySchema", resp).Msg("failed to convert storySchema to json")
+						return
+					}
+					fmt.Println("got review info val", string(val))
+					m := segKafka.Message{
+						Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+						Value: val,
+					}
+					rp.App.ReviewFullProducer.Publish(m)
+				}
+			}
+		}
 	}
 }

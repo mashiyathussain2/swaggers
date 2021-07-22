@@ -2,6 +2,7 @@ package schema
 
 import (
 	"go-app/model"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -111,6 +112,31 @@ type GetActiveCollectionsOpts struct {
 	Gender string `qs:"gender"`
 }
 
+type GetReviewsByCatalogIDFilter struct {
+	Page      uint   `qs:"page"`
+	CatalogID string `qs:"catalogId"`
+}
+
+type GetReviewMediaInfo struct {
+	Dimensions  interface{} `json:"dimensions,omitempty"`
+	Duration    float32     `json:"duration,omitempty"`
+	PlaybackURL string      `json:"hls_playback_url,omitempty"`
+}
+
+type GetReviewStoryInfoResp struct {
+	ID        primitive.ObjectID  `json:"id,omitempty"`
+	MediaType string              `json:"media_type,omitempty"`
+	MediaInfo *GetReviewMediaInfo `json:"media_info,omitempty"`
+}
+
+type GetReviewsByCatalogIDResp struct {
+	ID        primitive.ObjectID      `json:"id,omitempty"`
+	Rating    *uint                   `json:"rating,omitempty"`
+	CreatedAt time.Time               `json:"created_at,omitempty"`
+	UpdatedAt time.Time               `json:"updated_at,omitempty"`
+	StoryInfo *GetReviewStoryInfoResp `json:"story_info,omitempty"`
+	UserInfo  *ReviewUserInfo         `json:"user_info,omitempty"`
+}
 type GetCatalogByBrandIDOpts struct {
 	Page    uint   `qs:"page"`
 	BrandID string `qs:"brand_id"`
