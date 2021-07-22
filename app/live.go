@@ -295,7 +295,7 @@ func (li *LiveImpl) GetLiveStreams(filterOpts *schema.GetLiveStreamsFilter) ([]s
 	}
 
 	if filter == nil {
-		filter = bson.D{}
+		filter = append(filter, bson.E{Key: "status.name", Value: bson.M{"$ne": model.EndStatus}})
 	}
 	var resp []schema.GetLiveStreamResp
 	ctx := context.TODO()
@@ -507,15 +507,23 @@ func (li *LiveImpl) GetAppLiveStreamByID(id primitive.ObjectID) (*schema.GetAppL
 func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error) {
 	ctx := context.TODO()
 	filter := bson.M{
-		"$and": bson.A{
+
+		"$or": bson.A{
 			bson.M{
-				"scheduled_at": bson.M{
-					"$gte": time.Now().UTC(),
-				},
+				"status.name": model.ActiveStatus,
 			},
 			bson.M{
-				"status.name": bson.M{
-					"$ne": model.EndStatus,
+				"$and": bson.A{
+					bson.M{
+						"scheduled_at": bson.M{
+							"$gte": time.Now().UTC(),
+						},
+					},
+					bson.M{
+						"status.name": bson.M{
+							"$nin": bson.A{model.EndStatus, model.ActiveStatus},
+						},
+					},
 				},
 			},
 		},
