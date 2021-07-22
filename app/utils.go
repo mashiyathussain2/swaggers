@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"strings"
 
 	"github.com/avelino/slugify"
@@ -88,4 +89,28 @@ func (i *IMG) Resize(width, height uint) *image.Image {
 // UniqueSlug converts a string into unique lowercase slug string
 func UniqueSlug(s string) string {
 	return slugify.Slugify(fmt.Sprintf("%s-%s", strings.ToLower(s), uuid.NewV1().String()[:4]))
+}
+
+func Round(val float64, roundOn float64, places int) float64 {
+
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+
+	var round float64
+	if val > 0 {
+		if div >= roundOn {
+			round = math.Ceil(digit)
+		} else {
+			round = math.Floor(digit)
+		}
+	} else {
+		if div >= roundOn {
+			round = math.Floor(digit)
+		} else {
+			round = math.Ceil(digit)
+		}
+	}
+
+	return round / pow
 }

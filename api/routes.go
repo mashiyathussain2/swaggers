@@ -95,6 +95,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/sale", a.requestHandler(a.getAppActiveSale)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/sale/items", a.requestHandler(a.getSaleCatalogs)).Methods("GET")
 
+	//APP REVIEW
+	a.Router.APIRoot.Handle("/app/review", a.requestWithAuthHandler(a.createReview)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/review/catalog", a.requestWithAuthHandler(a.getReviewsByCatalogID)).Methods("GET")
+
 	//SEARCH
 	a.Router.APIRoot.Handle("/app/search", a.requestHandler(a.search)).Methods("GET")
 }

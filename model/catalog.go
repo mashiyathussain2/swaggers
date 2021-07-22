@@ -108,7 +108,9 @@ type Catalog struct {
 
 	CatalogContent []primitive.ObjectID `json:"catalog_content,omitempty" bson:"catalog_content,omitempty"`
 
-	SizeProfile *SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty" `
+	AvgRating        float32      `json:"avg_rating,omitempty" bson:"avg_rating,omitempty"`
+	TotalRatingCount uint         `json:"total_rating_count,omitempty" bson:"total_rating_count,omitempty"`
+	SizeProfile      *SizeProfile `json:"size_profile,omitempty" bson:"size_profile,omitempty" `
 	// CatalogContentInfo []C
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
