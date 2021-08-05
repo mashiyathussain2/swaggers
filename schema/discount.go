@@ -189,7 +189,14 @@ type GetSalesResp struct {
 }
 
 type RemoveDiscountFromSaleOpts struct {
-	CatalogID  primitive.ObjectID `json:"catalog_id" validate:"required"`
-	DiscountID primitive.ObjectID `json:"discount_id" validate:"required"`
-	IsActive   bool               `json:"is_active" validate:"required"`
+	CatalogIDs  []primitive.ObjectID `json:"catalog_ids" validate:"required"`
+	DiscountIDs []primitive.ObjectID `json:"discount_ids" validate:"required"`
+	IsActive    bool                 `json:"is_active" validate:"required"`
+}
+
+//ChangeSaleTimeOpts validates schema for changing sale time
+type ChangeSaleTimeOpts struct {
+	ID          primitive.ObjectID `json:"id" validate:"required"`
+	ValidAfter  *time.Time         `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
+	ValidBefore *time.Time         `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
 }

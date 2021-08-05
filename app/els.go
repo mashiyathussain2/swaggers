@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -25,6 +26,7 @@ type Elasticsearch interface {
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
 	GetReviewsByCatalogID(*schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error)
 	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
+	GetCollectionCatalogByIDs(*schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -76,7 +78,7 @@ func (ei *ElasticsearchImpl) GetActiveCollections(opts *schema.GetActiveCollecti
 
 	boolQuery := elastic.NewBoolQuery().Must(mustQueries...).Should(shouldQueries...)
 	fsctx := elastic.NewFetchSourceContext(true).Include([]string{"id", "name", "title", "type", "sub_collections.catalog_ids", "sub_collections.id", "sub_collections.name", "sub_collections.image", "sub_collections.title", "inner_hits.sub_collections"}...)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).Sort("order", true).FetchSourceContext(fsctx).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).Size(20).Sort("order", true).FetchSourceContext(fsctx).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
@@ -348,4 +350,36 @@ func (ei *ElasticsearchImpl) GetCatalogByBrandID(opts *schema.GetCatalogByBrandI
 		resp = append(resp, s)
 	}
 	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) GetCollectionCatalogByIDs(opts *schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error) {
+	var finalResp []schema.GetCatalogBasicResp
+	var featureResp []schema.GetCatalogBasicResp
+
+	var wg sync.WaitGroup
+	var featErr error
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		res, err := ei.GetCatalogByIDs(opts.FeatIDs)
+		if err != nil {
+			featErr = errors.Wrapf(err, "error getting featured catalog ids")
+			return
+		}
+		featureResp = res
+	}()
+
+	catalogResp, err := ei.GetCatalogByIDs(opts.IDs)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error getting featured catalog ids")
+	}
+
+	if featErr != nil {
+		return nil, featErr
+	}
+
+	wg.Wait()
+	finalResp = append(featureResp, catalogResp...)
+	return finalResp, nil
 }
