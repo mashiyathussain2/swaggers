@@ -30,6 +30,7 @@ type Collection interface {
 	AddCatalogInfoToCollection(id primitive.ObjectID)
 	UpdateCollectionCatalogInfo(id primitive.ObjectID)
 	UpdateCollectionStatus(*schema.UpdateCollectionStatus) error
+	SetFeaturedCatalogs(opts *schema.SetFeaturedCatalogs) error
 
 	// GetActiveCollections()
 }
@@ -294,9 +295,16 @@ func (ci *CollectionImpl) AddCatalogsToSubCollection(opts *schema.UpdateCatalogs
 		return err
 	}
 
-	updateQuery := bson.M{"$addToSet": bson.M{"sub_collections.$.catalog_ids": bson.M{
-		"$each": opts.CatalogIDs,
-	}}}
+	updateQuery := bson.M{
+		"$addToSet": bson.M{
+			"sub_collections.$.catalog_ids": bson.M{
+				"$each": opts.CatalogIDs,
+			},
+		},
+		"$pull": bson.M{
+			"sub_collections.$.featured_catalog_ids": opts.CatalogIDs,
+		},
+	}
 
 	res, errResp := ci.DB.Collection(model.CollectionColl).UpdateOne(context.TODO(), findQuery, updateQuery)
 	if errResp != nil {
@@ -369,7 +377,7 @@ func (ci *CollectionImpl) checkCatalogs(opts []primitive.ObjectID) []error {
 func (ci *CollectionImpl) GetCollections(page int) ([]schema.CollectionResp, error) {
 
 	ctx := context.TODO()
-	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "order", Value: 1}})
+	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "_id", Value: -1}})
 	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, bson.M{}, opts)
 	if err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
@@ -385,6 +393,8 @@ func (ci *CollectionImpl) GetCollections(page int) ([]schema.CollectionResp, err
 	return collectionResp, nil
 }
 
+// AddCatalogInfoToCollection is called when a new collection is being inserted into collection DB. It adds catalog_info field of newly added collection's subcollections.
+// i.e its adds catalog_info in collection as a background task.
 func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	var collection model.Collection
 	ctx := context.TODO()
@@ -406,7 +416,7 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	for _, subColl := range collection.SubCollections {
 		operation := mongo.NewUpdateOneModel()
 		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
-		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
+		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.FeaturedCatalogIDs)
 		if err != nil {
 			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
 			return
@@ -435,53 +445,6 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 		ci.Logger.Err(err).Msgf("failed to add catalog info inside collection with id:%s", id.Hex())
 	}
 }
-
-// func (ci *CollectionImpl) SyncCatalogInfoToCollection(id primitive.ObjectID) {
-// 	ctx := context.TODO()
-// 	filter := bson.M{
-// 		"type":                        model.ProductCollection,
-// 		"sub_collections.catalog_ids": id,
-// 	}
-// 	var collections []model.Collection
-// 	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, filter)
-// 	if err != nil {
-// 		ci.Logger.Err(err).Msgf("failed to collection with id: %s", id.Hex())
-// 		return
-// 	}
-// 	if err := cur.All(ctx, &collections); err != nil {
-// 		ci.Logger.Err(err).Msgf("failed to collections with catalog_id: %s", id.Hex())
-// 		return
-// 	}
-// 	var operations []mongo.WriteModel
-// 	for _, collection := range collections {
-// 		for _, subColl := range collection.SubCollections {
-// 			operation := mongo.NewUpdateOneModel()
-// 			operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
-// 			catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
-// 			if catalogInfo == nil {
-// 				continue
-// 			}
-// 			if err != nil {
-// 				ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
-// 				return
-// 			}
-// 			operation.SetUpdate(bson.M{
-// 				"$set": bson.M{
-// 					"sub_collections.$.catalog_info": catalogInfo,
-// 				},
-// 			})
-// 			operations = append(operations, operation)
-// 		}
-// 	}
-// 	if len(operations) == 0 {
-// 		return
-// 	}
-// 	bulkOption := options.BulkWriteOptions{}
-// 	bulkOption.SetOrdered(true)
-// 	if _, err := ci.DB.Collection(model.CollectionColl).BulkWrite(context.TODO(), operations, &bulkOption); err != nil {
-// 		ci.Logger.Err(err).Msgf("failed to add catalog info inside collection with id:%s", id.Hex())
-// 	}
-// }
 
 func (ci *CollectionImpl) UpdateCollectionCatalogInfo(id primitive.ObjectID) {
 	filter := bson.M{
@@ -541,6 +504,10 @@ func (ci *CollectionImpl) UpdateCollectionStatus(opts *schema.UpdateCollectionSt
 		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 
+	if collection.Type == model.ProductCollection && len(collection.SubCollections[0].FeaturedCatalogIDs) != 4 {
+		return errors.Errorf("Total 4 featured catalogs required")
+	}
+
 	updateQuery := bson.M{
 		"$set": bson.M{
 			"status": updateStatusValue,
@@ -556,6 +523,36 @@ func (ci *CollectionImpl) UpdateCollectionStatus(opts *schema.UpdateCollectionSt
 	}
 	if updateResp.ModifiedCount == 0 {
 		return errors.Errorf("unable to update Status")
+	}
+	return nil
+}
+
+func (ci *CollectionImpl) SetFeaturedCatalogs(opts *schema.SetFeaturedCatalogs) error {
+
+	findQuery := bson.M{
+		"_id":                 opts.ColID,
+		"sub_collections._id": opts.SubID,
+	}
+
+	updateQuery := bson.M{
+		"$set": bson.M{
+			"sub_collections.$.featured_catalog_ids": opts.FeatCatIDs,
+		},
+		"$pull": bson.M{
+			"sub_collections.$.catalog_ids": bson.M{
+				"$in": opts.FeatCatIDs,
+			},
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CollectionColl).UpdateOne(context.TODO(), findQuery, updateQuery)
+
+	if err != nil {
+		return errors.Wrapf(err, "error updating collection with id : %s", opts.ColID.Hex())
+	}
+	if res.MatchedCount == 0 {
+		return errors.Errorf("error finding collection with id : %s", opts.ColID.Hex())
+
 	}
 	return nil
 }
