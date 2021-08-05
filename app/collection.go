@@ -369,7 +369,7 @@ func (ci *CollectionImpl) checkCatalogs(opts []primitive.ObjectID) []error {
 func (ci *CollectionImpl) GetCollections(page int) ([]schema.CollectionResp, error) {
 
 	ctx := context.TODO()
-	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "order", Value: 1}})
+	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "_id", Value: 1}})
 	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, bson.M{}, opts)
 	if err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
