@@ -63,7 +63,6 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/collection/subcollection/image", a.requestWithSudoHandler(a.updateSubCollectionImage)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/collection/subcollection/catalog", a.requestWithSudoHandler(a.addCatalogsToSubCollection)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/collection/subcollection/catalog", a.requestWithSudoHandler(a.removeCatalogsFromSubCollection)).Methods("DELETE")
-	a.Router.APIRoot.Handle("/keeper/collection/subcollection/featured", a.requestWithSudoHandler(a.setFeaturedCatalogs)).Methods("POST")
 
 	//KEEPER DISCOUNT
 	a.Router.APIRoot.Handle("/keeper/discount", a.requestWithSudoHandler(a.createDiscount)).Methods("POST")
@@ -76,7 +75,6 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/sale/edit", a.requestWithSudoHandler(a.editSale)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/sale/status", a.requestWithSudoHandler(a.editSaleStatus)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/sale/discount", a.requestWithSudoHandler(a.removeDiscountFromSale)).Methods("DELETE")
-	a.Router.APIRoot.Handle("/keeper/sale/time", a.requestWithSudoHandler(a.changeSaleTime)).Methods("PUT")
 
 	//APP CATALOG
 	a.Router.APIRoot.Handle("/app/groups/catalog", a.requestHandler(a.getGroupsByCatalogID)).Methods("GET")
@@ -92,7 +90,6 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestHandler(a.getCatalogBasicByIds)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestHandler(a.getCatalogInfoById)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestHandler(a.getCatalogByCategoryID)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/collection/catalogs", a.requestHandler(a.getCollectionCatalogByIDs)).Methods("GET")
 
 	//APP SALE
 	a.Router.APIRoot.Handle("/app/sale", a.requestHandler(a.getAppActiveSale)).Methods("GET")
@@ -104,11 +101,6 @@ func (a *API) InitRoutes() {
 
 	//SEARCH
 	a.Router.APIRoot.Handle("/app/search", a.requestHandler(a.search)).Methods("GET")
-
-	//BULK UPLOAD
-	// a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogCSV)).Methods("POST")
-	a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogJSON)).Methods("POST")
-
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

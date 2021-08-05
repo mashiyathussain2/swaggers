@@ -264,8 +264,7 @@ func (ci *CategoryImpl) GetSubCategoriesByParentID(id primitive.ObjectID) ([]sch
 	var categories []schema.GetSubCategoriesByParentIDResp
 	ctx := context.Background()
 	filter := bson.M{"is_main": true, "parent_id": id}
-	opts := options.Find().SetSort(bson.M{"name": 1})
-	cur, err := ci.DB.Collection(model.CategoryColl).Find(ctx, filter, opts)
+	cur, err := ci.DB.Collection(model.CategoryColl).Find(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrapf(err, "query failed to find categories with parent:%s", id)
 	}

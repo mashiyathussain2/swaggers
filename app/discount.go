@@ -29,7 +29,7 @@ type Discount interface {
 	GetDiscountAndCatalogInfoBySaleID(primitive.ObjectID) ([]schema.DiscountInfoWithCatalogInfoResp, error)
 	GetAppActiveSale(*schema.GetAppActiveSaleOpts) ([]schema.GetSalesResp, error)
 	RemoveDiscountFromSale(*schema.RemoveDiscountFromSaleOpts) error
-	ChangeSaleTime(*schema.ChangeSaleTimeOpts) error
+
 	CheckAndUpdateStatus()
 }
 
@@ -595,8 +595,7 @@ func (di *DiscountImpl) GetDiscountAndCatalogInfoBySaleID(id primitive.ObjectID)
 		{
 			Key: "$match",
 			Value: bson.M{
-				"sale_id":     id,
-				"is_disabled": false,
+				"sale_id": id,
 			},
 		},
 	}
@@ -678,9 +677,7 @@ func (di *DiscountImpl) RemoveDiscountFromSale(opts *schema.RemoveDiscountFromSa
 	ctx := context.TODO()
 
 	filterDiscount := bson.M{
-		"_id": bson.M{
-			"$in": opts.DiscountIDs,
-		},
+		"_id": opts.DiscountID,
 	}
 
 	updateDiscount := bson.M{
@@ -689,12 +686,12 @@ func (di *DiscountImpl) RemoveDiscountFromSale(opts *schema.RemoveDiscountFromSa
 		},
 	}
 
-	res, err := di.DB.Collection(model.DiscountColl).UpdateMany(ctx, filterDiscount, updateDiscount)
+	res, err := di.DB.Collection(model.DiscountColl).UpdateOne(ctx, filterDiscount, updateDiscount)
 	if err != nil {
-		return errors.Wrapf(err, "unable to query for discount with given ids")
+		return errors.Wrapf(err, "unable to query for discount with id: %s", opts.DiscountID.Hex())
 	}
-	if int(res.MatchedCount) != len(opts.DiscountIDs) {
-		err := errors.Errorf("discount id: mismatch reload and try again ")
+	if res.MatchedCount == 0 {
+		err := errors.Errorf("discount id: %s not found", opts.DiscountID.Hex())
 		di.Logger.Log().Err(err)
 		return err
 	}
@@ -702,7 +699,7 @@ func (di *DiscountImpl) RemoveDiscountFromSale(opts *schema.RemoveDiscountFromSa
 		return nil
 	}
 	catlogFilterQuery := bson.M{
-		"_id": opts.CatalogIDs,
+		"_id": opts.CatalogID,
 	}
 	catalogUpdateQuery := bson.M{
 		"$unset": bson.M{
@@ -710,79 +707,16 @@ func (di *DiscountImpl) RemoveDiscountFromSale(opts *schema.RemoveDiscountFromSa
 		},
 	}
 
-	res, err = di.DB.Collection(model.CatalogColl).UpdateMany(ctx, catlogFilterQuery, catalogUpdateQuery)
+	res, err = di.DB.Collection(model.CatalogColl).UpdateOne(ctx, catlogFilterQuery, catalogUpdateQuery)
 	if err != nil {
 		di.Logger.Log().Err(err)
 		return err
 	}
-	if int(res.MatchedCount) == len(opts.CatalogIDs) {
-		err := errors.Errorf("catalog id mismatch : reload and try again")
+	if res.MatchedCount == 0 {
+		err := errors.Errorf("catalog id: %s not found", opts.CatalogID.Hex())
 		di.Logger.Log().Err(err)
 		return err
 	}
 
-	return nil
-}
-
-//ChangeSaleTime changes sale's start and end time
-func (di *DiscountImpl) ChangeSaleTime(opts *schema.ChangeSaleTimeOpts) error {
-
-	ctx := context.TODO()
-	sale := model.Sale{}
-	saleFindQuery := bson.M{"_id": opts.ID}
-	discountFindQuery := bson.M{"sale_id": opts.ID}
-
-	// creating session for atomic updates
-	session, err := di.DB.Client().StartSession()
-	if err != nil {
-		return errors.Wrap(err, "failed to start session")
-	}
-	// Closing session at the end for function execution
-	defer session.EndSession(ctx)
-
-	// staring a new transaction
-	if err := session.StartTransaction(); err != nil {
-		return errors.Wrap(err, "failed to start transaction")
-	}
-
-	t := time.Now().UTC()
-	updateData := bson.D{}
-
-	if err = mongo.WithSession(context.TODO(), session, func(sc mongo.SessionContext) error {
-
-		err = di.DB.Collection(model.SaleColl).FindOne(ctx, saleFindQuery).Decode(&sale)
-		if err != nil {
-			return errors.Errorf("unable to find the sale with id: %s", opts.ID.Hex())
-		}
-
-		if opts.ValidAfter != nil {
-			updateData = append(updateData, bson.E{
-				Key: "valid_after", Value: opts.ValidAfter,
-			})
-		}
-
-		if opts.ValidBefore != nil {
-			updateData = append(updateData, bson.E{
-				Key: "valid_before", Value: opts.ValidBefore,
-			})
-		}
-		updateData = append(updateData, bson.E{
-			Key: "updated_at", Value: t,
-		})
-		updateQuery := bson.M{"$set": updateData}
-
-		_, err = di.DB.Collection(model.SaleColl).UpdateOne(ctx, saleFindQuery, updateQuery)
-		if err != nil {
-			return errors.Wrapf(err, "error updating sale time")
-		}
-
-		_, err = di.DB.Collection(model.SaleColl).UpdateOne(ctx, discountFindQuery, updateQuery)
-		if err != nil {
-			return errors.Wrapf(err, "error updating discount time")
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
 	return nil
 }

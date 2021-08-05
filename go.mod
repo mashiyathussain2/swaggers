@@ -3,7 +3,6 @@ module go-app
 go 1.14
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize/v2 v2.4.0
 	github.com/avelino/slugify v0.0.0-20180501145920-855f152bd774
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.0.1
@@ -37,7 +36,11 @@ require (
 	github.com/urfave/negroni v1.0.0
 	github.com/vasupal1996/goerror v0.0.0-20201208172918-4461ab1738f7
 	go.mongodb.org/mongo-driver v1.4.4
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
+	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208 // indirect
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
+	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0

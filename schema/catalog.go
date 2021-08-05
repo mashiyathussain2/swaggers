@@ -523,39 +523,3 @@ type EditVariantSKU struct {
 	ID  primitive.ObjectID `json:"id" validate:"required"`
 	SKU string             `json:"sku" validate:"required"`
 }
-
-type BulkUploadCatalogJSONOpts struct {
-	Name            string               `json:"name" validate:"required"`
-	CategoryID      []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
-	CategoryValue   []string             `json:"category_value" validate:"required,gt=0"`
-	BrandID         primitive.ObjectID   `json:"brand_id" validate:"required"`
-	Description     string               `json:"description" validate:"required"`
-	Keywords        []string             `json:"keywords" validate:"required,gt=0,unique"`
-	ETA             *etaOpts             `json:"eta" validate:"required"`
-	Specifications  []specsOpts          `json:"specifications" validate:"dive"`
-	FilterAttribute []FilterAttribute    `json:"filter_attr" validate:"dive"`
-
-	HSNCode string `json:"hsn_code" validate:"required,gt=0"`
-
-	VariantType model.VariantType   `json:"variant_type" validate:"required_with_field=Variants"`
-	Variants    []CreateVariantOpts `json:"variants" validate:"dive"`
-
-	BasePrice     uint32   `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
-	RetailPrice   uint32   `json:"retail_price" validate:"gt=0"`
-	TransferPrice uint32   `json:"transfer_price" validate:"gt=0"`
-	Tax           *TaxOpts `json:"tax" validate:"required"`
-}
-
-type BulkUploadCatalogRowResp struct {
-	Row    BulkUploadCatalogJSONOpts `json:"row"`
-	Errors map[string][]error        `json:"errors"`
-}
-
-type BulkUploadCatalogResp struct {
-	Count int                        `json:"count"`
-	Data  []BulkUploadCatalogRowResp `json:"data"`
-}
-type GetCollectionCatalogByIDs struct {
-	IDs     []string `qs:"id" json:"id"`
-	FeatIDs []string `qs:"fid" json:"fid"`
-}

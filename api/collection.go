@@ -201,21 +201,3 @@ func (a *API) updateCollectionStatus(requestCTX *handler.RequestContext, w http.
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
-
-func (a *API) setFeaturedCatalogs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.SetFeaturedCatalogs
-	if err := a.DecodeJSONBody(r, &s); err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
-	if errs := a.Validator.Validate(&s); errs != nil {
-		requestCTX.SetErrs(errs, http.StatusBadRequest)
-		return
-	}
-	err := a.App.Collection.SetFeaturedCatalogs(&s)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
-	requestCTX.SetAppResponse(true, http.StatusOK)
-}
