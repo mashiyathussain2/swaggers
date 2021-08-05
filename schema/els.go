@@ -36,12 +36,11 @@ type GetCollectionCatalogInfoResp struct {
 }
 
 type GetSubCollectionESResp struct {
-	ID                 primitive.ObjectID             `json:"id,omitempty"`
-	Name               string                         `json:"name,omitempty"`
-	Image              *model.IMG                     `json:"image,omitempty"`
-	CatalogIDs         []primitive.ObjectID           `json:"catalog_ids,omitempty"`
-	CatalogInfo        []GetCollectionCatalogInfoResp `json:"catalog_info,omitempty"`
-	FeaturedCatalogIDs []primitive.ObjectID           `json:"featured_catalog_ids,omitempty"`
+	ID          primitive.ObjectID             `json:"id,omitempty"`
+	Name        string                         `json:"name,omitempty"`
+	Image       *model.IMG                     `json:"image,omitempty"`
+	CatalogIDs  []primitive.ObjectID           `json:"catalog_ids,omitempty"`
+	CatalogInfo []GetCollectionCatalogInfoResp `json:"catalog_info,omitempty"`
 }
 
 type GetCollectionESResp struct {

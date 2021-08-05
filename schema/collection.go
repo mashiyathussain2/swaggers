@@ -12,7 +12,6 @@ type SubCollectionOpts struct {
 	Name       string               `json:"name" validate:"required"`
 	Image      *Img                 `json:"image"`
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids" validate:"required"`
-	// FeaturedCatalogIDs []primitive.ObjectID `json:"feat_cat_ids" validate:"required"`
 }
 
 // CreateCollectionOpts serialize the create collection api arguments
@@ -72,7 +71,6 @@ type UpdateCatalogsInSubCollectionOpts struct {
 	ColID      primitive.ObjectID   `json:"col_id" validate:"required"`
 	SubID      primitive.ObjectID   `json:"sub_id" validate:"required"`
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids" validate:"required"`
-	// FeatCatIDs []primitive.ObjectID `json:"feat_cat_ids" validate:"required"`
 }
 
 type SubCollectionCatalogInfoKafkaMessageResp struct {
@@ -101,14 +99,13 @@ type SubCollectionCatalogInfoKafkaMessageResp struct {
 }
 
 type SubCollectionKafkaMessageResp struct {
-	ID                 primitive.ObjectID                         `json:"_id,omitempty"`
-	Name               string                                     `json:"name,omitempty"`
-	Image              *model.IMG                                 `json:"image,omitempty"`
-	CatalogIDs         []primitive.ObjectID                       `json:"catalog_ids,omitempty"`
-	FeaturedCatalogIDs []primitive.ObjectID                       `json:"featured_catalog_ids,omitempty"`
-	CatalogInfo        []SubCollectionCatalogInfoKafkaMessageResp `json:"catalog_info,omitempty"`
-	CreatedAt          time.Time                                  `json:"created_at,omitempty"`
-	UpdatedAt          time.Time                                  `json:"updated_at,omitempty"`
+	ID          primitive.ObjectID                         `json:"_id,omitempty"`
+	Name        string                                     `json:"name,omitempty"`
+	Image       *model.IMG                                 `json:"image,omitempty"`
+	CatalogIDs  []primitive.ObjectID                       `json:"catalog_ids,omitempty"`
+	CatalogInfo []SubCollectionCatalogInfoKafkaMessageResp `json:"catalog_info,omitempty"`
+	CreatedAt   time.Time                                  `json:"created_at,omitempty"`
+	UpdatedAt   time.Time                                  `json:"updated_at,omitempty"`
 }
 
 type CollectionKafkaMessageResp struct {
@@ -125,14 +122,13 @@ type CollectionKafkaMessageResp struct {
 }
 
 type SubCollectionInfoResp struct {
-	ID                 primitive.ObjectID               `json:"id,omitempty"`
-	Name               string                           `json:"name,omitempty"`
-	Image              *model.IMG                       `json:"image,omitempty"`
-	CatalogIDs         []primitive.ObjectID             `json:"catalog_ids,omitempty"`
-	FeaturedCatalogIDs []primitive.ObjectID             `json:"featured_catalog_ids,omitempty"`
-	CatalogInfo        []SubCollectionCatalogInfoSchema `json:"catalog_info,omitempty"`
-	CreatedAt          time.Time                        `json:"created_at,omitempty"`
-	UpdatedAt          time.Time                        `json:"updated_at,omitempty"`
+	ID          primitive.ObjectID               `json:"id,omitempty"`
+	Name        string                           `json:"name,omitempty"`
+	Image       *model.IMG                       `json:"image,omitempty"`
+	CatalogIDs  []primitive.ObjectID             `json:"catalog_ids,omitempty"`
+	CatalogInfo []SubCollectionCatalogInfoSchema `json:"catalog_info,omitempty"`
+	CreatedAt   time.Time                        `json:"created_at,omitempty"`
+	UpdatedAt   time.Time                        `json:"updated_at,omitempty"`
 }
 
 type CollectionInfoResp struct {
@@ -180,10 +176,4 @@ type SubCollectionCatalogInfoSchema struct {
 type UpdateCollectionStatus struct {
 	ID     primitive.ObjectID `json:"id"`
 	Status string             `json:"status"`
-}
-
-type SetFeaturedCatalogs struct {
-	ColID      primitive.ObjectID   `json:"col_id" validate:"required"`
-	SubID      primitive.ObjectID   `json:"sub_id" validate:"required"`
-	FeatCatIDs []primitive.ObjectID `json:"featured_catalog_ids" validate:"required"`
 }
