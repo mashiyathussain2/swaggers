@@ -23,7 +23,7 @@ type CreateBrandOpts struct {
 	Name               string               `json:"name" validate:"required"`
 	RegisteredName     string               `json:"registered_name" validate:"required"`
 	FulfillmentEmail   string               `json:"fulfillment_email" validate:"required"`
-	FulfillmentCCEmail []string             `json:"fulfillment_cc_email" validate:"dive,email"`
+	FulfillmentCCEmail []string             `json:"fulfillment_cc_email"`
 	Domain             string               `json:"domain" validate:"required"`
 	Website            string               `json:"website" validate:"required,url"`
 	Logo               *Img                 `json:"logo" validate:"required"`
@@ -55,8 +55,8 @@ type EditBrandOpts struct {
 	ID                 primitive.ObjectID   `json:"id" validate:"required"`
 	Name               string               `json:"name"`
 	RegisteredName     string               `json:"registered_name"`
-	FulfillmentEmail   string               `json:"fulfillment_email" validate:"isdefault|email"`
-	FulfillmentCCEmail []string             `json:"fulfillment_cc_email" validate:"dive,email"`
+	FulfillmentEmail   string               `json:"fulfillment_email" validate:"isdefault"`
+	FulfillmentCCEmail []string             `json:"fulfillment_cc_email"`
 	Domain             string               `json:"domain"`
 	Website            string               `json:"website" validate:"isdefault|url"`
 	Logo               *Img                 `json:"logo"`
