@@ -27,23 +27,31 @@ type UserAuth struct {
 	JWTToken  JWTToken
 }
 
+type InfluencerInfo struct {
+	ID           string     `json:"_id,omitempty"`
+	Name         string     `json:"name,omitempty"`
+	ProfileImage *model.IMG `json:"profile_image,omitempty"`
+}
+
 // UserClaim contains customer related info for jwt token
 type UserClaim struct {
-	ID            string             `json:"id"`
-	KeeperUserID  string             `json:"keeper_user_id,omitempty"`
-	CustomerID    string             `json:"customer_id,omitempty"`
-	CartID        string             `json:"cart_id,omitempty"`
-	Type          string             `json:"type"`
-	Role          string             `json:"role"`
-	FullName      string             `json:"full_name"`
-	DOB           time.Time          `json:"dob,omitempty"`
-	Email         string             `json:"email"`
-	PhoneNo       *model.PhoneNumber `json:"phone_no,omitempty"`
-	ProfileImage  *model.IMG         `json:"profile_image"`
-	Gender        string             `json:"gender,omitempty"`
-	EmailVerified bool               `json:"email_verified,omitempty"`
-	PhoneVerified bool               `json:"phone_verified,omitempty"`
-	CreatedVia    string             `json:"created_via,omitempty"`
+	ID             string             `json:"id"`
+	KeeperUserID   string             `json:"keeper_user_id,omitempty"`
+	CustomerID     string             `json:"customer_id,omitempty"`
+	CartID         string             `json:"cart_id,omitempty"`
+	Type           string             `json:"type"`
+	Role           string             `json:"role"`
+	FullName       string             `json:"full_name"`
+	DOB            time.Time          `json:"dob,omitempty"`
+	Email          string             `json:"email"`
+	PhoneNo        *model.PhoneNumber `json:"phone_no,omitempty"`
+	ProfileImage   *model.IMG         `json:"profile_image"`
+	Gender         string             `json:"gender,omitempty"`
+	EmailVerified  bool               `json:"email_verified,omitempty"`
+	PhoneVerified  bool               `json:"phone_verified,omitempty"`
+	CreatedVia     string             `json:"created_via,omitempty"`
+	IsInfluencer   bool               `json:"is_influencer,omitempty"`
+	InfluencerInfo *InfluencerInfo    `json:"influencer_info,omitempty"`
 	jwt.StandardClaims
 }
 

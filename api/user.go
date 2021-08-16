@@ -9,10 +9,40 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	requestCTX.SetAppResponse(requestCTX.UserClaim, http.StatusOK)
+}
+
+func (a *API) updateMe(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var userID primitive.ObjectID
+	isWeb, _ := strconv.ParseBool(r.URL.Query().Get("isWeb"))
+
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	}
+	res, err := a.App.Customer.UpdateToken(userID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	token, err := a.TokenAuth.SignToken(res)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if isWeb {
+		if err := a.SessionAuth.Create(token, w); err != nil {
+			requestCTX.SetErr(fmt.Errorf("failed to login user: %s", err), http.StatusInternalServerError)
+			return
+		}
+		requestCTX.SetAppResponse(map[string]interface{}{"data": res}, http.StatusOK)
+		return
+	}
+	requestCTX.SetAppResponse(map[string]interface{}{"token": token, "data": res}, http.StatusOK)
 }
 
 func (a *API) forgotPassword(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {

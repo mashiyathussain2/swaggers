@@ -22,6 +22,7 @@ type Customer interface {
 	Login(*schema.EmailLoginCustomerOpts) (auth.Claim, error)
 	SignUp(*schema.CreateUserOpts) (auth.Claim, error)
 	UpdateCustomer(*schema.UpdateCustomerOpts) (auth.Claim, error)
+	UpdateToken(id primitive.ObjectID) (auth.Claim, error)
 
 	AddBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
 	RemoveBrandFollowing(mongo.SessionContext, *schema.AddBrandFollowerOpts) error
@@ -152,6 +153,24 @@ func (ci *CustomerImpl) UpdateCustomer(opts *schema.UpdateCustomerOpts) (auth.Cl
 			}
 			return nil, errors.Wrapf(err, "failed to find customer with id:%s", opts.ID.Hex())
 		}
+	}
+	wg.Wait()
+	claim := ci.App.User.GetUserClaim(user, &customer)
+	return claim, nil
+}
+
+// UpdateToken returns updated token
+func (ci *CustomerImpl) UpdateToken(id primitive.ObjectID) (auth.Claim, error) {
+	var wg sync.WaitGroup
+	var user *model.User
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		user, _ = ci.App.User.GetUserByID(id)
+	}()
+	var customer model.Customer
+	if err := ci.DB.Collection(model.CustomerColl).FindOne(context.TODO(), bson.M{"user_id": id}).Decode(&customer); err != nil {
+		return nil, errors.Wrapf(err, "customer with user id:%s not found", id.Hex())
 	}
 	wg.Wait()
 	claim := ci.App.User.GetUserClaim(user, &customer)

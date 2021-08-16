@@ -5,6 +5,7 @@ func (a *API) InitRoutes() {
 	a.Router.Root.Handle("/keeper/gl/callback", a.requestHandler(a.keeperLoginCallback)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/me", a.requestWithAuthHandler(a.me)).Methods("GET")
+	a.Router.APIRoot.Handle("/me", a.requestWithAuthHandler(a.updateMe)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/me", a.requestWithSudoHandler(a.me)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/auth/login", a.requestHandler(a.keeperLogin)).Methods("GET")
@@ -88,8 +89,14 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/size/brand", a.requestWithSudoHandler(a.getSizeProfilesForBrand)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/size/get", a.requestWithSudoHandler(a.getSizeProfile)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/size/all", a.requestWithSudoHandler(a.getAllSizeProfiles)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/influencer-request", a.requestWithSudoHandler(a.getInfluencerClaimRequests)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/influencer-request/status", a.requestWithSudoHandler(a.updateClaimInfluencerRequestStatus)).Methods("PUT")
 
 	a.Router.APIRoot.Handle("/app/size/get", a.requestHandler(a.getSizeProfile)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequest)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/user/influencer-request/status", a.requestWithAuthHandler(a.checkClaimInfluencerRequestStatus)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
