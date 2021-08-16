@@ -122,3 +122,68 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.InfluencerAccountRequestOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+
+	}
+
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if err := a.App.Influencer.InfluencerAccountRequest(&s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) checkClaimInfluencerRequestStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	}
+	res, err := a.App.Influencer.GetInfluencerAccountRequestStatus(userID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getInfluencerClaimRequests(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	res, err := a.App.Influencer.GetInfluencerAccountRequest()
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) updateClaimInfluencerRequestStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.UpdateInfluencerAccountRequestStatusOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.GranteeID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	}
+	if err := a.App.Influencer.UpdateInfluencerAccountRequestStatus(&s); err != nil {
+		a.Logger.Err(err).Msg("failed to update status request")
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}

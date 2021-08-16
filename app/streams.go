@@ -285,7 +285,6 @@ func (cp *CartProcessor) ProcessInventoryUpdate(msg kafka.Message) {
 		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
 		return
 	}
-
 	if s.Meta.Operation == "u" {
 		var inventory schema.InventoryUpdateKafkaMessage
 		inventoryBytes, err := json.Marshal(s.Data)
@@ -308,6 +307,7 @@ func (cp *CartProcessor) ProcessInventoryUpdate(msg kafka.Message) {
 
 		// cp.App.Cart.UpdateInventoryStatus(&opts)
 		cp.App.Cart.UpdateInventoryStatusInsideCatalogInfo(&opts)
+
 	}
 
 }

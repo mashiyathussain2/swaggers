@@ -71,8 +71,11 @@ type User struct {
 	PhoneVerifiedAt       time.Time          `json:"phone_verified_at,omitempty" bson:"phone_verified_at,omitempty"`
 	CreatedVia            string             `json:"created_via,omitempty" bson:"created_via,omitempty"`
 	SocialID              string             `json:"social_id,omitempty" bson:"social_id,omitempty"`
-	CreatedAt             time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt             time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+
+	InfluencerID primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
+
+	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type KeeperUser struct {

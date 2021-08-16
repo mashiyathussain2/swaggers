@@ -41,7 +41,8 @@ type Brand struct {
 		-> instagram
 */
 type SocialMedia struct {
-	FollowersCount uint `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
+	FollowersCount uint   `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
+	URL            string `json:"url,omitempty" bson:"url,omitempty"`
 }
 
 // SocialAccount contains info about social media pages such as facebook, instagram, etc

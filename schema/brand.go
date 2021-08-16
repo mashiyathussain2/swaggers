@@ -8,9 +8,13 @@ import (
 )
 
 type SocialMediaOpts struct {
-	FollowersCount int `json:"followers_count" validate:"gte=0"`
+	URL            string `json:"url" validate:"required"`
+	FollowersCount int    `json:"followers_count" validate:"gte=0"`
 }
-
+type SocialMediaBrandOpts struct {
+	URL            string `json:"url"`
+	FollowersCount int    `json:"followers_count" validate:"gte=0"`
+}
 type SocialAccountOpts struct {
 	Facebook  *SocialMediaOpts `json:"facebook"`
 	Instagram *SocialMediaOpts `json:"instagram"`
@@ -18,19 +22,26 @@ type SocialAccountOpts struct {
 	Youtube   *SocialMediaOpts `json:"youtube"`
 }
 
+type SocialAccountBrandOpts struct {
+	Facebook  *SocialMediaBrandOpts `json:"facebook"`
+	Instagram *SocialMediaBrandOpts `json:"instagram"`
+	Twitter   *SocialMediaBrandOpts `json:"twitter"`
+	Youtube   *SocialMediaBrandOpts `json:"youtube"`
+}
+
 // CreateBrandOpts contains and validations required to create a new brand
 type CreateBrandOpts struct {
-	Name               string               `json:"name" validate:"required"`
-	RegisteredName     string               `json:"registered_name" validate:"required"`
-	FulfillmentEmail   string               `json:"fulfillment_email" validate:"required"`
-	FulfillmentCCEmail []string             `json:"fulfillment_cc_email"`
-	Domain             string               `json:"domain" validate:"required"`
-	Website            string               `json:"website" validate:"required,url"`
-	Logo               *Img                 `json:"logo" validate:"required"`
-	Bio                string               `json:"bio"`
-	CoverImg           *Img                 `json:"cover_img" validate:"required"`
-	SocialAccount      *SocialAccountOpts   `json:"social_account"`
-	SizeProfiles       []primitive.ObjectID `json:"size_profiles"`
+	Name               string                  `json:"name" validate:"required"`
+	RegisteredName     string                  `json:"registered_name" validate:"required"`
+	FulfillmentEmail   string                  `json:"fulfillment_email" validate:"required"`
+	FulfillmentCCEmail []string                `json:"fulfillment_cc_email"`
+	Domain             string                  `json:"domain" validate:"required"`
+	Website            string                  `json:"website" validate:"required,url"`
+	Logo               *Img                    `json:"logo" validate:"required"`
+	Bio                string                  `json:"bio"`
+	CoverImg           *Img                    `json:"cover_img" validate:"required"`
+	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
+	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
 }
 
 // CreateBrandResp contains fields to be returned in response to create brand api
@@ -52,18 +63,18 @@ type CreateBrandResp struct {
 
 // EditBrandOpts contains and validations required to update a new brand
 type EditBrandOpts struct {
-	ID                 primitive.ObjectID   `json:"id" validate:"required"`
-	Name               string               `json:"name"`
-	RegisteredName     string               `json:"registered_name"`
-	FulfillmentEmail   string               `json:"fulfillment_email" validate:"isdefault"`
-	FulfillmentCCEmail []string             `json:"fulfillment_cc_email"`
-	Domain             string               `json:"domain"`
-	Website            string               `json:"website" validate:"isdefault|url"`
-	Logo               *Img                 `json:"logo"`
-	CoverImg           *Img                 `json:"cover_img"`
-	Bio                string               `json:"bio"`
-	SocialAccount      *SocialAccountOpts   `json:"social_account"`
-	SizeProfiles       []primitive.ObjectID `json:"size_profiles"`
+	ID                 primitive.ObjectID      `json:"id" validate:"required"`
+	Name               string                  `json:"name"`
+	RegisteredName     string                  `json:"registered_name"`
+	FulfillmentEmail   string                  `json:"fulfillment_email"`
+	FulfillmentCCEmail []string                `json:"fulfillment_cc_email"`
+	Domain             string                  `json:"domain"`
+	Website            string                  `json:"website" validate:"isdefault|url"`
+	Logo               *Img                    `json:"logo"`
+	CoverImg           *Img                    `json:"cover_img"`
+	Bio                string                  `json:"bio"`
+	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
+	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
 }
 
 // EditBrandResp contains fields to be returned in edit brand operation

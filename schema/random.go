@@ -52,17 +52,17 @@ func GetRandomCreateBrandOpts() *CreateBrandOpts {
 	}
 
 	if faker.RandomInt(0, 1) == 1 {
-		b.SocialAccount = &SocialAccountOpts{
-			Facebook: &SocialMediaOpts{
+		b.SocialAccount = &SocialAccountBrandOpts{
+			Facebook: &SocialMediaBrandOpts{
 				FollowersCount: faker.RandomInt(0, 10000000),
 			},
-			Youtube: &SocialMediaOpts{
+			Youtube: &SocialMediaBrandOpts{
 				FollowersCount: faker.RandomInt(0, 10000000),
 			},
-			Instagram: &SocialMediaOpts{
+			Instagram: &SocialMediaBrandOpts{
 				FollowersCount: faker.RandomInt(0, 10000000),
 			},
-			Twitter: &SocialMediaOpts{
+			Twitter: &SocialMediaBrandOpts{
 				FollowersCount: faker.RandomInt(0, 10000000),
 			},
 		}

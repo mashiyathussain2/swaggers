@@ -267,6 +267,15 @@ func (ui *UserImpl) GetUserClaim(user *model.User, customer *model.Customer) aut
 	if !user.PhoneVerifiedAt.IsZero() {
 		claim.PhoneVerified = true
 	}
+	if !user.InfluencerID.IsZero() {
+		if influencer, err := ui.App.Influencer.GetInfluencerByID(user.InfluencerID); err == nil {
+			claim.InfluencerInfo = &auth.InfluencerInfo{
+				ID:           user.InfluencerID.Hex(),
+				Name:         influencer.Name,
+				ProfileImage: influencer.ProfileImage,
+			}
+		}
+	}
 
 	return &claim
 }
