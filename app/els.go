@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -25,6 +26,7 @@ type Elasticsearch interface {
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
 	GetReviewsByCatalogID(*schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error)
 	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
+	GetCollectionCatalogByIDs(*schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -235,7 +237,7 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
 	mustQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"brand_info.name.autocomplete", "name.autocomplete", "keywords.autocomplete"}...).Operator("or").Type("cross_fields")
 	catalogQuery := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
-	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id", "brand_info"}, nil))
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(catalogQuery).Size(20).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id", "brand_info"}, nil))
 
 	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("cross_fields")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(5).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))
@@ -348,4 +350,38 @@ func (ei *ElasticsearchImpl) GetCatalogByBrandID(opts *schema.GetCatalogByBrandI
 		resp = append(resp, s)
 	}
 	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) GetCollectionCatalogByIDs(opts *schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error) {
+	var finalResp []schema.GetCatalogBasicResp
+	var featureResp []schema.GetCatalogBasicResp
+
+	var wg sync.WaitGroup
+	var featErr error
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if len(opts.FeatIDs) != 0 {
+			res, err := ei.GetCatalogByIDs(opts.FeatIDs)
+			if err != nil {
+				featErr = errors.Wrapf(err, "error getting featured catalog ids")
+				return
+			}
+			featureResp = res
+		}
+	}()
+
+	catalogResp, err := ei.GetCatalogByIDs(opts.IDs)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error getting featured catalog ids")
+	}
+
+	if featErr != nil {
+		return nil, featErr
+	}
+
+	wg.Wait()
+	finalResp = append(featureResp, catalogResp...)
+	return finalResp, nil
 }

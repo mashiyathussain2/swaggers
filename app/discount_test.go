@@ -1051,9 +1051,9 @@ func TestDiscountImpl_RemoveDiscountFromSale(t *testing.T) {
 			},
 
 			args: &schema.RemoveDiscountFromSaleOpts{
-				CatalogID:  toActDiscount.CatalogID,
-				DiscountID: toActDiscount.ID,
-				IsActive:   toActDiscount.IsActive,
+				CatalogIDs:  []primitive.ObjectID{toActDiscount.CatalogID},
+				DiscountIDs: []primitive.ObjectID{toActDiscount.ID},
+				IsActive:    toActDiscount.IsActive,
 			},
 			wantErr: false,
 		},
@@ -1066,9 +1066,9 @@ func TestDiscountImpl_RemoveDiscountFromSale(t *testing.T) {
 			},
 
 			args: &schema.RemoveDiscountFromSaleOpts{
-				CatalogID:  toDeActDiscount.CatalogID,
-				DiscountID: toDeActDiscount.ID,
-				IsActive:   toDeActDiscount.IsActive,
+				CatalogIDs:  []primitive.ObjectID{toDeActDiscount.CatalogID},
+				DiscountIDs: []primitive.ObjectID{toDeActDiscount.ID},
+				IsActive:    toDeActDiscount.IsActive,
 			},
 			wantErr: false,
 		},
