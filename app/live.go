@@ -41,6 +41,7 @@ type Live interface {
 
 	GetAppLiveStreams(*schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error)
 	GetAppLiveStreamByID(primitive.ObjectID) (*schema.GetAppLiveStreamResp, error)
+	GetAppLiveStreamsByInfluencerID(primitive.ObjectID, *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamInfluencerResp, error)
 }
 
 // LiveImpl implemethods Live interface methods
@@ -529,6 +530,47 @@ func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter
 		},
 	}
 	var resp []schema.GetAppLiveStreamResp
+	queryOpts := options.Find().SetSkip(int64(filterOpts.Page * 10)).SetLimit(10).SetSort(bson.D{primitive.E{Key: "scheduled_at", Value: 1}})
+	cur, err := li.DB.Collection(model.LiveColl).Find(ctx, filter, queryOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get live streams")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get live streams")
+	}
+	return resp, nil
+}
+
+func (li *LiveImpl) GetAppLiveStreamsByInfluencerID(id primitive.ObjectID, filterOpts *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamInfluencerResp, error) {
+	ctx := context.TODO()
+	filter := bson.M{
+		"$and": bson.A{
+			bson.M{
+				"influencer_ids": id,
+			},
+			bson.M{"$or": bson.A{
+				bson.M{
+					"status.name": model.ActiveStatus,
+				},
+				bson.M{
+					"$and": bson.A{
+						bson.M{
+							"scheduled_at": bson.M{
+								"$gte": time.Now().UTC(),
+							},
+						},
+						bson.M{
+							"status.name": bson.M{
+								"$nin": bson.A{model.EndStatus, model.ActiveStatus},
+							},
+						},
+					},
+				},
+			},
+			},
+		},
+	}
+	var resp []schema.GetAppLiveStreamInfluencerResp
 	queryOpts := options.Find().SetSkip(int64(filterOpts.Page * 10)).SetLimit(10)
 	cur, err := li.DB.Collection(model.LiveColl).Find(ctx, filter, queryOpts)
 	if err != nil {

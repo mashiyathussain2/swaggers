@@ -154,3 +154,17 @@ type PushViewerCount struct {
 type ViewerCountMetadata struct {
 	Count uint `json:"count"`
 }
+
+type GetAppLiveStreamInfluencerResp struct {
+	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
+	Slug           string               `json:"slug,omitempty" bson:"slug,omitempty"`
+	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids" bson:"influencer_ids,omitempty"`
+	CatalogIDs     []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
+	IVS            *model.IVS           `json:"ivs,omitempty" bson:"ivs,omitempty"`
+	ScheduledAt    time.Time            `json:"scheduled_at,omitempty" bson:"scheduled_at,omitempty"`
+	FeaturedImage  *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	StreamEndImage *model.IMG           `json:"stream_end_image,omitempty" bson:"stream_end_image,omitempty"`
+	Status         *model.StreamStatus  `json:"status,omitempty" bson:"status,omitempty"`
+	CreatedAt      time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
