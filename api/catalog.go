@@ -401,3 +401,60 @@ func (a *API) getCatalogInfoByBrandId(requestCTX *handler.RequestContext, w http
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+// func (a *API) bulkAddCatalogCSV(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+// 	file, _, err := r.FormFile("myFile")
+// 	if err != nil {
+// 		requestCTX.SetErr(err, http.StatusBadRequest)
+// 		return
+// 	}
+// 	defer file.Close()
+// 	returnFile, err := a.App.KeeperCatalog.BulkAddCatalogsCSV(file)
+// 	if err != nil {
+// 		requestCTX.SetErr(err, http.StatusBadRequest)
+// 		return
+// 	}
+// 	w.Header().Set("Content-Disposition", "attachment; filename=WHATEVER_YOU_WANT.xlsx")
+// 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+// 	// w.Header().Set("Content-Length", fileSize)
+// 	// t := bytes.NewReader(fileContents)
+// 	// t.Seek(0, 0)
+// 	io.Copy(w, returnFile)
+// 	return
+// }
+
+func (a *API) bulkAddCatalogJSON(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	var s []schema.BulkUploadCatalogJSONOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, discount := range s {
+		if errs := a.Validator.Validate(&discount); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+	resp, err := a.App.KeeperCatalog.BulkAddCatalogsJSON(s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+	return
+}
+func (a *API) getCollectionCatalogByIDs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCollectionCatalogByIDs
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Elasticsearch.GetCollectionCatalogByIDs(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+	return
+}

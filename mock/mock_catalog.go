@@ -79,6 +79,21 @@ func (mr *MockKeeperCatalogMockRecorder) AddVariant(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVariant", reflect.TypeOf((*MockKeeperCatalog)(nil).AddVariant), arg0)
 }
 
+// BulkAddCatalogsJSON mocks base method
+func (m *MockKeeperCatalog) BulkAddCatalogsJSON(arg0 []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkAddCatalogsJSON", arg0)
+	ret0, _ := ret[0].(*schema.BulkUploadCatalogResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BulkAddCatalogsJSON indicates an expected call of BulkAddCatalogsJSON
+func (mr *MockKeeperCatalogMockRecorder) BulkAddCatalogsJSON(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkAddCatalogsJSON", reflect.TypeOf((*MockKeeperCatalog)(nil).BulkAddCatalogsJSON), arg0)
+}
+
 // CheckCatalogIDsExists mocks base method
 func (m *MockKeeperCatalog) CheckCatalogIDsExists(arg0 context.Context, arg1 []primitive.ObjectID) (int64, error) {
 	m.ctrl.T.Helper()

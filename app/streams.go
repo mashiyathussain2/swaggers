@@ -303,12 +303,13 @@ func (cp *CollectionProcessor) ProcessCollectionUpdate(msg kafka.Message) {
 
 	for _, subColl := range collectionSchema.SubCollections {
 		subCollData := schema.SubCollectionInfoResp{
-			ID:         subColl.ID,
-			Name:       subColl.Name,
-			CatalogIDs: subColl.CatalogIDs,
-			Image:      subColl.Image,
-			CreatedAt:  subColl.CreatedAt,
-			UpdatedAt:  subColl.UpdatedAt,
+			ID:                 subColl.ID,
+			Name:               subColl.Name,
+			CatalogIDs:         subColl.CatalogIDs,
+			FeaturedCatalogIDs: subColl.FeaturedCatalogIDs,
+			Image:              subColl.Image,
+			CreatedAt:          subColl.CreatedAt,
+			UpdatedAt:          subColl.UpdatedAt,
 		}
 		for _, catalogInfo := range subColl.CatalogInfo {
 			subCollCatData := schema.SubCollectionCatalogInfoSchema{
