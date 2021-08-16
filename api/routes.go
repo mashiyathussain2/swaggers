@@ -42,6 +42,13 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/pebble/id", a.requestHandler(a.getPebbleByID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/brand", a.requestHandler(a.getPebblesByBrandID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/influencer", a.requestHandler(a.getPebblesByInfluencerID)).Methods("GET")
+	a.Router.APIRoot.Handle("/catalog/influencer", a.requestHandler(a.getCatalogsByInfluencerID)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.createLiveStreamByApp)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.getAppLiveStreamsByInfluencerID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/live/{liveID}/catalog", a.requestWithAuthHandler(a.pushCatalog)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/live/{liveID}/start", a.requestWithAuthHandler(a.startLiveStream)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/live/{liveID}/stop", a.requestWithAuthHandler(a.stopLiveStream)).Methods("GET")
 
 }
 

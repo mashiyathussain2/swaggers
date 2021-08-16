@@ -13,6 +13,7 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Elasticsearch interface {
@@ -20,6 +21,7 @@ type Elasticsearch interface {
 	GetPebbleByID(opts *schema.GetPebbleByIDFilter) (*schema.GetPebbleESResp, error)
 	GetPebblesByInfluencerID(opts *schema.GetPebbleByInfluencerID) ([]schema.GetPebbleESResp, error)
 	GetPebblesByBrandID(opts *schema.GetPebbleByBrandID) ([]schema.GetPebbleESResp, error)
+	GetCatalogsByInfluencerID(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error)
 }
 
 type ElasticsearchImpl struct {
@@ -237,4 +239,24 @@ func (ei *ElasticsearchImpl) GetPebblesByInfluencerID(opts *schema.GetPebbleByIn
 		return nil, nil
 	}
 	return resp, nil
+}
+
+// GetCatalogsByInfluencerID returns catalogs with matching influencer_id
+func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error) {
+
+	pebblesOpts := schema.GetPebbleByInfluencerID{
+		UserID:       opts.UserID,
+		InfluencerID: opts.InfluencerID,
+		Page:         opts.Page,
+	}
+
+	resp, err := ei.GetPebblesByInfluencerID(&pebblesOpts)
+	if err != nil {
+		return nil, err
+	}
+	var catIDs []primitive.ObjectID
+	for _, r := range resp {
+		catIDs = append(catIDs, r.CatalogIDs...)
+	}
+	return catIDs, nil
 }
