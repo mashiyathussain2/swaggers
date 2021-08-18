@@ -81,16 +81,28 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 	if opts.SocialAccount != nil {
 		b.SocialAccount = &model.SocialAccount{}
 		if opts.SocialAccount.Facebook != nil {
-			b.SocialAccount.Facebook = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount)}
+			b.SocialAccount.Facebook = &model.SocialMedia{
+				FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount),
+				URL:            opts.SocialAccount.Facebook.URL,
+			}
 		}
 		if opts.SocialAccount.Instagram != nil {
-			b.SocialAccount.Instagram = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount)}
+			b.SocialAccount.Instagram = &model.SocialMedia{
+				FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount),
+				URL:            opts.SocialAccount.Instagram.URL,
+			}
 		}
 		if opts.SocialAccount.Youtube != nil {
-			b.SocialAccount.Youtube = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount)}
+			b.SocialAccount.Youtube = &model.SocialMedia{
+				FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount),
+				URL:            opts.SocialAccount.Youtube.URL,
+			}
 		}
 		if opts.SocialAccount.Twitter != nil {
-			b.SocialAccount.Twitter = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount)}
+			b.SocialAccount.Twitter = &model.SocialMedia{
+				FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount),
+				URL:            opts.SocialAccount.Twitter.URL,
+			}
 		}
 	}
 	if len(opts.SizeProfiles) > 0 {
@@ -171,15 +183,19 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 	}
 	if opts.SocialAccount != nil {
 		if opts.SocialAccount.Facebook != nil {
+			update = append(update, bson.E{Key: "social_account.facebook.url", Value: opts.SocialAccount.Facebook.URL})
 			update = append(update, bson.E{Key: "social_account.facebook.followers_count", Value: opts.SocialAccount.Facebook.FollowersCount})
 		}
 		if opts.SocialAccount.Instagram != nil {
+			update = append(update, bson.E{Key: "social_account.instagram.url", Value: opts.SocialAccount.Instagram.URL})
 			update = append(update, bson.E{Key: "social_account.instagram.followers_count", Value: opts.SocialAccount.Instagram.FollowersCount})
 		}
 		if opts.SocialAccount.Youtube != nil {
+			update = append(update, bson.E{Key: "social_account.youtube.url", Value: opts.SocialAccount.Youtube.URL})
 			update = append(update, bson.E{Key: "social_account.youtube.followers_count", Value: opts.SocialAccount.Youtube.FollowersCount})
 		}
 		if opts.SocialAccount.Twitter != nil {
+			update = append(update, bson.E{Key: "social_account.twitter.url", Value: opts.SocialAccount.Twitter.URL})
 			update = append(update, bson.E{Key: "social_account.twitter.followers_count", Value: opts.SocialAccount.Twitter.FollowersCount})
 		}
 	}
