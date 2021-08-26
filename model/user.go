@@ -10,6 +10,7 @@ import (
 const (
 	UserColl       string = "user"
 	KeeperUserColl string = "keeper_user"
+	BrandUserColl  string = "brand_user"
 )
 
 // list of supported user types
@@ -84,4 +85,16 @@ type KeeperUser struct {
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	ProfileImage *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type BrandUser struct {
+	ID                primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	BrandId           primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	Email             string             `json:"email,omitempty" bson:"email,omitempty"`
+	Password          string             `json:"password,omitempty" bson:"password,omitempty"`
+	PasswordResetCode string             `json:"password_reset_code,omitempty" bson:"password_reset_code,omitempty"`
+	Role              string             `json:"role,omitempty" bson:"role,omitempty"`
+	ProfileImage      *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	CreatedAt         time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt         time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
