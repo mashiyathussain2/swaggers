@@ -427,10 +427,6 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	for _, subColl := range collection.SubCollections {
 		operation := mongo.NewUpdateOneModel()
 		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
-		if len(subColl.FeaturedCatalogIDs) < 4 {
-			l := 4 - len(subColl.FeaturedCatalogIDs)
-			subColl.FeaturedCatalogIDs = append(subColl.FeaturedCatalogIDs, subColl.CatalogIDs[0:l]...)
-		}
 		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.FeaturedCatalogIDs)
 		if err != nil {
 			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
