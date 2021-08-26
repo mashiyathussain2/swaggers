@@ -11,11 +11,17 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/auth/login", a.requestHandler(a.keeperLogin)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestWithSudoHandler(a.createbrand)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/brand/user", a.requestWithSudoHandler(a.createBrandAdminUser)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/brands", a.requestWithSudoHandler(a.getBrands)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestWithSudoHandler(a.editbrand)).Methods("PUT")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.createInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestWithSudoHandler(a.getInfluencerByName)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.editInfluencer)).Methods("PUT")
+
+	// Brand Dash APIs
+	a.Router.APIRoot.Handle("/brand/user/login", a.requestHandler(a.brandUserLogin)).Methods("POST")
+	a.Router.APIRoot.Handle("/brand/user/forgot-password", a.requestHandler(a.brandUserForgotPassword)).Methods("POST")
+	a.Router.APIRoot.Handle("/brand/user/reset-password", a.requestHandler(a.brandUserResetPassword)).Methods("POST")
 
 	// INTERNAL API:= Only Servers can access these URLs
 	a.Router.APIRoot.Handle("/keeper/brand/{brandID}/check", a.requestWithInternalHandler(a.checkBrandByID)).Methods("GET")

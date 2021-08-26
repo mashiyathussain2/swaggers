@@ -167,3 +167,13 @@ type BrandFullKafkaMessageOpts struct {
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
+
+type CreateBrandAdminUserOpts struct {
+	BrandID primitive.ObjectID `json:"id" validate:"required"`
+	Email   string             `json:"email" validate:"required,email"`
+}
+
+type BrandUserLoginOpts struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+}

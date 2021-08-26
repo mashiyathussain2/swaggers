@@ -2,11 +2,15 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"go-app/server/auth"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,8 +28,15 @@ type Brand interface {
 	GetBrandsByID([]primitive.ObjectID) ([]schema.GetBrandResp, error)
 	GetBrands() ([]schema.GetBrandResp, error)
 
+	// SendPasswordEmail(string, string) (bool, error)
 	AddFollower(opts *schema.AddBrandFollowerOpts) (bool, error)
 	RemoveFollower(opts *schema.AddBrandFollowerOpts) (bool, error)
+
+	CreateBrandAdminUser(*schema.CreateBrandAdminUserOpts) (bool, error)
+
+	BrandUserLogin(*schema.BrandUserLoginOpts) (auth.Claim, error)
+	ForgotPassword(*schema.ForgotPasswordOpts) (bool, error)
+	ResetPassword(*schema.ResetPasswordOpts) (bool, error)
 }
 
 // BrandImpl implements brand interface methods
@@ -490,6 +501,203 @@ func (bi *BrandImpl) RemoveFollower(opts *schema.AddBrandFollowerOpts) (bool, er
 		return nil
 	}); err != nil {
 		return false, err
+	}
+	return true, nil
+}
+
+func (bi *BrandImpl) CreateBrandAdminUser(opts *schema.CreateBrandAdminUserOpts) (bool, error) {
+	ctx := context.TODO()
+	count, err := bi.DB.Collection(model.BrandUserColl).CountDocuments(ctx, bson.M{"email": opts.Email})
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check for existing user")
+	}
+	if count > 0 {
+		return false, errors.Errorf("user with email:%s already exists", opts.Email)
+	}
+	p, _ := GeneratePassword(8)
+	password, _ := HashPassword(p, bi.App.Config.TokenAuthConfig.HashPasswordCost)
+	user := model.BrandUser{
+		BrandId:   opts.BrandID,
+		Email:     opts.Email,
+		Password:  password,
+		Role:      model.AdminRole,
+		CreatedAt: time.Now().UTC(),
+	}
+	if _, err := bi.DB.Collection(model.BrandUserColl).InsertOne(ctx, user); err != nil {
+		return false, errors.Wrap(err, "failed to create brand user")
+	}
+	bi.sendBrandUserEmail(user.Email, p)
+	return true, nil
+}
+
+func (bi *BrandImpl) sendBrandUserEmail(email, password string) (bool, error) {
+	htmlBody := fmt.Sprintf(`
+		<p>Welcome! Here's your email & password for brand dashboard login</p>
+		<h3>Email: %s</h3>
+		<h3>Password: %s</h3>
+		<br>
+		<p>Cheers!</p>
+		<p>Team hypd!</p>`, email, password,
+	)
+	input := &ses.SendEmailInput{
+		Destination: &ses.Destination{
+			ToAddresses: []*string{
+				aws.String(email),
+			},
+		},
+		Message: &ses.Message{
+			Body: &ses.Body{
+				Html: &ses.Content{
+					Charset: aws.String("utf-8"),
+					Data:    aws.String(htmlBody),
+				},
+			},
+			Subject: &ses.Content{
+				Charset: aws.String("utf-8"),
+				Data:    aws.String("HYPD: Brand Account Login Details"),
+			},
+		},
+		Source: aws.String("hello@hypd.in"),
+	}
+	_, err := bi.App.SES.SendEmail(input)
+	if err != nil {
+		bi.Logger.Err(err).Msgf("failed to brand account details email:%s", email)
+	}
+	return true, nil
+}
+
+func (bi *BrandImpl) SendBrandUserEmail(email string) error {
+	filter := bson.M{
+		"email": email,
+	}
+	p, _ := GeneratePassword(8)
+	password, _ := HashPassword(p, bi.App.Config.TokenAuthConfig.HashPasswordCost)
+	update := bson.M{
+		"$set": bson.M{
+			"password": password,
+		},
+	}
+	if _, err := bi.DB.Collection(model.BrandUserColl).UpdateOne(context.TODO(), filter, update); err != nil {
+		return errors.Wrap(err, "failed to send password")
+	}
+	bi.sendBrandUserEmail(email, p)
+	return nil
+}
+
+func (ui *BrandImpl) getBrandUserClaim(user *model.BrandUser) (auth.Claim, error) {
+	claim := auth.UserClaim{
+		ID:           user.ID.Hex(),
+		Type:         model.BrandType,
+		Role:         user.Role,
+		Email:        user.Email,
+		ProfileImage: user.ProfileImage,
+	}
+	var brand model.BrandClaim
+	if err := ui.DB.Collection(model.BrandColl).FindOne(context.TODO(), bson.M{"_id": user.BrandId}).Decode(&brand); err != nil {
+		return nil, errors.Wrapf(err, "failed to get brand info associated with this user")
+	}
+	claim.BrandInfo = &brand
+	return &claim, nil
+}
+
+func (bi *BrandImpl) BrandUserLogin(opts *schema.BrandUserLoginOpts) (auth.Claim, error) {
+	var user model.BrandUser
+	if err := bi.DB.Collection(model.BrandUserColl).FindOne(context.TODO(), bson.M{"email": opts.Email}).Decode(&user); err != nil {
+		return nil, errors.Wrapf(err, "user with email:%s not found", opts.Email)
+	}
+	if !CheckPasswordHash(opts.Password, user.Password) {
+		return nil, errors.New("invalid password")
+	}
+	return bi.getBrandUserClaim(&user)
+}
+
+func (bi *BrandImpl) sendForgotPasswordOTPEmail(u *model.BrandUser) error {
+	htmlBody := fmt.Sprintf(`
+		<p>Here's is your to reset your account's otp:</p>
+		<h3>%s</h3>
+		<br>
+		<p>Cheers!</p>
+		<p>Team hypd!</p>`, u.PasswordResetCode,
+	)
+	input := &ses.SendEmailInput{
+		Destination: &ses.Destination{
+			ToAddresses: []*string{
+				aws.String(u.Email),
+			},
+		},
+		Message: &ses.Message{
+			Body: &ses.Body{
+				Html: &ses.Content{
+					Charset: aws.String("utf-8"),
+					Data:    aws.String(htmlBody),
+				},
+			},
+			Subject: &ses.Content{
+				Charset: aws.String("utf-8"),
+				Data:    aws.String("HYPD: Password Reset OTP"),
+			},
+		},
+
+		Source: aws.String("hello@hypd.in"),
+	}
+	_, err := bi.App.SES.SendEmail(input)
+	if err != nil {
+		bi.Logger.Err(err).Msgf("failed to send password reset otp to email:%s", u.Email)
+		return err
+	}
+	return nil
+}
+
+// ForgotPassword sends an otp to email to allow user to reset password
+func (bi *BrandImpl) ForgotPassword(opts *schema.ForgotPasswordOpts) (bool, error) {
+	otp, _ := GenerateOTP(bi.App.Config.TokenAuthConfig.OTPLength)
+	filter := bson.M{"email": opts.Email}
+	update := bson.M{
+		"$set": bson.M{
+			"password_reset_code": otp,
+		},
+	}
+
+	res, err := bi.DB.Collection(model.BrandUserColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		bi.Logger.Err(err).Interface("user", opts).Msgf("failed to generate password_reset_code for user email:%s", opts.Email)
+		return false, errors.Wrapf(err, "failed to generate password_reset_code for user email:%s", opts.Email)
+	}
+	if res.MatchedCount == 0 {
+		return false, errors.Errorf("user with email:%s not found", opts.Email)
+	}
+
+	// Sending Email
+	if err := bi.sendForgotPasswordOTPEmail(&model.BrandUser{Email: opts.Email, PasswordResetCode: otp}); err != nil {
+	}
+	return true, nil
+}
+
+// ResetPassword change existing user password by matching the otp from user and in password_reset_field
+func (bi *BrandImpl) ResetPassword(opts *schema.ResetPasswordOpts) (bool, error) {
+	var user model.User
+	if err := bi.DB.Collection(model.BrandUserColl).FindOne(context.TODO(), bson.M{"email": opts.Email}).Decode(&user); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return false, errors.Wrapf(err, "user with email:%s not found", opts.Email)
+		}
+	}
+	if user.PasswordResetCode != opts.OTP {
+		return false, errors.New("invalid otp")
+	}
+	password, _ := HashPassword(opts.Password, bi.App.Config.TokenAuthConfig.HashPasswordCost)
+	filter := bson.M{"_id": user.ID}
+	update := bson.M{"$set": bson.M{
+		"password_reset_code": "",
+		"password":            password,
+	}}
+
+	res, err := bi.DB.Collection(model.BrandUserColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		bi.Logger.Err(err).Interface("user", opts).Msgf("failed to reset password for user email:%s", opts.Email)
+		return false, errors.Wrapf(err, "failed to reset password for user user email:%s", opts.Email)
+	}
+	if res.MatchedCount == 0 {
+		return false, errors.Errorf("user with email:%s not found", opts.Email)
 	}
 	return true, nil
 }
