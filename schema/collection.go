@@ -17,7 +17,7 @@ type SubCollectionOpts struct {
 
 // CreateCollectionOpts serialize the create collection api arguments
 type CreateCollectionOpts struct {
-	Type          string              `json:"type" validate:"required,oneof=bourbon dial product editorial"`
+	Type          string              `json:"type" validate:"required,oneof=bourbon dial product editorial tile"`
 	Genders       []string            `json:"genders" validate:"required,dive,oneof=M F O"`
 	Title         string              `json:"title" validate:"required"`
 	SubCollection []SubCollectionOpts `json:"sub_collections" validate:"required"`

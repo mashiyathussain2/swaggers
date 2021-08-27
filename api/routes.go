@@ -92,7 +92,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestHandler(a.getCatalogBasicByIds)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestHandler(a.getCatalogInfoById)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestHandler(a.getCatalogByCategoryID)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/collection/catalogs", a.requestHandler(a.getCollectionCatalogByIDs)).Methods("GET")
+	a.Router.APIRoot.Handle("/v2/app/catalog/basic", a.requestHandler(a.getCollectionCatalogByIDs)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/subcollection", a.requestHandler(a.GetCatalogBySubCollectionID)).Methods("GET")
 
 	//APP SALE
