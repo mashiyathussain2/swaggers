@@ -326,8 +326,11 @@ type ProcessCommentOpts struct {
 }
 
 type GetPebblesKeeperFilter struct {
-	Type string `json:"type" validate:"required,oneof=pebble catalog_content"`
-	Page uint   `json:"page"`
+	Type          string               `json:"type" validate:"required,oneof=pebble catalog_content"`
+	Status        []string             `json:"status"`
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids"`
+	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
+	Page          uint                 `json:"page"`
 }
 
 type ChangeContentStatusOpts struct {

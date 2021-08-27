@@ -894,14 +894,17 @@ func (ci *ContentImpl) GetCatalogInfo(ids []string) ([]model.CatalogInfo, error)
 
 func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema.GetContentResp, error) {
 	var resp []schema.GetContentResp
-	matchStage := bson.D{
-		{
-			Key: "$match",
-			Value: bson.M{
-				"type": opts.Type,
-			},
-		},
+	var matchFilter bson.D
+	matchFilter = append(matchFilter, bson.E{Key: "type", Value: opts.Type})
+	if len(opts.InfluencerIDs) > 0 {
+		matchFilter = append(matchFilter, bson.E{Key: "influencer_ids", Value: bson.M{"$in": opts.InfluencerIDs}})
 	}
+	if len(opts.CatalogIDs) > 0 {
+		matchFilter = append(matchFilter, bson.E{Key: "catalog_ids", Value: bson.M{"$in": opts.CatalogIDs}})
+	}
+	var matchStage bson.D
+	matchStage = append(matchStage, bson.E{Key: "$match", Value: matchFilter})
+
 	skipStage := bson.D{
 		{
 			Key:   "$skip",
