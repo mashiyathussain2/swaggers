@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+
 	"strings"
 
 	"github.com/avelino/slugify"
@@ -118,7 +119,8 @@ func CheckPasswordHash(password, bcryptPassword string) bool {
 }
 
 const (
-	otpChars = "0123456789"
+	otpChars      = "0123456789"
+	passwordChars = "0123456789qwertyuiopasdgfhjklzxcvbnm"
 )
 
 // GenerateOTP returns an numeric otp
@@ -131,6 +133,20 @@ func GenerateOTP(length int) (string, error) {
 	otpCharsLength := len(otpChars)
 	for i := 0; i < length; i++ {
 		buffer[i] = otpChars[int(buffer[i])%otpCharsLength]
+	}
+	return string(buffer), nil
+}
+
+// GeneratePassword returns an alphanumeric otp
+func GeneratePassword(length int) (string, error) {
+	buffer := make([]byte, length)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	passwordCharsLength := len(passwordChars)
+	for i := 0; i < length; i++ {
+		buffer[i] = passwordChars[int(buffer[i])%passwordCharsLength]
 	}
 	return string(buffer), nil
 }

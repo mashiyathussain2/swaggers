@@ -49,9 +49,9 @@ type UserClaim struct {
 	Gender         string             `json:"gender,omitempty"`
 	EmailVerified  bool               `json:"email_verified,omitempty"`
 	PhoneVerified  bool               `json:"phone_verified,omitempty"`
-	CreatedVia     string             `json:"created_via,omitempty"`
-	IsInfluencer   bool               `json:"is_influencer,omitempty"`
+	BrandInfo      *model.BrandClaim  `json:"brand_info,omitempty"`
 	InfluencerInfo *InfluencerInfo    `json:"influencer_info,omitempty"`
+	CreatedVia     string             `json:"created_via,omitempty"`
 	jwt.StandardClaims
 }
 
