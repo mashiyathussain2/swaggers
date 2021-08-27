@@ -318,15 +318,11 @@ func (ui *UserImpl) CheckEmail(opts *schema.CheckEmailOpts) (bool, error) {
 	var user model.User
 	filter := bson.M{"email": opts.Email}
 	if err := ui.DB.Collection(model.UserColl).FindOne(ctx, filter).Decode(&user); err != nil {
-		fmt.Println(user)
-		fmt.Println(user == model.User{})
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 			return true, nil
 		}
 		return false, errors.Errorf("failed to check for user with email: %s", opts.Email)
 	}
-	fmt.Println(user)
-	fmt.Println(user == model.User{})
 	if user != (model.User{}) {
 		return false, errors.Errorf("user with email: %s already exists", opts.Email)
 	}
@@ -500,6 +496,7 @@ func (ui *UserImpl) ResetPassword(opts *schema.ResetPasswordOpts) (bool, error) 
 		"email_verified_at":   time.Now().UTC(),
 		"password":            password,
 	}}
+
 	res, err := ui.DB.Collection(model.UserColl).UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		ui.Logger.Err(err).Interface("user", opts).Msgf("failed to reset password for user email:%s", opts.Email)

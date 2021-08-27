@@ -230,11 +230,11 @@ func TestBrandImpl_EditBrand(t *testing.T) {
 				tt.args.createResp = resp
 				tt.args.opts = &schema.EditBrandOpts{
 					ID: resp.ID,
-					SocialAccount: &schema.SocialAccountOpts{
-						Facebook: &schema.SocialMediaOpts{
+					SocialAccount: &schema.SocialAccountBrandOpts{
+						Facebook: &schema.SocialMediaBrandOpts{
 							FollowersCount: faker.RandomInt(0, 10000),
 						},
-						Youtube: &schema.SocialMediaOpts{
+						Youtube: &schema.SocialMediaBrandOpts{
 							FollowersCount: faker.RandomInt(0, 10000),
 						},
 					},
