@@ -26,7 +26,7 @@ type Collection interface {
 	UpdateSubCollectionImage(opts *schema.UpdateSubCollectionImageOpts) error
 	AddCatalogsToSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
 	RemoveCatalogsFromSubCollection(*schema.UpdateCatalogsInSubCollectionOpts) []error
-	GetCollections(int) ([]schema.CollectionResp, error)
+	GetCollections(*schema.GetCollectionsKeeperFilter) ([]schema.CollectionResp, error)
 	AddCatalogInfoToCollection(id primitive.ObjectID)
 	UpdateCollectionCatalogInfo(id primitive.ObjectID)
 	UpdateCollectionStatus(*schema.UpdateCollectionStatus) error
@@ -378,11 +378,18 @@ func (ci *CollectionImpl) checkCatalogs(opts []primitive.ObjectID) []error {
 	return errorRes
 }
 
-func (ci *CollectionImpl) GetCollections(page int) ([]schema.CollectionResp, error) {
-
+func (ci *CollectionImpl) GetCollections(opts *schema.GetCollectionsKeeperFilter) ([]schema.CollectionResp, error) {
+	var queryFilter bson.M
+	if len(opts.Status) > 0 {
+		queryFilter = bson.M{
+			"status": bson.M{
+				"$in": opts.Status,
+			},
+		}
+	}
 	ctx := context.TODO()
-	opts := options.Find().SetSkip(int64(ci.App.Config.PageSize * page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "_id", Value: -1}})
-	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, bson.M{}, opts)
+	queryOpts := options.Find().SetSkip(int64(ci.App.Config.PageSize * opts.Page)).SetLimit(int64(ci.App.Config.PageSize)).SetSort(bson.D{{Key: "_id", Value: -1}})
+	cur, err := ci.DB.Collection(model.CollectionColl).Find(ctx, queryFilter, queryOpts)
 	if err != nil {
 		if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 			return nil, errors.Errorf("no collections found")
