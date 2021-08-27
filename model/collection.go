@@ -17,6 +17,7 @@ const (
 	DialCollection      = "dial"
 	ProductCollection   = "product"
 	EditorialCollection = "editorial"
+	TileCollection      = "tile"
 )
 
 //Collection contains Collection specific data such as CollectionType, CatalogIDs, Gender

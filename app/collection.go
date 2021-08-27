@@ -420,7 +420,7 @@ func (ci *CollectionImpl) AddCatalogInfoToCollection(id primitive.ObjectID) {
 	for _, subColl := range collection.SubCollections {
 		operation := mongo.NewUpdateOneModel()
 		operation.SetFilter(bson.M{"_id": id, "sub_collections._id": subColl.ID})
-		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.CatalogIDs)
+		catalogInfo, err := ci.App.KeeperCatalog.GetCollectionCatalogInfo(subColl.FeaturedCatalogIDs)
 		if err != nil {
 			ci.Logger.Err(err).Msgf("failed to find catalog for subcollection with id: %s", subColl.ID.Hex())
 			return
@@ -508,9 +508,12 @@ func (ci *CollectionImpl) UpdateCollectionStatus(opts *schema.UpdateCollectionSt
 		return errors.Errorf("status change not allowed from %s to %s", currentStatusValue, updateStatusValue)
 	}
 
-	// if collection.Type == model.ProductCollection && len(collection.SubCollections[0].FeaturedCatalogIDs) != 4 {
-	// 	return errors.Errorf("Total 4 featured catalogs required")
-	// }
+	if collection.Type == model.TileCollection && (len(collection.SubCollections) != 4 && len(collection.SubCollections) != 6) {
+		return errors.Errorf("Tile collection Requires 4 or 6 Subcollection")
+	}
+	if collection.Type == model.ProductCollection && len(collection.SubCollections[0].FeaturedCatalogIDs) < 4 {
+		return errors.Errorf("Total 4 featured catalogs required")
+	}
 
 	updateQuery := bson.M{
 		"$set": bson.M{
