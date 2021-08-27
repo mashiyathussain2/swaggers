@@ -150,10 +150,12 @@ func (a *API) removeCatalogsFromSubCollection(requestCTX *handler.RequestContext
 }
 
 func (a *API) getCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-
-	page := GetPageValue(r)
-
-	resp, err := a.App.Collection.GetCollections(page)
+	var s schema.GetCollectionsKeeperFilter
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.Collection.GetCollections(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

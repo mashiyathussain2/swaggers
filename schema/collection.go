@@ -197,3 +197,8 @@ type GetCatalogsBySubCollectionResp struct {
 type GetCatalogsBySubCollectionInfo struct {
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 }
+
+type GetCollectionsKeeperFilter struct {
+	Page   int      `qs:"page"`
+	Status []string `qs:"status"`
+}
