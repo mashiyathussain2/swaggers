@@ -111,6 +111,7 @@ type SearchResp struct {
 
 type GetActiveCollectionsOpts struct {
 	Gender string `qs:"gender"`
+	Page   int    `qs:"page"`
 }
 
 type GetReviewsByCatalogIDFilter struct {

@@ -176,7 +176,6 @@ func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.Re
 			}
 		}
 	}
-	fmt.Println(&s)
 	resp, err := a.App.Elasticsearch.GetActiveCollections(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
