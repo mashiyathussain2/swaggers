@@ -169,14 +169,10 @@ func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.Re
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
-	} else {
-		if requestCTX.UserClaim != nil {
-			s = schema.GetActiveCollectionsOpts{
-				Gender: requestCTX.UserClaim.(*auth.UserClaim).Gender,
-			}
-		}
 	}
-	fmt.Println(&s)
+	if requestCTX.UserClaim != nil {
+		s.Gender = requestCTX.UserClaim.(*auth.UserClaim).Gender
+	}
 	resp, err := a.App.Elasticsearch.GetActiveCollections(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
