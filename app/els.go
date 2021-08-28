@@ -78,7 +78,11 @@ func (ei *ElasticsearchImpl) GetActiveCollections(opts *schema.GetActiveCollecti
 
 	boolQuery := elastic.NewBoolQuery().Must(mustQueries...).Should(shouldQueries...)
 	fsctx := elastic.NewFetchSourceContext(true).Include([]string{"id", "name", "title", "type", "sub_collections.featured_catalog_ids", "sub_collections.catalog_ids", "sub_collections.id", "sub_collections.name", "sub_collections.image", "sub_collections.title", "inner_hits.sub_collections"}...)
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).Size(20).Sort("order", true).FetchSourceContext(fsctx).Do(context.Background())
+	var pageFrom int
+	if opts.Page > 0 {
+		pageFrom = (opts.Page * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Sort("order", true).From(pageFrom).Size(20).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
@@ -172,7 +176,11 @@ func (ei *ElasticsearchImpl) GetCatalogInfoByCategoryID(opts *schema.GetCatalogB
 	}
 
 	aggs := elastic.NewTermsAggregation().Field("brand_info.name.name").Size(99)
-	q := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(int(opts.Page) * 20).Size(20)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	q := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Aggregation("brands", aggs).From(fromPage).Size(20)
 	switch opts.Sort {
 	case -1:
 		q = q.Sort("retail_price.value", false)
