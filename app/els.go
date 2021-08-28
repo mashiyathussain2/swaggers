@@ -82,7 +82,7 @@ func (ei *ElasticsearchImpl) GetActiveCollections(opts *schema.GetActiveCollecti
 	if opts.Page > 0 {
 		pageFrom = (opts.Page * 20) + 1
 	}
-	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Do(context.Background()).Sort("order", true).From(pageFrom).Size(20)
+	res, err := ei.Client.Search().Index(ei.Config.CollectionFullIndex).Query(boolQuery).FetchSourceContext(fsctx).Sort("order", true).From(pageFrom).Size(20).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
