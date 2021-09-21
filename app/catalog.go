@@ -2340,6 +2340,7 @@ func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalog
 		respErr := make(map[string][]error)
 
 		catalog := model.Catalog{
+			ID:          primitive.NewObjectID(),
 			Name:        catOpt.Name,
 			LName:       strings.ToLower(catOpt.Name),
 			Slug:        UniqueSlug(catOpt.Name),
@@ -2407,7 +2408,7 @@ func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalog
 
 			var variants []model.Variant
 			for _, v := range catOpt.Variants {
-				variant, err := kc.createVariant(primitive.NewObjectID(), &v)
+				variant, err := kc.createVariant(catalog.ID, &v)
 				if err != nil {
 					isError = true
 					respErr["variants"] = append(respErr["variants"], errors.Wrapf(err, "error in varaint with attribute: %s", v.Attribute))
