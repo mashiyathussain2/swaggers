@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"time"
@@ -23,6 +24,7 @@ type Inventory interface {
 	SetOutOfStock(primitive.ObjectID) error
 	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID, int) (bool, error)
 	UpdateInventoryInternal([]schema.UpdateInventoryCVOpts) error
+	UpdateInventorybySKUs([]schema.UpdateInventoryBySKUOpt) (*schema.UpdateInventoryBySKUResp, error)
 }
 
 // InventoryImpl implements Inventory related operations
@@ -360,4 +362,221 @@ func (ii *InventoryImpl) UpdateInventoryInternal(opts []schema.UpdateInventoryCV
 		ii.Logger.Err(err).Msgf("failed to update inventory")
 	}
 	return nil
+}
+
+// func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySKUOpt) error {
+// 	ctx := context.TODO()
+// 	inStockStatus := model.InventoryStatus{
+// 		Value:     model.InStockStatus,
+// 		CreatedAt: time.Now(),
+// 	}
+// 	outOfStockStatus := model.InventoryStatus{
+// 		Value:     model.OutOfStockStatus,
+// 		CreatedAt: time.Now(),
+// 	}
+// 	var models []mongo.WriteModel
+// 	for i := 0; i < len(opts); i++ {
+// 		// find inventory id from SKU and brand_id
+// 		matchQuery1 := bson.D{{
+// 			Key: "$match", Value: bson.M{
+// 				"brand_id":     opts[0].BrandID,
+// 				"variants.sku": opts[0].SKU,
+// 			},
+// 		}}
+// 		unWindQuery := bson.D{{
+// 			Key: "$unwind", Value: bson.M{
+// 				"path": "$variants",
+// 			},
+// 		}}
+// 		matchQuery2 := bson.D{{
+// 			Key: "$match", Value: bson.M{
+// 				"variants.sku": opts[0].SKU,
+// 			},
+// 		}}
+// 		projectQuery1 := bson.D{{
+// 			Key: "$project", Value: bson.M{
+// 				"inventory_id": "$variants.inventory_id",
+// 			},
+// 		}}
+// 		lookUpQuery := bson.D{{
+// 			Key: "$lookup", Value: bson.M{
+// 				"from":         "inventory",
+// 				"localField":   "inventory_id",
+// 				"foreignField": "_id",
+// 				"as":           "inventory",
+// 			},
+// 		}}
+// 		setQuery1 := bson.D{{
+// 			Key: "$set", Value: bson.M{
+// 				"inventory": bson.M{"$first": "$inventory"},
+// 			},
+// 		}}
+// 		projectQuery2 := bson.D{{
+// 			Key: "$project", Value: bson.M{
+// 				"_id":           "$inventory._id",
+// 				"unit_in_stock": "$inventory.unit_in_stock",
+// 			},
+// 		}}
+// 		var setQuery2 bson.D
+// 		if opts[0].Unit > 0 {
+// 			setQuery2 = bson.D{{
+// 				Key: "$set", Value: bson.M{
+// 					"unit_in_stock": opts[0].Unit,
+// 					"status":        inStockStatus,
+// 				},
+// 			}}
+// 		} else {
+// 			setQuery2 = bson.D{{
+// 				Key: "$set", Value: bson.M{
+// 					"unit_in_stock": 0,
+// 					"status":        outOfStockStatus,
+// 				},
+// 			}}
+// 		}
+// 		mergeQuery := bson.D{{
+// 			Key: "$merge", Value: bson.M{
+// 				"into":           "inventory",
+// 				"on":             "_id",
+// 				"whenMatched":    "merge",
+// 				"whenNotMatched": "discard",
+// 			},
+// 		}}
+// 		m := mongo.NewUpdateOneModel()
+// 		m.SetFilter(bson.M{"variants.sku": opts[0].SKU})
+
+// 		m.SetUpdate(mongo.Pipeline{matchQuery1, unWindQuery, matchQuery2, projectQuery1, lookUpQuery, setQuery1, projectQuery2, setQuery2, mergeQuery})
+// 		models = append(models, m)
+// 		// models = append(models, mongo.UpdateOneModel{
+// 		// 	Update: bson.M{
+// 		// 		"update": mongo.Pipeline{matchQuery1, unWindQuery, matchQuery2, projectQuery1, lookUpQuery, setQuery1, projectQuery2, setQuery2, mergeQuery},
+// 		// 	},
+// 		// })
+// 	}
+// 	res, err := ii.DB.Collection(model.CatalogColl).BulkWrite(ctx, models)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	fmt.Println(res)
+// 	return nil
+// }
+
+func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySKUOpt) (*schema.UpdateInventoryBySKUResp, error) {
+	ctx := context.TODO()
+	inStockStatus := model.InventoryStatus{
+		Value:     model.InStockStatus,
+		CreatedAt: time.Now(),
+	}
+	outOfStockStatus := model.InventoryStatus{
+		Value:     model.OutOfStockStatus,
+		CreatedAt: time.Now(),
+	}
+	skuUnitMap := make(map[string]int)
+
+	var skus []string
+	// var operations []mongo.WriteModel
+	for _, uis := range opts {
+		skus = append(skus, uis.SKU)
+		skuUnitMap[uis.SKU] = uis.Unit
+	}
+
+	//pipeline 1 to find unique skus
+
+	matchQuery := bson.D{{
+		Key: "$match", Value: bson.M{
+			"sku": bson.M{
+				"$in": skus,
+			},
+		},
+	}}
+
+	groupQuery := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$sku",
+			"inventory_id": bson.M{
+				"$addToSet": "$_id",
+			},
+		},
+	}}
+
+	projectQuery := bson.D{{
+		Key: "$project", Value: bson.M{
+
+			"inventory_id": bson.M{"$first": "$inventory_id"},
+			"is_unique": bson.M{"$eq": bson.A{
+				bson.M{
+					"$size": "$inventory_id",
+				}, 1}},
+		},
+	}}
+
+	pipeline := mongo.Pipeline{
+		matchQuery,
+		groupQuery,
+		projectQuery,
+	}
+	cur, err := ii.DB.Collection(model.InventoryColl).Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error in aggregation")
+	}
+	var variantResp []model.InventorySearchBySKU
+	if err := cur.All(ctx, &variantResp); err != nil {
+		return nil, err
+	}
+	fmt.Println(variantResp)
+	resp := schema.UpdateInventoryBySKUResp{}
+
+	//finding invalid SKUs
+	inValidSkuMap := make(map[string]bool)
+	for _, s := range variantResp {
+		inValidSkuMap[s.SKU] = true
+	}
+
+	for _, s := range opts {
+		if !inValidSkuMap[s.SKU] {
+			resp.InvalidSKUs = append(resp.InvalidSKUs, s.SKU)
+		}
+	}
+
+	var operations []mongo.WriteModel
+
+	for _, vr := range variantResp {
+		if !vr.IsUnique {
+			resp.DuplicateSKUs = append(resp.DuplicateSKUs, vr.SKU)
+			continue
+		}
+		operation := mongo.NewUpdateOneModel()
+		var status model.InventoryStatus
+		operation.SetFilter(bson.M{"_id": vr.InventoryID})
+		if skuUnitMap[vr.SKU] > 0 {
+			status = inStockStatus
+		} else {
+			status = outOfStockStatus
+			skuUnitMap[vr.SKU] = 0
+		}
+		operation.SetUpdate(bson.M{
+			"$set": bson.M{
+				"unit_in_stock": skuUnitMap[vr.SKU],
+				"status":        status,
+			},
+		})
+
+		operations = append(operations, operation)
+
+	}
+	if len(operations) == 0 {
+		ii.Logger.Info().Msgf("no operations for skus")
+		return &resp, nil
+	}
+	fmt.Println(operations)
+
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	res, err := ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	fmt.Println(res)
+	if err != nil {
+		ii.Logger.Err(err).Msgf("failed to update inventory")
+		return nil, errors.Wrapf(err, "failed to update inventory")
+	}
+
+	return &resp, nil
 }
