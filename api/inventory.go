@@ -95,3 +95,24 @@ func (a *API) updateInventoryInternal(requestCTX *handler.RequestContext, w http
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
+
+func (a *API) updateInventoryBySKU(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s []schema.UpdateInventoryBySKUOpt
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, inv := range s {
+		if errs := a.Validator.Validate(&inv); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+
+	notUniqueSku, err := a.App.Inventory.UpdateInventorybySKUs(s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(notUniqueSku, http.StatusOK)
+}
