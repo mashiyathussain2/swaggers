@@ -34,3 +34,10 @@ type Inventory struct {
 	CreatedAt   time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt   time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
+
+//Pipeline Output for Unique Inventory Search by SKU
+type InventorySearchBySKU struct {
+	SKU         string             `json:"sku,omitempty" bson:"_id,omitempty"`
+	InventoryID primitive.ObjectID `json:"inventory_id,omitempty" bson:"inventory_id,omitempty"`
+	IsUnique    bool               `json:"is_unique,omitempty" bson:"is_unique,omitempty"`
+}

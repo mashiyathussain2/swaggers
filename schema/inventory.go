@@ -38,3 +38,16 @@ type UpdateInventoryCVOpts struct {
 type UpdateInventoryInternalOpts struct {
 	Updates []UpdateInventoryCVOpts `json:"updates" validate:"required"`
 }
+
+//UpdateInventoryBySKUOpt defines struct for operation on Inventory by SKUs
+type UpdateInventoryBySKUOpt struct {
+	// BrandID primitive.ObjectID `json:"brand_id"`
+	SKU  string `json:"sku" validate:"required"`
+	Unit int    `json:"unit"`
+}
+
+//UpdateInventoryBySKUResp defines struct for response on Inventory by SKUs
+type UpdateInventoryBySKUResp struct {
+	DuplicateSKUs []string `json:"duplicate_skus"`
+	InvalidSKUs   []string `json:"invalid_skus"`
+}

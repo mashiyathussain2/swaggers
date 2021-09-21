@@ -48,6 +48,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/inventory", a.requestWithSudoHandler(a.updateInventory)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/outofstock", a.requestWithSudoHandler(a.setOutOfStock)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}/quantity/{quantity}", a.requestWithSudoHandler(a.checkInventoryExists)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/inventory/sku", a.requestWithSudoHandler(a.updateInventoryBySKU)).Methods("POST")
 
 	//Internal API for Inventory
 	a.Router.APIRoot.Handle("/inventory", a.requestWithInternalHandler(a.updateInventoryInternal)).Methods("POST")
