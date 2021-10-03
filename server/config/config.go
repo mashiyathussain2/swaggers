@@ -72,9 +72,14 @@ type APPConfig struct {
 	MediaConfig         ServiceConfig `mapstructure:"media"`
 	ContentConfig       ServiceConfig `mapstructure:"content"`
 	LiveConfig          ServiceConfig `mapstructure:"live"`
+	SeriesConfig        ServiceConfig `mapstructure:"series"`
+	CollectionConfig    ServiceConfig `mapstructure:"collection"`
+	CategoryConfig      ServiceConfig `mapstructure:"category"`
 
-	LiveCommentProducerConfig ProducerConfig `mapstructure:"liveCommentProducer"`
-	ContentFullProducerConfig ProducerConfig `mapstructure:"contentFullProducer"`
+	LiveCommentProducerConfig    ProducerConfig `mapstructure:"liveCommentProducer"`
+	ContentFullProducerConfig    ProducerConfig `mapstructure:"contentFullProducer"`
+	SeriesFullProducerConfig     ProducerConfig `mapstructure:"seriesFullProducer"`
+	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
 
 	LikeChangeConfig         ListenerConfig `mapstructure:"likeChangesConsumer"`
 	CommentChangeConfig      ListenerConfig `mapstructure:"commentChangesConsumer"`
@@ -84,6 +89,8 @@ type APPConfig struct {
 	CatalogChangesConfig     ListenerConfig `mapstructure:"catalogChangesConsumer"`
 	ContentChangesConfig     ListenerConfig `mapstructure:"contentChangesConsumer"`
 	LiveCommentChangesConfig ListenerConfig `mapstructure:"liveCommentChangesConsumer"`
+	SeriesConsumerConfig     ListenerConfig `mapstructure:"seriesConsumer"`
+	CollectionConsumerConfig ListenerConfig `mapstructure:"collectionConsumer"`
 }
 
 type ContentStreamProcessorConfig struct {
@@ -97,10 +104,12 @@ type ContentStreamProcessorConfig struct {
 
 // ElasticsearchConfig contains elasticsearch related configurations
 type ElasticsearchConfig struct {
-	Endpoint         string `mapstructure:"endpoint"`
-	Username         string `mapstructure:"username"`
-	Password         string `mapstructure:"password"`
-	ContentFullIndex string `mapstructure:"contentFullIndex"`
+	Endpoint                  string `mapstructure:"endpoint"`
+	Username                  string `mapstructure:"username"`
+	Password                  string `mapstructure:"password"`
+	ContentFullIndex          string `mapstructure:"contentFullIndex"`
+	PebbleSeriesFullIndex     string `mapstructure:"pebbleFullIndex"`
+	PebbleCollectionFullIndex string `mapstructure:"pebbleCollectionFullIndex"`
 }
 
 // ServiceConfig contains app service related config

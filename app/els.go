@@ -8,7 +8,9 @@ import (
 	"go-app/schema"
 	"go-app/server/config"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -22,6 +24,11 @@ type Elasticsearch interface {
 	GetPebblesByInfluencerID(opts *schema.GetPebbleByInfluencerID) ([]schema.GetPebbleESResp, error)
 	GetPebblesByBrandID(opts *schema.GetPebbleByBrandID) ([]schema.GetPebbleESResp, error)
 	GetCatalogsByInfluencerID(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error)
+	GetPebbleSeries(opts *schema.GetPebbleSeriesFilter) ([]schema.GetPebbleSeriesESResp, error)
+	GetPebbleCollections(opts *schema.GetCollectionFilter) ([]schema.GetPebbleCollectionESResp, error)
+	GetPebblesByHashtag(opts *schema.GetPebbleByHashtag) ([]schema.GetPebbleESResp, error)
+	GetSeriesByIDs(opts *schema.GetSeriesByIDs) ([]schema.GetPebbleSeriesESResp, error)
+	GetPebblesInfoByCategoryID(opts *schema.GetPebbleByCategoryIDOpts) ([]schema.GetPebbleESResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -259,4 +266,265 @@ func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsB
 		catIDs = append(catIDs, r.CatalogIDs...)
 	}
 	return catIDs, nil
+}
+
+func (ei *ElasticsearchImpl) GetPebbleSeries(opts *schema.GetPebbleSeriesFilter) ([]schema.GetPebbleSeriesESResp, error) {
+	var queries []elastic.Query
+	if len(opts.Genders) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("label.genders", opts.Genders...))
+	}
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true)
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.PebbleSeriesFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble series")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleSeriesESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleSeriesESResp
+		var s schema.GetPebbleSeriesESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		resp = append(resp, s)
+	}
+	pebbles, err := ei.GetPebblesNotInSeries(&schema.GetPebbleFilter{UserID: opts.UserID, Genders: opts.Genders, Page: opts.Page})
+	if err != nil {
+		return nil, errors.Wrapf(err, "error getting pebbles not in series")
+	}
+	for _, p := range pebbles {
+		resp = append(resp, schema.GetPebbleSeriesESResp{
+			PebbleIds:  []primitive.ObjectID{p.ID},
+			PebbleInfo: []schema.GetPebbleESResp{p},
+		})
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(resp), func(i, j int) { resp[i], resp[j] = resp[j], resp[i] })
+
+	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) GetPebbleCollections(opts *schema.GetCollectionFilter) ([]schema.GetPebbleCollectionESResp, error) {
+	var queries []elastic.Query
+	if len(opts.Genders) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("genders", opts.Genders...))
+	}
+	queries = append(queries, elastic.NewTermQuery("status", model.Publish))
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true)
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.PebbleCollectionFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble collection")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleCollectionESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleCollectionESResp
+		var s schema.GetPebbleCollectionESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		resp = append(resp, s)
+	}
+	return resp, nil
+}
+
+// GetPebblesByHashtag returns pebble with matching Hashtag
+func (ei *ElasticsearchImpl) GetPebblesByHashtag(opts *schema.GetPebbleByHashtag) ([]schema.GetPebbleESResp, error) {
+
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	queries = append(queries, elastic.NewMatchQuery("label.interests", opts.Hashtag))
+	queries = append(queries, elastic.NewTermQuery("hashtags.hashtags", opts.Hashtag))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
+		}
+		resp = append(resp, s)
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
+}
+
+// GetSeriesByIDs returns series with matching ids
+func (ei *ElasticsearchImpl) GetSeriesByIDs(opts *schema.GetSeriesByIDs) ([]schema.GetPebbleSeriesESResp, error) {
+
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	queries = append(queries, elastic.NewTermsQueryFromStrings("id", opts.ID...))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	// sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true)
+	res, err := ei.Client.Search().Index(ei.Config.PebbleSeriesFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble series")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleSeriesESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleSeriesESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode series json")
+		}
+
+		resp = append(resp, s)
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
+}
+
+//GetPebblesInfoByCategoryID return pebbles based on category id
+func (ei *ElasticsearchImpl) GetPebblesInfoByCategoryID(opts *schema.GetPebbleByCategoryIDOpts) ([]schema.GetPebbleESResp, error) {
+	var queries []elastic.Query
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	queries = append(queries, elastic.NewTermQuery("category_path", opts.CategoryID))
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
+		}
+		resp = append(resp, s)
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
+}
+
+// GetPebble returns pebble with matching filter
+func (ei *ElasticsearchImpl) GetPebblesNotInSeries(opts *schema.GetPebbleFilter) ([]schema.GetPebbleESResp, error) {
+	var queries []elastic.Query
+	if len(opts.Genders) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("label.genders", opts.Genders...))
+	}
+	if len(opts.Interests) > 0 {
+		queries = append(queries, elastic.NewTermsQueryFromStrings("label.interests", opts.Interests...))
+	}
+	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
+	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+	queries = append(queries, elastic.NewTermQuery("is_active", true))
+	// queries = append(queries, elastic.NewExistsQuery("series_ids"))
+	boolQuery := elastic.NewBoolQuery().Must(queries...).MustNot(elastic.NewExistsQuery("series_ids"))
+
+	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
+	builder := elastic.NewSearchSource().Query(boolQuery).FetchSource(true).ScriptFields(sf)
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page)*10 + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).SearchSource(builder).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.GetPebbleESResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		if ilbu, ok := hit.Fields["is_liked_by_user"]; ok {
+			if len(ilbu.([]interface{})) != 0 {
+				if isLikedByUser, ok := ilbu.([]interface{})[0].(bool); ok {
+					s.IsLikedByUser = isLikedByUser
+				}
+
+			}
+		}
+		resp = append(resp, s)
+	}
+
+	return resp, nil
 }
