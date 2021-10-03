@@ -109,6 +109,7 @@ type ElasticsearchConfig struct {
 	BrandFullIndex      string `mapstructure:"brandFullIndex"`
 	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
 	ContentFullIndex    string `mapstructure:"contentFullIndex"`
+	SeriesFullIndex     string `mapstructure:"seriesFullIndex"`
 }
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`
