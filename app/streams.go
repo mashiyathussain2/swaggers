@@ -273,9 +273,11 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		Label:          contentSchema.Label,
 		IsProcessed:    contentSchema.IsProcessed,
 		IsActive:       contentSchema.IsActive,
+		Paths:          contentSchema.Paths,
 		Caption:        contentSchema.Caption,
 		Hashtags:       contentSchema.Hashtags,
 		CreatedAt:      contentSchema.CreatedAt,
+		SeriesIDs:      contentSchema.SeriesIDs,
 	})
 	if err != nil {
 		csp.Logger.Err(err).Interface("contentSchema", contentSchema).Msg("failed to convert contentSchema to json")
@@ -399,4 +401,253 @@ func (csp *ContentUpdateProcessor) ProcessLiveOrder(msg kafka.Message) {
 		ProfileImage: liveOrder.ProfileImage,
 	}
 	csp.App.Live.PushOrder(&opts)
+}
+
+func (csp *ContentUpdateProcessor) ProcessSeriesMessage(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	// If delete operation is performed then removing the document from index as well
+	if s.Meta.Operation == "d" {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.PebbleSeriesProducer.Publish(m)
+		return
+	}
+	// When content is added/updated it will be sync with %pebble_series_full topic.
+	var seriesSchema schema.PebbleSeriesKafkaUpdateOpts
+	contentByteData, err := json.Marshal(s.Data)
+	if err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode catalog update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(contentByteData, &seriesSchema); err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+	// Removing content from index if is active set to false
+	if !seriesSchema.IsActive {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.PebbleSeriesProducer.Publish(m)
+		return
+	}
+	if len(seriesSchema.PebbleIds) > 0 {
+		isActive := true
+		mi, err := csp.App.Series.GetContentForPebbleSeries(&schema.GetContentFilter{IDs: seriesSchema.PebbleIds, IsActive: &isActive})
+		if err != nil {
+			csp.Logger.Err(err).Interface("id", seriesSchema).Msg("failed to get pebble media info")
+			return
+		}
+		seriesSchema.PebbleInfo = mi
+
+	}
+
+	val, err := json.Marshal(model.PebbleSeries{
+		ID:         seriesSchema.ID,
+		Name:       seriesSchema.Name,
+		Thumbnail:  seriesSchema.Thumbnail,
+		PebbleIds:  seriesSchema.PebbleIds,
+		PebbleInfo: seriesSchema.PebbleInfo,
+		Label:      seriesSchema.Label,
+		IsActive:   seriesSchema.IsActive,
+		CreatedAt:  seriesSchema.CreatedAt,
+		UpdatedAt:  seriesSchema.UpdatedAt,
+	})
+	if err != nil {
+		csp.Logger.Err(err).Interface("contentSchema", seriesSchema).Msg("failed to convert contentSchema to json")
+		return
+	}
+	m := segKafka.Message{
+		Key:   []byte(seriesSchema.ID.Hex()),
+		Value: val,
+	}
+	csp.App.PebbleSeriesProducer.Publish(m)
+	return
+}
+
+func (csp *ContentUpdateProcessor) ProcessCollectionMessage(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	// If delete operation is performed then removing the document from index as well
+	if s.Meta.Operation == "d" {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		csp.App.PebbleSeriesProducer.Publish(m)
+		return
+	}
+	// When collection is added/updated it will be sync with %pebble_collection_full topic.
+	var collectionSchema schema.PebbleCollectionKafkaUpdateOpts
+	contentByteData, err := json.Marshal(s.Data)
+	if err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode catalog update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(contentByteData, &collectionSchema); err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+	// // Removing content from index if is active set to false
+	// if !seriesSchema.IsActive {
+	// 	m := segKafka.Message{
+	// 		Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+	// 		Value: nil,
+	// 	}
+	// 	csp.App.PebbleSeriesProducer.Publish(m)
+	// 	return
+	// }
+	switch collectionSchema.Type {
+
+	case model.BrandCollection:
+		res, err := csp.App.Content.GetBrandInfo(collectionSchema.BrandIDs)
+		if err != nil {
+			csp.Logger.Err(err).Interface("collectionSchema", collectionSchema).Msg("failed to get BrandInfo")
+			return
+		}
+		collectionSchema.BrandInfo = res
+
+	case model.InfluencerCollection:
+		res, err := csp.App.Content.GetInfluencerInfo(collectionSchema.InfluencerIDs)
+		if err != nil {
+			csp.Logger.Err(err).Interface("collectionSchema", collectionSchema).Msg("failed to get BrandInfo")
+			return
+		}
+		collectionSchema.InfluencerInfo = res
+
+	}
+
+	val, err := json.Marshal(model.Collection{
+		ID:                  collectionSchema.ID,
+		Name:                collectionSchema.Name,
+		Type:                collectionSchema.Type,
+		Genders:             collectionSchema.Genders,
+		Hashtags:            collectionSchema.Hashtags,
+		BrandIDs:            collectionSchema.BrandIDs,
+		BrandInfo:           collectionSchema.BrandInfo,
+		InfluencerIDs:       collectionSchema.InfluencerIDs,
+		InfluencerInfo:      collectionSchema.InfluencerInfo,
+		SeriesSubCollection: collectionSchema.SeriesSubCollection,
+		Status:              collectionSchema.Status,
+		CreatedAt:           collectionSchema.CreatedAt,
+		UpdatedAt:           collectionSchema.UpdatedAt,
+	})
+	if err != nil {
+		csp.Logger.Err(err).Interface("collectionSchema", collectionSchema).Msg("failed to convert collectionSchema to json")
+		return
+	}
+	m := segKafka.Message{
+		Key:   []byte(collectionSchema.ID.Hex()),
+		Value: val,
+	}
+	csp.App.PebbleCollectionProducer.Publish(m)
+	return
+}
+
+// func (csp *ContentUpdateProcessor) ProcessPebbleSeries(msg kafka.Message) {
+// 	var s *schema.KafkaMessage
+// 	message := msg.(segKafka.Message)
+// 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+// 		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode Pebble Series message")
+// 		return
+// 	}
+
+// 	csp.ProcessSeriesMessage(message)
+// }
+
+func (csp *ContentUpdateProcessor) ProcessContentMessageForSeries(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+
+	// When content is added/updated it will be sync with %content_full topic.
+	var contentSchema schema.ContentUpdateOpts
+	contentByteData, err := json.Marshal(s.Data)
+	if err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode catalog update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(contentByteData, &contentSchema); err != nil {
+		csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+
+	// Only pushing pebble type content in elasticsearch
+	if contentSchema.Type != model.PebbleType {
+		return
+	}
+
+	// Removing content from index if is active set to false
+	if !contentSchema.IsActive {
+		csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
+		return
+	}
+
+	if s.Meta.Operation == "u" {
+		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+			if val, ok := updates.(primitive.D).Map()["is_active"]; ok {
+				if val.(bool) {
+					csp.Logger.Info().Msg("syncing content in series")
+					csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
+				}
+			} else if val, ok := updates.(primitive.D).Map()["like_count"]; ok {
+				if val.(bool) {
+					csp.Logger.Info().Msg("syncing content in series")
+					csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
+				}
+			}
+		}
+	}
+
+	return
+}
+
+func (csp *ContentUpdateProcessor) ProcessLikeForSeries(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+	// creating a like
+	if s.Meta.Operation == "i" {
+		var likeSchema schema.ProcessLikeOpts
+		commentByteData, err := json.Marshal(s.Data)
+		if err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode comment update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(commentByteData, &likeSchema); err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+		csp.App.Series.UpdateSeriesLastSync(likeSchema.ResourceID)
+		return
+	}
+	// unliking
+	if s.Meta.Operation == "d" {
+		likeSchema := schema.ProcessLikeOpts{
+			ID: s.Meta.ID.(primitive.ObjectID),
+		}
+		csp.App.Series.UpdateSeriesLastSync(likeSchema.ResourceID)
+
+		return
+	}
 }

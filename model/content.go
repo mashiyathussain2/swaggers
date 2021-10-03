@@ -22,6 +22,9 @@ const (
 	ReviewStoryType    string = "review_story"
 )
 
+// Path contains entire category hierarchy
+type Path = string
+
 type BrandInfo struct {
 	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name string             `json:"name,omitempty" bson:"name,omitempty"`
@@ -79,6 +82,9 @@ type Content struct {
 	UserID         primitive.ObjectID   `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	Label          *Label               `json:"label,omitempty" bson:"label,omitempty"`
 
+	// Category path for Pebbles
+	Paths []Path `json:"category_path,omitempty" bson:"category_path,omitempty"`
+
 	// Flag to enable content availability when processing is done
 	IsProcessed bool `json:"is_processed" bson:"is_processed"`
 	// Flag to toggle content visibility
@@ -96,6 +102,9 @@ type Content struct {
 	//Catalog Linking
 	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 	CatalogInfo []CatalogInfo        `json:"catalog_info" bson:"catalog_info"`
+
+	//serie ids linked to the pebble
+	SeriesIDs []primitive.ObjectID `json:"series_ids,omitempty" bson:"series_ids,omitempty"`
 
 	CreatedAt   time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	ProcessedAt time.Time `json:"processed_at,omitempty" bson:"processed_at,omitempty"`
