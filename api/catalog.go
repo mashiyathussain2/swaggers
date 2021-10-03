@@ -388,6 +388,76 @@ func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+func (a *API) searchCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchCatalog(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) searchDiscover(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchDiscover(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) searchBrand(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchBrand(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) searchInfluencer(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchInfluencer(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) searchSeries(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchSeries(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
 func (a *API) getCatalogInfoByBrandId(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogByBrandIDOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {

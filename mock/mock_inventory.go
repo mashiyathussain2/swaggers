@@ -105,3 +105,18 @@ func (mr *MockInventoryMockRecorder) UpdateInventoryInternal(arg0 interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInventoryInternal", reflect.TypeOf((*MockInventory)(nil).UpdateInventoryInternal), arg0)
 }
+
+// UpdateInventorybySKUs mocks base method
+func (m *MockInventory) UpdateInventorybySKUs(arg0 []schema.UpdateInventoryBySKUOpt) (*schema.UpdateInventoryBySKUResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateInventorybySKUs", arg0)
+	ret0, _ := ret[0].(*schema.UpdateInventoryBySKUResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateInventorybySKUs indicates an expected call of UpdateInventorybySKUs
+func (mr *MockInventoryMockRecorder) UpdateInventorybySKUs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInventorybySKUs", reflect.TypeOf((*MockInventory)(nil).UpdateInventorybySKUs), arg0)
+}
