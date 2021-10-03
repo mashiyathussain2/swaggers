@@ -69,6 +69,7 @@ type GetCatalogByCategoryIDOpts struct {
 
 type SearchOpts struct {
 	Query string `qs:"query"`
+	Page  int    `qs:"page"`
 }
 
 type BrandSearchResp struct {
@@ -102,11 +103,23 @@ type ContentSearchResp struct {
 	MediaInfo interface{}        `json:"media_info"`
 }
 
+type SeriesSearchResp struct {
+	ID        primitive.ObjectID `json:"id"`
+	Name      string             `json:"name"`
+	Thumbnail *Img               `json:"thumbnail"`
+}
+
 type SearchResp struct {
-	Catalog    []CatalogSearchResp    `json:"catalog"`
 	Brand      []BrandSearchResp      `json:"brand"`
 	Influencer []InfluencerSearchResp `json:"influencer"`
 	Content    []ContentSearchResp    `json:"content"`
+	Catalog    []CatalogSearchResp    `json:"catalog"`
+}
+
+type DiscoverSearchResp struct {
+	Brand      []BrandSearchResp      `json:"brand"`
+	Influencer []InfluencerSearchResp `json:"influencer"`
+	Series     []SeriesSearchResp     `json:"series"`
 }
 
 type GetActiveCollectionsOpts struct {

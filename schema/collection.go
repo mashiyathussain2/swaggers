@@ -195,7 +195,8 @@ type GetCatalogsBySubCollectionResp struct {
 }
 
 type GetCatalogsBySubCollectionInfo struct {
-	CatalogIDs []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
+	FeaturedCatalogIDs []primitive.ObjectID `json:"featured_catalog_ids,omitempty" bson:"featured_catalog_ids,omitempty"`
+	CatalogIDs         []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 }
 
 type GetCollectionsKeeperFilter struct {
