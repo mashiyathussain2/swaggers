@@ -393,3 +393,55 @@ func (a *API) getCatalogsByInfluencerID(requestCTX *handler.RequestContext, w ht
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 	return
 }
+
+func (a *API) getPebblesByHashtag(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetPebbleByHashtag
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
+	}
+	res, err := a.App.Elasticsearch.GetPebblesByHashtag(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+func (a *API) getPebbleByCategoryID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetPebbleByCategoryIDOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
+	}
+	res, err := a.App.Elasticsearch.GetPebblesInfoByCategoryID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
+func (a *API) searchPebbleByCaption(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchPebbleByCaption
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	res, err := a.App.Content.SearchPebbleByCaption(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}

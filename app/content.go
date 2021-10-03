@@ -57,6 +57,8 @@ type Content interface {
 	GetBrandInfo([]string) ([]model.BrandInfo, error)
 	GetInfluencerInfo([]string) ([]model.InfluencerInfo, error)
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
+
+	SearchPebbleByCaption(*schema.SearchPebbleByCaption) ([]schema.GetPebbleSearchCaptionResp, error)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -100,6 +102,14 @@ func (ci *ContentImpl) CreatePebble(opts *schema.CreatePebbleOpts) (*schema.Crea
 		},
 		CreatedAt: time.Now().UTC(),
 	}
+	// Setting up category path
+	for _, id := range opts.CategoryID {
+		path, err := ci.App.Category.GetCategoryPath(id)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create pebble document, error fetching category path")
+		}
+		pebble.Paths = append(pebble.Paths, path)
+	}
 
 	res1, err1 := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), pebble)
 	if err1 != nil {
@@ -112,7 +122,6 @@ func (ci *ContentImpl) CreatePebble(opts *schema.CreatePebbleOpts) (*schema.Crea
 	}
 	// Getting s3 upload token with provided args
 	// This token is then used by frontend to directly upload media to s3
-	fmt.Println(fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType))
 	res0, err0 := ci.App.Media.GenerateVideoUploadToken(
 		&schema.GenerateVideoUploadTokenOpts{
 			FileName: fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType),
@@ -970,4 +979,61 @@ func (ci *ContentImpl) ChangeContentStatus(opts *schema.ChangeContentStatusOpts)
 	}
 
 	return true, nil
+}
+
+func (ci *ContentImpl) SearchPebbleByCaption(opts *schema.SearchPebbleByCaption) ([]schema.GetPebbleSearchCaptionResp, error) {
+
+	ctx := context.TODO()
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"is_active": true,
+			"type":      "pebble",
+			"caption": bson.M{
+				"$regex": primitive.Regex{Pattern: opts.Caption, Options: "i"},
+			},
+		},
+	}}
+
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "media",
+			"localField":   "media_id",
+			"foreignField": "_id",
+			"as":           "media_info",
+		},
+	}}
+
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"media_info": bson.M{
+				"$first": "$media_info",
+			},
+		},
+	}}
+
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: 20 * opts.Page,
+		},
+	}
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: 20,
+		},
+	}
+
+	var resp []schema.GetPebbleSearchCaptionResp
+
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, setStage, skipStage, limitStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get content")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to decode pebbles")
+	}
+	return resp, nil
 }

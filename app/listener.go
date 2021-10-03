@@ -57,6 +57,29 @@ func InitConsumer(a *App) {
 	})
 	go a.CommentChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessComment)
 
+	a.PebbleSeriesConsumer = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.SeriesConsumerConfig,
+	})
+	go a.PebbleSeriesConsumer.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessSeriesMessage)
+
+	a.PebbleCollectionConsumer = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CollectionConsumerConfig,
+	})
+	go a.PebbleCollectionConsumer.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCollectionMessage)
+
+	a.PebbleStatusChangeForSeries = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.ContentChangesConfig,
+	})
+	go a.PebbleStatusChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessageForSeries)
+
+	a.LikeChangeForSeries = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.LikeChangeConfig,
+	})
+	go a.LikeChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessLikeForSeries)
 }
 
 // CloseConsumer close all consumer connections
@@ -69,6 +92,10 @@ func CloseConsumer(a *App) {
 	a.ViewChanges.Close()
 	a.CatalogChanges.Close()
 	a.ContentChanges.Close()
+	a.PebbleSeriesConsumer.Close()
+	a.PebbleCollectionConsumer.Close()
+	a.LikeChangeForSeries.Close()
+	a.PebbleStatusChangeForSeries.Close()
 }
 
 func InitProducer(a *App) {
@@ -80,12 +107,21 @@ func InitProducer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.ContentFullProducerConfig,
 	})
-
+	a.PebbleSeriesProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.SeriesFullProducerConfig,
+	})
+	a.PebbleCollectionProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CollectionFullProducerConfig,
+	})
 }
 
 func CloseProducer(a *App) {
 	a.LiveCommentProducer.Close()
 	a.ContentFullProducer.Close()
+	a.PebbleSeriesProducer.Close()
+	a.PebbleCollectionProducer.Close()
 }
 
 func InitProcessor(a *App) {

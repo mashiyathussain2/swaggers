@@ -42,13 +42,45 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/pebble/id", a.requestHandler(a.getPebbleByID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/brand", a.requestHandler(a.getPebblesByBrandID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/influencer", a.requestHandler(a.getPebblesByInfluencerID)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/hashtag", a.requestHandler(a.getPebblesByHashtag)).Methods("GET")
 	a.Router.APIRoot.Handle("/catalog/influencer", a.requestHandler(a.getCatalogsByInfluencerID)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/series", a.requestHandler(a.getPebbleSeries)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/series/id", a.requestHandler(a.getPebbleSeriesByIDs)).Methods("GET")
+	a.Router.APIRoot.Handle("/pebble/category", a.requestHandler(a.getPebbleByCategoryID)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.createLiveStreamByApp)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.getAppLiveStreamsByInfluencerID)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/catalog", a.requestWithAuthHandler(a.pushCatalog)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/start", a.requestWithAuthHandler(a.startLiveStream)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/stop", a.requestWithAuthHandler(a.stopLiveStream)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/content/pebble/series", a.requestWithSudoHandler(a.createPebbleSeries)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/content/pebble/series", a.requestWithSudoHandler(a.editPebbleSeries)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/content/pebble/series", a.requestWithSudoHandler(a.keeperGetSeries)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/content/series/basic", a.requestWithSudoHandler(a.keeperGetSeriesBasic)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/pebble/series/id", a.requestWithSudoHandler(a.keeperGetPebbleSeriesByID)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/content/pebble/collection", a.requestWithSudoHandler(a.createCollection)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/content/pebble/collection", a.requestWithSudoHandler(a.updateCollection)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/content/pebble/collection", a.requestWithSudoHandler(a.keeperGetCollections)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/pebble/collection", a.requestHandler(a.getCollections)).Methods("GET")
+
+	//KEEPER CATEGORY
+	// a.Router.Root.Handle("/", a.requestWithSudoHandler(a.home)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/category", a.requestWithSudoHandler(a.createCategory)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/category", a.requestWithSudoHandler(a.editCategory)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/category", a.requestWithSudoHandler(a.getCategory)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/category/main", a.requestWithSudoHandler(a.getMainCategoryMap)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/category/{categoryID}/path", a.requestWithSudoHandler(a.getCategoryPath)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/category/{categoryID}/ancestors", a.requestWithSudoHandler(a.getAncestorsByID)).Methods("GET")
+
+	//APP CATEGORY
+	a.Router.APIRoot.Handle("/app/category/lvl1", a.requestHandler(a.getParentCategory)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl2", a.requestHandler(a.getMainCategoryByParentID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl3", a.requestHandler(a.getSubCatergoryByParentID)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/keeper/pebble/search", a.requestHandler(a.searchPebbleByCaption)).Methods("GET")
 
 }
 
