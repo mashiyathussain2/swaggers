@@ -24,6 +24,11 @@ type Elasticsearch interface {
 
 	GetCatalogBySaleID(*schema.GetCatalogBySaleIDOpts) ([]schema.GetCatalogBasicResp, error)
 	SearchBrandCatalogInfluencerContent(opts *schema.SearchOpts) (*schema.SearchResp, error)
+	SearchCatalog(opts *schema.SearchOpts) (*schema.SearchResp, error)
+	SearchDiscover(opts *schema.SearchOpts) (*schema.DiscoverSearchResp, error)
+	SearchBrand(opts *schema.SearchOpts) ([]schema.BrandSearchResp, error)
+	SearchInfluencer(opts *schema.SearchOpts) ([]schema.InfluencerSearchResp, error)
+	SearchSeries(opts *schema.SearchOpts) ([]schema.SeriesSearchResp, error)
 	GetReviewsByCatalogID(*schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error)
 	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
 	GetCollectionCatalogByIDs(*schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error)
@@ -313,6 +318,175 @@ func (ei *ElasticsearchImpl) SearchBrandCatalogInfluencerContent(opts *schema.Se
 	}
 
 	return &res, nil
+}
+
+func (ei *ElasticsearchImpl) SearchDiscover(opts *schema.SearchOpts) (*schema.DiscoverSearchResp, error) {
+	mSearch := elastic.NewMultiSearchService(ei.Client)
+	var mSearchQuery []*elastic.SearchRequest
+
+	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("best_fields")
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(3).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))
+
+	influencerQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"name.autocomplete"}...).Operator("or").Type("best_fields")
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.InfluencerFullIndex).Query(influencerQuery).Size(3).FetchSourceIncludeExclude([]string{"id", "name", "profile_image"}, nil))
+
+	var subQuery []elastic.Query
+	filterSubQuery := elastic.NewTermQuery("is_active", true)
+	// subQuery = append(subQuery, elastic.NewMultiMatchQuery(opts.Query, []string{"name.autocomplete", "influencer_info.name.autocomplete", "brand_info.name.autocomplete"}...).Operator("or").Type("best_fields"))
+	subQuery = append(subQuery, elastic.NewMatchQuery("name.autocomplete", opts.Query))
+	subQuery = append(subQuery, elastic.NewNestedQuery("pebble_info", elastic.NewNestedQuery("pebble_info.influencer_info", elastic.NewMatchQuery("name.autocomplete", opts.Query))))
+	seriesQuery := elastic.NewBoolQuery().Should(subQuery...).Filter(filterSubQuery)
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.SeriesFullIndex).Query(seriesQuery).Size(3).FetchSourceIncludeExclude([]string{"name", "id", "thumbnail"}, nil))
+
+	resp, err := mSearch.Add(mSearchQuery...).Do(context.TODO())
+	if err != nil {
+		ei.Logger.Err(err).Msgf("failed to get search result for query:%s", opts.Query)
+		return nil, errors.Wrap(err, "failed to get search results")
+	}
+
+	var influencer []schema.InfluencerSearchResp
+	var brand []schema.BrandSearchResp
+	var series []schema.SeriesSearchResp
+	for _, result := range resp.Responses {
+		for _, hit := range result.Hits.Hits {
+			if strings.Contains(hit.Index, ei.Config.BrandFullIndex) {
+				var s schema.BrandSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				brand = append(brand, s)
+			} else if strings.Contains(hit.Index, ei.Config.InfluencerFullIndex) {
+				var s schema.InfluencerSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				influencer = append(influencer, s)
+			} else if strings.Contains(hit.Index, ei.Config.SeriesFullIndex) {
+				var s schema.SeriesSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				series = append(series, s)
+			}
+		}
+	}
+	res := schema.DiscoverSearchResp{
+		Brand:      brand,
+		Influencer: influencer,
+		Series:     series,
+	}
+
+	return &res, nil
+}
+
+func (ei *ElasticsearchImpl) SearchCatalog(opts *schema.SearchOpts) (*schema.SearchResp, error) {
+	mustQuery := elastic.NewMultiMatchQuery(opts.Query, "keywords.*^3", "name.*^2", "brand_info.name^2").Operator("or").Type("best_fields")
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).From(fromPage).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get products")
+		return nil, errors.Wrap(err, "failed to get products")
+	}
+
+	// var resp []schema.GetCatalogInfoResp
+	var resp []schema.CatalogSearchResp
+	for _, hit := range res.Hits.Hits {
+		var s schema.CatalogSearchResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode catalog basic json")
+		}
+		resp = append(resp, s)
+	}
+
+	result := schema.SearchResp{
+		Catalog: resp,
+	}
+
+	return &result, nil
+}
+
+func (ei *ElasticsearchImpl) SearchBrand(opts *schema.SearchOpts) ([]schema.BrandSearchResp, error) {
+	query := elastic.NewMatchQuery("lname.autocomplete", opts.Query)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).Query(query).From(fromPage).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get brands")
+		return nil, errors.Wrap(err, "failed to get brands")
+	}
+
+	var resp []schema.BrandSearchResp
+	for _, hit := range res.Hits.Hits {
+		var s schema.BrandSearchResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode brand search json")
+		}
+		resp = append(resp, s)
+	}
+
+	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) SearchInfluencer(opts *schema.SearchOpts) ([]schema.InfluencerSearchResp, error) {
+	query := elastic.NewMatchQuery("name.autocomplete", opts.Query)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.InfluencerFullIndex).Query(query).From(fromPage).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get influencer")
+		return nil, errors.Wrap(err, "failed to get influencer")
+	}
+
+	var resp []schema.InfluencerSearchResp
+	for _, hit := range res.Hits.Hits {
+		var s schema.InfluencerSearchResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode influencer search json")
+		}
+		resp = append(resp, s)
+	}
+
+	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) SearchSeries(opts *schema.SearchOpts) ([]schema.SeriesSearchResp, error) {
+	query := elastic.NewMatchQuery("name.autocomplete", opts.Query)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.SeriesFullIndex).Query(query).From(fromPage).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get series")
+		return nil, errors.Wrap(err, "failed to get series")
+	}
+
+	var resp []schema.SeriesSearchResp
+	for _, hit := range res.Hits.Hits {
+		var s schema.SeriesSearchResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode series search json")
+		}
+		resp = append(resp, s)
+	}
+
+	return resp, nil
 }
 
 func (ei *ElasticsearchImpl) GetReviewsByCatalogID(opts *schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error) {
