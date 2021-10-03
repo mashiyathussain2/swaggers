@@ -351,6 +351,21 @@ func (mr *MockContentMockRecorder) ProcessVideoContent(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessVideoContent", reflect.TypeOf((*MockContent)(nil).ProcessVideoContent), arg0)
 }
 
+// SearchPebbleByCaption mocks base method
+func (m *MockContent) SearchPebbleByCaption(arg0 *schema.SearchPebbleByCaption) ([]schema.GetPebbleSearchCaptionResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchPebbleByCaption", arg0)
+	ret0, _ := ret[0].([]schema.GetPebbleSearchCaptionResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchPebbleByCaption indicates an expected call of SearchPebbleByCaption
+func (mr *MockContentMockRecorder) SearchPebbleByCaption(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPebbleByCaption", reflect.TypeOf((*MockContent)(nil).SearchPebbleByCaption), arg0)
+}
+
 // UpdateContentBrandInfo mocks base method
 func (m *MockContent) UpdateContentBrandInfo(arg0 *schema.UpdateContentBrandInfoOpts) {
 	m.ctrl.T.Helper()

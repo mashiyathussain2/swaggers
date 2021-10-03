@@ -20,4 +20,21 @@ func InitService(a *App) {
 		Logger: a.Logger,
 		IVS:    NewIVSImpl(&IVSOpts{Config: &a.Config.IVSConfig}),
 	})
+
+	a.Series = InitSeries(&SeriesOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.SeriesConfig.DBName),
+		Logger: a.Logger,
+	})
+
+	a.Collection = InitCollection(&CollectionOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.CollectionConfig.DBName),
+		Logger: a.Logger,
+	})
+	a.Category = InitCategory(&CategoryOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.CategoryConfig.DBName),
+		Logger: a.Logger,
+	})
 }

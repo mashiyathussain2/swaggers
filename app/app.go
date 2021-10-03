@@ -26,26 +26,34 @@ type App struct {
 	Config        *config.APPConfig
 
 	// List of services this app is implementing
-	Media   Media
-	Content Content
-	Live    Live
+	Media      Media
+	Content    Content
+	Live       Live
+	Series     Series
+	Collection Collection
+	Category   Category
 
 	// Update Processor
 	ContentUpdateProcessor *ContentUpdateProcessor
 
 	// Kafka Consumer
-	LikeChanges       kafka.Consumer
-	CommentChanges    kafka.Consumer
-	ViewChanges       kafka.Consumer
-	LiveComments      kafka.Consumer
-	BrandChanges      kafka.Consumer
-	InfluencerChanges kafka.Consumer
-	CatalogChanges    kafka.Consumer
-	ContentChanges    kafka.Consumer
-
+	LikeChanges                 kafka.Consumer
+	CommentChanges              kafka.Consumer
+	ViewChanges                 kafka.Consumer
+	LiveComments                kafka.Consumer
+	BrandChanges                kafka.Consumer
+	InfluencerChanges           kafka.Consumer
+	CatalogChanges              kafka.Consumer
+	ContentChanges              kafka.Consumer
+	PebbleSeriesConsumer        kafka.Consumer
+	PebbleCollectionConsumer    kafka.Consumer
+	PebbleStatusChangeForSeries kafka.Consumer
+	LikeChangeForSeries         kafka.Consumer
 	// Kafka Producer
-	LiveCommentProducer kafka.Producer
-	ContentFullProducer kafka.Producer
+	LiveCommentProducer      kafka.Producer
+	ContentFullProducer      kafka.Producer
+	PebbleSeriesProducer     kafka.Producer
+	PebbleCollectionProducer kafka.Producer
 }
 
 // NewApp returns new app instance

@@ -22,6 +22,8 @@ type CreatePebbleOpts struct {
 	BrandIDs      []primitive.ObjectID `json:"brand_ids" validate:"required,min=1"`
 	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
 	Label         *LabelOpts           `json:"label" validate:"required"`
+	CategoryID    []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
+	// HashTags      []string             `json:"hashtags" validate:"required,gt=0"`
 }
 
 //CreatePebbleResp returns token required for uploading the content to S3 in the background
@@ -46,6 +48,8 @@ type EditPebbleOpts struct {
 	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
 	Label         *EditLabelOpts       `json:"label"`
 	IsActive      *bool                `json:"is_active"`
+	CategoryID    []primitive.ObjectID `json:"category_id"`
+	HashTags      []string             `json:"hashtags" validate:"required,gt=0"`
 }
 
 // EditPebbleResp contains fields to be returned in EditPebble operation
@@ -57,6 +61,8 @@ type EditPebbleResp struct {
 	CatalogIDs    []primitive.ObjectID `json:"catalog_ids,omitempty"`
 	Label         *EditLabelOpts       `json:"label,omitempty"`
 	IsActive      *bool                `json:"is_active,omitempty"`
+	Path          []model.Path         `json:"category_path,omitempty"`
+	HashTags      []string             `json:"hashtags,omitempty"`
 }
 
 // ProcessVideoContentOpts contains fields to mark content as processed and link the media object
@@ -80,7 +86,9 @@ type GetContentResp struct {
 	IsActive      bool                 `json:"is_active,omitempty" bson:"is_active,omitempty"`
 	Caption       string               `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags      []string             `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
-	CreatedAt     time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	Path          []model.Path         `json:"category_path,omitempty" bson:"category_path,omitempty"`
+
+	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
 // GetContentFilter contains list of supported filter to be applied while fetching content from DB
@@ -201,8 +209,10 @@ type ContentUpdateOpts struct {
 	CommentCount   uint                   `json:"comment_count" bson:"comment_count"`
 	Caption        string                 `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags       []string               `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
+	Paths          []model.Path           `json:"category_path,omitempty" bson:"category_path,omitempty"`
 	CatalogIDs     []primitive.ObjectID   `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 	CatalogInfo    []model.CatalogInfo    `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	SeriesIDs      []primitive.ObjectID   `json:"series_ids,omitempty" bson:"series_ids,omitempty"`
 	CreatedAt      time.Time              `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	ProcessedAt    time.Time              `json:"processed_at,omitempty" bson:"processed_at,omitempty"`
 	UpdatedAt      time.Time              `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -213,6 +223,7 @@ type KafkaMeta struct {
 	Timestamp primitive.Timestamp `bson:"ts" json:"ts"`
 	Namespace string              `bson:"ns" json:"ns"`
 	Operation string              `bson:"op,omitempty" json:"op,omitempty"`
+	Updates   interface{}         `bson:"updates,omitempty" json:"updates,omitempty"`
 }
 
 type KafkaMessage struct {
@@ -354,4 +365,16 @@ type GetCatalogsByInfluencerID struct {
 	UserID       string `json:"user_id,omitempty" queryparam:"user_id"`
 	InfluencerID string `queryparam:"influencer_id"`
 	Page         int    `queryparam:"page"`
+}
+
+type GetPebbleByHashtag struct {
+	UserID  string `json:"user_id,omitempty" queryparam:"user_id"`
+	Hashtag string `json:"hashtag,omitempty" queryparam:"hashtag"`
+	Page    int    `json:"page,omitempty" queryparam:"page"`
+}
+
+type GetPebbleSearchCaptionResp struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Caption   string             `json:"caption,omitempty" bson:"caption,omitempty"`
+	MediaInfo *GetMediaResp      `json:"media_info,omitempty" bson:"media_info,omitempty"`
 }
