@@ -68,6 +68,7 @@ type OrderItemOpts struct {
 	Platform        string              `json:"platform"`
 	OrderItems      []OrderItem         `json:"order_items" bson:"order_items"`
 	Coupon          *CouponOrderOpts    `json:"coupon_info"`
+	CartType        string              `json:"cart_type"`
 }
 
 type OrderResp struct {
