@@ -16,6 +16,12 @@ const (
 	FreeDelivery string = "free_delivery"
 )
 
+//CheckoutType
+const (
+	CartCheckout    string = "cart_checkout"
+	ExpressCheckout string = "express_checkout"
+)
+
 //Cart contains the users cart details
 type Cart struct {
 	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
