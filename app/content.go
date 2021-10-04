@@ -174,7 +174,18 @@ func (ci *ContentImpl) EditPebble(opts *schema.EditPebbleOpts) (*schema.EditPebb
 	if opts.IsActive != nil {
 		update = append(update, bson.E{Key: "is_active", Value: opts.IsActive})
 	}
-
+	if len(opts.CategoryID) > 0 {
+		var paths []model.Path
+		// Setting up category path
+		for _, id := range opts.CategoryID {
+			path, err := ci.App.Category.GetCategoryPath(id)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to update pebble document, error fetching category path")
+			}
+			paths = append(paths, path)
+		}
+		update = append(update, bson.E{Key: "category_path", Value: paths})
+	}
 	filter := bson.M{"_id": opts.ID}
 	updateQuery := bson.M{"$set": update}
 
