@@ -65,6 +65,7 @@ type GetMainCategoriesMapResp struct {
 	AncestorID    []primitive.ObjectID `json:"ancestors_id,omitempty" bson:"ancestors_id,omitempty"`
 	Thumbnail     *model.IMG           `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
 	FeaturedImage *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
+	IsMain        bool                 `json:"is_main" bson:"is_main"`
 }
 
 // GetParentCategoriesResp contains fields to be returned for all parent categories

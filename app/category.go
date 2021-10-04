@@ -205,7 +205,8 @@ func (ci *CategoryImpl) GetMainCategoriesMap() (map[string]schema.GetMainCategor
 	ctx := context.Background()
 	res := make(map[string]schema.GetMainCategoriesMapResp)
 
-	filter := bson.M{"is_main": true}
+	// filter := bson.M{"is_main": true}
+	filter := bson.M{}
 	cur, err := ci.DB.Collection(model.CategoryColl).Find(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query for categories")
@@ -223,6 +224,7 @@ func (ci *CategoryImpl) GetMainCategoriesMap() (map[string]schema.GetMainCategor
 			AncestorID:    result.AncestorsID,
 			Thumbnail:     result.Thumbnail,
 			FeaturedImage: result.FeaturedImage,
+			IsMain:        *result.IsMain,
 		}
 	}
 	return res, nil
