@@ -49,7 +49,6 @@ type EditPebbleOpts struct {
 	Label         *EditLabelOpts       `json:"label"`
 	IsActive      *bool                `json:"is_active"`
 	CategoryID    []primitive.ObjectID `json:"category_id"`
-	HashTags      []string             `json:"hashtags" validate:"required,gt=0"`
 }
 
 // EditPebbleResp contains fields to be returned in EditPebble operation
@@ -86,7 +85,7 @@ type GetContentResp struct {
 	IsActive      bool                 `json:"is_active,omitempty" bson:"is_active,omitempty"`
 	Caption       string               `json:"caption,omitempty" bson:"caption,omitempty"`
 	Hashtags      []string             `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
-	Path          []model.Path         `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Path          []model.Path         `json:"category_path" bson:"category_path,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
