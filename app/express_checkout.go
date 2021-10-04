@@ -19,6 +19,7 @@ import (
 type ExpressCheckout interface {
 	ExpressCheckout(*schema.ExpressCheckoutOpts) (*schema.OrderInfo, error)
 	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts, string, string) (*schema.OrderInfo, error)
+	ExpressCheckoutWeb(*schema.ExpressCheckoutWebOpts, string) (*schema.OrderInfo, error)
 }
 
 // ExpressCheckoutImpl implements ExpressCheckout interface methods
@@ -320,6 +321,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			OrderItems:      oi,
 			SourceID:        &opts.SourceID,
 			Platform:        platform,
+			CartType:        model.ExpressCheckout,
 		})
 	}
 	//Create Order
@@ -370,4 +372,186 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 
 	return &orderResp.Payload, nil
 
+}
+
+func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWebOpts, userName string) (*schema.OrderInfo, error) {
+
+	var orderOpts []schema.OrderItemOpts
+	// var orderItems []schema.OrderItem
+
+	displayName := strings.ToLower(opts.Address.DisplayName)
+	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
+		opts.Address.DisplayName = userName
+	}
+
+	oiBrandMap := make(map[primitive.ObjectID][]schema.OrderItem)
+
+	for _, item := range opts.Items {
+		orderItem := schema.OrderItem{
+			CatalogID: item.CatalogID,
+			VariantID: item.VariantID,
+			Quantity:  uint(item.Quantity),
+		}
+		var variant schema.OrderVariant
+
+		var s model.GetAllCatalogInfoResp
+
+		url := ec.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex()
+		// resp, err := http.Get(url)
+		// if err != nil {
+		// 	return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		// }
+		// defer resp.Body.Close()
+		client := http.Client{}
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+		}
+		req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, errors.Wrapf(err, "unable to fetch catlog data")
+		}
+		defer resp.Body.Close()
+
+		//Read the response body
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			ec.Logger.Err(err).Msgf("failed to read response from api %s", url)
+			return nil, errors.Wrap(err, "failed to get catalog info")
+		}
+		if err := json.Unmarshal(body, &s); err != nil {
+			ec.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+			return nil, errors.Wrap(err, "failed to decode body into struct")
+		}
+		if !s.Success {
+			ec.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+			return nil, errors.New("got success false response from catalog")
+		}
+		//checking if variant exist or not
+		found := false
+		for _, v := range s.Payload.Variants {
+			if v.ID == item.VariantID {
+				found = true
+				variant = schema.OrderVariant{
+					ID:        v.ID,
+					SKU:       v.SKU,
+					Attribute: v.Attribute,
+				}
+				break
+			}
+		}
+		if !found {
+			return nil, errors.Errorf("variant with id %s not found", item.VariantID.Hex())
+		}
+		//calculate discount if available
+		discount := uint(0)
+		discountInfo := model.DiscountInfo{}
+		var dp *model.Price
+		if s.Payload.DiscountInfo != nil {
+			for _, d := range s.Payload.DiscountInfo.VariantsID {
+				if d == item.VariantID {
+					switch s.Payload.DiscountInfo.Type {
+					case model.FlatOffType:
+						discount = s.Payload.DiscountInfo.Value
+						dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
+					case model.PercentOffType:
+						discount = uint(float64((s.Payload.DiscountInfo.Value * uint(s.Payload.RetailPrice.Value)) / 100.0))
+						if discount > s.Payload.DiscountInfo.MaxValue && s.Payload.DiscountInfo.MaxValue > 0 {
+							discount = s.Payload.DiscountInfo.MaxValue
+						}
+						discountInfo.MaxValue = s.Payload.DiscountInfo.MaxValue
+						dp = model.SetINRPrice(s.Payload.RetailPrice.Value - float32(discount))
+					}
+					discountInfo.Value = discount
+					discountInfo.ID = s.Payload.DiscountInfo.ID
+					discountInfo.Type = s.Payload.DiscountInfo.Type
+					discountInfo.Value = discount
+					orderItem.DiscountID = s.Payload.DiscountInfo.ID
+					orderItem.DiscountInfo = &discountInfo
+					orderItem.DiscountedPrice = dp
+
+				}
+			}
+		}
+		orderItem.BasePrice = &s.Payload.BasePrice
+		orderItem.RetailPrice = &s.Payload.RetailPrice
+		orderItem.CatalogInfo = schema.OrderCatalogInfo{
+			ID:      item.CatalogID,
+			BrandID: s.Payload.BrandID,
+			Name:    s.Payload.Name,
+			Variant: variant,
+			FeaturedImage: schema.Img{
+				SRC: s.Payload.FeaturedImage.SRC,
+			},
+
+			VariantType: s.Payload.VariantType,
+			HSNCode:     s.Payload.HSNCode,
+
+			TransferPrice: s.Payload.TransferPrice,
+			ETA:           s.Payload.ETA,
+		}
+		orderItem.Tax = s.Payload.Tax
+		// orderItems = append(orderItems, orderItem)
+		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
+	}
+
+	for brand, oi := range oiBrandMap {
+		orderOpts = append(orderOpts, schema.OrderItemOpts{
+			UserID:          opts.UserID,
+			BrandID:         brand,
+			ShippingAddress: opts.Address,
+			BillingAddress:  opts.Address,
+			OrderItems:      oi,
+			Platform:        "web",
+			CartType:        "express_checkout",
+		})
+	}
+	//Create Order
+	coURL := ec.App.Config.HypdApiConfig.OrderApi + "/api/order"
+
+	var orderResp schema.OrderResp
+	reqBody, err := json.Marshal(orderOpts)
+	if err != nil {
+		ec.Logger.Err(err).Interface("orderOpts", orderOpts).Msgf("failed to prepare request json to api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get order info")
+	}
+	// resp, err := http.Post(coURL, "application/json", bytes.NewBuffer(reqBody))
+	// //Handle Error
+	// if err != nil {
+	// 	ec.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)
+	// 	return nil, errors.Wrap(err, "failed to get order info")
+	// }
+	// defer resp.Body.Close()
+
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("failed to generate order")
+		return nil, errors.Wrap(err, "failed to generate request to generate order")
+	}
+	req.Header.Add("Authorization", ec.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ec.Logger.Err(err).Interface("reqBody", reqBody).Msgf("unable to fetch order info")
+		return nil, errors.Wrapf(err, "unable to fetch order info")
+	}
+	defer resp.Body.Close()
+
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ec.Logger.Err(err).RawJSON("reqBody", reqBody).Msgf("failed to read response from api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get order info")
+	}
+	if err := json.Unmarshal(body, &orderResp); err != nil {
+		ec.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !orderResp.Success {
+		ec.Logger.Err(errors.New("success false from order")).Str("body", string(body)).Msg("got success false response from order")
+		return nil, errors.New("got success false response from order")
+	}
+
+	return &orderResp.Payload, nil
 }

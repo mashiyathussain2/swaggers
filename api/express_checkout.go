@@ -43,3 +43,27 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+func (a *API) expressCheckoutWeb(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.ExpressCheckoutWebOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.UserID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
+		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
+		return
+	}
+	fullName := requestCTX.UserClaim.(*auth.UserClaim).FullName
+
+	resp, err := a.App.ExpressCheckout.ExpressCheckoutWeb(&s, fullName)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}

@@ -17,6 +17,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.createInfluencer)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer/name/get", a.requestWithSudoHandler(a.getInfluencerByName)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/influencer", a.requestWithSudoHandler(a.editInfluencer)).Methods("PUT")
+	a.Router.APIRoot.Handle("/keeper/influencers/get", a.requestWithSudoHandler(a.getInfluencersByID)).Methods("POST")
 
 	// Brand Dash APIs
 	a.Router.APIRoot.Handle("/brand/user/login", a.requestHandler(a.brandUserLogin)).Methods("POST")
@@ -84,7 +85,9 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
 
+	//Express Checkout
 	a.Router.APIRoot.Handle("/app/express-checkout", a.requestWithAuthHandler(a.expressCheckout)).Methods("POST")
+	a.Router.APIRoot.Handle("/web/express-checkout", a.requestWithAuthHandler(a.expressCheckoutWeb)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")

@@ -502,6 +502,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 			Source:          source,
 			IsWeb:           isWeb,
 			Platform:        platform,
+			CartType:        model.CartCheckout,
 		}
 
 		displayName := strings.ToLower(c.ShippingAddress.DisplayName)
