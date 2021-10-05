@@ -353,7 +353,7 @@ func (ei *ElasticsearchImpl) GetPebblesByHashtag(opts *schema.GetPebbleByHashtag
 	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
 	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
 	queries = append(queries, elastic.NewTermQuery("is_active", true))
-	queries = append(queries, elastic.NewMatchQuery("label.interests", opts.Hashtag))
+	// queries = append(queries, elastic.NewMatchQuery("label.interests", opts.Hashtag))
 	queries = append(queries, elastic.NewTermQuery("hashtags.hashtags", opts.Hashtag))
 
 	boolQuery := elastic.NewBoolQuery().Must(queries...)
