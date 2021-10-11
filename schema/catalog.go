@@ -94,7 +94,7 @@ type CreateCatalogResp struct {
 type CreateVariantOpts struct {
 	SKU       string `json:"sku" validate:"required"`
 	Attribute string `json:"attribute" validate:"required"`
-	Unit      int    `json:"unit" validate:"required"`
+	Unit      int    `json:"unit"`
 }
 
 // AddVariantOpts contains fields to add a new variant into existing catalog
@@ -103,7 +103,7 @@ type AddVariantOpts struct {
 	VariantType string             `json:"variant_type" validate:"required"`
 	SKU         string             `json:"sku" validate:"required"`
 	Attribute   string             `json:"attribute" validate:"required"`
-	Unit        int                `json:"unit" validate:"required"`
+	Unit        int                `json:"unit"`
 }
 
 // CreateVariantResp contains response fields when a new variant is created
