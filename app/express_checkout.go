@@ -505,6 +505,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			OrderItems:      oi,
 			Platform:        "web",
 			CartType:        "express_checkout",
+			IsWeb:           true,
 		})
 	}
 	//Create Order
