@@ -174,8 +174,11 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 	var s schema.ApplyCouponOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
+		fmt.Println(err, "input error")
+
 		return
 	}
+
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
@@ -184,12 +187,13 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
-	err = a.App.Cart.ApplyCoupon(userID, &s)
+	resp, err := a.App.Cart.ApplyCoupon(userID, &s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
+		fmt.Println(err, "app error")
 		return
 	}
-	requestCTX.SetAppResponse(true, http.StatusOK)
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
 func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
