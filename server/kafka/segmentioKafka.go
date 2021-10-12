@@ -29,15 +29,16 @@ func (k *SegmentioKafkaImpl) Close() {
 
 // NewSegmentioKafka returns new segmentio kafka client instance
 func NewSegmentioKafka(c *config.KafkaConfig) *SegmentioKafkaImpl {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
-		DualStack:     true,
-		TLS:           &tls.Config{},
-		SASLMechanism: mechanism,
+		Timeout:   10 * time.Second,
+		DualStack: true,
+		TLS:       &tls.Config{},
+	}
+	if c.Username != "" && c.Password != "" {
+		dialer.SASLMechanism = plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
 	}
 
 	conn, err := dialer.Dial(c.BrokerDial, fmt.Sprintf("%s:%s", c.BrokerURL, c.BrokerPort))
@@ -62,15 +63,16 @@ func NewSegmentioKafka(c *config.KafkaConfig) *SegmentioKafkaImpl {
 
 // NewSegmentioKafkaDialer returns new segmentio kafka dialer instance
 func NewSegmentioKafkaDialer(c *config.KafkaConfig) *kafka.Dialer {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
-		DualStack:     true,
-		TLS:           &tls.Config{},
-		SASLMechanism: mechanism,
+		Timeout:   10 * time.Second,
+		DualStack: true,
+		TLS:       &tls.Config{},
+	}
+	if c.Username != "" && c.Password != "" {
+		dialer.SASLMechanism = plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
 	}
 	return dialer
 }
@@ -96,23 +98,25 @@ func NewSegmentioKafkaConsumer(opts *SegmentioConsumerOpts) *SegmentioConsumer {
 
 // Init initialize kafka consumer group
 func (cl *SegmentioConsumer) Init(c *config.ListenerConfig) {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
-		Timeout: 10 * time.Second,
-		// DualStack:     true,
-		SASLMechanism: mechanism,
-		ClientID:      "catalog-kafka",
-		TLS:           &tls.Config{},
+		Timeout:   10 * time.Second,
+		DualStack: true,
+		TLS:       &tls.Config{},
+		ClientID:  "catalog-kafka",
+	}
+	if c.Username != "" && c.Password != "" {
+		dialer.SASLMechanism = plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
 	}
 	cl.Reader = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  c.Brokers,
-		GroupID:  c.GroupID,
-		Topic:    c.Topic,
-		Dialer:   dialer,
-		MaxBytes: 10e6, // 10MB
+		Brokers:     c.Brokers,
+		GroupID:     c.GroupID,
+		Topic:       c.Topic,
+		Dialer:      dialer,
+		MaxBytes:    10e6, // 10MB
+		StartOffset: kafka.LastOffset,
 	})
 }
 
@@ -175,15 +179,16 @@ func NewSegmentioProducer(opts *SegmentioProducerOpts) *SegmentioProducer {
 }
 
 func (pl *SegmentioProducer) Init(c *config.ProducerConfig) {
-	mechanism := plain.Mechanism{
-		Username: c.Username,
-		Password: c.Password,
-	}
 	dialer := &kafka.Dialer{
-		Timeout: 10 * time.Second,
-		// DualStack:     true,
-		SASLMechanism: mechanism,
-		TLS:           &tls.Config{},
+		Timeout:   10 * time.Second,
+		DualStack: true,
+		TLS:       &tls.Config{},
+	}
+	if c.Username != "" && c.Password != "" {
+		dialer.SASLMechanism = plain.Mechanism{
+			Username: c.Username,
+			Password: c.Password,
+		}
 	}
 	pl.Writer = kafka.NewWriter(kafka.WriterConfig{
 		Brokers: c.Brokers,
