@@ -103,6 +103,7 @@ type APPConfig struct {
 	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
 	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
 	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
+	CouponChangeConfig     ListenerConfig `mapstructure:"couponChangeConsumer"`
 
 	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
@@ -121,6 +122,7 @@ type ElasticsearchConfig struct {
 type HypdApiConfig struct {
 	CatalogApi string `mapstructure:"catalogApi"`
 	OrderApi   string `mapstructure:"orderApi"`
+	CouponApi  string `mapstructure:"couponApi"`
 	Token      string `mapstructure:"token"`
 }
 

@@ -43,6 +43,7 @@ type App struct {
 	BrandChanges      kafka.Consumer
 	InfluencerChanges kafka.Consumer
 	DiscountChanges   kafka.Consumer
+	CouponChanges     kafka.Consumer
 
 	// Producer
 	BrandFullProducer      kafka.Producer
