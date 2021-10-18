@@ -34,9 +34,11 @@ type Cart interface {
 	RemoveDiscountInCartItems(*schema.DiscountInCartItemsOpts)
 	UpdateInventoryStatus(*schema.InventoryUpdateOpts)
 	UpdateCatalogInfo(id primitive.ObjectID)
-	ApplyCoupon(primitive.ObjectID, *schema.ApplyCouponOpts) error
+	ApplyCoupon(primitive.ObjectID, *schema.ApplyCouponOpts) (*schema.GetCartInfoResp, error)
 	RemoveCoupon(primitive.ObjectID) error
 	UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts)
+	UpdateCouponInsideCart(opts *schema.CouponUpdateOpts)
+	GetCoupon(code string) (*model.Coupon, error)
 }
 
 // CartImpl implements Cart interface methods
@@ -372,7 +374,41 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		}
 
 	}
+	var couponValue *model.Price
+	if cart.Coupon != nil {
 
+		if cart.Coupon.Status != "active" || cart.Coupon.ValidBefore.Before(time.Now()) {
+			cart.Coupon = nil
+			ci.RemoveCoupon(id)
+			cart.TotalPrice = model.SetINRPrice(float32(tp))
+			cart.TotalDiscount = model.SetINRPrice(float32(td))
+			cart.GrandTotal = model.SetINRPrice(float32(gt))
+			return &cart, nil
+		}
+
+		if float32(gt) < cart.Coupon.MinPurchaseValue.Value {
+			v := cart.Coupon.MinPurchaseValue.Value - float32(gt)
+			cart.Coupon = nil
+			ci.RemoveCoupon(id)
+			return nil, errors.Errorf("Please add product worth ₹%d to apply this coupon", int(v))
+		}
+		if cart.Coupon.Type == model.FlatOffType {
+			couponValue = model.SetINRPrice(float32(cart.Coupon.Value))
+		} else if cart.Coupon.Type == model.PercentOffType {
+			av := (int(gt) * cart.Coupon.Value) / 100
+			if cart.Coupon.MaxDiscount != nil {
+				if av > int(cart.Coupon.MaxDiscount.Value) {
+					av = int(cart.Coupon.MaxDiscount.Value)
+				}
+			}
+			couponValue = model.SetINRPrice(float32(av))
+		}
+		cart.CouponValue = couponValue
+		if uint(couponValue.Value) < gt {
+			gt = gt - uint(couponValue.Value)
+		}
+
+	}
 	cart.TotalPrice = model.SetINRPrice(float32(tp))
 	cart.TotalDiscount = model.SetINRPrice(float32(td))
 	cart.GrandTotal = model.SetINRPrice(float32(gt))
@@ -429,6 +465,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 		isWeb = true
 	}
 	grandTotal := 0
+	couponGrandTotal := 0
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
 			"user_id": id,
@@ -601,13 +638,18 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 				it.DiscountID = cv.Payload.DiscountInfo.ID
 				it.DiscountInfo = cv.Payload.DiscountInfo
 				it.DiscountedPrice = dp
-				grandTotal -= int(dp.Value)
+				grandTotal += int(dp.Value)
+				couponGrandTotal += int(dp.Value) * int(item.Quantity)
+			} else {
+				grandTotal += int(cv.Payload.RetailPrice.Value)
+				couponGrandTotal += int(cv.Payload.RetailPrice.Value) * int(item.Quantity)
 			}
-			grandTotal += int(cv.Payload.RetailPrice.Value)
+
 			order.OrderItems = append(order.OrderItems, it)
 		}
 		orderItemsOpts = append(orderItemsOpts, order)
 	}
+	fmt.Println("grand total, coupon Grand total", grandTotal, couponGrandTotal)
 
 	if len(outOfStockString) > 0 {
 		return nil, errors.Errorf(outOfStockString)
@@ -616,15 +658,28 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 	var coupon schema.CouponOrderOpts
 
 	if cartUnwindBrands[0].Coupon != nil {
+
+		if cartUnwindBrands[0].Coupon.Status != "active" || cartUnwindBrands[0].Coupon.ValidBefore.Before(time.Now()) {
+			cartUnwindBrands[0].Coupon = nil
+			ci.RemoveCoupon(id)
+			return nil, errors.New("Coupon Expired")
+		}
+
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
+
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
 			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
 		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
-			av := grandTotal * cartUnwindBrands[0].Coupon.Value
-			if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
-				av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+			fmt.Println("grand total, coupon value", couponGrandTotal, cartUnwindBrands[0].Coupon.Value)
+			av := (couponGrandTotal * cartUnwindBrands[0].Coupon.Value) / 100
+			fmt.Println("calculated coupon value", av)
+			if cartUnwindBrands[0].Coupon.MaxDiscount != nil {
+				if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
+					av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+				}
 			}
+			fmt.Println("applied value", av)
 			coupon.AppliedValue = model.SetINRPrice(float32(av))
 		}
 
@@ -632,6 +687,10 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 			for i := range orderItemsOpts {
 				orderItemsOpts[i].Coupon = &coupon
 			}
+		}
+
+		if couponGrandTotal-int(coupon.AppliedValue.Value) < 1 {
+			return nil, errors.New("Checkout amount cannot be less than 1")
 		}
 
 	}
@@ -851,22 +910,15 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 	}
 }
 
-func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCouponOpts) error {
+func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCouponOpts) (*schema.GetCartInfoResp, error) {
 
-	coupon := model.Coupon{
-		ID:               opts.CouponID,
-		Code:             opts.Code,
-		Description:      opts.Description,
-		Type:             opts.Type,
-		Value:            opts.Value,
-		ApplicableON:     opts.ApplicableON,
-		MaxDiscount:      opts.MaxDiscount,
-		MinPurchaseValue: opts.MinPurchaseValue,
-		ValidAfter:       opts.ValidAfter,
-		ValidBefore:      opts.ValidBefore,
-		Status:           opts.Status,
+	coupon, err := ci.GetCoupon(strings.ToUpper(opts.Code))
+	if err != nil {
+		return nil, errors.Wrapf(err, "error getting coupon")
 	}
-
+	if coupon.Status != "active" {
+		return nil, errors.Errorf("coupon is not active")
+	}
 	findQuery := bson.M{"user_id": user_id}
 	updateQuery := bson.M{"$set": bson.M{
 		"coupon": coupon,
@@ -874,13 +926,20 @@ func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCo
 
 	res, err := ci.DB.Collection(model.CartColl).UpdateOne(context.TODO(), findQuery, updateQuery)
 	if err != nil {
-		return errors.Wrapf(err, "unable to add coupon to cart")
+		return nil, errors.Wrapf(err, "unable to add coupon to cart")
 	}
 	if res.MatchedCount == 0 {
-		return errors.Errorf("unable to find cart for user")
+		return nil, errors.Errorf("unable to find cart for user")
 	}
+	if res.ModifiedCount == 0 {
+		return nil, errors.Errorf("unable to modify cart for user")
+	}
+	resp, err := ci.GetCartInfo(user_id)
 
-	return nil
+	if err != nil {
+		return nil, errors.Wrapf(err, "error gettting cart info")
+	}
+	return resp, nil
 }
 
 func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
@@ -897,6 +956,42 @@ func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
 		return errors.Errorf("unable to find cart for user")
 	}
 	return nil
+}
+
+func (ci *CartImpl) GetCoupon(code string) (*model.Coupon, error) {
+	var s schema.GetCouponResp
+
+	url := ci.App.Config.HypdApiConfig.CouponApi + "/api/get-coupon?code=" + code
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "failed to request to get catalog info"))
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ci.Logger.Err(errors.Wrapf(err, "unable to fetch catlog data"))
+	}
+	defer resp.Body.Close()
+
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to read response from api %s", url)
+		ci.Logger.Err(errors.Wrap(err, "failed to get coupon info"))
+		return nil, errors.Wrap(err, "failed to get coupon info")
+	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		ci.Logger.Err(errors.Wrap(err, "failed to decode body into struct"))
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !s.Success {
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from coupon")
+		ci.Logger.Err(errors.New("got success false response from coupon"))
+		return nil, errors.New("got success false response from coupon")
+	}
+	return &s.Payload, nil
 }
 
 func (ci *CartImpl) UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts) {
@@ -933,4 +1028,25 @@ func (ci *CartImpl) UpdateInventoryStatusInsideCatalogInfo(opts *schema.Inventor
 	if _, err := ci.DB.Collection(model.CartColl).UpdateMany(context.TODO(), filter, update, &updateOpts); err != nil {
 		ci.Logger.Err(err).Interface("opts", opts).Msg("failed to update stock in cart items")
 	}
+}
+
+func (ci *CartImpl) UpdateCouponInsideCart(opts *schema.CouponUpdateOpts) {
+
+	ctx := context.TODO()
+	filter := bson.M{
+		"coupon._id": opts.ID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"coupon": opts,
+		},
+	}
+
+	res, err := ci.DB.Collection(model.CartColl).UpdateMany(ctx, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Str("code", opts.Code).Msg("unable to update coupon inside catalog")
+		return
+	}
+	ci.Logger.Log().Str("response", string(res.ModifiedCount))
+
 }

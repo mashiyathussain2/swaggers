@@ -323,3 +323,43 @@ func (cp *CartProcessor) ProcessCatalogUpdate(msg kafka.Message) {
 		cp.App.Cart.UpdateCatalogInfo(s.Meta.ID.(primitive.ObjectID))
 	}
 }
+
+func (cp *CartProcessor) ProcessCouponUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
+		return
+	}
+	if s.Meta.Operation == "u" {
+		var coupon schema.CouponUpdateKafkaMessage
+		inventoryBytes, err := json.Marshal(s.Data)
+		if err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode inventory update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(inventoryBytes, &coupon); err != nil {
+			cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+			return
+		}
+
+		opts := schema.CouponUpdateOpts{
+			ID:               coupon.ID,
+			Code:             coupon.Code,
+			Description:      coupon.Description,
+			Type:             coupon.Type,
+			Value:            coupon.Value,
+			ApplicableON:     coupon.ApplicableON,
+			MaxDiscount:      coupon.MaxDiscount,
+			MinPurchaseValue: coupon.MinPurchaseValue,
+			ValidAfter:       coupon.ValidAfter,
+			ValidBefore:      coupon.ValidBefore,
+			Status:           coupon.Status,
+		}
+
+		// cp.App.Cart.UpdateInventoryStatus(&opts)
+		cp.App.Cart.UpdateCouponInsideCart(&opts)
+
+	}
+
+}

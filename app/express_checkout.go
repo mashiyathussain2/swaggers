@@ -193,7 +193,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 
 	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
-
+	grandTotal := 0
 	displayName := strings.ToLower(opts.Address.DisplayName)
 	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
 		opts.Address.DisplayName = userName
@@ -306,13 +306,46 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			TransferPrice: s.Payload.TransferPrice,
 			ETA:           s.Payload.ETA,
 		}
+		if !orderItem.DiscountID.IsZero() {
+			grandTotal += int(orderItem.DiscountedPrice.Value)
+		} else {
+			grandTotal += (int(orderItem.RetailPrice.Value))
+
+		}
 		orderItem.Tax = s.Payload.Tax
 		// orderItems = append(orderItems, orderItem)
 		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
 	}
+	var couponOrderOpts schema.CouponOrderOpts
+	if opts.Coupon != "" {
+		appliedValue := model.SetINRPrice(0)
+		coupon, err := ec.App.Cart.GetCoupon(opts.Coupon)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error getting coupon")
+		}
+		if coupon.Status != "active" {
+			return nil, errors.Errorf("coupon is not active")
+		}
+		if coupon.Type == model.FlatOffType {
+			appliedValue = model.SetINRPrice(float32(coupon.Value))
+		} else if coupon.Type == model.PercentOffType {
+			av := (grandTotal * coupon.Value) / 100
+			if coupon.MaxDiscount != nil {
+				if av > int(coupon.MaxDiscount.Value) {
+					av = int(coupon.MaxDiscount.Value)
+				}
+			}
+			appliedValue = model.SetINRPrice(float32(av))
+		}
+		couponOrderOpts = schema.CouponOrderOpts{
+			ID:           coupon.ID,
+			Code:         coupon.Code,
+			AppliedValue: appliedValue,
+		}
+	}
 
 	for brand, oi := range oiBrandMap {
-		orderOpts = append(orderOpts, schema.OrderItemOpts{
+		orderItem := schema.OrderItemOpts{
 			UserID:          opts.UserID,
 			BrandID:         brand,
 			ShippingAddress: opts.Address,
@@ -322,8 +355,14 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			SourceID:        &opts.SourceID,
 			Platform:        platform,
 			CartType:        model.ExpressCheckout,
-		})
+		}
+		if opts.Coupon != "" {
+			orderItem.Coupon = &couponOrderOpts
+		}
+		orderOpts = append(orderOpts, orderItem)
+
 	}
+
 	//Create Order
 	coURL := ec.App.Config.HypdApiConfig.OrderApi + "/api/order"
 
@@ -378,6 +417,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
+	grandTotal := 0
 
 	displayName := strings.ToLower(opts.Address.DisplayName)
 	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
@@ -473,7 +513,11 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 				}
 			}
+			grandTotal += int(dp.Value)
+		} else {
+			grandTotal += int(s.Payload.RetailPrice.Value)
 		}
+
 		orderItem.BasePrice = &s.Payload.BasePrice
 		orderItem.RetailPrice = &s.Payload.RetailPrice
 		orderItem.CatalogInfo = schema.OrderCatalogInfo{
@@ -496,6 +540,34 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
 	}
 
+	var couponOrderOpts schema.CouponOrderOpts
+	if opts.Coupon != "" {
+		appliedValue := model.SetINRPrice(0)
+		coupon, err := ec.App.Cart.GetCoupon(opts.Coupon)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error getting coupon")
+		}
+		if coupon.Status != "active" {
+			return nil, errors.Errorf("coupon is not active")
+		}
+		if coupon.Type == model.FlatOffType {
+			appliedValue = model.SetINRPrice(float32(coupon.Value))
+		} else if coupon.Type == model.PercentOffType {
+			av := (grandTotal * coupon.Value) / 100
+			if coupon.MaxDiscount != nil {
+				if av > int(coupon.MaxDiscount.Value) {
+					av = int(coupon.MaxDiscount.Value)
+				}
+			}
+			appliedValue = model.SetINRPrice(float32(av))
+		}
+		couponOrderOpts = schema.CouponOrderOpts{
+			ID:           coupon.ID,
+			Code:         coupon.Code,
+			AppliedValue: appliedValue,
+		}
+	}
+
 	for brand, oi := range oiBrandMap {
 		orderOpts = append(orderOpts, schema.OrderItemOpts{
 			UserID:          opts.UserID,
@@ -506,6 +578,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			Platform:        "web",
 			CartType:        "express_checkout",
 			IsWeb:           true,
+			Coupon:          &couponOrderOpts,
 		})
 	}
 	//Create Order

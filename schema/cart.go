@@ -178,6 +178,8 @@ type GetCartInfoResp struct {
 	TotalPrice      *model.Price           `json:"total_price,omitempty" bson:"total_price,omitempty"`
 	TotalDiscount   *model.Price           `json:"total_discount,omitempty" bson:"total_discount,omitempty"`
 	GrandTotal      *model.Price           `json:"grand_total,omitempty" bson:"grand_total,omitempty"`
+	Coupon          *model.Coupon          `json:"coupon,omitempty" bson:"coupon,omitempty"`
+	CouponValue     *model.Price           `json:"coupon_value"`
 	CreatedAt       time.Time              `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt       time.Time              `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
@@ -215,21 +217,44 @@ type UpdateCatalogInfo struct {
 }
 
 type ApplyCouponOpts struct {
-	CouponID         primitive.ObjectID  `json:"coupon_id" validate:"required"`
-	Code             string              `json:"code" validate:"required"`
-	Description      string              `json:"description" validate:"required"`
-	Type             model.DiscountType  `json:"type" validate:"required"`
-	Value            int                 `json:"value" validate:"gte=0"`
-	ApplicableON     *model.ApplicableON `json:"applicable_on" validate:"required"`
-	MaxDiscount      *model.Price        `json:"max_discount"`
-	MinPurchaseValue *model.Price        `json:"min_purchase_value"`
-	ValidAfter       time.Time           `json:"valid_after" validate:"required"`
-	ValidBefore      time.Time           `json:"valid_before" validate:"required"`
-	Status           string              `json:"status" validate:"required"`
+	Code string `json:"code" validate:"required"`
 }
 
 type CouponOrderOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
 	Code         string             `json:"code" validate:"required"`
 	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
+}
+
+type GetCouponResp struct {
+	Success bool         `json:"success"`
+	Payload model.Coupon `json:"payload"`
+}
+
+type CouponUpdateKafkaMessage struct {
+	ID               primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
+	Code             string              `json:"code,omitempty" bson:"code,omitempty"`
+	Description      string              `json:"description,omitempty" bson:"description"`
+	Type             model.DiscountType  `json:"type,omitempty" bson:"type,omitempty"`
+	Value            int                 `json:"value" bson:"value"`
+	ApplicableON     *model.ApplicableON `json:"applicable_on,omitempty" bson:"applicable_on,omitempty"`
+	MaxDiscount      *model.Price        `json:"max_discount,omitempty" bson:"max_discount,omitempty"`
+	MinPurchaseValue *model.Price        `json:"min_purchase_value,omitempty" bson:"min_purchase_value,omitempty"`
+	ValidAfter       time.Time           `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
+	ValidBefore      time.Time           `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
+	Status           string              `json:"status,omitempty" bson:"status,omitempty"`
+}
+
+type CouponUpdateOpts struct {
+	ID               primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`
+	Code             string              `json:"code,omitempty" bson:"code,omitempty"`
+	Description      string              `json:"description,omitempty" bson:"description"`
+	Type             model.DiscountType  `json:"type,omitempty" bson:"type,omitempty"`
+	Value            int                 `json:"value" bson:"value"`
+	ApplicableON     *model.ApplicableON `json:"applicable_on,omitempty" bson:"applicable_on,omitempty"`
+	MaxDiscount      *model.Price        `json:"max_discount,omitempty" bson:"max_discount,omitempty"`
+	MinPurchaseValue *model.Price        `json:"min_purchase_value,omitempty" bson:"min_purchase_value,omitempty"`
+	ValidAfter       time.Time           `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
+	ValidBefore      time.Time           `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
+	Status           string              `json:"status,omitempty" bson:"status,omitempty"`
 }
