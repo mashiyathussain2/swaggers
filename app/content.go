@@ -924,7 +924,12 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 	}
 	var matchStage bson.D
 	matchStage = append(matchStage, bson.E{Key: "$match", Value: matchFilter})
-
+	sortStage := bson.D{{
+		Key: "$sort",
+		Value: bson.M{
+			"_id": -1,
+		},
+	}}
 	skipStage := bson.D{
 		{
 			Key:   "$skip",
@@ -964,7 +969,7 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 	}
 
 	ctx := context.TODO()
-	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, skipStage, limitStage, lookupStage, setStage})
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage, skipStage, limitStage, lookupStage, setStage})
 	if err != nil {
 		return nil, errors.Wrap(err, "query failed to get pebbles")
 	}

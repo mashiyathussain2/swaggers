@@ -302,7 +302,7 @@ func (a *API) getPebbleByID(requestCTX *handler.RequestContext, w http.ResponseW
 	return
 }
 
-func (a *API) geContents(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+func (a *API) getContents(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebblesKeeperFilter
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
