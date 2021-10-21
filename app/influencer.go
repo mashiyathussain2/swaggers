@@ -660,6 +660,12 @@ func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAcco
 			},
 		},
 	}
+	sortStage := bson.D{{
+		Key: "$sort",
+		Value: bson.M{
+			"_id": -1,
+		},
+	}}
 	lookupStage := bson.D{
 		{
 			Key: "$lookup",
@@ -719,7 +725,7 @@ func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAcco
 	// 		},
 	// 	},
 	// }
-	cur, err := ii.DB.Collection(model.InfluencerAccountRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2, setStage})
+	cur, err := ii.DB.Collection(model.InfluencerAccountRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage, lookupStage, lookupStage2, setStage})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query influencer account requests")
 	}
