@@ -360,10 +360,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			orderItem.Coupon = &couponOrderOpts
 		}
 		orderOpts = append(orderOpts, orderItem)
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 	}
 
 	//Create Order
@@ -516,15 +512,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 				}
 			}
-<<<<<<< HEAD
 			grandTotal += int(dp.Value) * int(orderItem.Quantity)
 		} else {
 			grandTotal += int(s.Payload.RetailPrice.Value) * int(orderItem.Quantity)
-=======
-			grandTotal += int(dp.Value)
-		} else {
-			grandTotal += int(s.Payload.RetailPrice.Value)
->>>>>>> master
 		}
 
 		orderItem.BasePrice = &s.Payload.BasePrice
