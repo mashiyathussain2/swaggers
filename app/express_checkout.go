@@ -360,7 +360,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			orderItem.Coupon = &couponOrderOpts
 		}
 		orderOpts = append(orderOpts, orderItem)
-
 	}
 
 	//Create Order
@@ -513,9 +512,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 				}
 			}
-			grandTotal += int(dp.Value)
+			grandTotal += int(dp.Value) * int(orderItem.Quantity)
 		} else {
-			grandTotal += int(s.Payload.RetailPrice.Value)
+			grandTotal += int(s.Payload.RetailPrice.Value) * int(orderItem.Quantity)
 		}
 
 		orderItem.BasePrice = &s.Payload.BasePrice
@@ -569,7 +568,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 	}
 
 	for brand, oi := range oiBrandMap {
-		orderOpts = append(orderOpts, schema.OrderItemOpts{
+		orderItem := schema.OrderItemOpts{
 			UserID:          opts.UserID,
 			BrandID:         brand,
 			ShippingAddress: opts.Address,
@@ -578,8 +577,11 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			Platform:        "web",
 			CartType:        "express_checkout",
 			IsWeb:           true,
-			Coupon:          &couponOrderOpts,
-		})
+		}
+		if opts.Coupon != "" {
+			orderItem.Coupon = &couponOrderOpts
+		}
+		orderOpts = append(orderOpts, orderItem)
 	}
 	//Create Order
 	coURL := ec.App.Config.HypdApiConfig.OrderApi + "/api/order"
