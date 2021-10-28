@@ -4,7 +4,7 @@ package api
 func (a *API) InitRoutes() {
 	a.Router.Root.Handle("/", a.requestHandler(a.home)).Methods("GET")
 
-	a.Router.APIRoot.Handle("/keeper/content/get", a.requestWithSudoHandler(a.geContents)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/content/get", a.requestWithSudoHandler(a.getContents)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/status", a.requestWithSudoHandler(a.changeContentStatus)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestWithSudoHandler(a.createPebble)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/pebble", a.requestWithSudoHandler(a.editPebble)).Methods("PUT")
