@@ -290,6 +290,21 @@ func (a *API) getCatalogBasicByIds(requestCTX *handler.RequestContext, w http.Re
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+func (a *API) getSimilarProducts(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetSimilarProducts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Println(s.Query)
+	resp, err := a.App.Elasticsearch.GetSimilarProducts(s.Query)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
 func (a *API) getCatalogInfoById(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["catalogID"])
 	if err != nil {
