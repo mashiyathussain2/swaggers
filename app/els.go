@@ -19,6 +19,7 @@ import (
 type Elasticsearch interface {
 	GetActiveCollections(*schema.GetActiveCollectionsOpts) ([]schema.GetCollectionESResp, error)
 	GetCatalogByIDs([]string) ([]schema.GetCatalogBasicResp, error)
+	GetSimilarProducts(string) ([]schema.GetCatalogBasicResp, error)
 	GetCatalogInfoByID(string) (*schema.GetCatalogInfoResp, error)
 	GetCatalogInfoByCategoryID(*schema.GetCatalogByCategoryIDOpts) (*schema.GetCatalogByCategoryIDResp, error)
 
@@ -130,6 +131,30 @@ func (ei *ElasticsearchImpl) GetCatalogByIDs(ids []string) ([]schema.GetCatalogB
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get active collections")
 		return nil, errors.Wrap(err, "failed to get active collections")
+	}
+
+	var resp []schema.GetCatalogBasicResp
+	for _, hit := range res.Hits.Hits {
+		// Deserialize hit.Source into a GetPebbleESResp
+		var s schema.GetCatalogBasicResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		resp = append(resp, s)
+	}
+	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) GetSimilarProducts(q string) ([]schema.GetCatalogBasicResp, error) {
+	similarQuery := elastic.NewMoreLikeThisQuery().Field([]string{"name.name", "description"}...).LikeItems(elastic.NewMoreLikeThisQueryItem().Id(q).Index(ei.Config.CatalogFullIndex)).MinTermFreq(1).MaxQueryTerms(12)
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	mustNot := elastic.NewMatchQuery("id", q)
+	query := elastic.NewBoolQuery().Must(similarQuery).Filter(filterQuery).MustNot(mustNot)
+	res, err := ei.Client.Search().Index(ei.Config.CatalogFullIndex).Query(query).Size(7).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get similar products")
+		return nil, errors.Wrap(err, "failed to get similar products")
 	}
 
 	var resp []schema.GetCatalogBasicResp

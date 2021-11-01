@@ -479,6 +479,10 @@ type GetCatalogByIDFilter struct {
 	IDs []string `qs:"id" json:"id"`
 }
 
+type GetSimilarProducts struct {
+	Query string `qs:"query" json:"query"`
+}
+
 type GetPebbleCatalogInfoByIDs struct {
 	IDs []primitive.ObjectID `json:"id" validate:"required,min=1"`
 }

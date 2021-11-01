@@ -91,6 +91,7 @@ func (a *API) InitRoutes() {
 	//APP COLLECTION
 	a.Router.APIRoot.Handle("/app/collections", a.requestHandler(a.getActiveCollections)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/basic", a.requestHandler(a.getCatalogBasicByIds)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/catalog/similar", a.requestHandler(a.getSimilarProducts)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/{catalogID}", a.requestHandler(a.getCatalogInfoById)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/catalog/category/{categoryID}", a.requestHandler(a.getCatalogByCategoryID)).Methods("GET")
 	a.Router.APIRoot.Handle("/v2/app/catalog/basic", a.requestHandler(a.getCollectionCatalogByIDs)).Methods("GET")
