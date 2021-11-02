@@ -17,7 +17,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
@@ -194,15 +193,28 @@ func (ui *UserImpl) sendConfirmationEmail(u *model.User) error {
 	return nil
 }
 
+// func (ui *UserImpl) sendConfirmationOTP(u *model.User) error {
+// 	// Sending OTP to phone number via SNS
+// 	params := &sns.PublishInput{
+// 		Message:     aws.String(fmt.Sprintf("OTP for login: %s", u.PhoneVerificationCode)),
+// 		PhoneNumber: aws.String(fmt.Sprintf("%s%s", u.PhoneNo.Prefix, u.PhoneNo.Number)),
+// 	}
+// 	if _, err := ui.App.SNS.Publish(params); err != nil {
+// 		ui.Logger.Err(err).Interface("phone  no", u.PhoneNo.Number).Msg("failed to send otp")
+// 		return errors.Wrap(err, "failed to send otp")
+// 	}
+// 	return nil
+// }
+
 func (ui *UserImpl) sendConfirmationOTP(u *model.User) error {
 	// Sending OTP to phone number via SNS
-	params := &sns.PublishInput{
-		Message:     aws.String(fmt.Sprintf("OTP for login: %s", u.PhoneVerificationCode)),
-		PhoneNumber: aws.String(fmt.Sprintf("%s%s", u.PhoneNo.Prefix, u.PhoneNo.Number)),
+	params := schema.SendOTPOpts{
+		PhoneNo: *u.PhoneNo,
+		OTP:     u.PhoneVerificationCode,
 	}
-	if _, err := ui.App.SNS.Publish(params); err != nil {
-		ui.Logger.Err(err).Interface("phone  no", u.PhoneNo.Number).Msg("failed to send otp")
-		return errors.Wrap(err, "failed to send otp")
+	err := ui.App.Kaleyra.SendOTP(&params)
+	if err != nil {
+		return errors.Wrapf(err, "failed to send otp")
 	}
 	return nil
 }
@@ -624,11 +636,18 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 	}
 
 	// Sending OTP to phone number via SNS
-	params := &sns.PublishInput{
-		Message:     aws.String(fmt.Sprintf("OTP for login: %s", otp)),
-		PhoneNumber: aws.String(fmt.Sprintf("%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)),
-	}
-	_, err = ui.App.SNS.Publish(params)
+	// params := &sns.PublishInput{
+	// 	Message:     aws.String(fmt.Sprintf("OTP for login: %s", otp)),
+	// 	PhoneNumber: aws.String(fmt.Sprintf("%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)),
+	// }
+	err = ui.App.Kaleyra.SendOTP(&schema.SendOTPOpts{
+		PhoneNo: model.PhoneNumber{
+			Prefix: opts.PhoneNo.Prefix,
+			Number: opts.PhoneNo.Number,
+		},
+		OTP: otp,
+	})
+	// _, err = ui.App.SNS.Publish(params)
 	if err != nil {
 		ui.Logger.Err(err).Interface("opts", opts).Msg("failed to send otp")
 		return false, errors.Wrap(err, "failed to send otp")

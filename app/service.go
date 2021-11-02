@@ -51,4 +51,9 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.SizeProfileConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.Kaleyra = InitKaleyra(&KaleyraImplOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.SizeProfileConfig.DBName),
+		Logger: a.Logger,
+	})
 }
