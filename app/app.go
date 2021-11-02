@@ -35,6 +35,7 @@ type App struct {
 	ExpressCheckout ExpressCheckout
 	Wishlist        Wishlist
 	SizeProfile     SizeProfile
+	Kaleyra         Kaleyra
 
 	// Consumer
 	CustomerChanges   kafka.Consumer

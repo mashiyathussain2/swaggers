@@ -26,6 +26,8 @@ type Config struct {
 	GoogleOAuth         GoogleOAuth         `mapstructure:"googleOAuth"`
 	SessionConfig       SessionConfig       `mapstructure:"session"`
 	SentryConfig        SentryConfig        `mapstructure:"sentry"`
+	KaleyraConfig       KaleyraConfig       `mapstructure:"kaleyra"`
+	MSGPlatformConfig   MSGPlatformConfig   `mapstructure:"message_platform"`
 }
 
 // ServerConfig has only server specific configuration
@@ -81,13 +83,16 @@ type CookieConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig        DatabaseConfig
-	TokenAuthConfig       TokenAuthConfig
-	SNSConfig             SNSConfig
-	SESConfig             SESConfig
-	HypdApiConfig         HypdApiConfig
-	ElasticsearchConfig   ElasticsearchConfig
-	GoogleOAuth           GoogleOAuth
+	DatabaseConfig      DatabaseConfig
+	TokenAuthConfig     TokenAuthConfig
+	SNSConfig           SNSConfig
+	SESConfig           SESConfig
+	HypdApiConfig       HypdApiConfig
+	ElasticsearchConfig ElasticsearchConfig
+	GoogleOAuth         GoogleOAuth
+	Kaleyra             KaleyraConfig
+	MSGPlatform         MSGPlatformConfig
+
 	UserConfig            ServiceConfig `mapstructure:"user"`
 	CustomerConfig        ServiceConfig `mapstructure:"customer"`
 	BrandConfig           ServiceConfig `mapstructure:"brand"`
@@ -223,6 +228,19 @@ type SNSConfig struct {
 	SecretAccessKey string `mapstructure:"secretAccessKey"`
 }
 
+// KaleyraConfig contains aws kaleyra service related configuration
+type KaleyraConfig struct {
+	Name       string `mapstructure:"name"`
+	APIKey     string `mapstructure:"apiKey"`
+	SID        string `mapstructure:"sid"`
+	TemplateID string `mapstructure:"templateID"`
+}
+
+// MSGPlatformConfig contains aws Message service related configuration
+type MSGPlatformConfig struct {
+	Name string `mapstructure:"name"`
+}
+
 // SESConfig contains aws ses service related configuration
 type SESConfig struct {
 	Region          string `mapstructure:"region"`
@@ -311,5 +329,8 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.ElasticsearchConfig = config.ElasticsearchConfig
 	config.APPConfig.GoogleOAuth = config.GoogleOAuth
 	config.SessionConfig.RedisConfig = config.RedisConfig
+	config.APPConfig.Kaleyra = config.KaleyraConfig
+	config.APPConfig.MSGPlatform = config.MSGPlatformConfig
+
 	return config
 }
