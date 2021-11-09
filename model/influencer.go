@@ -20,6 +20,7 @@ const (
 type Influencer struct {
 	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
+	Username       string               `json:"username,omitempty" bson:"username,omitempty"`
 	CoverImg       *IMG                 `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
 	ProfileImage   *IMG                 `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	SocialAccount  *SocialAccount       `json:"social_account,omitempty" bson:"social_account,omitempty"`
@@ -39,6 +40,7 @@ type InfluencerAccountRequest struct {
 	CustomerID primitive.ObjectID `json:"customer_id,omitempty" bson:"customer_id,omitempty"`
 	// InfluencerID  primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
 	Name          string         `json:"name,omitempty" bson:"name,omitempty"`
+	Username      string         `json:"username,omitempty" bson:"username,omitempty"`
 	ProfileImage  *IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	CoverImage    *IMG           `json:"cover_image,omitempty" bson:"cover_image,omitempty"`
 	Bio           string         `json:"bio,omitempty" bson:"bio,omitempty"`

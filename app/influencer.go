@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"regexp"
 	"time"
 
 	"github.com/pkg/errors"
@@ -31,6 +32,8 @@ type Influencer interface {
 	GetInfluencerAccountRequestStatus(id primitive.ObjectID) (string, error)
 	GetInfluencerAccountRequest() ([]schema.InfluencerAccountRequestResp, error)
 	UpdateInfluencerAccountRequestStatus(opts *schema.UpdateInfluencerAccountRequestStatusOpts) error
+	CheckInfluencerUsernameExists(string, *mongo.SessionContext) error
+	EditInfluencerApp(*schema.EditInfluencerAppOpts) (*schema.EditInfluencerResp, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -62,49 +65,106 @@ func InitInfluencer(opts *InfluencerImplOpts) Influencer {
 // Note: for now only creating influencer is supported. Code to link influencer profile to user
 // needs to be implemented separately
 func (ii *InfluencerImpl) CreateInfluencer(opts *schema.CreateInfluencerOpts) (*schema.CreateInfluencerResp, error) {
-	i := model.Influencer{
-		Name: opts.Name,
-		Bio:  opts.Bio,
-		CoverImg: &model.IMG{
-			SRC: opts.CoverImg.SRC,
-		},
-		ProfileImage: &model.IMG{
-			SRC: opts.ProfileImage.SRC,
-		},
-		ExternalLinks: opts.ExternalLinks,
-		CreatedAt:     time.Now().UTC(),
-	}
-	if err := i.CoverImg.LoadFromURL(); err != nil {
-		return nil, errors.Wrap(err, "invalid image for influencer cover")
-	}
-	if err := i.ProfileImage.LoadFromURL(); err != nil {
-		return nil, errors.Wrap(err, "invalid image for profile image")
-	}
-	if opts.SocialAccount != nil {
-		i.SocialAccount = &model.SocialAccount{}
-		if opts.SocialAccount.Facebook != nil {
-			i.SocialAccount.Facebook = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount)}
-		}
-		if opts.SocialAccount.Instagram != nil {
-			i.SocialAccount.Instagram = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount)}
-		}
-		if opts.SocialAccount.Youtube != nil {
-			i.SocialAccount.Youtube = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount)}
-		}
-		if opts.SocialAccount.Twitter != nil {
-			i.SocialAccount.Twitter = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount)}
-		}
-	}
 
-	res, err := ii.DB.Collection(model.InfluencerColl).InsertOne(context.TODO(), i)
+	ctx := context.TODO()
+	session, err := ii.DB.Client().StartSession()
 	if err != nil {
-		ii.Logger.Err(err).Interface("opts", opts).Msg("failed to insert influencer")
-		return nil, errors.Wrap(err, "failed to create influencer")
+		ii.Logger.Err(err).Msg("unable to create db session")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		ii.Logger.Err(err).Msg("unable to start transaction")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	var i model.Influencer
+	var res *mongo.InsertOneResult
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+		i = model.Influencer{
+			Name: opts.Name,
+			Bio:  opts.Bio,
+			CoverImg: &model.IMG{
+				SRC: opts.CoverImg.SRC,
+			},
+			ProfileImage: &model.IMG{
+				SRC: opts.ProfileImage.SRC,
+			},
+			ExternalLinks: opts.ExternalLinks,
+			CreatedAt:     time.Now().UTC(),
+		}
+		//TODO: check if username is unique
+		// isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
+		// if !isAlpha(opts.Username) {
+		// 	session.AbortTransaction(sc)
+		// 	return errors.Errorf("%s is not valid", opts.Username)
+		// }
+		// filter := bson.M{
+		// 	"username": opts.Username,
+		// }
+		// var influencer *model.Influencer
+		// err := ii.DB.Collection(model.InfluencerColl).FindOne(sc, filter).Decode(&influencer)
+		// if err != nil {
+		// 	if err == mongo.ErrNilDocument || err == mongo.ErrNilValue {
+		// 		i.Username = opts.Username
+		// 	} else {
+		// 		session.AbortTransaction(sc)
+		// 		return errors.Wrapf(err, "error checking if username exists or not")
+		// 	}
+		// }
+		// if influencer.Username == opts.Username {
+		// 	session.AbortTransaction(sc)
+		// 	return errors.Errorf("username: %s already exist", opts.Username)
+		// }
+		err = ii.CheckInfluencerUsernameExists(opts.Username, &sc)
+		if err != nil {
+			return err
+		}
+		i.Username = opts.Username
+
+		if err := i.CoverImg.LoadFromURL(); err != nil {
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "invalid image for influencer cover")
+		}
+		if err := i.ProfileImage.LoadFromURL(); err != nil {
+			session.AbortTransaction(sc)
+			return errors.Wrap(err, "invalid image for profile image")
+		}
+		if opts.SocialAccount != nil {
+			i.SocialAccount = &model.SocialAccount{}
+			if opts.SocialAccount.Facebook != nil {
+				i.SocialAccount.Facebook = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount)}
+			}
+			if opts.SocialAccount.Instagram != nil {
+				i.SocialAccount.Instagram = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount)}
+			}
+			if opts.SocialAccount.Youtube != nil {
+				i.SocialAccount.Youtube = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount)}
+			}
+			if opts.SocialAccount.Twitter != nil {
+				i.SocialAccount.Twitter = &model.SocialMedia{FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount)}
+			}
+		}
+
+		res, err = ii.DB.Collection(model.InfluencerColl).InsertOne(sc, i)
+		if err != nil {
+			session.AbortTransaction(sc)
+			ii.Logger.Err(err).Interface("opts", opts).Msg("failed to insert influencer")
+			return errors.Wrap(err, "failed to create influencer")
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			ii.Logger.Err(err).Interface("opts", opts).Msgf("failed to commit transaction")
+			return errors.Wrap(err, "failed to create influencer")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	return &schema.CreateInfluencerResp{
 		ID:            res.InsertedID.(primitive.ObjectID),
 		Name:          i.Name,
+		Username:      i.Username,
 		Bio:           i.Bio,
 		ExternalLinks: i.ExternalLinks,
 		CoverImg:      i.CoverImg,
@@ -116,70 +176,97 @@ func (ii *InfluencerImpl) CreateInfluencer(opts *schema.CreateInfluencerOpts) (*
 
 // EditInfluencer updates existing influencer details
 func (ii *InfluencerImpl) EditInfluencer(opts *schema.EditInfluencerOpts) (*schema.EditInfluencerResp, error) {
-	var update bson.D
 
-	if opts.Name != "" {
-		update = append(update, bson.E{Key: "name", Value: opts.Name})
-	}
-
-	if opts.CoverImg != nil {
-		img := model.IMG{SRC: opts.CoverImg.SRC}
-		if err := img.LoadFromURL(); err != nil {
-			return nil, errors.Wrap(err, "invalid image for brand cover")
-		}
-		update = append(update, bson.E{Key: "cover_img", Value: img})
-	}
-
-	if opts.ProfileImage != nil {
-		img := model.IMG{SRC: opts.ProfileImage.SRC}
-		if err := img.LoadFromURL(); err != nil {
-			return nil, errors.Wrap(err, "invalid image for profile image")
-		}
-		update = append(update, bson.E{Key: "profile_image", Value: img})
-	}
-	if opts.Bio != "" {
-		update = append(update, bson.E{Key: "bio", Value: opts.Bio})
-	}
-	if len(opts.ExternalLinks) > 0 {
-		update = append(update, bson.E{Key: "external_links", Value: opts.ExternalLinks})
-	}
-
-	if opts.SocialAccount != nil {
-		if opts.SocialAccount.Facebook != nil {
-			update = append(update, bson.E{Key: "social_account.facebook.followers_count", Value: opts.SocialAccount.Facebook.FollowersCount})
-		}
-		if opts.SocialAccount.Instagram != nil {
-			update = append(update, bson.E{Key: "social_account.instagram.followers_count", Value: opts.SocialAccount.Instagram.FollowersCount})
-		}
-		if opts.SocialAccount.Youtube != nil {
-			update = append(update, bson.E{Key: "social_account.youtube.followers_count", Value: opts.SocialAccount.Youtube.FollowersCount})
-		}
-		if opts.SocialAccount.Twitter != nil {
-			update = append(update, bson.E{Key: "social_account.twitter.followers_count", Value: opts.SocialAccount.Twitter.FollowersCount})
-		}
-	}
-
-	if update == nil {
-		return nil, errors.New("no fields found to update")
-	}
-
-	update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
-
-	filterQuery := bson.M{"_id": opts.ID}
-	updateQuery := bson.M{"$set": update}
-
+	ctx := context.TODO()
 	var influencer model.Influencer
-	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	if err := ii.DB.Collection(model.InfluencerColl).FindOneAndUpdate(context.TODO(), filterQuery, updateQuery, queryOpts).Decode(&influencer); err != nil {
-		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
-			return nil, errors.Wrapf(err, "influencer with id:%s not found", opts.ID.Hex())
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		ii.Logger.Err(err).Msg("unable to create db session")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		ii.Logger.Err(err).Msg("unable to start transaction")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		var update bson.D
+
+		if opts.Name != "" {
+			update = append(update, bson.E{Key: "name", Value: opts.Name})
 		}
-		return nil, errors.Wrapf(err, "failed to update influencer with id:%s", opts.ID.Hex())
+		if opts.Username != "" {
+			err := ii.CheckInfluencerUsernameExists(opts.Username, &sc)
+			if err != nil {
+				return err
+			}
+			update = append(update, bson.E{Key: "username", Value: opts.Username})
+		}
+
+		if opts.CoverImg != nil {
+			img := model.IMG{SRC: opts.CoverImg.SRC}
+			if err := img.LoadFromURL(); err != nil {
+				return errors.Wrap(err, "invalid image for brand cover")
+			}
+			update = append(update, bson.E{Key: "cover_img", Value: img})
+		}
+
+		if opts.ProfileImage != nil {
+			img := model.IMG{SRC: opts.ProfileImage.SRC}
+			if err := img.LoadFromURL(); err != nil {
+				return errors.Wrap(err, "invalid image for profile image")
+			}
+			update = append(update, bson.E{Key: "profile_image", Value: img})
+		}
+		if opts.Bio != "" {
+			update = append(update, bson.E{Key: "bio", Value: opts.Bio})
+		}
+		if len(opts.ExternalLinks) > 0 {
+			update = append(update, bson.E{Key: "external_links", Value: opts.ExternalLinks})
+		}
+
+		if opts.SocialAccount != nil {
+			if opts.SocialAccount.Facebook != nil {
+				update = append(update, bson.E{Key: "social_account.facebook.followers_count", Value: opts.SocialAccount.Facebook.FollowersCount})
+			}
+			if opts.SocialAccount.Instagram != nil {
+				update = append(update, bson.E{Key: "social_account.instagram.followers_count", Value: opts.SocialAccount.Instagram.FollowersCount})
+			}
+			if opts.SocialAccount.Youtube != nil {
+				update = append(update, bson.E{Key: "social_account.youtube.followers_count", Value: opts.SocialAccount.Youtube.FollowersCount})
+			}
+			if opts.SocialAccount.Twitter != nil {
+				update = append(update, bson.E{Key: "social_account.twitter.followers_count", Value: opts.SocialAccount.Twitter.FollowersCount})
+			}
+		}
+
+		if update == nil {
+			return errors.New("no fields found to update")
+		}
+
+		update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
+
+		filterQuery := bson.M{"_id": opts.ID}
+		updateQuery := bson.M{"$set": update}
+
+		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+		if err := ii.DB.Collection(model.InfluencerColl).FindOneAndUpdate(context.TODO(), filterQuery, updateQuery, queryOpts).Decode(&influencer); err != nil {
+			if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+				return errors.Wrapf(err, "influencer with id:%s not found", opts.ID.Hex())
+			}
+			return errors.Wrapf(err, "failed to update influencer with id:%s", opts.ID.Hex())
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
 	resp := schema.EditInfluencerResp{
 		ID:            influencer.ID,
 		Name:          influencer.Name,
+		Username:      influencer.Username,
 		ExternalLinks: influencer.ExternalLinks,
 		CoverImg:      influencer.CoverImg,
 		ProfileImage:  influencer.ProfileImage,
@@ -429,12 +516,16 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 		}
 		return errors.Errorf("account upgrade request is already in active status")
 	}
-
+	err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
+	if err != nil {
+		return err
+	}
 	r := model.InfluencerAccountRequest{
 		UserID:     opts.UserID,
 		CustomerID: opts.CustomerID,
 		// InfluencerID: opts.InfluencerID,
-		Name: opts.FullName,
+		Name:     opts.FullName,
+		Username: opts.Username,
 		ProfileImage: &model.IMG{
 			SRC: opts.ProfileImage.SRC,
 		},
@@ -741,6 +832,7 @@ func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAcco
 func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, opts *model.InfluencerAccountRequest) (*schema.CreateInfluencerResp, error) {
 	i := model.Influencer{
 		Name:          opts.Name,
+		Username:      opts.Username,
 		Bio:           opts.Bio,
 		CoverImg:      opts.CoverImage,
 		ProfileImage:  opts.ProfileImage,
@@ -748,7 +840,10 @@ func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, o
 		SocialAccount: opts.SocialAccount,
 		CreatedAt:     time.Now().UTC(),
 	}
-
+	err := ii.CheckInfluencerUsernameExists(opts.Username, &sc)
+	if err != nil {
+		return nil, err
+	}
 	res, err := ii.DB.Collection(model.InfluencerColl).InsertOne(sc, i)
 	if err != nil {
 		ii.Logger.Err(err).Interface("opts", opts).Msg("failed to insert influencer")
@@ -765,4 +860,90 @@ func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, o
 		SocialAccount: i.SocialAccount,
 		CreatedAt:     i.CreatedAt,
 	}, nil
+}
+
+func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mongo.SessionContext) error {
+	// ctx := context.TODO()
+
+	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
+	if !isAlpha(username) {
+		errors.Errorf("%s is not valid", username)
+	}
+	filter := bson.M{
+		"username": username,
+	}
+	var influencer *model.Influencer
+	var err error
+	if sc != nil {
+		err = ii.DB.Collection(model.InfluencerColl).FindOne(*sc, filter).Decode(&influencer)
+	} else {
+		err = ii.DB.Collection(model.InfluencerColl).FindOne(context.TODO(), filter).Decode(&influencer)
+	}
+	if err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNilValue || err == mongo.ErrNoDocuments {
+			return nil
+		}
+		return errors.Wrapf(err, "error checking if username exists or not")
+	}
+	return errors.Errorf("username: %s already exist", username)
+}
+
+// EditInfluencerApp updates existing influencer details
+func (ii *InfluencerImpl) EditInfluencerApp(opts *schema.EditInfluencerAppOpts) (*schema.EditInfluencerResp, error) {
+	ctx := context.TODO()
+	var influencer model.Influencer
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		ii.Logger.Err(err).Msg("unable to create db session")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	defer session.EndSession(ctx)
+
+	if err := session.StartTransaction(); err != nil {
+		ii.Logger.Err(err).Msg("unable to start transaction")
+		return nil, errors.Wrap(err, "failed to add follower")
+	}
+	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+
+		var update bson.D
+		if opts.Username != "" {
+			err := ii.CheckInfluencerUsernameExists(opts.Username, &sc)
+			if err != nil {
+				return err
+			}
+			update = append(update, bson.E{Key: "username", Value: opts.Username})
+		}
+		if update == nil {
+			return errors.New("no fields found to update")
+		}
+		update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
+
+		filterQuery := bson.M{"_id": opts.ID}
+		updateQuery := bson.M{"$set": update}
+
+		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+		if err := ii.DB.Collection(model.InfluencerColl).FindOneAndUpdate(context.TODO(), filterQuery, updateQuery, queryOpts).Decode(&influencer); err != nil {
+			if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+				return errors.Wrapf(err, "influencer with id:%s not found", opts.ID.Hex())
+			}
+			return errors.Wrapf(err, "failed to update influencer with id:%s", opts.ID.Hex())
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	resp := schema.EditInfluencerResp{
+		ID:            influencer.ID,
+		Name:          influencer.Name,
+		Username:      influencer.Username,
+		ExternalLinks: influencer.ExternalLinks,
+		CoverImg:      influencer.CoverImg,
+		ProfileImage:  influencer.ProfileImage,
+		SocialAccount: influencer.SocialAccount,
+		Bio:           influencer.Bio,
+		CreatedAt:     influencer.CreatedAt,
+		UpdatedAt:     influencer.UpdatedAt,
+	}
+	return &resp, nil
 }
