@@ -94,6 +94,11 @@ func UniqueSlug(s string) string {
 	return slugify.Slugify(fmt.Sprintf("%s-%s", strings.ToLower(s), uuid.NewV1().String()[:4]))
 }
 
+// GenerateUsernameBrand converts a string into unique lowercase slug string for brand username
+func GenerateUsernameBrand(s string) string {
+	return strings.ReplaceAll(slugify.Slugify(s), "-", "_")
+}
+
 // FileTypeFromFileName returns file-type from filename
 func FileTypeFromFileName(s string) (string, error) {
 	i := strings.Split(s, ".")
