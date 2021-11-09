@@ -81,9 +81,14 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/brand/basic", a.requestHandler(a.getBrandsBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestHandler(a.getBrandInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/brand/username/basic", a.requestHandler(a.getBrandsBasicByUsername)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/brand/username/{username}", a.requestHandler(a.getBrandInfoByUsername)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/username/basic", a.requestHandler(a.getInfluencersBasicByUsername)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/username/{username}", a.requestHandler(a.getInfluencerInfoByUsername)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer", a.requestWithAuthHandler(a.editInfluencerApp)).Methods("PUT")
 
 	//Express Checkout
 	a.Router.APIRoot.Handle("/app/express-checkout", a.requestWithAuthHandler(a.expressCheckout)).Methods("POST")
@@ -105,6 +110,9 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequest)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/user/influencer-request/status", a.requestWithAuthHandler(a.checkClaimInfluencerRequestStatus)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/brand/check/username", a.requestHandler(a.checkBrandUsernameExists)).Methods("GET")
+	a.Router.APIRoot.Handle("/influencer/check/username", a.requestHandler(a.checkInfluencerUsernameExists)).Methods("GET")
 
 }
 

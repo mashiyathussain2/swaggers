@@ -10,6 +10,7 @@ import (
 type GetBrandBasicESEesp struct {
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
+	Username         string             `json:"username,omitempty"`
 	Logo             *model.IMG         `json:"logo,omitempty"`
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
@@ -17,6 +18,7 @@ type GetBrandInfoEsResp struct {
 	ID               primitive.ObjectID   `json:"id,omitempty"`
 	Name             string               `json:"name,omitempty"`
 	LName            string               `json:"lname,omitempty"`
+	Username         string               `json:"username,omitempty"`
 	Website          string               `json:"website,omitempty"`
 	Logo             *model.IMG           `json:"logo,omitempty"`
 	FollowersCount   uint                 `json:"followers_count,omitempty"`
@@ -38,15 +40,27 @@ type GetBrandsInfoByIDOpts struct {
 	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
+type GetBrandsByUsernameBasicOpts struct {
+	Usernames  []string `json:"usernames"`
+	CustomerID primitive.ObjectID
+}
+
+type GetBrandsInfoByUsernameOpts struct {
+	Username   string             `json:"username"`
+	CustomerID primitive.ObjectID `json:"user_id"`
+}
+
 type GetInfluencerBasicESEesp struct {
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
+	Username         string             `json:"username,omitempty"`
 	ProfileImage     *model.IMG         `json:"profile_image,omitempty"`
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
 type GetInfluencerInfoEsResp struct {
 	ID               primitive.ObjectID   `json:"id,omitempty"`
 	Name             string               `json:"name,omitempty"`
+	Username         string               `json:"username,omitempty"`
 	CoverImg         *model.IMG           `json:"cover_img,omitempty"`
 	ProfileImage     *model.IMG           `json:"profile_image,omitempty"`
 	SocialAccount    *model.SocialAccount `json:"social_account,omitempty"`
@@ -65,5 +79,15 @@ type GetInfluencersByIDBasicOpts struct {
 
 type GetInfluencerInfoByIDOpts struct {
 	ID         primitive.ObjectID `json:"id"`
+	CustomerID primitive.ObjectID
+}
+
+type GetInfluencersByUsernameBasicOpts struct {
+	Usernames  []string `json:"usernames"`
+	CustomerID primitive.ObjectID
+}
+
+type GetInfluencerInfoByUsernameOpts struct {
+	Username   string `json:"username"`
 	CustomerID primitive.ObjectID
 }

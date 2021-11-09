@@ -33,6 +33,7 @@ type SocialAccountBrandOpts struct {
 type CreateBrandOpts struct {
 	Name               string                  `json:"name" validate:"required"`
 	RegisteredName     string                  `json:"registered_name" validate:"required"`
+	Username           string                  `json:"username" validate:"required"`
 	FulfillmentEmail   string                  `json:"fulfillment_email" validate:"required"`
 	FulfillmentCCEmail []string                `json:"fulfillment_cc_email"`
 	Domain             string                  `json:"domain" validate:"required"`
@@ -48,6 +49,7 @@ type CreateBrandOpts struct {
 type CreateBrandResp struct {
 	ID                 primitive.ObjectID           `json:"id"`
 	Name               string                       `json:"name"`
+	Username           string                       `json:"username"`
 	RegisteredName     string                       `json:"registered_name"`
 	FulfillmentEmail   string                       `json:"fulfillment_email"`
 	FulfillmentCCEmail []string                     `json:"fulfillment_cc_email"`
@@ -65,6 +67,7 @@ type CreateBrandResp struct {
 type EditBrandOpts struct {
 	ID                 primitive.ObjectID      `json:"id" validate:"required"`
 	Name               string                  `json:"name"`
+	Username           string                  `json:"username"`
 	RegisteredName     string                  `json:"registered_name"`
 	FulfillmentEmail   string                  `json:"fulfillment_email"`
 	FulfillmentCCEmail []string                `json:"fulfillment_cc_email"`
@@ -81,6 +84,7 @@ type EditBrandOpts struct {
 type EditBrandResp struct {
 	ID                 primitive.ObjectID           `json:"id"`
 	Name               string                       `json:"name,omitempty"`
+	Username           string                       `json:"username,omitempty"`
 	RegisteredName     string                       `json:"registered_name,omitempty"`
 	FulfillmentEmail   string                       `json:"fulfillment_email,omitempty"`
 	FulfillmentCCEmail []string                     `json:"fulfillment_cc_email,omitempty"`
@@ -105,6 +109,7 @@ type GetBrandResp struct {
 	ID                 primitive.ObjectID           `json:"id" bson:"_id"`
 	Name               string                       `json:"name,omitempty" bson:"name,omitempty"`
 	LName              string                       `json:"lname,omitempty" bson:"lname,omitempty"`
+	Username           string                       `json:"username,omitempty" bson:"username,omitempty"`
 	RegisteredName     string                       `json:"registered_name,omitempty" bson:"registered_name,omitempty"`
 	FulfillmentEmail   string                       `json:"fulfillment_email,omitempty" bson:"fulfillment_email,omitempty"`
 	FulfillmentCCEmail []string                     `json:"fulfillment_cc_email,omitempty" bson:"fulfillment_cc_email,omitempty"`
@@ -130,6 +135,7 @@ type BrandKafkaMessage struct {
 	ID                 primitive.ObjectID   `json:"_id,omitempty"`
 	Name               string               `json:"name,omitempty"`
 	LName              string               `json:"lname,omitempty"`
+	Username           string               `json:"username,omitempty"`
 	RegisteredName     string               `json:"registered_name,omitempty"`
 	FulfillmentEmail   string               `json:"fulfillment_email,omitempty"`
 	FulfillmentCCEmail []string             `json:"fulfillment_cc_email,omitempty"`
@@ -151,6 +157,7 @@ type BrandFullKafkaMessageOpts struct {
 	ID                 primitive.ObjectID   `json:"id,omitempty"`
 	Name               string               `json:"name,omitempty"`
 	LName              string               `json:"lname,omitempty"`
+	Username           string               `json:"username,omitempty"`
 	RegisteredName     string               `json:"registered_name,omitempty"`
 	FulfillmentEmail   string               `json:"fulfillment_email,omitempty"`
 	FulfillmentCCEmail []string             `json:"fulfillment_cc_email,omitempty"`
