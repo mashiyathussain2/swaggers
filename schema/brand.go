@@ -33,7 +33,7 @@ type SocialAccountBrandOpts struct {
 type CreateBrandOpts struct {
 	Name               string                  `json:"name" validate:"required"`
 	RegisteredName     string                  `json:"registered_name" validate:"required"`
-	Username           string                  `json:"username" validate:"required"`
+	Username           string                  `json:"username"`
 	FulfillmentEmail   string                  `json:"fulfillment_email" validate:"required"`
 	FulfillmentCCEmail []string                `json:"fulfillment_cc_email"`
 	Domain             string                  `json:"domain" validate:"required"`

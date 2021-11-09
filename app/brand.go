@@ -104,13 +104,15 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 			CreatedAt: time.Now().UTC(),
 		}
 		//TODO: check if username is unique
-
-		err = bi.CheckBrandUsernameExists(opts.Username, &sc)
-		if err != nil {
-			return err
+		if opts.Username != "" {
+			err = bi.CheckBrandUsernameExists(opts.Username, &sc)
+			if err != nil {
+				return err
+			}
+			b.Username = opts.Username
+		} else {
+			b.Username = GenerateUsernameBrand(opts.Name)
 		}
-		b.Username = opts.Username
-
 		if err := b.Logo.LoadFromURL(); err != nil {
 			return errors.Wrap(err, "invalid image for brand logo")
 		}
