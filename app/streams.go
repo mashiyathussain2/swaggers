@@ -63,6 +63,7 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 		ID:                 brand.ID,
 		Name:               brand.Name,
 		LName:              brand.LName,
+		Username:           brand.Username,
 		Logo:               brand.Logo,
 		FulfillmentEmail:   brand.FulfillmentEmail,
 		FulfillmentCCEmail: brand.FulfillmentCCEmail,
@@ -141,6 +142,7 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	influencerFullOpts := schema.InfluencerFullKafkaMessageOpts{
 		ID:             influencer.ID,
 		Name:           influencer.Name,
+		Username:       influencer.Username,
 		CoverImg:       influencer.CoverImg,
 		ProfileImage:   influencer.ProfileImage,
 		SocialAccount:  influencer.SocialAccount,

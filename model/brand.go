@@ -15,6 +15,7 @@ type Brand struct {
 	ID                 primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name               string               `json:"name,omitempty" bson:"name,omitempty"`
 	LName              string               `json:"lname,omitempty" bson:"lname,omitempty"`
+	Username           string               `json:"username,omitempty" bson:"username,omitempty"`
 	RegisteredName     string               `json:"registered_name,omitempty" bson:"registered_name,omitempty"`
 	FulfillmentEmail   string               `json:"fulfillment_email,omitempty" bson:"fulfillment_email,omitempty"`
 	FulfillmentCCEmail []string             `json:"fulfillment_cc_email,omitempty" bson:"fulfillment_cc_email,omitempty"`

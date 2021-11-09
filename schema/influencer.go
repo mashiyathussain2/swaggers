@@ -10,6 +10,7 @@ import (
 // EditInfluencerOptsOpts create fields and validations required to create an new instance of influencer
 type CreateInfluencerOpts struct {
 	Name          string             `json:"name" validate:"required"`
+	Username      string             `json:"username" validate:"required"`
 	Bio           string             `json:"bio"`
 	CoverImg      *Img               `json:"cover_img" validate:"required"`
 	ProfileImage  *Img               `json:"profile_image" validate:"required"`
@@ -21,6 +22,7 @@ type CreateInfluencerOpts struct {
 type CreateInfluencerResp struct {
 	ID            primitive.ObjectID   `json:"id"`
 	Name          string               `json:"name"`
+	Username      string               `json:"username"`
 	Bio           string               `json:"bio"`
 	CoverImg      *model.IMG           `json:"cover_img"`
 	ProfileImage  *model.IMG           `json:"profile_image"`
@@ -33,6 +35,7 @@ type CreateInfluencerResp struct {
 type EditInfluencerOpts struct {
 	ID            primitive.ObjectID `json:"id" validate:"required"`
 	Name          string             `json:"name"`
+	Username      string             `json:"username"`
 	Bio           string             `json:"bio"`
 	CoverImg      *Img               `json:"cover_img"`
 	ProfileImage  *Img               `json:"profile_image"`
@@ -44,6 +47,7 @@ type EditInfluencerOpts struct {
 type EditInfluencerResp struct {
 	ID            primitive.ObjectID   `json:"id"`
 	Name          string               `json:"name"`
+	Username      string               `json:"username"`
 	Bio           string               `json:"bio"`
 	CoverImg      *model.IMG           `json:"cover_img"`
 	ProfileImage  *model.IMG           `json:"profile_image"`
@@ -66,6 +70,7 @@ type GetInfluencersByNameOpts struct {
 type GetInfluencerResp struct {
 	ID             primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
+	Username       string               `json:"username,omitempty" bson:"username,omitempty"`
 	CoverImg       *model.IMG           `json:"cover_img,omitempty" bson:"cover_img,omitempty"`
 	ProfileImage   *model.IMG           `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 	SocialAccount  *model.SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
@@ -85,6 +90,7 @@ type AddInfluencerFollowerOpts struct {
 type InfluencerKafkaMessage struct {
 	ID             primitive.ObjectID   `json:"_id,omitempty"`
 	Name           string               `json:"name,omitempty"`
+	Username       string               `json:"username,omitempty"`
 	CoverImg       *model.IMG           `json:"cover_img,omitempty"`
 	ProfileImage   *model.IMG           `json:"profile_image,omitempty"`
 	SocialAccount  *model.SocialAccount `json:"social_account,omitempty"`
@@ -100,6 +106,7 @@ type InfluencerKafkaMessage struct {
 type InfluencerFullKafkaMessageOpts struct {
 	ID             primitive.ObjectID   `json:"id,omitempty"`
 	Name           string               `json:"name,omitempty"`
+	Username       string               `json:"username,omitempty"`
 	CoverImg       *model.IMG           `json:"cover_img,omitempty"`
 	ProfileImage   *model.IMG           `json:"profile_image,omitempty"`
 	SocialAccount  *model.SocialAccount `json:"social_account,omitempty"`
@@ -124,6 +131,7 @@ type InfluencerAccountRequestOpts struct {
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 	// InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
 	FullName      string             `json:"full_name" validate:"required"`
+	Username      string             `json:"username,omitempty" validate:"required"`
 	ProfileImage  Img                `json:"profile_image" validate:"required"`
 	CoverImage    Img                `json:"cover_image" validate:"required"`
 	Bio           string             `json:"bio" validate:"required"`
@@ -172,4 +180,16 @@ type InfluencerAccountRequestResp struct {
 	CreatedAt     time.Time                             `json:"created_at" bson:"created_at"`
 	GrantedAt     time.Time                             `json:"granted_at" bson:"granted_at"`
 	Status        string                                `json:"status,omitempty" bson:"status,omitempty"`
+}
+
+// EditInfluencerAppOpts contains fields and validations required to edit existing influencer
+type EditInfluencerAppOpts struct {
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// Name          string             `json:"name"`
+	Username string `json:"username"`
+	// Bio           string             `json:"bio"`
+	// CoverImg      *Img               `json:"cover_img"`
+	// ProfileImage  *Img               `json:"profile_image"`
+	// ExternalLinks []string           `json:"external_links"`
+	// SocialAccount *SocialAccountOpts `json:"social_account"`
 }
