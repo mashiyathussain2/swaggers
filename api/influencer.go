@@ -187,3 +187,81 @@ func (a *API) updateClaimInfluencerRequestStatus(requestCTX *handler.RequestCont
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
+
+func (a *API) checkInfluencerUsernameExists(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	username := r.URL.Query().Get("username")
+	if username == "" {
+		requestCTX.SetErr(errors.Errorf("username cannot be empty nil"), http.StatusBadRequest)
+		return
+	}
+	err := a.App.Influencer.CheckInfluencerUsernameExists(username, nil)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetInfluencersByUsernameBasicOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetInfluencersByUserameBasic(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getInfluencerInfoByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
+	if username == "" {
+		requestCTX.SetErr(errors.Errorf("invalid influencer id:%s in url", mux.Vars(r)["influencerID"]), http.StatusBadRequest)
+		return
+	}
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetInfluencerInfoByUsername(&schema.GetInfluencerInfoByUsernameOpts{Username: username, CustomerID: userID})
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) editInfluencerApp(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.EditInfluencerAppOpts
+
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID {
+		requestCTX.SetErr(errors.New("not authorized"), http.StatusForbidden)
+		return
+	}
+
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Influencer.EditInfluencerApp(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}

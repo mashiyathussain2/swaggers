@@ -233,3 +233,56 @@ func (a *API) brandUserResetPassword(requestCTX *handler.RequestContext, w http.
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) checkBrandUsernameExists(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	username := r.URL.Query().Get("username")
+	if username == "" {
+		requestCTX.SetErr(errors.Errorf("username cannot be empty nil"), http.StatusBadRequest)
+		return
+	}
+	err := a.App.Brand.CheckBrandUsernameExists(username, nil)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}
+
+func (a *API) getBrandsBasicByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetBrandsByUsernameBasicOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetBrandsByUsernameBasic(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) getBrandInfoByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
+	if username == "" {
+		requestCTX.SetErr(errors.Errorf("invalid brand id:%s in url", mux.Vars(r)["username"]), http.StatusBadRequest)
+		return
+	}
+	var userID primitive.ObjectID
+	if requestCTX.UserClaim != nil {
+		userID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	res, err := a.App.Elasticsearch.GetBrandInfoByUsername(&schema.GetBrandsInfoByUsernameOpts{Username: username, CustomerID: userID})
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
