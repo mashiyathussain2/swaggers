@@ -182,6 +182,24 @@ func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.Re
 
 }
 
+func (a *API) getWebActiveCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetActiveCollectionsOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.Gender = requestCTX.UserClaim.(*auth.UserClaim).Gender
+	}
+	resp, err := a.App.Elasticsearch.GetActiveCollections(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+
+}
+
 func (a *API) updateCollectionStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.UpdateCollectionStatus
 	if err := a.DecodeJSONBody(r, &s); err != nil {
