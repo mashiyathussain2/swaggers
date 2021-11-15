@@ -368,6 +368,11 @@ func (a *API) getUserInfoByID(requestCTX *handler.RequestContext, w http.Respons
 }
 
 func (a *API) keeperLogin(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	// cookie, err := r.Cookie("session")
+	// if err != nil {
+	// 	requestCTX.SetErr(err, http.StatusBadRequest)
+	// 	return
+	// }
 	url := a.App.KeeperUser.Login()
 	requestCTX.SetRedirectResponse(url, http.StatusTemporaryRedirect)
 }
@@ -378,12 +383,12 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
 	token, err := a.TokenAuth.SignKeeperToken(claim)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
