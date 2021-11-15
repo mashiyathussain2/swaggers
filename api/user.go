@@ -378,13 +378,6 @@ func (a *API) keeperLogin(requestCTX *handler.RequestContext, w http.ResponseWri
 }
 
 func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	// sid, err := r.Cookie("session")
-	// if err != nil {
-	// 	requestCTX.SetErr(err, http.StatusBadRequest)
-	// 	return
-	// }
-	// fmt.Print(sid)
-
 	claim, err := a.App.KeeperUser.Callback(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -395,7 +388,22 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
+	sid, err := a.SessionAuth.CreateAndReturn(token, w)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Println(sid)
+	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	err = a.App.KeeperUser.AddNewSessionID(id, sid)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -21,6 +22,7 @@ import (
 type KeeperUser interface {
 	Login() string
 	Callback(state, code string) (auth.Claim, error)
+	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
 }
 
 type KeeperUserOpts struct {
@@ -191,4 +193,20 @@ func (ku *KeeperUserImpl) CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKe
 	}
 
 	return &resp, nil
+}
+
+func (ku *KeeperUserImpl) AddNewSessionID(userID primitive.ObjectID, sessionID string) error {
+	filter := bson.M{
+		"user_id": userID,
+	}
+	update := bson.M{
+		"$addToSet": bson.M{
+			"session_ids": sessionID,
+		},
+	}
+	_, err := ku.DB.Collection(model.KeeperUserColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrap(err, "failed to add session id")
+	}
+	return nil
 }

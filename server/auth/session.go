@@ -23,7 +23,7 @@ type SessionAuth interface {
 	Get(*http.Request) (*UserSession, error)
 	Update(http.ResponseWriter, *http.Request, *UserSession) error
 	Delete(*http.Request) error
-	SetSessionID(sid string, st string, w http.ResponseWriter) error
+	CreateAndReturn(st string, w http.ResponseWriter) (string, error)
 }
 
 // UserSession := user session representation
@@ -115,15 +115,15 @@ func (s *SessionAuthImpl) Create(st string, w http.ResponseWriter) error {
 }
 
 // SetSessionID
-func (s *SessionAuthImpl) SetSessionID(sid string, st string, w http.ResponseWriter) error {
-	// sessionID := s.NewSessionID()
-	err := s.set(sid, st)
+func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (string, error) {
+	sessionID := s.NewSessionID()
+	err := s.set(sessionID, st)
 	if err != nil {
-		return err
+		return "", err
 	}
 	cookie := &http.Cookie{
 		Name:     s.Config.CookieConfig.Name,
-		Value:    sid,
+		Value:    sessionID,
 		Path:     s.Config.CookieConfig.Path,
 		HttpOnly: s.Config.CookieConfig.HttpOnly,
 		Domain:   s.Config.CookieConfig.Domain,
@@ -131,7 +131,7 @@ func (s *SessionAuthImpl) SetSessionID(sid string, st string, w http.ResponseWri
 		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, cookie)
-	return err
+	return sessionID, err
 }
 
 // Delete := implementing Delete session method
