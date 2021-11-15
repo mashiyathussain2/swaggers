@@ -378,6 +378,13 @@ func (a *API) keeperLogin(requestCTX *handler.RequestContext, w http.ResponseWri
 }
 
 func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	sid, err := r.Cookie("session")
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Print(sid)
+
 	claim, err := a.App.KeeperUser.Callback(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
