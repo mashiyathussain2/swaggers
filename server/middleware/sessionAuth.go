@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"go-app/server/auth"
 	"net/http"
 )
@@ -23,6 +24,7 @@ func (am *AuthenticationMiddleware) GetMiddlewareHandler() func(http.ResponseWri
 	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		if r.Header.Get("Authorization") == "" {
 			uc, _ := am.Session.Get(r)
+			fmt.Println(uc.ToJSON())
 			if uc != nil && uc.Token != "" {
 				r.Header.Set("Authorization", uc.Token)
 			}
