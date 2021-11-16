@@ -384,26 +384,35 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(1)
 	token, err := a.TokenAuth.SignKeeperToken(claim)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(1)
+
 	sid, err := a.SessionAuth.CreateAndReturn(token, w)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(1)
+
 	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(1)
+
 	err = a.App.KeeperUser.AddNewSessionID(id, sid)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(1)
+
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
