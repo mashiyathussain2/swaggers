@@ -24,6 +24,7 @@ type SessionAuth interface {
 	Update(http.ResponseWriter, *http.Request, *UserSession) error
 	Delete(*http.Request) error
 	CreateAndReturn(st string, w http.ResponseWriter) (string, error)
+	UpdateSession(key, val string) error
 }
 
 // UserSession := user session representation
@@ -147,4 +148,10 @@ func (s *SessionAuthImpl) Delete(r *http.Request) error {
 // NewSessionID := return unique session ID
 func (s *SessionAuthImpl) NewSessionID() string {
 	return uuid.NewV4().String()
+}
+
+//UpdateSession
+func (s *SessionAuthImpl) UpdateSession(key, val string) error {
+	_, err := s.Client.Do("SET", key, val)
+	return err
 }

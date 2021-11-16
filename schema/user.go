@@ -162,3 +162,8 @@ type UpdateUserPhoneNoOpts struct {
 	ID      primitive.ObjectID `json:"id" validate:"required"`
 	PhoneNo *PhoneNoOpts       `json:"phone_no" validate:"required"`
 }
+
+type SetRolesOpts struct {
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	Roles  []string           `json:"roles" validate:"required"`
+}

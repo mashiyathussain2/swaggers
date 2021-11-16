@@ -23,6 +23,8 @@ type KeeperUser interface {
 	Login() string
 	Callback(state, code string) (auth.Claim, error)
 	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
+	SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []string, error)
+	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, roles []string) auth.Claim
 }
 
 type KeeperUserOpts struct {
@@ -210,3 +212,63 @@ func (ku *KeeperUserImpl) AddNewSessionID(userID primitive.ObjectID, sessionID s
 	}
 	return nil
 }
+
+func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, roles []string) auth.Claim {
+	claim := auth.UserClaim{
+		ID:           keeperUser.UserID.Hex(),
+		KeeperUserID: keeperUser.ID.Hex(),
+		Type:         user.Type,
+		Role:         user.Role,
+		FullName:     keeperUser.FullName,
+		Email:        user.Email,
+		ProfileImage: keeperUser.ProfileImage,
+		CreatedVia:   user.CreatedVia,
+		KeeperRoles:  roles,
+		// EmailVerified: user.EmailVerified,
+	}
+
+	return &claim
+}
+
+func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []string, error) {
+	filter := bson.M{
+		"user_id": opts.UserID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"roles": opts.Roles,
+		},
+	}
+
+	var keeperUser *model.KeeperUser
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ku.DB.Collection(model.BrandColl).FindOneAndUpdate(context.TODO(), filter, update, queryOpts).Decode(&keeperUser); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, []string{}, errors.Wrapf(err, "user with id:%s not found", opts.UserID.Hex())
+		}
+		return nil, []string{}, errors.Wrapf(err, "failed to update user with id:%s", opts.UserID.Hex())
+	}
+
+	var user model.User
+	if err := ku.DB.Collection(model.UserColl).FindOne(context.TODO(), bson.M{"_id": keeperUser.UserID}).Decode(&user); err != nil {
+		return nil, []string{}, errors.Wrap(err, "failed to get user info")
+	}
+	//Get Session IDs Done
+
+	//Get New AuthToken
+	claim := ku.GetKeeperUserClaim(&user, keeperUser, opts.Roles)
+	// token := claim.GetJWTToken()
+	// token.Raw
+	// auth.SessionAuth.UpdateSession(keeperUser.SessionIDs, claim)
+	return &claim, keeperUser.SessionIDs, nil
+}
+
+// func (ku *KeeperUserImpl) UpdateRedisSession(token string, sessionIDs []string) error {
+// 	//Update Session ID with Auth Token
+// 	for _, sessionID := range sessionIDs {
+// 		if err := auth.SessionAuth.UpdateSession(sessionID, token); err != nil {
+// 			return errors.Wrap(err, "failed to update session id")
+// 		}
+// 	}
+// 	return nil
+// }

@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -393,7 +394,6 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(sid)
 	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -494,4 +494,33 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 	}
 	http.SetCookie(w, cookie)
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
+}
+
+func (a *API) setRoles(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SetRolesOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	claim, sIDs, err := a.App.KeeperUser.SetRoles(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	token, err := a.TokenAuth.SignToken(*claim)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, sessionID := range sIDs {
+		if err := a.SessionAuth.UpdateSession(sessionID, token); err != nil {
+			requestCTX.SetErr(errors.Wrap(err, "failed to update session id"), http.StatusBadRequest)
+			return
+		}
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
 }
