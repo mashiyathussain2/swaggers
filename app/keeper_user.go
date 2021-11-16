@@ -242,7 +242,7 @@ func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []st
 
 	var keeperUser *model.KeeperUser
 	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	if err := ku.DB.Collection(model.BrandColl).FindOneAndUpdate(context.TODO(), filter, update, queryOpts).Decode(&keeperUser); err != nil {
+	if err := ku.DB.Collection(model.UserColl).FindOneAndUpdate(context.TODO(), filter, update, queryOpts).Decode(&keeperUser); err != nil {
 		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
 			return nil, []string{}, errors.Wrapf(err, "user with id:%s not found", opts.UserID.Hex())
 		}
