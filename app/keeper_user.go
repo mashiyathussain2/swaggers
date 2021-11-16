@@ -100,6 +100,7 @@ func (ku *KeeperUserImpl) Callback(state, code string) (auth.Claim, error) {
 		KeeperUserID:  user.ID.Hex(),
 		Type:          user.UserInfo.Type,
 		Role:          user.UserInfo.Role,
+		KeeperRoles:   user.Roles,
 		FullName:      user.FullName,
 		Email:         user.UserInfo.Email,
 		ProfileImage:  user.ProfileImage,
@@ -191,6 +192,7 @@ func (ku *KeeperUserImpl) CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKe
 		UserInfo:     user,
 		FullName:     res.FullName,
 		ProfileImage: res.ProfileImage,
+		Roles:        res.Roles,
 		CreatedAt:    res.CreatedAt,
 	}
 

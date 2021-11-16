@@ -150,6 +150,7 @@ type KeeperUserInfoResp struct {
 	UserInfo     *GetUserResp       `json:"user_info,omitempty" bson:"user_info,omitempty"`
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
+	Roles        []string           `json:"roles,omitempty" bson:"roles,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
