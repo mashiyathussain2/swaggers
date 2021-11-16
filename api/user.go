@@ -414,6 +414,7 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 	fmt.Println(1)
 
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
+	fmt.Println(redirectURL)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
 
