@@ -109,7 +109,7 @@ func (s *Server) StartServer() {
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
-		Handler:      n,
+		// Handler:      n,
 		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
 		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
@@ -120,11 +120,12 @@ func (s *Server) StartServer() {
 		var err error
 		switch s.Config.ServerConfig.Env {
 		case "dev":
+			s.httpServer.Handler = n
 			s.Log.Info().Msg("Starting Http/1.1 Server")
 			err = s.httpServer.ListenAndServe()
 		default:
 			h2s := &http2.Server{}
-			s.httpServer.Handler = h2c.NewHandler(s.httpServer.Handler, h2s)
+			s.httpServer.Handler = h2c.NewHandler(n, h2s)
 			s.Log.Info().Msg("Starting Http/2 Server")
 			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
