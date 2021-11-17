@@ -33,6 +33,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
+	"golang.org/x/net/http2"
 )
 
 // Server object encapsulates api, business logic (app),router, storage layer and loggers
@@ -106,11 +107,21 @@ func (s *Server) StartServer() {
 	}
 	n.UseHandler(s.Router)
 
-	s.httpServer = &http.Server{
-		Handler:      n,
-		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
-		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
-		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
+	switch s.Config.ServerConfig.Env {
+	case "dev":
+		s.httpServer = &http.Server{
+			Handler:      n,
+			Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
+			ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
+			WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
+		}
+	default:
+		s.httpServer = &http2.Server{
+			Handler:      n,
+			Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
+			ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
+			WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
+		}
 	}
 
 	s.Log.Info().Msgf("Staring server at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
