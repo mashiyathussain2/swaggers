@@ -127,7 +127,7 @@ func (s *Server) StartServer() {
 			h2s := &http2.Server{}
 			s.httpServer.Handler = h2c.NewHandler(n, h2s)
 			s.Log.Info().Msg("Starting Http/2 Server")
-			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
+			err = s.httpServer.ListenAndServe()
 		}
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to start server")
