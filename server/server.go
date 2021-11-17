@@ -34,6 +34,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
 	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 // Server object encapsulates api, business logic (app),router, storage layer and loggers
@@ -107,21 +108,11 @@ func (s *Server) StartServer() {
 	}
 	n.UseHandler(s.Router)
 
-	switch s.Config.ServerConfig.Env {
-	case "dev":
-		s.httpServer = &http.Server{
-			Handler:      n,
-			Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
-			ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
-			WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
-		}
-	default:
-		s.httpServer = &http2.Server{
-			Handler:      n,
-			Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
-			ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
-			WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
-		}
+	s.httpServer = &http.Server{
+		Handler:      n,
+		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
+		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
+		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
 	}
 
 	s.Log.Info().Msgf("Staring server at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
@@ -132,6 +123,8 @@ func (s *Server) StartServer() {
 			s.Log.Info().Msg("Starting Http/1.1 Server")
 			err = s.httpServer.ListenAndServe()
 		default:
+			h2s := &http2.Server{}
+			s.httpServer.Handler = h2c.NewHandler(s.httpServer.Handler, h2s)
 			s.Log.Info().Msg("Starting Http/2 Server")
 			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
