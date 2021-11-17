@@ -35,6 +35,8 @@ type ServerConfig struct {
 	UseMemoryStore bool          `mapstructure:"useMemoryStore"`
 	HypdApiConfig  HypdApiConfig `mapstructure:"hypdApi"`
 	CORSConfig     CORSConfig    `mapstructure:"cors"`
+	CertFile       string        `mapstructure:"certFile"`
+	KeyFile        string        `mapstructure:"keyFile"`
 }
 
 type SessionConfig struct {

@@ -115,9 +115,16 @@ func (s *Server) StartServer() {
 
 	s.Log.Info().Msgf("Staring server at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
 	go func() {
-		err := s.httpServer.ListenAndServe()
+		var err error
+		switch s.Config.ServerConfig.Env {
+		case "dev":
+			err = s.httpServer.ListenAndServe()
+		default:
+			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
+		}
+
 		if err != nil {
-			s.Log.Error().Err(err).Msg("")
+			s.Log.Error().Err(err).Msg("Failed to start server")
 			return
 		}
 	}()
