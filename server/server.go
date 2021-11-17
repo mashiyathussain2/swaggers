@@ -34,7 +34,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
 	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 // Server object encapsulates api, business logic (app),router, storage layer and loggers
@@ -109,7 +108,7 @@ func (s *Server) StartServer() {
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
-		// Handler:      n,
+		Handler:      n,
 		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
 		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
 		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
@@ -120,14 +119,11 @@ func (s *Server) StartServer() {
 		var err error
 		switch s.Config.ServerConfig.Env {
 		case "dev":
-			s.httpServer.Handler = n
 			s.Log.Info().Msg("Starting Http/1.1 Server")
 			err = s.httpServer.ListenAndServe()
 		default:
-			h2s := &http2.Server{}
-			s.httpServer.Handler = h2c.NewHandler(n, h2s)
-			s.Log.Info().Msg("Starting Http/2 Server")
-			err = s.httpServer.ListenAndServe()
+			http2.ConfigureServer(s.httpServer, &http2.Server{})
+			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to start server")
