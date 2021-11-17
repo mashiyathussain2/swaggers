@@ -118,8 +118,10 @@ func (s *Server) StartServer() {
 		var err error
 		switch s.Config.ServerConfig.Env {
 		case "dev":
+			s.Log.Info().Msg("Starting Http/1.1 Server")
 			err = s.httpServer.ListenAndServe()
 		default:
+			s.Log.Info().Msg("Starting Http/2 Server")
 			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
 
