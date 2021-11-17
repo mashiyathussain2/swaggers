@@ -129,12 +129,12 @@ func (s *Server) StartServer() {
 			s.Log.Info().Msg("Starting Http/2 Server")
 			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
-
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to start server")
 			return
 		}
 	}()
+	s.Log.Info().Msgf("Server Started at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
 }
 
 // StopServer closes all the connection and shutdown the server
