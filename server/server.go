@@ -11,6 +11,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"go-app/api"
 	"go-app/app"
@@ -33,7 +34,6 @@ import (
 	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/urfave/negroni"
-	"golang.org/x/net/http2"
 )
 
 // Server object encapsulates api, business logic (app),router, storage layer and loggers
@@ -108,10 +108,13 @@ func (s *Server) StartServer() {
 	n.UseHandler(s.Router)
 
 	s.httpServer = &http.Server{
-		Handler:      n,
-		Addr:         fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
-		ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
-		WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
+		Handler: n,
+		Addr:    fmt.Sprintf("%s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port),
+		// ReadTimeout:  s.Config.ServerConfig.ReadTimeout * time.Second,
+		// WriteTimeout: s.Config.ServerConfig.WriteTimeout * time.Second,
+		TLSConfig: &tls.Config{
+			NextProtos: []string{"h2", "http/1.1"},
+		},
 	}
 
 	s.Log.Info().Msgf("Staring server at %s:%s", s.Config.ServerConfig.ListenAddr, s.Config.ServerConfig.Port)
@@ -122,11 +125,12 @@ func (s *Server) StartServer() {
 			s.Log.Info().Msg("Starting Http/1.1 Server")
 			err = s.httpServer.ListenAndServe()
 		default:
-			http2.ConfigureServer(s.httpServer, &http2.Server{})
+			// http2.ConfigureServer(s.httpServer, &http2.Server{})
 			err = s.httpServer.ListenAndServeTLS(s.Config.ServerConfig.CertFile, s.Config.ServerConfig.KeyFile)
 		}
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to start server")
+			os.Exit(0)
 			return
 		}
 	}()

@@ -1,3 +1,4 @@
 .vscode
 conf/default.toml
 conf/test.toml
+certs/*
