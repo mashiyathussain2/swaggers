@@ -541,7 +541,7 @@ func (ei *ElasticsearchImpl) SearchSeries(opts *schema.SearchOpts) ([]schema.Ser
 
 func (ei *ElasticsearchImpl) SearchHashtag(opts *schema.SearchOpts) ([]schema.HashtagSearchResp, error) {
 	var resp []schema.HashtagSearchResp
-	if opts.Page == 1 {
+	if opts.Page != 0 {
 		return resp, nil
 	}
 	query := elastic.NewCompletionSuggester("hashtag").SkipDuplicates(true).Field("hashtags.suggest").Prefix(opts.Query).Size(20)
