@@ -540,19 +540,17 @@ func (ei *ElasticsearchImpl) SearchSeries(opts *schema.SearchOpts) ([]schema.Ser
 }
 
 func (ei *ElasticsearchImpl) SearchHashtag(opts *schema.SearchOpts) ([]schema.HashtagSearchResp, error) {
-	query := elastic.NewCompletionSuggester("hashtag").SkipDuplicates(true).Field("hashtags.suggest").Prefix(opts.Query)
-	// query := elastic.NewMatchQuery("hashtags.hashtags", opts.Query)
-	var fromPage int
+	var resp []schema.HashtagSearchResp
 	if opts.Page != 0 {
-		fromPage = (int(opts.Page) * 20) + 1
+		return resp, nil
 	}
-	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Suggester(query).From(fromPage).Size(20).Do(context.Background())
+	query := elastic.NewCompletionSuggester("hashtag").SkipDuplicates(true).Field("hashtags.suggest").Prefix(opts.Query).Size(20)
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).FetchSource(false).Suggester(query).Do(context.Background())
 	if err != nil {
-		ei.Logger.Err(err).Msg("failed to get pebbles")
-		return nil, errors.Wrap(err, "failed to get pebbles")
+		ei.Logger.Err(err).Msg("failed to get hashtag")
+		return nil, errors.Wrap(err, "failed to get hashtag")
 	}
 
-	var resp []schema.HashtagSearchResp
 	for _, hit := range res.Suggest["hashtag"] {
 		for _, opt := range hit.Options {
 			resp = append(resp, schema.HashtagSearchResp{Text: opt.Text})
