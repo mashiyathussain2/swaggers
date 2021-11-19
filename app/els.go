@@ -29,10 +29,14 @@ type Elasticsearch interface {
 	SearchDiscover(opts *schema.SearchOpts) (*schema.DiscoverSearchResp, error)
 	SearchBrand(opts *schema.SearchOpts) ([]schema.BrandSearchResp, error)
 	SearchInfluencer(opts *schema.SearchOpts) ([]schema.InfluencerSearchResp, error)
+	SearchHashtag(opts *schema.SearchOpts) ([]schema.HashtagSearchResp, error)
 	SearchSeries(opts *schema.SearchOpts) ([]schema.SeriesSearchResp, error)
 	GetReviewsByCatalogID(*schema.GetReviewsByCatalogIDFilter) ([]schema.GetReviewsByCatalogIDResp, error)
 	GetCatalogByBrandID(*schema.GetCatalogByBrandIDOpts) ([]schema.GetCatalogBasicResp, error)
 	GetCollectionCatalogByIDs(*schema.GetCollectionCatalogByIDs) ([]schema.GetCatalogBasicResp, error)
+
+	// Shop Search API
+	ShopSearch(opts *schema.SearchOpts) (*schema.ShopSearchResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -353,19 +357,27 @@ func (ei *ElasticsearchImpl) SearchDiscover(opts *schema.SearchOpts) (*schema.Di
 	mSearch := elastic.NewMultiSearchService(ei.Client)
 	var mSearchQuery []*elastic.SearchRequest
 
-	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.autocomplete"}...).Operator("or").Type("best_fields")
+	// Brand search
+	brandQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.lname^2", "lname.autocomplete"}...).Fuzziness("2")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(brandQuery).Size(3).FetchSourceIncludeExclude([]string{"id", "name", "logo"}, nil))
 
+	// Influencer search
 	influencerQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"name.autocomplete"}...).Operator("or").Type("best_fields")
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.InfluencerFullIndex).Query(influencerQuery).Size(3).FetchSourceIncludeExclude([]string{"id", "name", "profile_image"}, nil))
 
+	// Pebble search
 	var subQuery []elastic.Query
 	filterSubQuery := elastic.NewTermQuery("is_active", true)
+	filterSubQuery1 := elastic.NewTermQuery("type", "pebble")
 	// subQuery = append(subQuery, elastic.NewMultiMatchQuery(opts.Query, []string{"name.autocomplete", "influencer_info.name.autocomplete", "brand_info.name.autocomplete"}...).Operator("or").Type("best_fields"))
 	subQuery = append(subQuery, elastic.NewMatchQuery("name.autocomplete", opts.Query))
 	subQuery = append(subQuery, elastic.NewNestedQuery("pebble_info", elastic.NewNestedQuery("pebble_info.influencer_info", elastic.NewMatchQuery("name.autocomplete", opts.Query))))
-	seriesQuery := elastic.NewBoolQuery().Should(subQuery...).Filter(filterSubQuery)
+	seriesQuery := elastic.NewBoolQuery().Should(subQuery...).Filter(filterSubQuery, filterSubQuery1)
 	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.SeriesFullIndex).Query(seriesQuery).Size(3).FetchSourceIncludeExclude([]string{"name", "id", "thumbnail"}, nil))
+
+	// Hashtag search
+	suggestQuery := elastic.NewCompletionSuggester("hashtag").SkipDuplicates(true).Field("hashtags.suggest").Prefix(opts.Query).Size(3)
+	mSearchQuery = append(mSearchQuery, elastic.NewSearchRequest().Index(ei.Config.ContentFullIndex).Suggester(suggestQuery).FetchSource(false))
 
 	resp, err := mSearch.Add(mSearchQuery...).Do(context.TODO())
 	if err != nil {
@@ -376,6 +388,8 @@ func (ei *ElasticsearchImpl) SearchDiscover(opts *schema.SearchOpts) (*schema.Di
 	var influencer []schema.InfluencerSearchResp
 	var brand []schema.BrandSearchResp
 	var series []schema.SeriesSearchResp
+	var hashtags []schema.HashtagSearchResp
+
 	for _, result := range resp.Responses {
 		for _, hit := range result.Hits.Hits {
 			if strings.Contains(hit.Index, ei.Config.BrandFullIndex) {
@@ -401,11 +415,18 @@ func (ei *ElasticsearchImpl) SearchDiscover(opts *schema.SearchOpts) (*schema.Di
 				series = append(series, s)
 			}
 		}
+
+		for _, hit := range result.Suggest["hashtag"] {
+			for _, opt := range hit.Options {
+				hashtags = append(hashtags, schema.HashtagSearchResp{Text: opt.Text})
+			}
+		}
 	}
 	res := schema.DiscoverSearchResp{
 		Brand:      brand,
 		Influencer: influencer,
 		Series:     series,
+		Hashtag:    hashtags,
 	}
 
 	return &res, nil
@@ -444,12 +465,12 @@ func (ei *ElasticsearchImpl) SearchCatalog(opts *schema.SearchOpts) (*schema.Sea
 }
 
 func (ei *ElasticsearchImpl) SearchBrand(opts *schema.SearchOpts) ([]schema.BrandSearchResp, error) {
-	query := elastic.NewMatchQuery("lname.autocomplete", opts.Query)
+	query := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.lname^2", "lname.autocomplete"}...).Fuzziness("2")
 	var fromPage int
 	if opts.Page != 0 {
-		fromPage = (int(opts.Page) * 20) + 1
+		fromPage = (int(opts.Page) * 10) + 1
 	}
-	res, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).Query(query).From(fromPage).Size(20).Do(context.Background())
+	res, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).Query(query).From(fromPage).Size(10).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Msg("failed to get brands")
 		return nil, errors.Wrap(err, "failed to get brands")
@@ -513,6 +534,29 @@ func (ei *ElasticsearchImpl) SearchSeries(opts *schema.SearchOpts) ([]schema.Ser
 			return nil, errors.Wrap(err, "failed to decode series search json")
 		}
 		resp = append(resp, s)
+	}
+
+	return resp, nil
+}
+
+func (ei *ElasticsearchImpl) SearchHashtag(opts *schema.SearchOpts) ([]schema.HashtagSearchResp, error) {
+	query := elastic.NewCompletionSuggester("hashtag").SkipDuplicates(true).Field("hashtags.suggest").Prefix(opts.Query)
+	// query := elastic.NewMatchQuery("hashtags.hashtags", opts.Query)
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 20) + 1
+	}
+	res, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Suggester(query).From(fromPage).Size(20).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get pebbles")
+		return nil, errors.Wrap(err, "failed to get pebbles")
+	}
+
+	var resp []schema.HashtagSearchResp
+	for _, hit := range res.Suggest["hashtag"] {
+		for _, opt := range hit.Options {
+			resp = append(resp, schema.HashtagSearchResp{Text: opt.Text})
+		}
 	}
 
 	return resp, nil
@@ -595,4 +639,66 @@ func (ei *ElasticsearchImpl) GetCollectionCatalogByIDs(opts *schema.GetCollectio
 	wg.Wait()
 	finalResp = append(featureResp, catalogResp...)
 	return finalResp, nil
+}
+
+func (ei *ElasticsearchImpl) ShopSearch(opts *schema.SearchOpts) (*schema.ShopSearchResp, error) {
+	mSearch := elastic.NewMultiSearchService(ei.Client)
+	var mSearchQuery []*elastic.SearchRequest
+
+	var fromPage int
+	if opts.Page != 0 {
+		fromPage = (int(opts.Page) * 10) + 1
+	}
+
+	// catalog search query
+	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
+	mustQuery := elastic.NewMultiMatchQuery(
+		opts.Query,
+		[]string{
+			"brand_info.name^2",
+			"brand_info.name.autocomplete",
+			"name.autocomplete",
+			"keywords.keywords",
+			"name.name^2"}...,
+	).Operator("or").Type("cross_fields")
+	boolQuery := elastic.NewBoolQuery().Filter(filterQuery).Must(mustQuery)
+	catalogSearchQuery := elastic.NewSearchRequest().Index(ei.Config.CatalogFullIndex).Query(boolQuery).From(fromPage).Size(10).FetchSourceIncludeExclude([]string{"id", "name", "featured_image", "base_price", "retail_price", "discount_info", "variants.id", "brand_info"}, nil)
+	mSearchQuery = append(mSearchQuery, catalogSearchQuery)
+	// brand search query
+	// matchQuery := elastic.NewMultiMatchQuery(opts.Query, []string{"lname.lname^2", "lname.autocomplete"}...).Fuzziness("2")
+	// brandSearchQuery := elastic.NewSearchRequest().Index(ei.Config.BrandFullIndex).Query(matchQuery).Size(3).FetchSourceIncludeExclude([]string{"id", "name", "logo", "username"}, nil)
+
+	resp, err := mSearch.Add(mSearchQuery...).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msgf("failed to get shop search result for query:%s", opts.Query)
+		return nil, errors.Wrap(err, "failed to get shop search results")
+	}
+
+	var brand []schema.BrandSearchResp
+	var catalog []schema.CatalogSearchResp
+	for _, result := range resp.Responses {
+		for _, hit := range result.Hits.Hits {
+			if strings.Contains(hit.Index, ei.Config.BrandFullIndex) {
+				var s schema.BrandSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				brand = append(brand, s)
+			} else if strings.Contains(hit.Index, ei.Config.CatalogFullIndex) {
+				var s schema.CatalogSearchResp
+				if err := json.Unmarshal(hit.Source, &s); err != nil {
+					ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+					continue
+				}
+				catalog = append(catalog, s)
+			}
+		}
+	}
+
+	res := schema.ShopSearchResp{
+		// Brand:   brand,
+		Catalog: catalog,
+	}
+	return &res, nil
 }

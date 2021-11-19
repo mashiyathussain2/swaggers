@@ -403,6 +403,20 @@ func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+func (a *API) searchShop(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.ShopSearch(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
 func (a *API) searchCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -466,6 +480,20 @@ func (a *API) searchSeries(requestCTX *handler.RequestContext, w http.ResponseWr
 		return
 	}
 	res, err := a.App.Elasticsearch.SearchSeries(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) searchHashtag(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SearchOpts
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Elasticsearch.SearchHashtag(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
