@@ -516,6 +516,9 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 		}
 		return errors.Errorf("account upgrade request is already in active status")
 	}
+	if opts.Username == "" {
+		opts.Username = GenerateUsernameInfluencer(opts.FullName)
+	}
 	err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
 	if err != nil {
 		return err
@@ -580,6 +583,16 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 
 func (ii *InfluencerImpl) GetInfluencerAccountRequestStatus(id primitive.ObjectID) (string, error) {
 	ctx := context.TODO()
+	// checking if influencer profile is already associated with user model
+	var user model.User
+	if err := ii.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"_id": id}).Decode(&user); err != nil {
+		return "", errors.Wrap(err, "failed to find user")
+	}
+	if !user.InfluencerID.IsZero() {
+		return model.AcceptedStatus, nil
+	}
+
+	// checking if influencer request is accepted or rejected
 	var request model.InfluencerAccountRequest
 	filter := bson.M{
 		"user_id": id,
@@ -640,7 +653,6 @@ func (ii *InfluencerImpl) UpdateInfluencerAccountRequestStatus(opts *schema.Upda
 			session.AbortTransaction(sc)
 			return errors.Wrap(err, "failed to update request status")
 		}
-		fmt.Println(request)
 		if request.ID.IsZero() == true {
 			session.AbortTransaction(sc)
 			return errors.Errorf("influencer account request failed")
@@ -867,7 +879,7 @@ func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mon
 
 	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
 	if !isAlpha(username) {
-		errors.Errorf("%s is not valid", username)
+		return errors.Errorf("%s is not valid", username)
 	}
 	filter := bson.M{
 		"username": username,

@@ -131,7 +131,7 @@ type InfluencerAccountRequestOpts struct {
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 	// InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
 	FullName      string             `json:"full_name" validate:"required"`
-	Username      string             `json:"username,omitempty" validate:"required"`
+	Username      string             `json:"username,omitempty"`
 	ProfileImage  Img                `json:"profile_image" validate:"required"`
 	CoverImage    Img                `json:"cover_image" validate:"required"`
 	Bio           string             `json:"bio" validate:"required"`
