@@ -75,6 +75,7 @@ type Content struct {
 	MediaType      string               `json:"media_type,omitempty" bson:"media_type,omitempty"`
 	MediaID        primitive.ObjectID   `json:"media_id,omitempty" bson:"media_id,omitempty"`
 	MediaInfo      interface{}          `json:"media_info,omitempty" bson:"media_info,omitempty"`
+	CreatorID      primitive.ObjectID   `json:"creator_id,omitempty" bson:"creator_id,omitempty"`
 	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
 	InfluencerInfo []InfluencerInfo     `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
 	BrandIDs       []primitive.ObjectID `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`

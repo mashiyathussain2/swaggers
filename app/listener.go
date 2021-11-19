@@ -71,13 +71,13 @@ func InitConsumer(a *App) {
 
 	a.PebbleStatusChangeForSeries = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
-		Config: &a.Config.ContentChangesConfig,
+		Config: &a.Config.PebbleStatusChangeForSeriesConfig,
 	})
 	go a.PebbleStatusChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessageForSeries)
 
 	a.LikeChangeForSeries = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
-		Config: &a.Config.LikeChangeConfig,
+		Config: &a.Config.LikeChangeForSeriesConfig,
 	})
 	go a.LikeChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessLikeForSeries)
 }

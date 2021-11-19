@@ -108,11 +108,12 @@ func (cl *SegmentioConsumer) Init(c *config.ListenerConfig) {
 		TLS:           &tls.Config{},
 	}
 	cl.Reader = kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  c.Brokers,
-		GroupID:  c.GroupID,
-		Topic:    c.Topic,
-		Dialer:   dialer,
-		MaxBytes: 10e6, // 10MB
+		Brokers:     c.Brokers,
+		GroupID:     c.GroupID,
+		Topic:       c.Topic,
+		Dialer:      dialer,
+		MaxBytes:    10e6, // 10MB,
+		StartOffset: kafka.LastOffset,
 	})
 }
 
