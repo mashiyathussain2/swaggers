@@ -106,12 +106,17 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/review/catalog", a.requestWithAuthHandler(a.getReviewsByCatalogID)).Methods("GET")
 
 	//SEARCH
+	// legacy search api
 	a.Router.APIRoot.Handle("/app/search", a.requestHandler(a.search)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/search/shop", a.requestHandler(a.searchShop)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/search/discover", a.requestHandler(a.searchDiscover)).Methods("GET")
+
 	a.Router.APIRoot.Handle("/app/search/catalog", a.requestHandler(a.searchCatalog)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/search/brand", a.requestHandler(a.searchBrand)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/search/influencer", a.requestHandler(a.searchInfluencer)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/search/series", a.requestHandler(a.searchSeries)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/search/discover", a.requestHandler(a.searchDiscover)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/search/hashtag", a.requestHandler(a.searchHashtag)).Methods("GET")
 
 	//BULK UPLOAD
 	// a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogCSV)).Methods("POST")

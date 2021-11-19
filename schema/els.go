@@ -116,10 +116,20 @@ type SearchResp struct {
 	Catalog    []CatalogSearchResp    `json:"catalog"`
 }
 
+type ShopSearchResp struct {
+	// Brand   []BrandSearchResp   `json:"brand"`
+	Catalog []CatalogSearchResp `json:"catalog"`
+}
+
+type HashtagSearchResp struct {
+	Text string `json:"text"`
+}
+
 type DiscoverSearchResp struct {
 	Brand      []BrandSearchResp      `json:"brand"`
 	Influencer []InfluencerSearchResp `json:"influencer"`
 	Series     []SeriesSearchResp     `json:"series"`
+	Hashtag    []HashtagSearchResp    `json:"hashtags"`
 }
 
 type GetActiveCollectionsOpts struct {
