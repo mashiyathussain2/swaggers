@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"time"
@@ -90,8 +91,39 @@ func (si *SeriesImpl) CreateSeries(opts *schema.CreateSeriesOpts) error {
 
 func (si *SeriesImpl) UpdateSeries(opts *schema.UpdateSeriesOpts) error {
 	ctx := context.TODO()
-	s := model.PebbleSeries{
-		UpdatedAt: time.Now(),
+	var s model.PebbleSeries
+
+	filter := bson.M{
+		"_id": opts.ID,
+	}
+	err := si.DB.Collection(model.PebbleSeriesColl).FindOne(ctx, filter).Decode(&s)
+	if err != nil {
+		return err
+	}
+	//checking pebbles in orignal series but not in updated one
+
+	// 1. Map of new pebble_ids
+	m := make(map[primitive.ObjectID]bool)
+	for _, v := range opts.PebbleIds {
+		m[v] = true
+	}
+	// 2. Finding Pebbles by getting false in map
+	var toRemove []primitive.ObjectID
+	for _, v := range s.PebbleIds {
+		fmt.Print(m[v])
+		if !m[v] {
+			fmt.Print(v)
+			toRemove = append(toRemove, v)
+		}
+	}
+	//3. Calling function to remove series id from pebble ids
+	if len(toRemove) > 0 {
+		fmt.Println("to remove", toRemove)
+
+		err = si.removeSeriesID(toRemove, opts.ID)
+		if err != nil {
+			return errors.Wrapf(err, "error removing old pebbles")
+		}
 	}
 	if opts.Name != "" {
 		s.Name = opts.Name
@@ -113,13 +145,12 @@ func (si *SeriesImpl) UpdateSeries(opts *schema.UpdateSeriesOpts) error {
 			Genders: opts.Label.Gender,
 		}
 	}
-	filter := bson.M{
-		"_id": opts.ID,
-	}
+	s.UpdatedAt = time.Now()
+
 	update := bson.M{
 		"$set": s,
 	}
-	err := si.DB.Collection(model.PebbleSeriesColl).FindOneAndUpdate(ctx, filter, update).Decode(&s)
+	err = si.DB.Collection(model.PebbleSeriesColl).FindOneAndUpdate(ctx, filter, update).Decode(&s)
 	if err != nil {
 		return errors.Wrapf(err, "unable to create update series")
 	}
@@ -450,5 +481,26 @@ func (si *SeriesImpl) UpdateSeriesLastSync(id primitive.ObjectID) error {
 		return errors.Wrapf(err, "unable to create update series")
 	}
 
+	return nil
+}
+
+func (si *SeriesImpl) removeSeriesID(p_ids []primitive.ObjectID, s_id primitive.ObjectID) error {
+
+	ctx := context.TODO()
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": p_ids,
+		},
+	}
+	fmt.Println(p_ids)
+	update := bson.M{
+		"$pull": bson.M{
+			"series_ids": s_id,
+		},
+	}
+	_, err := si.DB.Collection(model.ContentColl).UpdateMany(ctx, filter, update)
+	if err != nil {
+		return err
+	}
 	return nil
 }
