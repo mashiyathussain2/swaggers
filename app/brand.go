@@ -784,7 +784,7 @@ func (bi *BrandImpl) CheckBrandUsernameExists(username string, sc *mongo.Session
 	ctx := context.TODO()
 	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
 	if !isAlpha(username) {
-		errors.Errorf("%s is not valid", username)
+		return errors.Errorf("%s is not valid", username)
 	}
 	filter := bson.M{
 		"username": username,

@@ -516,6 +516,9 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 		}
 		return errors.Errorf("account upgrade request is already in active status")
 	}
+	if opts.Username == "" {
+		opts.Username = GenerateUsernameInfluencer(opts.FullName)
+	}
 	err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
 	if err != nil {
 		return err
@@ -867,7 +870,7 @@ func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mon
 
 	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
 	if !isAlpha(username) {
-		errors.Errorf("%s is not valid", username)
+		return errors.Errorf("%s is not valid", username)
 	}
 	filter := bson.M{
 		"username": username,
