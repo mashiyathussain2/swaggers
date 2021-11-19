@@ -99,6 +99,11 @@ func GenerateUsernameBrand(s string) string {
 	return strings.ReplaceAll(slugify.Slugify(s), "-", "_")
 }
 
+// GenerateUsernameInfluencer converts a string into unique lowercase slug string for influencer username
+func GenerateUsernameInfluencer(s string) string {
+	return strings.ReplaceAll(slugify.Slugify(fmt.Sprintf("%s-%s", strings.ToLower(s), uuid.NewV1().String()[:4])), "-", "_")
+}
+
 // FileTypeFromFileName returns file-type from filename
 func FileTypeFromFileName(s string) (string, error) {
 	i := strings.Split(s, ".")
