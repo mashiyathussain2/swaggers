@@ -59,6 +59,11 @@ type Content interface {
 	GetCatalogInfo([]string) ([]model.CatalogInfo, error)
 
 	SearchPebbleByCaption(*schema.SearchPebbleByCaption) ([]schema.GetPebbleSearchCaptionResp, error)
+
+	//APIs for Creators on the App
+	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
+	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
+	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -269,14 +274,27 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 	filter := bson.M{"_id": cID}
 	var update bson.M
 	if content.Type != model.CatalogContentType && content.Type != model.ReviewStoryType {
-		update = bson.M{
-			"$set": bson.M{
-				"is_processed": true,
-				"processed_at": time.Now().UTC(),
-				"media_type":   model.VideoType,
-				"media_id":     res.ID,
-			},
+		if content.CreatorID != primitive.NilObjectID {
+			update = bson.M{
+				"$set": bson.M{
+					"is_processed": true,
+					"is_active":    true,
+					"processed_at": time.Now().UTC(),
+					"media_type":   model.VideoType,
+					"media_id":     res.ID,
+				},
+			}
+		} else {
+			update = bson.M{
+				"$set": bson.M{
+					"is_processed": true,
+					"processed_at": time.Now().UTC(),
+					"media_type":   model.VideoType,
+					"media_id":     res.ID,
+				},
+			}
 		}
+
 	} else {
 		update = bson.M{
 			"$set": bson.M{
@@ -1050,6 +1068,198 @@ func (ci *ContentImpl) SearchPebbleByCaption(opts *schema.SearchPebbleByCaption)
 	}
 	if err := cur.All(ctx, &resp); err != nil {
 		return nil, errors.Wrap(err, "failed to decode pebbles")
+	}
+	return resp, nil
+}
+
+// CreatePebbleApp creates new create a new pebble document in the db, and generates and returns a token to upload video
+func (ci *ContentImpl) CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error) {
+	pebble := model.Content{
+		Type:          model.PebbleType,
+		MediaType:     model.VideoType,
+		Caption:       opts.Caption,
+		Hashtags:      ParseHashtag(opts.Caption),
+		CreatorID:     opts.CreatorID,
+		InfluencerIDs: opts.InfluencerIDs,
+		BrandIDs:      opts.BrandIDs,
+		CatalogIDs:    opts.CatalogIDs,
+		// Label: &model.Label{
+		// 	AgeGroups: opts.Label.AgeGroup,
+		// 	Genders:   opts.Label.Gender,
+		// },
+		CreatedAt: time.Now().UTC(),
+	}
+	// Setting up category path
+	for _, id := range opts.CategoryID {
+		path, err := ci.App.Category.GetCategoryPath(id)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create pebble document, error fetching category path")
+		}
+		pebble.Paths = append(pebble.Paths, path)
+	}
+
+	res1, err1 := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), pebble)
+	if err1 != nil {
+		return nil, errors.Wrap(err1, "failed to create pebble document")
+	}
+
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid file type: missing file extension")
+	}
+	// Getting s3 upload token with provided args
+	// This token is then used by frontend to directly upload media to s3
+	res0, err0 := ci.App.Media.GenerateVideoUploadToken(
+		&schema.GenerateVideoUploadTokenOpts{
+			FileName: fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType),
+		},
+	)
+	if err0 != nil {
+		return nil, err0
+	}
+	return &schema.CreatePebbleResp{ID: res1.InsertedID.(primitive.ObjectID), Token: res0.Token}, nil
+}
+
+// EditPebbleApp updates the pebble document Fields
+/*
+	Fields available to update
+		InfluencerIDs
+		BrandIDs
+		Caption
+		Hashtags
+		CatalogIDs
+		IsActive
+		Label
+*/
+func (ci *ContentImpl) EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error) {
+	var update bson.D
+
+	if opts.Caption != "" {
+		update = append(update, bson.E{Key: "caption", Value: opts.Caption})
+		update = append(update, bson.E{Key: "hashtags", Value: ParseHashtag(opts.Caption)})
+	}
+	if opts.BrandIDs != nil {
+		update = append(update, bson.E{Key: "brand_ids", Value: opts.BrandIDs})
+	}
+	if opts.CatalogIDs != nil {
+		update = append(update, bson.E{Key: "catalog_ids", Value: opts.CatalogIDs})
+	}
+	if len(opts.InfluencerIDs) > 0 {
+		update = append(update, bson.E{Key: "influencer_ids", Value: opts.InfluencerIDs})
+	}
+	// if opts.Label != nil {
+	// 	if len(opts.Label.AgeGroup) > 0 {
+	// 		update = append(update, bson.E{Key: "label.age_groups", Value: opts.Label.AgeGroup})
+	// 	}
+	// 	if len(opts.Label.Gender) > 0 {
+	// 		update = append(update, bson.E{Key: "label.genders", Value: opts.Label.Gender})
+	// 	}
+	// }
+	if opts.IsActive != nil {
+		update = append(update, bson.E{Key: "is_active", Value: opts.IsActive})
+	}
+	if len(opts.CategoryID) > 0 {
+		var paths []model.Path
+		// Setting up category path
+		for _, id := range opts.CategoryID {
+			path, err := ci.App.Category.GetCategoryPath(id)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to update pebble document, error fetching category path")
+			}
+			paths = append(paths, path)
+		}
+		update = append(update, bson.E{Key: "category_path", Value: paths})
+	}
+	filter := bson.M{"_id": opts.ID, "creator_id": opts.CreatorID}
+	updateQuery := bson.M{"$set": update}
+
+	res, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, updateQuery)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to update pebble, please try again in few minutes")
+	}
+	if res.MatchedCount == 0 {
+		return nil, errors.Wrap(err, "failed to find pebble, please check if you are the creator")
+	}
+	if res.ModifiedCount == 0 {
+		return nil, errors.Wrap(err, "failed to update content")
+	}
+	return &schema.EditPebbleAppResp{
+		ID:            opts.ID,
+		Caption:       opts.Caption,
+		InfluencerIDs: opts.InfluencerIDs,
+		BrandIDs:      opts.BrandIDs,
+		CatalogIDs:    opts.CatalogIDs,
+		// Label:         opts.Label,
+		IsActive: opts.IsActive,
+	}, nil
+}
+
+func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error) {
+	var resp []schema.CreatorGetContentResp
+	var matchFilter bson.D
+	matchFilter = append(matchFilter, bson.E{Key: "type", Value: "pebble"})
+	if len(opts.InfluencerIDs) > 0 {
+		matchFilter = append(matchFilter, bson.E{Key: "influencer_ids", Value: bson.M{"$in": opts.InfluencerIDs}})
+	}
+	if len(opts.CatalogIDs) > 0 {
+		matchFilter = append(matchFilter, bson.E{Key: "catalog_ids", Value: bson.M{"$in": opts.CatalogIDs}})
+	}
+	//showing only processed video
+	matchFilter = append(matchFilter, bson.E{Key: "is_processed", Value: true})
+
+	var matchStage bson.D
+	matchStage = append(matchStage, bson.E{Key: "$match", Value: matchFilter})
+	sortStage := bson.D{{
+		Key: "$sort",
+		Value: bson.M{
+			"_id": -1,
+		},
+	}}
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: opts.Page * 20,
+		},
+	}
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: 20,
+		},
+	}
+	lookupStage := bson.D{
+		{
+			Key: "$lookup",
+			Value: bson.M{
+				"from":         model.MediaColl,
+				"localField":   "media_id",
+				"foreignField": "_id",
+				"as":           "media_info",
+			},
+		},
+	}
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"media_info": bson.M{
+					"$arrayElemAt": bson.A{
+						"$media_info",
+						0,
+					},
+				},
+			},
+		},
+	}
+
+	ctx := context.TODO()
+	cur, err := ci.DB.Collection(model.ContentColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage, skipStage, limitStage, lookupStage, setStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get pebbles")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, " failed to get pebbles")
 	}
 	return resp, nil
 }

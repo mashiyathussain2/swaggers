@@ -81,16 +81,18 @@ type APPConfig struct {
 	SeriesFullProducerConfig     ProducerConfig `mapstructure:"seriesFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
 
-	LikeChangeConfig         ListenerConfig `mapstructure:"likeChangesConsumer"`
-	CommentChangeConfig      ListenerConfig `mapstructure:"commentChangesConsumer"`
-	ViewChangeConfig         ListenerConfig `mapstructure:"viewChangesConsumer"`
-	BrandChangesConfig       ListenerConfig `mapstructure:"brandChangesConsumer"`
-	InfluencerChangesConfig  ListenerConfig `mapstructure:"influencerChangesConsumer"`
-	CatalogChangesConfig     ListenerConfig `mapstructure:"catalogChangesConsumer"`
-	ContentChangesConfig     ListenerConfig `mapstructure:"contentChangesConsumer"`
-	LiveCommentChangesConfig ListenerConfig `mapstructure:"liveCommentChangesConsumer"`
-	SeriesConsumerConfig     ListenerConfig `mapstructure:"seriesConsumer"`
-	CollectionConsumerConfig ListenerConfig `mapstructure:"collectionConsumer"`
+	LikeChangeConfig                  ListenerConfig `mapstructure:"likeChangesConsumer"`
+	LikeChangeForSeriesConfig         ListenerConfig `mapstructure:"likeChangeForSeriesConsumer"`
+	CommentChangeConfig               ListenerConfig `mapstructure:"commentChangesConsumer"`
+	ViewChangeConfig                  ListenerConfig `mapstructure:"viewChangesConsumer"`
+	BrandChangesConfig                ListenerConfig `mapstructure:"brandChangesConsumer"`
+	InfluencerChangesConfig           ListenerConfig `mapstructure:"influencerChangesConsumer"`
+	CatalogChangesConfig              ListenerConfig `mapstructure:"catalogChangesConsumer"`
+	ContentChangesConfig              ListenerConfig `mapstructure:"contentChangesConsumer"`
+	PebbleStatusChangeForSeriesConfig ListenerConfig `mapstructure:"pebbleStatusChangeForSeriesConsumer"`
+	LiveCommentChangesConfig          ListenerConfig `mapstructure:"liveCommentChangesConsumer"`
+	SeriesConsumerConfig              ListenerConfig `mapstructure:"seriesConsumer"`
+	CollectionConsumerConfig          ListenerConfig `mapstructure:"collectionConsumer"`
 }
 
 type ContentStreamProcessorConfig struct {

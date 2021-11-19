@@ -79,8 +79,13 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/category/lvl1", a.requestHandler(a.getParentCategory)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl2", a.requestHandler(a.getMainCategoryByParentID)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/category/{categoryID}/lvl3", a.requestHandler(a.getSubCatergoryByParentID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/category/main", a.requestHandler(a.getMainCategoryMap)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/pebble/search", a.requestHandler(a.searchPebbleByCaption)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.createPebbleApp)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.editPebbleApp)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.getPebblesForCreator)).Methods("GET")
 
 }
 
