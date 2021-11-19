@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -130,6 +131,8 @@ func (csp *ContentUpdateProcessor) ProcessCatalogMessage(msg kafka.Message) {
 }
 
 func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
+	csp.Logger.Log().Msg("Initiating processing of content message")
+	fmt.Println("Initiating processing of content message")
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
@@ -166,12 +169,13 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 	}
 
 	// Removing content from index if is active set to false
-	if !contentSchema.IsActive {
-		m := segKafka.Message{
-			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
-			Value: nil,
-		}
-		csp.App.ContentFullProducer.Publish(m)
+	if !contentSchema.IsProcessed {
+		// m := segKafka.Message{
+		// 	Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+		// 	Value: nil,
+		// }
+		// csp.App.ContentFullProducer.Publish(m)
+		csp.Logger.Log().Msg("pebble not processed yet")
 		return
 	}
 
@@ -278,6 +282,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		Hashtags:       contentSchema.Hashtags,
 		CreatedAt:      contentSchema.CreatedAt,
 		SeriesIDs:      contentSchema.SeriesIDs,
+		CreatorID:      contentSchema.CreatorID,
 	})
 	if err != nil {
 		csp.Logger.Err(err).Interface("contentSchema", contentSchema).Msg("failed to convert contentSchema to json")
@@ -602,16 +607,16 @@ func (csp *ContentUpdateProcessor) ProcessContentMessageForSeries(msg kafka.Mess
 
 	if s.Meta.Operation == "u" {
 		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
-			if val, ok := updates.(primitive.D).Map()["is_active"]; ok {
-				if val.(bool) {
-					csp.Logger.Info().Msg("syncing content in series")
-					csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
-				}
-			} else if val, ok := updates.(primitive.D).Map()["like_count"]; ok {
-				if val.(bool) {
-					csp.Logger.Info().Msg("syncing content in series")
-					csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
-				}
+			if _, ok := updates.(primitive.D).Map()["is_active"]; ok {
+
+				csp.Logger.Info().Msg("syncing content in series")
+				csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
+
+			} else if _, ok := updates.(primitive.D).Map()["like_count"]; ok {
+
+				csp.Logger.Info().Msg("syncing content in series")
+				csp.App.Series.UpdateSeriesLastSync(contentSchema.ID)
+
 			}
 		}
 	}

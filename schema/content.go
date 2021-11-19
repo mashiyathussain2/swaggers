@@ -193,6 +193,7 @@ type ContentUpdateOpts struct {
 	MediaType      string                 `json:"media_type,omitempty" bson:"media_type,omitempty"`
 	MediaID        primitive.ObjectID     `json:"media_id,omitempty" bson:"media_id,omitempty"`
 	MediaInfo      *GetMediaResp          `json:"media_info,omitempty" bson:"media_info,omitempty"`
+	CreatorID      primitive.ObjectID     `json:"creator_id,omitempty" bson:"creator_id,omitempty"`
 	InfluencerIDs  []primitive.ObjectID   `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
 	InfluencerInfo []model.InfluencerInfo `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
 	BrandIDs       []primitive.ObjectID   `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
@@ -284,14 +285,14 @@ type GetPebbleESResp struct {
 	LikeCount      int                    `json:"like_count,omitempty"`
 	CommentCount   int                    `json:"comment_count,omitempty"`
 	ViewCount      int                    `json:"view_count,omitempty"`
-
-	Caption     string               `json:"caption,omitempty"`
-	Hashtags    []string             `json:"hashtags,omitempty"`
-	CatalogIDs  []primitive.ObjectID `json:"catalog_ids,omitempty"`
-	CatalogInfo []model.CatalogInfo  `json:"catalog_info,omitempty"`
-	CreatedAt   time.Time            `json:"created_at,omitempty"`
-
-	IsLikedByUser bool `json:"is_liked_by_user,omitempty"`
+	Paths          []model.Path           `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Caption        string                 `json:"caption,omitempty"`
+	Hashtags       []string               `json:"hashtags,omitempty"`
+	CatalogIDs     []primitive.ObjectID   `json:"catalog_ids,omitempty"`
+	CatalogInfo    []model.CatalogInfo    `json:"catalog_info,omitempty"`
+	CreatedAt      time.Time              `json:"created_at,omitempty"`
+	IsActive       bool                   `json:"is_active"`
+	IsLikedByUser  bool                   `json:"is_liked_by_user,omitempty"`
 }
 
 type GetBrandInfoResp struct {
@@ -376,4 +377,86 @@ type GetPebbleSearchCaptionResp struct {
 	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Caption   string             `json:"caption,omitempty" bson:"caption,omitempty"`
 	MediaInfo *GetMediaResp      `json:"media_info,omitempty" bson:"media_info,omitempty"`
+}
+
+//CreatorLabelOpts will hold the keywords related to pebbles.
+type CreatorLabelOpts struct {
+	// Interests []string `json:"interests" validate:"required,min=1"`
+	AgeGroup []string `json:"age_group"`
+	Gender   []string `json:"gender" validate:"required,min=1,dive,oneof=M F O"`
+}
+
+//CreatorEditLabelOpts contains and validates fields to update Label of a content
+type CreatorEditLabelOpts struct {
+	// Interests []string `json:"interests"`
+	AgeGroup []string `json:"age_group"`
+	Gender   []string `json:"gender" validate:"dive,oneof=M F O"`
+}
+
+// CreatePebbleAppOpts contains and validates args required to create a pebble
+type CreatePebbleAppOpts struct {
+	FileName      string               `json:"file_name" validate:"required"`
+	Caption       string               `json:"caption" validate:"required"`
+	CreatorID     primitive.ObjectID   `json:"creator_id" validate:"required"`
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids" validate:"required,min=1"`
+	BrandIDs      []primitive.ObjectID `json:"brand_ids"`
+	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
+	// Label         *CreatorLabelOpts    `json:"label" validate:"required"`
+	CategoryID []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
+}
+
+// EditPebbleAppOpts contains and validates args required to update an existing pebble content
+type EditPebbleAppOpts struct {
+	ID            primitive.ObjectID    `json:"id,omitempty" validate:"required"`
+	CreatorID     primitive.ObjectID    `json:"creator_id" validate:"required"`
+	Caption       string                `json:"caption"`
+	InfluencerIDs []primitive.ObjectID  `json:"influencer_ids"`
+	BrandIDs      *[]primitive.ObjectID `json:"brand_ids"`
+	CatalogIDs    *[]primitive.ObjectID `json:"catalog_ids"`
+	// Label         *CreatorEditLabelOpts `json:"label"`
+	IsActive   *bool                `json:"is_active"`
+	CategoryID []primitive.ObjectID `json:"category_id"`
+}
+
+type GetPebblesCreatorFilter struct {
+	Status        []string             `json:"status"`
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids"`
+	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
+	Page          uint                 `json:"page"`
+}
+
+// EditPebbleAppResp contains fields to be returned in EditPebble operation
+type EditPebbleAppResp struct {
+	ID            primitive.ObjectID    `json:"id"  validate:"required"`
+	Caption       string                `json:"caption,omitempty"`
+	InfluencerIDs []primitive.ObjectID  `json:"influencer_ids,omitempty"`
+	BrandIDs      *[]primitive.ObjectID `json:"brand_ids,omitempty"`
+	CatalogIDs    *[]primitive.ObjectID `json:"catalog_ids,omitempty"`
+	// Label         *CreatorEditLabelOpts `json:"label,omitempty"`
+	IsActive *bool        `json:"is_active,omitempty"`
+	Path     []model.Path `json:"category_path,omitempty"`
+	HashTags []string     `json:"hashtags,omitempty"`
+}
+
+// CreatorGetContentResp contains fields to be returned while querying for content
+type CreatorGetContentResp struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Type      string             `json:"type,omitempty" bson:"type,omitempty"`
+	MediaType string             `json:"media_type,omitempty" bson:"media_type,omitempty"`
+	MediaID   primitive.ObjectID `json:"media_id,omitempty" bson:"media_id,omitempty"`
+
+	// MediaInfo stores video document when lookup aggregation is applied
+	MediaInfo *GetMediaResp `json:"media_info,omitempty" bson:"media_info,omitempty"`
+
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids,omitempty" bson:"influencer_ids,omitempty"`
+	BrandIDs      []primitive.ObjectID `json:"brand_ids,omitempty" bson:"brand_ids,omitempty"`
+	UserID        primitive.ObjectID   `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CatalogIDs    []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
+	Label         *model.Label         `json:"label,omitempty" bson:"label,omitempty"`
+	IsActive      bool                 `json:"is_active" bson:"is_active"`
+	Caption       string               `json:"caption,omitempty" bson:"caption,omitempty"`
+	Hashtags      []string             `json:"hashtags,omitempty" bson:"hashtags,omitempty"`
+	Path          []model.Path         `json:"category_path" bson:"category_path,omitempty"`
+
+	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
