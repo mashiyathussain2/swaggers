@@ -64,6 +64,7 @@ type Content interface {
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
+	SendNotification(opts *schema.SendNotificationOpts) error
 }
 
 // ContentImpl implements `Pebble` functionality
