@@ -1327,7 +1327,7 @@ func (ci *ContentImpl) SendNotification(opts *schema.SendNotificationOpts) error
 }
 
 func (ci *ContentImpl) GetUserIDFromInfluencrID(id primitive.ObjectID) (string, error) {
-	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/user/influencerid?=" + id.Hex()
+	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/user/influencerid?id=" + id.Hex()
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
