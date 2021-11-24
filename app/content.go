@@ -329,7 +329,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 				Type: "now",
 				Time: "2021-04-25T16:58:29.270+00:00",
 			},
-			Label: "Pebble Processed",
+			Label: "pebble-processed",
 		}
 		err = ci.SendNotification(&notificationOpts)
 		if err != nil {
