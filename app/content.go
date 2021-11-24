@@ -319,7 +319,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 			ci.Logger.Log().Err(err).Msgf("error getting user id from influencer id %s", c.CreatorID)
 			return true, nil
 		}
-		t := time.Now()
+		// t := time.Now()
 		notificationOpts := schema.SendNotificationOpts{
 			Type:    "user",
 			UserIDs: []string{user_id},
