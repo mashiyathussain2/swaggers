@@ -462,8 +462,8 @@ type CreatorGetContentResp struct {
 }
 
 type Schedule struct {
-	Type string     `json:"type" validate:"required"`
-	Time *time.Time `json:"time" validate:"required"`
+	Type string `json:"type" validate:"required"`
+	Time string `json:"time" validate:"required"`
 }
 
 //SendNotificationOpts validates notification api

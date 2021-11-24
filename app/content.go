@@ -327,7 +327,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 			Body:    "Tap to View",
 			Schedule: schema.Schedule{
 				Type: "now",
-				Time: &t,
+				Time: "2021-04-25T16:58:29.270+00:00",
 			},
 			Label: "Pebble Processed",
 		}
@@ -1302,7 +1302,7 @@ func (ci *ContentImpl) SendNotification(opts *schema.SendNotificationOpts) error
 		return errors.Wrap(err, "failed to generate request to send notification")
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+	// req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
 	resp, err := client.Do(req)
 	//Handle Error
 	if err != nil {
