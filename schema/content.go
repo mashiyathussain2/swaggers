@@ -460,3 +460,32 @@ type CreatorGetContentResp struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+type Schedule struct {
+	Type string     `json:"type" validate:"required"`
+	Time *time.Time `json:"time" validate:"required"`
+}
+
+//SendNotificationOpts validates notification api
+type SendNotificationOpts struct {
+	Type     string            `json:"type" validate:"required"`
+	UserIDs  []string          `json:"user_ids"`
+	Topic    string            `json:"topic"`
+	Topics   []string          `json:"topics"`
+	Title    string            `json:"title" validate:"required"`
+	Body     string            `json:"body" validate:"required"`
+	Image    string            `json:"image"`
+	Schedule Schedule          `json:"schedule" validate:"required"`
+	Label    string            `json:"label" validate:"required"`
+	Data     map[string]string `json:"data"`
+}
+
+type SendNotificationResp struct {
+	Success bool   `json:"success"`
+	Payload string `json:"payload"`
+}
+
+type GetUserIDFromInfluencrIDResp struct {
+	Success bool               `json:"success"`
+	Payload primitive.ObjectID `json:"payload"`
+}
