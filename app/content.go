@@ -315,7 +315,8 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 		// 1. Get User ID from influencer id
 		user_id, err := ci.GetUserIDFromInfluencrID(c.CreatorID)
 		if err != nil {
-			ci.Logger.Log().Err(err).Msg("error getting user id from influencer id")
+			ci.Logger.Log().Err(err).Msgf("error getting user id from influencer id %s", c.CreatorID)
+			return true, nil
 		}
 		t := time.Now()
 		notificationOpts := schema.SendNotificationOpts{
@@ -332,6 +333,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 		err = ci.SendNotification(&notificationOpts)
 		if err != nil {
 			ci.Logger.Log().Err(err).Msg("error sending notification")
+			return true, nil
 		}
 		// 2. Call SendNotification function
 	}
