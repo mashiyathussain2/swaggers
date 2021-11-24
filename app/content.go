@@ -1294,6 +1294,7 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 func (ci *ContentImpl) SendNotification(opts *schema.SendNotificationOpts) error {
 	url := ci.App.Config.HypdAPIConfig.NotificationAPI + "/api/notification"
 	postBody, _ := json.Marshal(opts)
+	fmt.Println(opts)
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
 	if err != nil {
