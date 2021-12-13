@@ -256,6 +256,7 @@ type GetPebbleFilter struct {
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
 	Interests []string `json:"interests,omitempty" queryparam:"interests"`
 	Page      uint     `json:"page,omitempty" queryparam:"page"`
+	IsSeries  bool
 }
 
 type GetPebbleByIDFilter struct {
@@ -295,6 +296,14 @@ type GetPebbleESResp struct {
 	IsLikedByUser  bool                   `json:"is_liked_by_user,omitempty"`
 }
 
+type LikeESResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty"`
+}
+
 type GetBrandInfoResp struct {
 	Success bool              `json:"success"`
 	Payload []model.BrandInfo `json:"payload"`
@@ -318,8 +327,25 @@ type ProcessLikeOpts struct {
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
+type ProcessLikeESResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
 type ProcessViewOpts struct {
 	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
+	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	Duration     time.Duration      `json:"duration,omitempty" bson:"duration,omitempty"`
+	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type ProcessViewESResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	ResourceType string             `json:"resource_type,omitempty" bson:"resource_type,omitempty"`
 	ResourceID   primitive.ObjectID `json:"resource_id,omitempty" bson:"resource_id,omitempty"`
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`

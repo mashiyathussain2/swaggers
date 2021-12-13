@@ -43,14 +43,14 @@ type GetPebbleSeriesFilter struct {
 }
 
 type GetPebbleSeriesESResp struct {
-	ID         primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
-	Name       string               `json:"name,omitempty" bson:"name,omitempty" `
-	Thumbnail  model.IMG            `json:"thumbnail,omitempty" bson:"thumbnail,omitempty" `
-	PebbleIds  []primitive.ObjectID `json:"pebble_ids,omitempty" bson:"pebble_ids,omitempty" `
-	PebbleInfo []GetPebbleESResp    `json:"pebble_info,omitempty" bson:"pebble_info,omitempty"`
-	IsActive   bool                 `json:"is_active" bson:"is_active"`
-	CreatedAt  time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt  time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name       string             `json:"name,omitempty" bson:"name,omitempty" `
+	Thumbnail  model.IMG          `json:"thumbnail,omitempty" bson:"thumbnail,omitempty" `
+	PebbleIds  []interface{}      `json:"pebble_ids,omitempty" bson:"pebble_ids,omitempty" `
+	PebbleInfo []*GetPebbleESResp `json:"pebble_info,omitempty" bson:"pebble_info,omitempty"`
+	IsActive   bool               `json:"is_active" bson:"is_active"`
+	CreatedAt  time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt  time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 //SeriesLabelOpts will hold the keywords related to pebbles series.

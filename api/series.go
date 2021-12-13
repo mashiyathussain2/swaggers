@@ -48,7 +48,7 @@ func (a *API) editPebbleSeries(requestCTX *handler.RequestContext, w http.Respon
 }
 
 func (a *API) getPebbleSeries(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.GetPebbleSeriesFilter
+	var s schema.GetPebbleFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -56,7 +56,7 @@ func (a *API) getPebbleSeries(requestCTX *handler.RequestContext, w http.Respons
 	if requestCTX.UserClaim != nil {
 		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
 	}
-	res, err := a.App.Elasticsearch.GetPebbleSeries(&s)
+	res, err := a.App.Elasticsearch.GetPebbleAndSeries(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
