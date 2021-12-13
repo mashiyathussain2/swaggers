@@ -116,7 +116,7 @@ func CloseConsumer(a *App) {
 		a.LikeChanges[i].Close()
 	}
 
-	for i := 0; i < a.Config.LikeChangeConfig.ConsumerCount; i++ {
+	for i := 0; i < a.Config.ContentChangesConfig.ConsumerCount; i++ {
 		a.ContentChanges[i].Close()
 	}
 
