@@ -678,7 +678,6 @@ func (csp *ContentUpdateProcessor) ProcessLikeForSeries(msg kafka.Message) {
 			ID: s.Meta.ID.(primitive.ObjectID),
 		}
 		csp.App.Series.UpdateSeriesLastSync(likeSchema.ResourceID)
-
 		return
 	}
 }
