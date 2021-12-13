@@ -37,11 +37,18 @@ func InitConsumer(a *App) {
 	})
 	go a.CatalogChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessCatalogMessage)
 
-	a.ContentChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-		Logger: a.Logger,
-		Config: &a.Config.ContentChangesConfig,
-	})
-	go a.ContentChanges.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessage)
+	// Content change consumer
+	for i := 0; i < a.Config.ContentChangesConfig.ConsumerCount; i++ {
+		a.ContentChanges = append(a.ContentChanges, kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+			Logger: a.Logger,
+			Config: &a.Config.ContentChangesConfig,
+		}))
+	}
+	for i := 0; i < a.Config.ContentChangesConfig.ConsumerCount; i++ {
+		for _, consumer := range a.ContentChanges {
+			go consumer.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessage)
+		}
+	}
 
 	// Like consumers
 	for i := 0; i < a.Config.LikeChangeConfig.ConsumerCount; i++ {
@@ -109,8 +116,11 @@ func CloseConsumer(a *App) {
 		a.LikeChanges[i].Close()
 	}
 
+	for i := 0; i < a.Config.ContentChangesConfig.ConsumerCount; i++ {
+		a.ContentChanges[i].Close()
+	}
+
 	a.CatalogChanges.Close()
-	a.ContentChanges.Close()
 	a.PebbleSeriesConsumer.Close()
 	a.PebbleCollectionConsumer.Close()
 	a.PebbleStatusChangeForSeries.Close()
