@@ -523,8 +523,6 @@ func (kc *KeeperCatalogImpl) KeeperSearchCatalog(keeperSearchCatalogOpts *schema
 	//search using Regex, searches for part
 	filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
 
-	// filter := bson.M{"$text": bson.M{"$search": keeperSearchCatalogOpts.Name}}
-
 	opts := options.Find().SetProjection(bson.M{
 		"catalog_id":     1,
 		"name":           1,
@@ -991,11 +989,16 @@ func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilte
 	if opts.Name != "" {
 		nMatchStage := bson.D{{
 			Key: "$match", Value: bson.M{
-				"lname": bson.M{
-					"$regex": strings.ToLower(opts.Name),
-				},
-			},
-		}}
+				"$or": bson.A{
+					bson.M{
+						"lname": bson.M{
+							"$regex": strings.ToLower(opts.Name),
+						}},
+					bson.M{"variants.sku": bson.M{
+						"$regex": primitive.Regex{Pattern: opts.Name, Options: "i"},
+					},
+					},
+				}}}}
 		pipeline = append(pipeline, nMatchStage)
 	}
 	limitStage := bson.D{
