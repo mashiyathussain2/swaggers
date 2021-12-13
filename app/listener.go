@@ -93,11 +93,6 @@ func InitConsumer(a *App) {
 	})
 	go a.PebbleStatusChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessContentMessageForSeries)
 
-	a.LikeChangeForSeries = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-		Logger: a.Logger,
-		Config: &a.Config.LikeChangeForSeriesConfig,
-	})
-	go a.LikeChangeForSeries.ConsumeAndCommit(ctx, a.ContentUpdateProcessor.ProcessLikeForSeries)
 }
 
 // CloseConsumer close all consumer connections
@@ -105,19 +100,19 @@ func CloseConsumer(a *App) {
 	a.LiveComments.Close()
 	a.BrandChanges.Close()
 	a.InfluencerChanges.Close()
-
 	a.CommentChanges.Close()
+
 	for i := 0; i < a.Config.ViewChangeConfig.ConsumerCount; i++ {
 		a.ViewChanges[i].Close()
 	}
 	for i := 0; i < a.Config.LikeChangeConfig.ConsumerCount; i++ {
 		a.LikeChanges[i].Close()
 	}
+
 	a.CatalogChanges.Close()
 	a.ContentChanges.Close()
 	a.PebbleSeriesConsumer.Close()
 	a.PebbleCollectionConsumer.Close()
-	a.LikeChangeForSeries.Close()
 	a.PebbleStatusChangeForSeries.Close()
 }
 
