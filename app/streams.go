@@ -399,6 +399,32 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 		return
 	}
 
+	if s.Meta.Operation == "u" {
+		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+			if sync, ok := updates.(primitive.D).Map()["sync"]; ok {
+				if sync.(bool) == true {
+					var viewSchema schema.ProcessViewOpts
+					viewByteData, err := json.Marshal(s.Data)
+					if err != nil {
+						csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode view update data fields into bytes")
+						return
+					}
+					if err := json.Unmarshal(viewByteData, &viewSchema); err != nil {
+						csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+						return
+					}
+					val, err := json.Marshal(schema.ProcessViewESResp{ID: viewSchema.ID, ResourceType: viewSchema.ResourceType, ResourceID: viewSchema.ResourceID, UserID: viewSchema.UserID, CreatedAt: viewSchema.CreatedAt, Duration: viewSchema.Duration})
+					if err != nil {
+						csp.Logger.Err(err).Interface("views", viewSchema).Msg("failed to convert struct to json")
+						return
+					}
+					csp.App.ViewProducer.Publish(segKafka.Message{Key: []byte(viewSchema.ID.Hex()), Value: val})
+				}
+			}
+		}
+
+	}
+
 }
 
 func (csp *ContentUpdateProcessor) ProcessLiveOrder(msg kafka.Message) {
