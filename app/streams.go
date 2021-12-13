@@ -335,6 +335,33 @@ func (csp *ContentUpdateProcessor) ProcessLike(msg kafka.Message) {
 		return
 	}
 
+	if s.Meta.Operation == "u" {
+		if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+			if sync, ok := updates.(primitive.D).Map()["sync"]; ok {
+				if sync.(bool) == true {
+					var likeSchema schema.ProcessLikeOpts
+					likeByteData, err := json.Marshal(s.Data)
+					if err != nil {
+						csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode like update data fields into bytes")
+						return
+					}
+					if err := json.Unmarshal(likeByteData, &likeSchema); err != nil {
+						csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+						return
+					}
+
+					val, err := json.Marshal(schema.ProcessLikeESResp{ID: likeSchema.ID, ResourceType: likeSchema.ResourceType, ResourceID: likeSchema.ResourceID, UserID: likeSchema.UserID, CreatedAt: likeSchema.CreatedAt})
+					if err != nil {
+						csp.Logger.Err(err).Interface("likes", likeSchema).Msg("failed to convert struct to json")
+						return
+					}
+					csp.App.LikeProducer.Publish(segKafka.Message{Key: []byte(likeSchema.ID.Hex()), Value: val})
+				}
+			}
+		}
+
+	}
+
 }
 
 func (csp *ContentUpdateProcessor) ProcessComment(msg kafka.Message) {
