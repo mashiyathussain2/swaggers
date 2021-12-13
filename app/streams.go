@@ -384,7 +384,7 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 			return
 		}
-		val, err := json.Marshal(schema.ProcessViewESResp{ID: viewSchema.ID, ResourceType: viewSchema.ResourceType, ResourceID: viewSchema.ResourceID, UserID: viewSchema.UserID, CreatedAt: viewSchema.CreatedAt})
+		val, err := json.Marshal(schema.ProcessViewESResp{ID: viewSchema.ID, ResourceType: viewSchema.ResourceType, ResourceID: viewSchema.ResourceID, UserID: viewSchema.UserID, CreatedAt: viewSchema.CreatedAt, Duration: viewSchema.Duration})
 		if err != nil {
 			csp.Logger.Err(err).Interface("views", viewSchema).Msg("failed to convert struct to json")
 			return
