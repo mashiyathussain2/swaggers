@@ -77,6 +77,8 @@ type APPConfig struct {
 	CategoryConfig      ServiceConfig `mapstructure:"category"`
 
 	LiveCommentProducerConfig    ProducerConfig `mapstructure:"liveCommentProducer"`
+	LikeProducerConfig           ProducerConfig `mapstructure:"likeProducer"`
+	ViewProducerConfig           ProducerConfig `mapstructure:"viewProducer"`
 	ContentFullProducerConfig    ProducerConfig `mapstructure:"contentFullProducer"`
 	SeriesFullProducerConfig     ProducerConfig `mapstructure:"seriesFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
@@ -110,6 +112,8 @@ type ElasticsearchConfig struct {
 	Username                  string `mapstructure:"username"`
 	Password                  string `mapstructure:"password"`
 	ContentFullIndex          string `mapstructure:"contentFullIndex"`
+	LikeIndex                 string `mapstructure:"likeIndex"`
+	ViewIndex                 string `mapstructure:"viewIndex"`
 	PebbleSeriesFullIndex     string `mapstructure:"pebbleFullIndex"`
 	PebbleCollectionFullIndex string `mapstructure:"pebbleCollectionFullIndex"`
 }
@@ -121,11 +125,12 @@ type ServiceConfig struct {
 
 // ListenerConfig contains app kafka topic listener related config
 type ListenerConfig struct {
-	GroupID  string   `mapstructure:"groupId"`
-	Brokers  []string `mapstructure:"brokers"`
-	Topic    string   `mapstructure:"topic"`
-	Username string   `mapstructure:"username"`
-	Password string   `mapstructure:"password"`
+	GroupID       string   `mapstructure:"groupId"`
+	Brokers       []string `mapstructure:"brokers"`
+	Topic         string   `mapstructure:"topic"`
+	Username      string   `mapstructure:"username"`
+	Password      string   `mapstructure:"password"`
+	ConsumerCount int      `mapstructure:"consumerCount"`
 }
 
 // ListenerConfig contains app kafka topic producer related config

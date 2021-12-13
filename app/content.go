@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -651,30 +650,9 @@ func (ci *ContentImpl) CreateLike(opts *schema.CreateLikeOpts) error {
 
 	// like exists thus removing the like if content is pebble
 	if opts.ResourceType == model.PebbleType {
-		var wg sync.WaitGroup
-
-		if opts.ResourceType == model.PebbleType {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				filter := bson.M{
-					"_id": opts.ResourceID,
-				}
-				update := bson.M{
-					"$pull": bson.M{
-						"liked_by": opts.UserID,
-					},
-				}
-				if _, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, update); err != nil {
-					ci.Logger.Err(err).Interface("opts", opts).Msg("failed to add like")
-				}
-			}()
-		}
-
 		if _, err = ci.DB.Collection(model.LikeColl).DeleteOne(ctx, filter); err != nil {
 			return errors.Wrap(err, "failed to unlike")
 		}
-		wg.Wait()
 		return nil
 	}
 	return nil

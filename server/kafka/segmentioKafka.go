@@ -181,8 +181,8 @@ func (pl *SegmentioProducer) Init(c *config.ProducerConfig) {
 		Password: c.Password,
 	}
 	dialer := &kafka.Dialer{
-		Timeout: 10 * time.Second,
-		// DualStack:     true,
+		Timeout:       10 * time.Second,
+		DualStack:     true,
 		SASLMechanism: mechanism,
 		TLS:           &tls.Config{},
 	}

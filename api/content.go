@@ -284,6 +284,24 @@ func (a *API) getPebble(requestCTX *handler.RequestContext, w http.ResponseWrite
 	return
 }
 
+func (a *API) getPebbleV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetPebbleFilter
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID = requestCTX.UserClaim.(*auth.UserClaim).ID
+	}
+	res, err := a.App.Elasticsearch.GetPebbleV2(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}
+
 func (a *API) getPebbleByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByIDFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
