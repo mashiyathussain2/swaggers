@@ -303,29 +303,38 @@ func (csp *ContentUpdateProcessor) ProcessLike(msg kafka.Message) {
 		csp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
 		return
 	}
-	// creating a like
-	if s.Meta.Operation == "i" {
-		var likeSchema schema.ProcessLikeOpts
-		commentByteData, err := json.Marshal(s.Data)
-		if err != nil {
-			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode comment update data fields into bytes")
+
+	// If a new like is registered inside `like` collection
+	if s.Meta.Operation == "i" || s.Meta.Operation == "" {
+		if s.Data == nil {
 			return
 		}
-		if err := json.Unmarshal(commentByteData, &likeSchema); err != nil {
+		var likeSchema schema.ProcessLikeOpts
+		likeByteData, err := json.Marshal(s.Data)
+		if err != nil {
+			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode like update data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(likeByteData, &likeSchema); err != nil {
 			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 			return
 		}
-		csp.App.Content.AddContentLike(&likeSchema)
-		return
-	}
-	// unliking
-	if s.Meta.Operation == "d" {
-		likeSchema := schema.ProcessLikeOpts{
-			ID: s.Meta.ID.(primitive.ObjectID),
+
+		val, err := json.Marshal(schema.ProcessLikeESResp{ID: likeSchema.ID, ResourceType: likeSchema.ResourceType, ResourceID: likeSchema.ResourceID, UserID: likeSchema.UserID, CreatedAt: likeSchema.CreatedAt})
+		if err != nil {
+			csp.Logger.Err(err).Interface("likes", likeSchema).Msg("failed to convert struct to json")
+			return
 		}
-		csp.App.Content.DeleteContentLike(&likeSchema)
+		csp.App.LikeProducer.Publish(segKafka.Message{Key: []byte(likeSchema.ID.Hex()), Value: val})
 		return
 	}
+
+	// If a new like doc was deleted inside `like` collection
+	if s.Meta.Operation == "d" {
+		csp.App.LikeProducer.Publish(segKafka.Message{Key: []byte(s.Meta.ID.(primitive.ObjectID).Hex()), Value: nil})
+		return
+	}
+
 }
 
 func (csp *ContentUpdateProcessor) ProcessComment(msg kafka.Message) {
@@ -361,7 +370,10 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 	}
 
 	// creating a view
-	if s.Meta.Operation == "i" {
+	if s.Meta.Operation == "i" || s.Meta.Operation == "" {
+		if s.Data == nil {
+			return
+		}
 		var viewSchema schema.ProcessViewOpts
 		viewByteData, err := json.Marshal(s.Data)
 		if err != nil {
@@ -372,8 +384,21 @@ func (csp *ContentUpdateProcessor) ProcessView(msg kafka.Message) {
 			csp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
 			return
 		}
-		csp.App.Content.AddContentView(&viewSchema)
+		val, err := json.Marshal(schema.ProcessViewESResp{ID: viewSchema.ID, ResourceType: viewSchema.ResourceType, ResourceID: viewSchema.ResourceID, UserID: viewSchema.UserID, CreatedAt: viewSchema.CreatedAt})
+		if err != nil {
+			csp.Logger.Err(err).Interface("views", viewSchema).Msg("failed to convert struct to json")
+			return
+		}
+		csp.App.ViewProducer.Publish(segKafka.Message{Key: []byte(viewSchema.ID.Hex()), Value: val})
+		return
 	}
+
+	// If a new like doc was deleted inside `like` collection
+	if s.Meta.Operation == "d" {
+		csp.App.ViewProducer.Publish(segKafka.Message{Key: []byte(s.Meta.ID.(primitive.ObjectID).Hex()), Value: nil})
+		return
+	}
+
 }
 
 func (csp *ContentUpdateProcessor) ProcessLiveOrder(msg kafka.Message) {
@@ -646,6 +671,7 @@ func (csp *ContentUpdateProcessor) ProcessLikeForSeries(msg kafka.Message) {
 		csp.App.Series.UpdateSeriesLastSync(likeSchema.ResourceID)
 		return
 	}
+
 	// unliking
 	if s.Meta.Operation == "d" {
 		likeSchema := schema.ProcessLikeOpts{

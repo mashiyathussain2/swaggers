@@ -37,9 +37,10 @@ type App struct {
 	ContentUpdateProcessor *ContentUpdateProcessor
 
 	// Kafka Consumer
-	LikeChanges                 kafka.Consumer
+	LikeChanges []kafka.Consumer
+	ViewChanges []kafka.Consumer
+
 	CommentChanges              kafka.Consumer
-	ViewChanges                 kafka.Consumer
 	LiveComments                kafka.Consumer
 	BrandChanges                kafka.Consumer
 	InfluencerChanges           kafka.Consumer
@@ -51,6 +52,8 @@ type App struct {
 	LikeChangeForSeries         kafka.Consumer
 	// Kafka Producer
 	LiveCommentProducer      kafka.Producer
+	LikeProducer             kafka.Producer
+	ViewProducer             kafka.Producer
 	ContentFullProducer      kafka.Producer
 	PebbleSeriesProducer     kafka.Producer
 	PebbleCollectionProducer kafka.Producer
