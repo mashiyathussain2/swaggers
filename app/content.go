@@ -667,6 +667,7 @@ func (ci *ContentImpl) UpdateContentBrandInfo(opts *schema.UpdateContentBrandInf
 	update := bson.M{
 		"$set": bson.M{
 			"last_sync": time.Now().UTC(),
+			"sync_type": "brand",
 		},
 	}
 	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
@@ -684,6 +685,7 @@ func (ci *ContentImpl) UpdateContentInfluencerInfo(opts *schema.UpdateContentInf
 	update := bson.M{
 		"$set": bson.M{
 			"last_sync": time.Now().UTC(),
+			"sync_type": "influencer",
 		},
 	}
 	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
@@ -700,6 +702,7 @@ func (ci *ContentImpl) UpdateContentCatalogInfo(opts *schema.UpdateContentCatalo
 	update := bson.M{
 		"$set": bson.M{
 			"last_sync": time.Now().UTC(),
+			"sync_type": "catalog",
 		},
 	}
 	if _, err := ci.DB.Collection(model.ContentColl).UpdateMany(context.TODO(), filter, update); err != nil {
