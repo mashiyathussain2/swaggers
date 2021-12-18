@@ -921,6 +921,9 @@ func (ci *ContentImpl) GetPebbles(opts *schema.GetPebblesKeeperFilter) ([]schema
 	if len(opts.CatalogIDs) > 0 {
 		matchFilter = append(matchFilter, bson.E{Key: "catalog_ids", Value: bson.M{"$in": opts.CatalogIDs}})
 	}
+	if opts.Caption != "" {
+		matchFilter = append(matchFilter, bson.E{Key: "caption", Value: bson.M{"$regex": primitive.Regex{Pattern: opts.Caption, Options: "i"}}})
+	}
 	var matchStage bson.D
 	matchStage = append(matchStage, bson.E{Key: "$match", Value: matchFilter})
 	sortStage := bson.D{{

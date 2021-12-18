@@ -368,6 +368,7 @@ type GetPebblesKeeperFilter struct {
 	InfluencerIDs []primitive.ObjectID `json:"influencer_ids"`
 	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
 	Page          uint                 `json:"page"`
+	Caption       string               `json:"caption"`
 }
 
 type ChangeContentStatusOpts struct {
