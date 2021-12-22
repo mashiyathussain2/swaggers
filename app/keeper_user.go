@@ -25,6 +25,7 @@ type KeeperUser interface {
 	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
 	SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []string, error)
 	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, roles []string) auth.Claim
+	GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error)
 }
 
 type KeeperUserOpts struct {
@@ -274,3 +275,42 @@ func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []st
 // 	}
 // 	return nil
 // }
+
+func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error) {
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"$or": bson.A{
+				bson.M{"name": opts.Query},
+				bson.M{"email": opts.Query},
+			},
+		},
+	}}
+
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "user",
+			"localField":   "user_id",
+			"foreignField": "_id",
+			"as":           "user_info",
+		},
+	}}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"full_name": 1,
+			"roles":     1,
+			"email":     bson.M{"$first": "$user_info.email"},
+		},
+	}}
+	var resp []schema.GetKeeperUsersResp
+	ctx := context.TODO()
+	cur, err := ku.DB.Collection(model.KeeperUserColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, projectStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get keeper users")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding keeper users")
+	}
+	return resp, nil
+}

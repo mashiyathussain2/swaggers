@@ -534,3 +534,18 @@ func (a *API) setRoles(requestCTX *handler.RequestContext, w http.ResponseWriter
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
+
+func (a *API) getKeeperUsers(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetKeeperUsersOpts
+	s.Query = r.URL.Query().Get("query")
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.KeeperUser.GetKeeperUsers(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}

@@ -168,3 +168,14 @@ type SetRolesOpts struct {
 	UserID primitive.ObjectID `json:"user_id" validate:"required"`
 	Roles  []string           `json:"roles" validate:"required"`
 }
+
+type GetKeeperUsersOpts struct {
+	Query string `json:"query"`
+}
+
+type GetKeeperUsersResp struct {
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	FullName string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	Email    string             `json:"email,omitempty" bson:"email,omitempty"`
+	Roles    []string           `json:"roles,omitempty" bson:"roles,omitempty"`
+}
