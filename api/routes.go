@@ -70,6 +70,12 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/discount", a.requestWithSudoHandler(a.createDiscount)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/discount/{discountID}/deactivate", a.requestWithSudoHandler(a.deactivateDiscount)).Methods("POST")
 
+	//KEEPER COMMISSION
+	a.Router.APIRoot.Handle("/keeper/catalogs/brand", a.requestWithSudoHandler(a.getCatalogsByBrandID)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/catalogs/commission", a.requestWithSudoHandler(a.bulkUpdateCommission)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/catalogs/brand/commission", a.requestWithSudoHandler(a.addCommissionRateBasedonBrandID)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/catalogs/brand/commission", a.requestWithSudoHandler(a.getCommissionRateUsingBrandID)).Methods("GET")
+
 	//KEEPER SALE
 	a.Router.APIRoot.Handle("/keeper/sale", a.requestWithSudoHandler(a.getSales)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/sale/{saleID}/discount", a.requestWithSudoHandler(a.getDiscountInfoBySaleID)).Methods("GET")
@@ -121,6 +127,8 @@ func (a *API) InitRoutes() {
 	//BULK UPLOAD
 	// a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogCSV)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogJSON)).Methods("POST")
+
+	//COMMISSION
 
 }
 

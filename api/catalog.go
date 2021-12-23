@@ -571,3 +571,72 @@ func (a *API) getCollectionCatalogByIDs(requestCTX *handler.RequestContext, w ht
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 	return
 }
+
+func (a *API) getCatalogsByBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("brand_id"))
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", r.URL.Query().Get("brandID")), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogInfoByBrandID(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) bulkUpdateCommission(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+
+	var s []schema.BulkUpdateCommissionOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, opt := range s {
+		if errs := a.Validator.Validate(&opt); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+	err := a.App.KeeperCatalog.BulkUpdateCommission(s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+	return
+}
+
+func (a *API) addCommissionRateBasedonBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.AddCommissionRateBasedonBrandIDOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	err := a.App.KeeperCatalog.AddCommissionRateBasedonBrandID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+	return
+}
+func (a *API) getCommissionRateUsingBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.KeeperCatalog.GetCommissionRateUsingBrandID(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+	return
+}

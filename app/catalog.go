@@ -58,6 +58,10 @@ type KeeperCatalog interface {
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error)
 	// DeleteVariant(primitive.ObjectID)
+	GetCatalogInfoByBrandID(id primitive.ObjectID) ([]schema.GetCatalogInfoByBrandIDResp, error)
+	BulkUpdateCommission(opts []schema.BulkUpdateCommissionOpts) error
+	AddCommissionRateBasedonBrandID(opts *schema.AddCommissionRateBasedonBrandIDOpts) error
+	GetCommissionRateUsingBrandID(id primitive.ObjectID) (uint, error)
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
@@ -2326,7 +2330,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // }
 
 func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error) {
-
 	ctx := context.TODO()
 	var catalogs []interface{}
 	var resp []schema.BulkUploadCatalogRowResp
@@ -2472,5 +2475,72 @@ func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalog
 		Data:  resp,
 	}
 	return &data, nil
+}
 
+func (kc *KeeperCatalogImpl) GetCatalogInfoByBrandID(id primitive.ObjectID) ([]schema.GetCatalogInfoByBrandIDResp, error) {
+	ctx := context.TODO()
+	var res []schema.GetCatalogInfoByBrandIDResp
+	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{"brand_id": id})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query for catalog")
+	}
+	if err := cur.All(ctx, &res); err != nil {
+		return nil, errors.Wrap(err, "failed to find catalog")
+	}
+	return res, nil
+}
+
+func (kc *KeeperCatalogImpl) BulkUpdateCommission(opts []schema.BulkUpdateCommissionOpts) error {
+	currentTime := time.Now().UTC()
+
+	// file.AddComment(sheet, "A"+fmt.Sprint(1), `{"text":"hell"}`)
+	var operations []mongo.WriteModel
+	for _, cat := range opts {
+		operation := mongo.NewUpdateOneModel()
+		operation.SetFilter(bson.M{"_id": cat.ID})
+		operation.SetUpdate(bson.M{
+			"$set": bson.M{
+				"commission_rate": cat.CommissionRate,
+				"updated_at":      currentTime,
+			},
+		})
+		operations = append(operations, operation)
+	}
+	if len(operations) == 0 {
+		kc.Logger.Info().Msg("no operations for catalog commission update")
+		return nil
+	}
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	_, err := kc.DB.Collection(model.CatalogColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		kc.Logger.Err(err).Msgf("failed to add commission rate info inside catalogs")
+	}
+	return nil
+}
+
+func (kc *KeeperCatalogImpl) AddCommissionRateBasedonBrandID(opts *schema.AddCommissionRateBasedonBrandIDOpts) error {
+	ctx := context.TODO()
+	filter := bson.M{
+		"brand_id": opts.ID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"commission_rate": opts.CommissionRate,
+		},
+	}
+	_, err := kc.DB.Collection(model.CatalogColl).UpdateMany(ctx, filter, update)
+	if err != nil {
+		return errors.Wrap(err, "error updating commission rate")
+	}
+	return nil
+}
+
+func (kc *KeeperCatalogImpl) GetCommissionRateUsingBrandID(id primitive.ObjectID) (uint, error) {
+	var cat model.Catalog
+	err := kc.DB.Collection(model.CatalogColl).FindOne(context.TODO(), bson.M{"brand_id": id}).Decode(&cat)
+	if err != nil {
+		return 0, errors.Wrap(err, "error getting commission rate")
+	}
+	return cat.CommissionRate, nil
 }
