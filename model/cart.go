@@ -49,6 +49,7 @@ type Item struct {
 	Quantity      uint               `json:"quantity,omitempty" bson:"quantity,omitempty"`
 	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 	InStock       *bool              `json:"in_stock,omitempty" bson:"in_stock,omitempty"`
+	Source        *Source            `json:"source,omitempty" bson:"source,omitempty"`
 }
 type Coupon struct {
 	ID               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -66,4 +67,9 @@ type Coupon struct {
 type ApplicableON struct {
 	Name string               `json:"name,omitempty" bson:"name,omitempty"`
 	IDs  []primitive.ObjectID `json:"ids,omitempty" bson:"ids,omitempty"`
+}
+
+type Source struct {
+	ID   string `json:"id,omitempty" bson:"id,omitempty"`
+	Type string `json:"type,omitempty" bson:"type,omitempty"`
 }

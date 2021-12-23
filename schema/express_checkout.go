@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"go-app/model"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -8,6 +10,7 @@ type ItemExpress struct {
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
 	Quantity  int                `json:"quantity" validate:"required"`
+	Source    *model.Source      `json:"source"`
 }
 
 type ExpressCheckoutOpts struct {

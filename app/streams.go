@@ -167,6 +167,24 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	ip.App.InfluencerFullProducer.Publish(m)
 }
 
+func (op *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
+	message := msg.(segKafka.Message)
+
+	// linking brand info
+	var item schema.CommisionOrderItem
+
+	if err := json.Unmarshal(message.Value, &item); err != nil {
+		op.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
+		return
+	}
+	fmt.Println("comm data : ", item)
+	err := op.App.Influencer.AddCreditTransaction(&item)
+	if err != nil {
+		op.Logger.Err(err).Msg("error adding credit transaction")
+	}
+	return
+}
+
 type UserProcessor struct {
 	App    *App
 	Logger *zerolog.Logger
@@ -284,7 +302,7 @@ func (cp *CartProcessor) ProcessInventoryUpdate(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
 	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
-		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode discount update message")
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode inventory update message")
 		return
 	}
 	if s.Meta.Operation == "u" {

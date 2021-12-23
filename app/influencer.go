@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"math"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -34,6 +36,14 @@ type Influencer interface {
 	UpdateInfluencerAccountRequestStatus(opts *schema.UpdateInfluencerAccountRequestStatusOpts) error
 	CheckInfluencerUsernameExists(string, *mongo.SessionContext) error
 	EditInfluencerApp(*schema.EditInfluencerAppOpts) (*schema.EditInfluencerResp, error)
+	AddCreditTransaction(opts *schema.CommisionOrderItem) error
+	DebitRequest(opts *schema.CommissionDebitRequest) error
+	UpdateDebitRequest(opts *schema.UpdateCommissionDebitRequest) error
+	GetActiveDebitRequest() ([]schema.GetDebitRequestResponse, error)
+	GetInfluencerDashboard(opts *schema.GetInfluencerDashboardOpts) (*schema.GetInfluencerDashboardResp, error)
+	GetInfluencerLedger(opts *schema.GetInfluencerLedgerOpts) ([]schema.GetInfluencerLedgerResp, error)
+	GetInfluencerPayoutInfo(id primitive.ObjectID) (*schema.GetPayoutInfoResp, error)
+	GetCommissionAndRevenue(opts *schema.GetCommissionAndRevenueOpts) (*schema.GetCommissionAndRevenueResp, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -516,6 +526,9 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 		}
 		return errors.Errorf("account upgrade request is already in active status")
 	}
+	if opts.Username == "" {
+		opts.Username = GenerateUsernameInfluencer(opts.FullName)
+	}
 	err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
 	if err != nil {
 		return err
@@ -580,6 +593,16 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 
 func (ii *InfluencerImpl) GetInfluencerAccountRequestStatus(id primitive.ObjectID) (string, error) {
 	ctx := context.TODO()
+	// checking if influencer profile is already associated with user model
+	var user model.User
+	if err := ii.DB.Collection(model.UserColl).FindOne(ctx, bson.M{"_id": id}).Decode(&user); err != nil {
+		return "", errors.Wrap(err, "failed to find user")
+	}
+	if !user.InfluencerID.IsZero() {
+		return model.AcceptedStatus, nil
+	}
+
+	// checking if influencer request is accepted or rejected
 	var request model.InfluencerAccountRequest
 	filter := bson.M{
 		"user_id": id,
@@ -640,7 +663,6 @@ func (ii *InfluencerImpl) UpdateInfluencerAccountRequestStatus(opts *schema.Upda
 			session.AbortTransaction(sc)
 			return errors.Wrap(err, "failed to update request status")
 		}
-		fmt.Println(request)
 		if request.ID.IsZero() == true {
 			session.AbortTransaction(sc)
 			return errors.Errorf("influencer account request failed")
@@ -864,10 +886,9 @@ func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, o
 
 func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mongo.SessionContext) error {
 	// ctx := context.TODO()
-
 	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
 	if !isAlpha(username) {
-		errors.Errorf("%s is not valid", username)
+		return errors.Errorf("%s is not valid", username)
 	}
 	filter := bson.M{
 		"username": username,
@@ -901,7 +922,7 @@ func (ii *InfluencerImpl) EditInfluencerApp(opts *schema.EditInfluencerAppOpts) 
 
 	if err := session.StartTransaction(); err != nil {
 		ii.Logger.Err(err).Msg("unable to start transaction")
-		return nil, errors.Wrap(err, "failed to add follower")
+		return nil, errors.Wrap(err, "failed to edit influencer")
 	}
 	if err := mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 
@@ -912,6 +933,13 @@ func (ii *InfluencerImpl) EditInfluencerApp(opts *schema.EditInfluencerAppOpts) 
 				return err
 			}
 			update = append(update, bson.E{Key: "username", Value: opts.Username})
+		}
+		if opts.PayoutInformation != nil {
+			update = append(update, bson.E{Key: "payout_information", Value: model.PayoutInformation{
+				UPIID:           opts.PayoutInformation.UPIID,
+				BankInformation: opts.PayoutInformation.BankInformation,
+				PanCard:         strings.ToUpper(opts.PayoutInformation.PanCard),
+			}})
 		}
 		if update == nil {
 			return errors.New("no fields found to update")
@@ -927,6 +955,9 @@ func (ii *InfluencerImpl) EditInfluencerApp(opts *schema.EditInfluencerAppOpts) 
 				return errors.Wrapf(err, "influencer with id:%s not found", opts.ID.Hex())
 			}
 			return errors.Wrapf(err, "failed to update influencer with id:%s", opts.ID.Hex())
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			return errors.Wrapf(err, "failed to commit transaction")
 		}
 		return nil
 	}); err != nil {
@@ -946,4 +977,583 @@ func (ii *InfluencerImpl) EditInfluencerApp(opts *schema.EditInfluencerAppOpts) 
 		UpdatedAt:     influencer.UpdatedAt,
 	}
 	return &resp, nil
+}
+
+func (ii *InfluencerImpl) AddCreditTransaction(opts *schema.CommisionOrderItem) error {
+
+	ctx := context.TODO()
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		return errors.Wrap(err, "failed to start session")
+	}
+	// Closing session at the end for function execution
+	defer session.EndSession(ctx)
+
+	// staring a new transaction
+	if err := session.StartTransaction(); err != nil {
+		return errors.Wrap(err, "failed to start transaction")
+	}
+
+	if err = mongo.WithSession(context.TODO(), session, func(sc mongo.SessionContext) error {
+
+		// 1. Get Commission rate from Catalog
+
+		cr := float64(opts.CatalogInfo.CommissionRate)
+		if cr == 0 {
+			return nil
+		}
+
+		//2. Calculate Commission based on item total price
+		commision := math.Floor(cr / 100.0 * float64(opts.TotalPrice.Value))
+		//3. Add transaction to ledger collection
+
+		fmt.Println(commision)
+		iID, err := primitive.ObjectIDFromHex(opts.Source.ID)
+		if err != nil {
+			return err
+		}
+
+		oldBalanc, err := ii.GetBalance(&sc, iID)
+		if err != nil {
+			return err
+		}
+		balance := oldBalanc + commision
+
+		brand, err := ii.App.Brand.GetBrandByID(opts.CatalogInfo.BrandID)
+		if err != nil {
+			return err
+		}
+		opts.CatalogInfo.BrandName = brand.Name
+		transaction := model.Transaction{
+			InfluencerID:    iID,
+			Type:            model.CreditTransaction,
+			ItemID:          opts.ID,
+			OrderID:         opts.OrderID,
+			OrderNo:         opts.OrderNo,
+			OrderValue:      opts.TotalPrice,
+			CatalogInfo:     opts.CatalogInfo,
+			CommissionValue: commision,
+			CreatedAt:       time.Now(),
+			Balance:         balance,
+		}
+		_, err = ii.DB.Collection(model.CommissionLedgerColl).InsertOne(sc, transaction)
+		if err != nil {
+			return err
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			return errors.Wrapf(err, "failed to commit transaction")
+		}
+
+		return nil
+	}); err != nil {
+		ii.Logger.Err(err).Msgf("failed to create credit transaction: %s", opts.OrderID)
+		return err
+	}
+
+	return nil
+}
+
+// GetBalance returns last balance of Influencer
+func (ii *InfluencerImpl) GetBalance(sc *mongo.SessionContext, id primitive.ObjectID) (float64, error) {
+
+	var transaction model.Transaction
+	filterOpts := options.FindOne().SetSort(bson.M{"_id": -1})
+	var err error
+	if sc != nil {
+		err = ii.DB.Collection(model.CommissionLedgerColl).FindOne(*sc, bson.M{"influencer_id": id}, filterOpts).Decode(&transaction)
+	} else {
+		err = ii.DB.Collection(model.CommissionLedgerColl).FindOne(context.TODO(), bson.M{"influencer_id": id}, filterOpts).Decode(&transaction)
+	}
+	if err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return transaction.Balance, nil
+}
+
+func (ii *InfluencerImpl) DebitRequest(opts *schema.CommissionDebitRequest) error {
+	bal, err := ii.GetBalance(nil, opts.ID)
+	if err != nil {
+		return errors.Wrapf(err, "error getting current balance")
+	}
+	if bal < float64(opts.Amount) {
+		return errors.New("amount requested is invalid")
+	}
+	ctx := context.TODO()
+	//checking if payout info is available
+	var influencer model.Influencer
+	err = ii.DB.Collection(model.InfluencerColl).FindOne(ctx, bson.M{"_id": opts.ID}).Decode(&influencer)
+	if err != nil {
+		return errors.Wrapf(err, "error getting influencer info")
+	}
+	if influencer.PayoutInformation == nil {
+		return errors.New("error: payout info missing")
+	} else if influencer.PayoutInformation.UPIID == "" && influencer.PayoutInformation.BankInformation == nil {
+		return errors.New("error: payout info missing")
+	}
+	if influencer.PayoutInformation.PanCard == "" {
+		return errors.New("error: pancard info missing")
+	}
+
+	filter := bson.M{
+		"influencer_id": opts.ID,
+		"status":        model.InReviewStatus,
+	}
+	var dr *model.DebitRequest
+	err = ii.DB.Collection(model.DebitRequestColl).FindOne(ctx, filter).Decode(&dr)
+	if err != nil {
+		if err != mongo.ErrNoDocuments && err != mongo.ErrNilDocument {
+			return errors.Wrapf(err, "error checking for debit request")
+		}
+	}
+	if dr != nil {
+		return errors.New("another request is active")
+	}
+	dr = &model.DebitRequest{
+		InfluencerID:      opts.ID,
+		Amount:            float64(opts.Amount),
+		Status:            model.InReviewStatus,
+		PayoutInformation: (*model.PayoutInformation)(&opts.PayoutInformation),
+		CreatedAt:         time.Now(),
+	}
+	_, err = ii.DB.Collection(model.DebitRequestColl).InsertOne(ctx, dr)
+	if err != nil {
+		return errors.Wrapf(err, "error creating debit request")
+	}
+	return nil
+}
+
+func (ii *InfluencerImpl) UpdateDebitRequest(opts *schema.UpdateCommissionDebitRequest) error {
+
+	ctx := context.TODO()
+	session, err := ii.DB.Client().StartSession()
+	if err != nil {
+		return errors.Wrap(err, "failed to start session")
+	}
+	// Closing session at the end for function execution
+	defer session.EndSession(ctx)
+
+	// staring a new transaction
+	if err := session.StartTransaction(); err != nil {
+		return errors.Wrap(err, "failed to start transaction")
+	}
+
+	if err = mongo.WithSession(context.TODO(), session, func(sc mongo.SessionContext) error {
+
+		dr := model.DebitRequest{
+			Status:    opts.Status,
+			GranteeID: opts.GranteeID,
+			UpdatedAt: time.Now(),
+		}
+		filter := bson.M{
+			"_id":    opts.ID,
+			"status": model.InReviewStatus,
+		}
+		update := bson.M{
+			"$set": dr,
+		}
+		queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+		err := ii.DB.Collection(model.DebitRequestColl).FindOneAndUpdate(sc, filter, update, queryOpts).Decode(&dr)
+		if err != nil {
+			return errors.Wrapf(err, "error updating debit request")
+		}
+		if dr.Status == model.RejectedStatus {
+			if err := session.CommitTransaction(sc); err != nil {
+				return errors.Wrapf(err, "failed to commit transaction")
+			}
+			return nil
+		}
+		oldBal, err := ii.GetBalance(&sc, dr.InfluencerID)
+		if err != nil {
+			return errors.Wrapf(err, "error getting current balance")
+		}
+		bl := oldBal - dr.Amount
+		if bl < 0 {
+			return errors.New("error amount exceeding current balance")
+		}
+		if err != nil {
+			return errors.Wrapf(err, "error getting influencer payout info")
+		}
+		//create debit transaction
+		transaction := model.Transaction{
+			InfluencerID:      dr.InfluencerID,
+			Type:              model.DebitTransaction,
+			DebitAmount:       dr.Amount,
+			CreatedAt:         time.Now(),
+			Balance:           bl,
+			PayoutInformation: dr.PayoutInformation,
+		}
+		_, err = ii.DB.Collection(model.CommissionLedgerColl).InsertOne(sc, transaction)
+		if err != nil {
+			return err
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			return errors.Wrapf(err, "failed to commit transaction")
+		}
+		return nil
+	}); err != nil {
+		ii.Logger.Err(err).Msgf("failed to create debit transaction: %s", opts.ID)
+		return err
+	}
+
+	return nil
+}
+
+func (ii *InfluencerImpl) GetActiveDebitRequest() ([]schema.GetDebitRequestResponse, error) {
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"status": model.InReviewStatus,
+		},
+	}}
+
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "influencer",
+			"localField":   "influencer_id",
+			"foreignField": "_id",
+			"as":           "influencer_info",
+		},
+	}}
+
+	lookupStage2 := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "user",
+			"localField":   "influencer_id",
+			"foreignField": "influencer_id",
+			"as":           "user_info",
+		},
+	}}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"amount":     1,
+			"created_at": 1,
+			"influencer_info": bson.M{
+				"$first": "$influencer_info",
+			},
+			"status": 1,
+			"phone_no": bson.M{
+				"$first": "$user_info.phone_no.number",
+			},
+			"email": bson.M{
+				"$first": "$user_info.email",
+			},
+			"payout_information": 1,
+		},
+	}}
+
+	cursor, err := ii.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		lookupStage,
+		lookupStage2,
+		projectStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get debit request data")
+	}
+	var resp []schema.GetDebitRequestResponse
+	if err := cursor.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding brands")
+	}
+
+	return resp, nil
+}
+
+func (ii *InfluencerImpl) GetInfluencerDashboard(opts *schema.GetInfluencerDashboardOpts) (*schema.GetInfluencerDashboardResp, error) {
+	var matchStage bson.D
+	matchStage = bson.D{{
+		Key: "$match", Value: bson.M{
+			"influencer_id": opts.ID,
+		},
+	}}
+	if opts.StartDate != nil && opts.EndDate != nil {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"influencer_id": opts.ID,
+				"created_at": bson.M{
+					"$gte": opts.StartDate,
+					"$lte": opts.EndDate,
+				},
+			},
+		}}
+	}
+
+	facetStage := bson.D{{
+		Key: "$facet", Value: bson.M{
+			"overall_data": bson.A{
+				bson.D{{
+					Key: "$group", Value: bson.M{
+						"_id": "$influencer_id",
+						"revenue": bson.M{
+							"$sum": "$order_value.value",
+						},
+						"total_commission": bson.M{
+							"$sum": "$commission_value",
+						},
+					},
+				}},
+			},
+			"monthly_data": bson.A{
+				bson.D{{
+					Key: "$group", Value: bson.M{
+						"_id": bson.M{
+							"$month": "$created_at",
+						},
+						"count": bson.M{
+							"$sum": 1,
+						},
+					},
+				}},
+			},
+			// "ledger": bson.A{
+			// 	bson.M{
+			// 		"$sort": bson.M{
+			// 			"_id": -1,
+			// 		},
+			// 	},
+			// 	bson.M{
+			// 		"$limit": 10,
+			// 	},
+			// },
+		},
+	}}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"overall_data": bson.M{"$first": "$overall_data"},
+			"monthly_data": 1,
+			// "ledger":       1,
+		},
+	}}
+
+	ctx := context.TODO()
+	var resp []schema.GetInfluencerDashboardResp
+	cur, err := ii.DB.Collection(model.CommissionLedgerColl).Aggregate(ctx, mongo.Pipeline{matchStage, facetStage, projectStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query influencer dashboard data")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get results")
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	resp[0].Ledger, err = ii.GetInfluencerLedger(&schema.GetInfluencerLedgerOpts{
+		ID: opts.ID,
+		// Page:      opts.Page,
+		Type:      "credit",
+		StartDate: opts.StartDate,
+		EndDate:   opts.EndDate,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get ledger")
+	}
+	// fmt.Println("response", resp)
+	return &resp[0], nil
+}
+
+func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOpts) ([]schema.GetInfluencerLedgerResp, error) {
+	ctx := context.TODO()
+
+	var matchStage bson.D
+	if opts.StartDate.IsZero() && opts.EndDate.IsZero() {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+			},
+		}}
+	} else {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+				"created_at": bson.M{
+					"$gte": opts.StartDate,
+					"$lte": opts.EndDate,
+				},
+			},
+		}}
+	}
+
+	sortStage1 := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"_id": -1,
+		},
+	}}
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"month": bson.M{
+				"$let": bson.M{
+					"vars": bson.M{
+						"monthsInString": bson.A{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"},
+					},
+					"in": bson.M{
+						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$created_at"}},
+					},
+				},
+			},
+		},
+	}}
+
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"date": bson.M{
+				"$concat": bson.A{
+					bson.M{"$toString": bson.M{"$dayOfMonth": "$created_at"}},
+					" ",
+					"$month",
+					",",
+					bson.M{"$toString": bson.M{"$year": "$created_at"}},
+				},
+			},
+		},
+	}}
+
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$date",
+			"ledger": bson.M{
+				"$push": "$$ROOT",
+			},
+			"commission": bson.M{
+				"$sum": "$commission_value",
+			},
+			"revenue": bson.M{
+				"$sum": "$order_value.value",
+			},
+		},
+	}}
+
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"ledger.created_at": -1,
+		},
+	}}
+
+	skipStage := bson.D{{
+		Key: "$skip", Value: int64(opts.Page) * 10,
+	}}
+
+	limitStage := bson.D{{
+		Key: "$limit", Value: 10,
+	}}
+	var resp []schema.GetInfluencerLedgerResp
+
+	cur, err := ii.DB.Collection(model.CommissionLedgerColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage})
+	if err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query influencer ledger data")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get results")
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return resp, nil
+}
+
+func (ii *InfluencerImpl) GetInfluencerPayoutInfo(id primitive.ObjectID) (*schema.GetPayoutInfoResp, error) {
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": id,
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         model.CommissionLedgerColl,
+			"localField":   "_id",
+			"foreignField": "influencer_id",
+			"as":           "ledger",
+		},
+	}}
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"payout_information": 1,
+			"balance": bson.M{
+				"$last": "$ledger.balance",
+			},
+		},
+	}}
+
+	var resp []schema.GetPayoutInfoResp
+
+	ctx := context.TODO()
+	cur, err := ii.DB.Collection(model.InfluencerColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, projectStage})
+	if err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query influencer dashboard data")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get results")
+	}
+
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return &resp[0], nil
+}
+
+func (ii *InfluencerImpl) GetCommissionAndRevenue(opts *schema.GetCommissionAndRevenueOpts) (*schema.GetCommissionAndRevenueResp, error) {
+	ctx := context.TODO()
+	var matchStage bson.D
+	if opts.StartDate.IsZero() && opts.EndDate.IsZero() {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"influencer_id": opts.ID,
+			},
+		}}
+	} else {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"influencer_id": opts.ID,
+				"created_at": bson.M{
+					"$gte": opts.StartDate,
+					"$lte": opts.EndDate,
+				},
+			},
+		}}
+	}
+	fmt.Println(matchStage)
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$influencer_id",
+			"commission": bson.M{
+				"$sum": "$commission_value",
+			},
+			"revenue": bson.M{
+				"$sum": "$order_value.value",
+			},
+			"balance": bson.M{
+				"$last": "$balance",
+			},
+		},
+	}}
+
+	var resp []schema.GetCommissionAndRevenueResp
+
+	cur, err := ii.DB.Collection(model.CommissionLedgerColl).Aggregate(ctx, mongo.Pipeline{matchStage, groupStage})
+	if err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query influencer dashboard data")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get results")
+	}
+
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	return &resp[0], nil
 }

@@ -131,7 +131,7 @@ type InfluencerAccountRequestOpts struct {
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 	// InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
 	FullName      string             `json:"full_name" validate:"required"`
-	Username      string             `json:"username,omitempty" validate:"required"`
+	Username      string             `json:"username,omitempty"`
 	ProfileImage  Img                `json:"profile_image" validate:"required"`
 	CoverImage    Img                `json:"cover_image" validate:"required"`
 	Bio           string             `json:"bio" validate:"required"`
@@ -192,4 +192,120 @@ type EditInfluencerAppOpts struct {
 	// ProfileImage  *Img               `json:"profile_image"`
 	// ExternalLinks []string           `json:"external_links"`
 	// SocialAccount *SocialAccountOpts `json:"social_account"`
+	PayoutInformation *PayoutInformationOpts `json:"payout_information"`
+}
+
+type PayoutInformationOpts struct {
+	UPIID           string                 `json:"upi_id"`
+	PanCard         string                 `json:"pan_card"`
+	BankInformation *model.BankInformation `json:"bank_information"`
+}
+
+type BankInformationOpts struct {
+	AccountHolderName string `json:"account_holder_name"`
+	AccountNumber     string `json:"account_number"`
+	IFSCCode          string `json:"ifsc_code"`
+}
+
+type ProcessInsertOrderOpts struct {
+	ID           primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	OrderID      string             `json:"order_id,omitempty" bson:"order_id,omitempty"`
+	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	BrandID      primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	InfluencerID primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
+}
+
+type CommissionDebitRequest struct {
+	ID                primitive.ObjectID    `json:"id" validate:"required"`
+	Amount            uint                  `json:"amount" validate:"required,gte=1000"`
+	PayoutInformation PayoutInformationOpts `json:"payout_information" validate:"required"`
+}
+
+type UpdateCommissionDebitRequest struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	Status    string             `json:"status" validate:"required"`
+	GranteeID primitive.ObjectID `json:"grantee_id" validate:"required"`
+	// PayoutInformation *PayoutInformationOpts `json:"payout_information" validate:"required"`
+}
+
+type GetDebitRequestResponse struct {
+	ID                    primitive.ObjectID    `json:"id,omitempty" bson:"_id,omitempty"`
+	Status                string                `json:"status,omitempty" bson:"status,omitempty"`
+	Amount                uint                  `json:"amount,omitempty" bson:"amount,omitempty"`
+	InfluencerInfo        GetInfluencerResp     `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
+	Email                 string                `json:"email,omitempty" bson:"email,omitempty"`
+	PhoneNo               string                `json:"phone_no,omitempty" bson:"phone_no,omitempty"`
+	PayoutInformationOpts PayoutInformationResp `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
+}
+
+type GetInfluencerDashboardResp struct {
+	MonthlyData []MonthlyData             `json:"monthly_data,omitempty" bson:"monthly_data,omitempty"`
+	Ledger      []GetInfluencerLedgerResp `json:"ledger,omitempty" bson:"ledger,omitempty"`
+	OverallData OverallData               `json:"overall_data,omitempty" bson:"overall_data,omitempty"`
+}
+type MonthlyData struct {
+	Month uint `json:"month,omitempty" bson:"_id,omitempty"`
+	Count uint `json:"count,omitempty" bson:"count,omitempty"`
+}
+
+type OverallData struct {
+	Revenue         uint `json:"revenue,omitempty" bson:"revenue,omitempty"`
+	TotalCommission uint `json:"total_commission,omitempty" bson:"total_commission,omitempty"`
+}
+
+type GetInfluencerLedgerOpts struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	Page      int                `json:"page"`
+	Type      string             `json:"type" validate:"required"`
+	StartDate *time.Time         `json:"start_date"`
+	EndDate   *time.Time         `json:"end_date"`
+}
+
+type GetInfluencerDashboardOpts struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	StartDate *time.Time         `json:"start_date"`
+	EndDate   *time.Time         `json:"end_date"`
+}
+
+type GetInfluencerLedgerResp struct {
+	Date       string       `json:"date,omitempty" bson:"_id,omitempty"`
+	Ledger     []LedgerResp `json:"ledger,omitempty" bson:"ledger,omitempty"`
+	Commission uint         `json:"commission,omitempty" bson:"commission,omitempty"`
+	Revenue    uint         `json:"revenue,omitempty" bson:"revenue,omitempty"`
+}
+
+type LedgerResp struct {
+	ID                primitive.ObjectID       `json:"id,omitempty" bson:"_id,omitempty"`
+	Type              string                   `json:"type,omitempty" bson:"type,omitempty"`
+	OrderNo           string                   `json:"order_no,omitempty" bson:"order_no,omitempty"`
+	CatalogInfo       *model.CatalogInfo       `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	OrderValue        *model.Price             `json:"order_value,omitempty" bson:"order_value,omitempty"`
+	CommissionValue   float64                  `json:"commission_value,omitempty" bson:"commission_value,omitempty"`
+	CreatedAt         time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	Balance           float64                  `json:"balance,omitempty" bson:"balance,omitempty"`
+	DebitAmount       float64                  `json:"debit_amount,omitempty" bson:"debit_amount,omitempty"`
+	PayoutInformation *model.PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
+}
+
+type GetPayoutInfoResp struct {
+	ID                primitive.ObjectID       `json:"id,omitempty" bson:"_id,omitempty"`
+	Balance           float64                  `json:"balance,omitempty" bson:"balance,omitempty"`
+	PayoutInformation *model.PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
+}
+
+type PayoutInformationResp struct {
+	UPIID           string                 `json:"upi_id,omitempty" bson:"upi_id,omitempty"`
+	PanCard         string                 `json:"pan_card,omitempty" bson:"pan_card,omitempty"`
+	BankInformation *model.BankInformation `json:"bank_information,omitempty" bson:"bank_information,omitempty"`
+}
+
+type GetCommissionAndRevenueOpts struct {
+	ID        primitive.ObjectID `json:"id" validate:"required"`
+	StartDate *time.Time         `json:"start_date" validate:"required" `
+	EndDate   *time.Time         `json:"end_date" validate:"required"`
+}
+type GetCommissionAndRevenueResp struct {
+	Commission uint `json:"commission,omitempty" bson:"commission,omitempty"`
+	Revenue    uint `json:"revenue,omitempty" bson:"revenue,omitempty"`
+	Balance    uint `json:"balance,omitempty" bson:"balance,omitempty"`
 }

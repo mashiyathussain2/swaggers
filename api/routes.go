@@ -116,6 +116,15 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/brand/check/username", a.requestHandler(a.checkBrandUsernameExists)).Methods("GET")
 	a.Router.APIRoot.Handle("/influencer/check/username", a.requestHandler(a.checkInfluencerUsernameExists)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequest)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/creator/debit-request", a.requestWithAuthHandler(a.debitRequest)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/creator/debit-request", a.requestWithSudoHandler(a.updateDebitRequest)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/creator/debit-request", a.requestWithSudoHandler(a.getDebitRequest)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/creator/dashboard", a.requestWithAuthHandler(a.getInfluencerDashboard)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/creator/ledger", a.requestWithAuthHandler(a.getInfluencerLedger)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/creator/payout-info", a.requestWithAuthHandler(a.getInfluencerPayoutInfo)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/creator/commission", a.requestWithAuthHandler(a.getCommissionAndRevenue)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
