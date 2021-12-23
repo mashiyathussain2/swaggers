@@ -171,6 +171,7 @@ type SetRolesOpts struct {
 
 type GetKeeperUsersOpts struct {
 	Query string `json:"query"`
+	Page  uint   `json:"page"`
 }
 
 type GetKeeperUsersResp struct {

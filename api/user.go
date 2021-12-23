@@ -538,6 +538,7 @@ func (a *API) setRoles(requestCTX *handler.RequestContext, w http.ResponseWriter
 func (a *API) getKeeperUsers(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetKeeperUsersOpts
 	s.Query = r.URL.Query().Get("query")
+	s.Page = uint(GetPageValue(r))
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
