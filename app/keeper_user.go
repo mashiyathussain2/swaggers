@@ -278,14 +278,20 @@ func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []st
 
 func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error) {
 
-	matchStage := bson.D{{
-		Key: "$match", Value: bson.M{
-			"$or": bson.A{
-				bson.M{"name": opts.Query},
-				bson.M{"email": opts.Query},
+	fmt.Println("query", opts.Query)
+	var pipeline mongo.Pipeline
+
+	if opts.Query != "" {
+		matchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"$or": bson.A{
+					bson.M{"name": opts.Query},
+					bson.M{"email": opts.Query},
+				},
 			},
-		},
-	}}
+		}}
+		pipeline = append(pipeline, matchStage)
+	}
 
 	lookupStage := bson.D{{
 		Key: "$lookup", Value: bson.M{
@@ -303,9 +309,10 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 			"email":     bson.M{"$first": "$user_info.email"},
 		},
 	}}
+	pipeline = append(pipeline, lookupStage, projectStage)
 	var resp []schema.GetKeeperUsersResp
 	ctx := context.TODO()
-	cur, err := ku.DB.Collection(model.KeeperUserColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, projectStage})
+	cur, err := ku.DB.Collection(model.KeeperUserColl).Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get keeper users")
 	}
