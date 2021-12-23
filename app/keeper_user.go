@@ -281,18 +281,6 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 	fmt.Println("query", opts.Query)
 	var pipeline mongo.Pipeline
 
-	if opts.Query != "" {
-		matchStage := bson.D{{
-			Key: "$match", Value: bson.M{
-				"$or": bson.A{
-					bson.M{"name": opts.Query},
-					bson.M{"email": opts.Query},
-				},
-			},
-		}}
-		pipeline = append(pipeline, matchStage)
-	}
-
 	lookupStage := bson.D{{
 		Key: "$lookup", Value: bson.M{
 			"from":         "user",
@@ -301,6 +289,18 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 			"as":           "user_info",
 		},
 	}}
+	pipeline = append(pipeline, lookupStage)
+	if opts.Query != "" {
+		matchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"$or": bson.A{
+					bson.M{"full_name": bson.M{"$regex": primitive.Regex{Pattern: opts.Query, Options: "i"}}},
+					bson.M{"user_info.email": bson.M{"$regex": primitive.Regex{Pattern: opts.Query, Options: "i"}}},
+				},
+			},
+		}}
+		pipeline = append(pipeline, matchStage)
+	}
 
 	projectStage := bson.D{{
 		Key: "$project", Value: bson.M{
@@ -309,7 +309,7 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 			"email":     bson.M{"$first": "$user_info.email"},
 		},
 	}}
-	pipeline = append(pipeline, lookupStage, projectStage)
+	pipeline = append(pipeline, projectStage)
 	var resp []schema.GetKeeperUsersResp
 	ctx := context.TODO()
 	cur, err := ku.DB.Collection(model.KeeperUserColl).Aggregate(ctx, pipeline)
