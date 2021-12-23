@@ -310,11 +310,11 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 		},
 	}}
 	skipStage := bson.D{{
-		Key: "$skip", Value: int64(opts.Page) * 10,
+		Key: "$skip", Value: int64(opts.Page) * 20,
 	}}
 
 	limitStage := bson.D{{
-		Key: "$limit", Value: 10,
+		Key: "$limit", Value: 20,
 	}}
 	pipeline = append(pipeline, skipStage, limitStage, projectStage)
 	var resp []schema.GetKeeperUsersResp
