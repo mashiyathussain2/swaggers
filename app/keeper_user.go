@@ -23,8 +23,8 @@ type KeeperUser interface {
 	Login() string
 	Callback(state, code string) (auth.Claim, error)
 	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
-	SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []string, error)
-	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, roles []string) auth.Claim
+	SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error)
+	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []string) auth.Claim
 	GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error)
 }
 
@@ -101,7 +101,7 @@ func (ku *KeeperUserImpl) Callback(state, code string) (auth.Claim, error) {
 		KeeperUserID:  user.ID.Hex(),
 		Type:          user.UserInfo.Type,
 		Role:          user.UserInfo.Role,
-		KeeperRoles:   user.Roles,
+		UserGroups:    user.UserGroups,
 		FullName:      user.FullName,
 		Email:         user.UserInfo.Email,
 		ProfileImage:  user.ProfileImage,
@@ -193,7 +193,7 @@ func (ku *KeeperUserImpl) CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKe
 		UserInfo:     user,
 		FullName:     res.FullName,
 		ProfileImage: res.ProfileImage,
-		Roles:        res.Roles,
+		UserGroups:   res.UserGroups,
 		CreatedAt:    res.CreatedAt,
 	}
 
@@ -216,7 +216,7 @@ func (ku *KeeperUserImpl) AddNewSessionID(userID primitive.ObjectID, sessionID s
 	return nil
 }
 
-func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, roles []string) auth.Claim {
+func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []string) auth.Claim {
 	claim := auth.UserClaim{
 		ID:           keeperUser.UserID.Hex(),
 		KeeperUserID: keeperUser.ID.Hex(),
@@ -226,20 +226,20 @@ func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model
 		Email:        user.Email,
 		ProfileImage: keeperUser.ProfileImage,
 		CreatedVia:   user.CreatedVia,
-		KeeperRoles:  roles,
+		UserGroups:   userGroups,
 		// EmailVerified: user.EmailVerified,
 	}
 
 	return &claim
 }
 
-func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []string, error) {
+func (ku *KeeperUserImpl) SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error) {
 	filter := bson.M{
 		"user_id": opts.UserID,
 	}
 	update := bson.M{
 		"$set": bson.M{
-			"roles": opts.Roles,
+			"user_groups": opts.UserGroups,
 		},
 	}
 
@@ -259,7 +259,7 @@ func (ku *KeeperUserImpl) SetRoles(opts *schema.SetRolesOpts) (*auth.Claim, []st
 	//Get Session IDs Done
 
 	//Get New AuthToken
-	claim := ku.GetKeeperUserClaim(&user, keeperUser, opts.Roles)
+	claim := ku.GetKeeperUserClaim(&user, keeperUser, opts.UserGroups)
 	// token := claim.GetJWTToken()
 	// token.Raw
 	// auth.SessionAuth.UpdateSession(keeperUser.SessionIDs, claim)
@@ -304,9 +304,9 @@ func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]sch
 
 	projectStage := bson.D{{
 		Key: "$project", Value: bson.M{
-			"full_name": 1,
-			"roles":     1,
-			"email":     bson.M{"$first": "$user_info.email"},
+			"full_name":   1,
+			"user_groups": 1,
+			"email":       bson.M{"$first": "$user_info.email"},
 		},
 	}}
 	skipStage := bson.D{{

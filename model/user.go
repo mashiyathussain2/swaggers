@@ -84,7 +84,7 @@ type KeeperUser struct {
 	UserID       primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	ProfileImage *IMG               `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
-	Roles        []string           `json:"roles,omitempty" bson:"roles,omitempty"`
+	UserGroups   []string           `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
 	SessionIDs   []string           `json:"session_ids,omitempty" bson:"session_ids,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }

@@ -9,7 +9,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/me", a.requestWithSudoHandler(a.me)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/auth/login", a.requestHandler(a.keeperLogin)).Methods("GET")
-	a.Router.APIRoot.Handle("/keeper/auth/roles", a.requestWithSudoHandler(a.setRoles)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/auth/user_group", a.requestWithSudoHandler(a.setUserGroups)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/users", a.requestWithSudoHandler(a.getKeeperUsers)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/keeper/brand", a.requestWithSudoHandler(a.createbrand)).Methods("POST")

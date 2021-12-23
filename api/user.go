@@ -506,8 +506,8 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
 }
 
-func (a *API) setRoles(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.SetRolesOpts
+func (a *API) setUserGroups(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.SetUserGroupsOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -516,7 +516,7 @@ func (a *API) setRoles(requestCTX *handler.RequestContext, w http.ResponseWriter
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	claim, sIDs, err := a.App.KeeperUser.SetRoles(&s)
+	claim, sIDs, err := a.App.KeeperUser.SetUserGroups(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

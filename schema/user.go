@@ -150,7 +150,7 @@ type KeeperUserInfoResp struct {
 	UserInfo     *GetUserResp       `json:"user_info,omitempty" bson:"user_info,omitempty"`
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
-	Roles        []string           `json:"roles,omitempty" bson:"roles,omitempty"`
+	UserGroups   []string           `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
@@ -164,9 +164,9 @@ type UpdateUserPhoneNoOpts struct {
 	PhoneNo *PhoneNoOpts       `json:"phone_no" validate:"required"`
 }
 
-type SetRolesOpts struct {
-	UserID primitive.ObjectID `json:"user_id" validate:"required"`
-	Roles  []string           `json:"roles" validate:"required"`
+type SetUserGroupsOpts struct {
+	UserID     primitive.ObjectID `json:"user_id" validate:"required"`
+	UserGroups []string           `json:"user_groups" validate:"required"`
 }
 
 type GetKeeperUsersOpts struct {
@@ -175,8 +175,8 @@ type GetKeeperUsersOpts struct {
 }
 
 type GetKeeperUsersResp struct {
-	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	FullName string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
-	Email    string             `json:"email,omitempty" bson:"email,omitempty"`
-	Roles    []string           `json:"roles,omitempty" bson:"roles,omitempty"`
+	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	FullName   string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
+	Email      string             `json:"email,omitempty" bson:"email,omitempty"`
+	UserGroups []string           `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
 }
