@@ -52,6 +52,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckout(opts *schema.ExpressCheckoutOpts)
 		CatalogID: opts.Items[0].CatalogID,
 		VariantID: opts.Items[0].VariantID,
 		Quantity:  uint(opts.Items[0].Quantity),
+		Source:    opts.Items[0].Source,
 	}
 	var variant schema.OrderVariant
 
@@ -206,6 +207,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			CatalogID: item.CatalogID,
 			VariantID: item.VariantID,
 			Quantity:  uint(item.Quantity),
+			Source:    opts.Items[0].Source,
 		}
 		var variant schema.OrderVariant
 
@@ -303,8 +305,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 			VariantType: s.Payload.VariantType,
 			HSNCode:     s.Payload.HSNCode,
 
-			TransferPrice: s.Payload.TransferPrice,
-			ETA:           s.Payload.ETA,
+			TransferPrice:  s.Payload.TransferPrice,
+			ETA:            s.Payload.ETA,
+			CommissionRate: s.Payload.CommissionRate,
 		}
 		if !orderItem.DiscountID.IsZero() {
 			grandTotal += int(orderItem.DiscountedPrice.Value)

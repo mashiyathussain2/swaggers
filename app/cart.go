@@ -193,15 +193,17 @@ func (ci *CartImpl) AddToCart(opts *schema.AddToCartOpts) (*model.Cart, error) {
 			HSNCode:       s.Payload.HSNCode,
 			TransferPrice: s.Payload.TransferPrice,
 
-			ETA:          s.Payload.ETA,
-			Status:       s.Payload.Status,
-			Tax:          s.Payload.Tax,
-			DiscountInfo: s.Payload.DiscountInfo,
+			ETA:            s.Payload.ETA,
+			Status:         s.Payload.Status,
+			Tax:            s.Payload.Tax,
+			DiscountInfo:   s.Payload.DiscountInfo,
+			CommissionRate: s.Payload.CommissionRate,
 		},
 		BasePrice:     &s.Payload.BasePrice,
 		RetailPrice:   &s.Payload.RetailPrice,
 		TransferPrice: &s.Payload.TransferPrice,
 		Quantity:      opts.Quantity,
+		Source:        opts.Source,
 	}
 	if s.Payload.DiscountInfo != nil {
 		item.DiscountID = s.Payload.DiscountInfo.ID
@@ -625,14 +627,16 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 						Attribute: cv.Payload.Variant.Attribute,
 						SKU:       cv.Payload.Variant.SKU,
 					},
-					ETA:           item.CatalogInfo.ETA,
-					HSNCode:       item.CatalogInfo.HSNCode,
-					TransferPrice: cv.Payload.TransferPrice,
+					ETA:            item.CatalogInfo.ETA,
+					HSNCode:        item.CatalogInfo.HSNCode,
+					TransferPrice:  cv.Payload.TransferPrice,
+					CommissionRate: item.CatalogInfo.CommissionRate,
 				},
 				Tax:         item.CatalogInfo.Tax,
 				BasePrice:   &cv.Payload.BasePrice,
 				RetailPrice: &cv.Payload.RetailPrice,
 				Quantity:    item.Quantity,
+				Source:      item.Source,
 			}
 			if !cv.Payload.DiscountInfo.ID.IsZero() {
 				it.DiscountID = cv.Payload.DiscountInfo.ID

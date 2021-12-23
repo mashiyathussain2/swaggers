@@ -28,6 +28,7 @@ type Config struct {
 	SentryConfig        SentryConfig        `mapstructure:"sentry"`
 	KaleyraConfig       KaleyraConfig       `mapstructure:"kaleyra"`
 	MSGPlatformConfig   MSGPlatformConfig   `mapstructure:"message_platform"`
+	// CommissionOrderListeneronfig ListenerConfig      `mapstructure:"commissionOrderListenerConsumer"`
 }
 
 // ServerConfig has only server specific configuration
@@ -102,13 +103,14 @@ type APPConfig struct {
 	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
 	SizeProfileConfig     ServiceConfig `mapstructure:"sizeProfile"`
 
-	CustomerChangeConfig   ListenerConfig `mapstructure:"customerChangeConsumer"`
-	DiscountChangeConfig   ListenerConfig `mapstructure:"discountChangeConsumer"`
-	CatalogChangeConfig    ListenerConfig `mapstructure:"catalogChangeConsumer"`
-	InventoryChangeConfig  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
-	BrandChangeConfig      ListenerConfig `mapstructure:"brandChangeConsumer"`
-	InfluencerChangeConfig ListenerConfig `mapstructure:"influencerChangeConsumer"`
-	CouponChangeConfig     ListenerConfig `mapstructure:"couponChangeConsumer"`
+	CustomerChangeConfig          ListenerConfig `mapstructure:"customerChangeConsumer"`
+	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
+	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	BrandChangeConfig             ListenerConfig `mapstructure:"brandChangeConsumer"`
+	InfluencerChangeConfig        ListenerConfig `mapstructure:"influencerChangeConsumer"`
+	CouponChangeConfig            ListenerConfig `mapstructure:"couponChangeConsumer"`
+	CommissionOrderListenerConfig ListenerConfig `mapstructure:"commissionOrderListenerConsumer"`
 
 	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`

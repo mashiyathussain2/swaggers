@@ -18,8 +18,9 @@ type OrderCatalogInfo struct {
 	Variant     OrderVariant      `json:"variant,omitempty" bson:"variant,omitempty"`
 	HSNCode     string            `json:"hsn_code,omitempty" bson:"hsn_code,omitempty"`
 
-	TransferPrice model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
-	ETA           *model.ETA  `json:"eta,omitempty" bson:"eta,omitempty"`
+	TransferPrice  model.Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
+	ETA            *model.ETA  `json:"eta,omitempty" bson:"eta,omitempty"`
+	CommissionRate uint        `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
 }
 
 type OrderVariant struct {

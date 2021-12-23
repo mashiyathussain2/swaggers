@@ -13,6 +13,7 @@ type AddToCartOpts struct {
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
 	Quantity  uint               `json:"quantity" validate:"required,gt=0"`
+	Source    *model.Source      `json:"source"`
 }
 
 //UpdateItemQtyOpts contains field required to update the quantity of a item already in the user's cart
@@ -94,6 +95,7 @@ type OrderItem struct {
 	DiscountedPrice *model.Price        `json:"discounted_price" bson:"discounted_price"`
 	Tax             *model.Tax          `json:"tax,omitempty" bson:"tax,omitempty"`
 	Quantity        uint                `json:"quantity" bson:"quantity"`
+	Source          *model.Source       `json:"source" bson:"source"`
 }
 
 //OrderAddressOpts contains field required to add/edit the address of the user's cart
@@ -257,4 +259,27 @@ type CouponUpdateOpts struct {
 	ValidAfter       time.Time           `json:"valid_after,omitempty" bson:"valid_after,omitempty"`
 	ValidBefore      time.Time           `json:"valid_before,omitempty" bson:"valid_before,omitempty"`
 	Status           string              `json:"status,omitempty" bson:"status,omitempty"`
+}
+
+// CommisionOrderItem contains single catalog item and its information
+type CommisionOrderItem struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	VariantID primitive.ObjectID `json:"variant_id,omitempty" bson:"variant_id,omitempty"`
+	CatalogID primitive.ObjectID `json:"catalog_id,omitempty" bson:"catalog_id,omitempty"`
+	// Should contain variant/sku, discounted price, catalog info tax info
+	CatalogInfo  *model.CatalogInfo  `json:"catalog_info,omitempty" bson:"catalog_info,omitempty"`
+	DiscountID   primitive.ObjectID  `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
+	DiscountInfo *model.DiscountInfo `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	Quantity     uint                `json:"quantity,omitempty" bson:"quantity,omitempty"`
+	// MRP <=> Base Price <=> Unit Price
+	UnitPrice *model.Price `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	// Selling price <=> Retail Price
+	RetailPrice *model.Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	// Selling Price - Discount <=> Discounted Price
+	DiscountedPrice *model.Price `json:"discounted_price,omitempty" bson:"discounted_price,omitempty"`
+	// (Selling Price - Discount) * Quantity
+	TotalPrice *model.Price       `json:"total_price,omitempty" bson:"total_price,omitempty"`
+	Source     *model.Source      `json:"source,omitempty" bson:"source,omitempty"`
+	OrderID    primitive.ObjectID `json:"order_id,omitempty" bson:"order_id,omitempty"`
+	OrderNo    string             `json:"order_no,omitempty" bson:"order_no,omitempty"`
 }
