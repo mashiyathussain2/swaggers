@@ -350,6 +350,7 @@ type GetAllCatalogInfoResp struct {
 	SizeProfile      *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
 	AvgRating        float32                  `json:"avg_rating,omitempty" bson:"avg_rating,omitempty"`
 	TotalRatingCount uint                     `json:"total_rating_count,omitempty" bson:"total_rating_count,omitempty"`
+	CommissionRate   uint                     `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
 }
 
 type CatalogKafkaMessage struct {
@@ -562,4 +563,20 @@ type BulkUploadCatalogResp struct {
 type GetCollectionCatalogByIDs struct {
 	IDs     []string `qs:"id" json:"id"`
 	FeatIDs []string `qs:"fid" json:"fid"`
+}
+
+type GetCatalogInfoByBrandIDResp struct {
+	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name           string             `json:"name,omitempty" bson:"name,omitempty"`
+	CommissionRate uint               `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
+}
+
+type BulkUpdateCommissionOpts struct {
+	ID             primitive.ObjectID `json:"id" validate:"required"`
+	CommissionRate uint               `json:"commission_rate"`
+}
+
+type AddCommissionRateBasedonBrandIDOpts struct {
+	ID             primitive.ObjectID `json:"id" validate:"required"`
+	CommissionRate uint               `json:"commission_rate" validate:"required"`
 }
