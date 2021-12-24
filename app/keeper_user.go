@@ -235,7 +235,7 @@ func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model
 
 func (ku *KeeperUserImpl) SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error) {
 	filter := bson.M{
-		"user_id": opts.UserID,
+		"_id": opts.UserID,
 	}
 	update := bson.M{
 		"$set": bson.M{
