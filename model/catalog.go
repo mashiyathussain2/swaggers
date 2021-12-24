@@ -75,9 +75,9 @@ type Status struct {
 }
 
 type CatalogInfo struct {
-	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	BrandID primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
-
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	BrandID   primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	BrandName string             `json:"brand_name,omitempty" bson:"brand_name,omitempty"`
 	// Paths []Path `json:"category_path,omitempty" bson:"category_path,omitempty"`
 
 	Name string `json:"name,omitempty" bson:"name,omitempty"`
@@ -99,10 +99,11 @@ type CatalogInfo struct {
 	// RetailPrice   Price `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 	TransferPrice Price `json:"transfer_price,omitempty" bson:"transfer_price,omitempty"`
 
-	ETA          *ETA              `json:"eta,omitempty" bson:"eta,omitempty"`
-	Status       *Status           `json:"status,omitempty" bson:"status,omitempty"`
-	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	Tax          *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
+	ETA            *ETA              `json:"eta,omitempty" bson:"eta,omitempty"`
+	Status         *Status           `json:"status,omitempty" bson:"status,omitempty"`
+	DiscountInfo   *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	Tax            *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
+	CommissionRate uint              `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
 }
 
 //Defined Multiple Status for Inventory
@@ -245,11 +246,12 @@ type AllCatalogInfoResp struct {
 	ETA           *ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status        *Status `json:"status,omitempty" bson:"status,omitempty"`
 
-	CreatedAt    time.Time         `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt    time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	DiscountInfo *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	BrandInfo    *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
-	Tax          *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
+	CreatedAt      time.Time         `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt      time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	DiscountInfo   *DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	BrandInfo      *BrandInfoResp    `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax            *Tax              `json:"tax,omitempty" bson:"tax,omitempty"`
+	CommissionRate uint              `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
 }
 type Tax struct {
 	Type      string     `json:"type,omitempty" bson:"type,omitempty"`

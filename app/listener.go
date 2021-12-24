@@ -50,6 +50,13 @@ func InitConsumer(a *App) {
 		Config: &a.Config.CouponChangeConfig,
 	})
 	go a.CouponChanges.ConsumeAndCommit(ctx, a.CartProcessor.ProcessCouponUpdate)
+
+	a.CommissionOrderListener = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.CommissionOrderListenerConfig,
+	})
+	go a.CommissionOrderListener.ConsumeAndCommit(ctx, a.InfluencerProcessor.InfluencerCommissionUpdate)
+
 }
 
 // CloseConsumer terminates all consumer connections
