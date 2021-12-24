@@ -41,7 +41,7 @@ type UserClaim struct {
 	CartID         string             `json:"cart_id,omitempty"`
 	Type           string             `json:"type"`
 	Role           string             `json:"role"`
-	UserGroups     []string           `json:"user_groups"`
+	UserGroups     []model.UserGroup  `json:"user_groups"`
 	FullName       string             `json:"full_name"`
 	DOB            time.Time          `json:"dob,omitempty"`
 	Email          string             `json:"email"`

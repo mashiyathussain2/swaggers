@@ -150,7 +150,7 @@ type KeeperUserInfoResp struct {
 	UserInfo     *GetUserResp       `json:"user_info,omitempty" bson:"user_info,omitempty"`
 	FullName     string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
-	UserGroups   []string           `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
+	UserGroups   []model.UserGroup  `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
 	CreatedAt    time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
 
@@ -166,7 +166,7 @@ type UpdateUserPhoneNoOpts struct {
 
 type SetUserGroupsOpts struct {
 	UserID     primitive.ObjectID `json:"user_id" validate:"required"`
-	UserGroups []string           `json:"user_groups" validate:"required"`
+	UserGroups []model.UserGroup  `json:"user_groups" validate:"required"`
 }
 
 type GetKeeperUsersOpts struct {
@@ -178,5 +178,5 @@ type GetKeeperUsersResp struct {
 	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	FullName   string             `json:"full_name,omitempty" bson:"full_name,omitempty"`
 	Email      string             `json:"email,omitempty" bson:"email,omitempty"`
-	UserGroups []string           `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
+	UserGroups []model.UserGroup  `json:"user_groups,omitempty" bson:"user_groups,omitempty"`
 }

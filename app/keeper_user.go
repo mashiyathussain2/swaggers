@@ -24,7 +24,7 @@ type KeeperUser interface {
 	Callback(state, code string) (auth.Claim, error)
 	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
 	SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error)
-	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []string) auth.Claim
+	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []model.UserGroup) auth.Claim
 	GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error)
 }
 
@@ -216,7 +216,7 @@ func (ku *KeeperUserImpl) AddNewSessionID(userID primitive.ObjectID, sessionID s
 	return nil
 }
 
-func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []string) auth.Claim {
+func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []model.UserGroup) auth.Claim {
 	claim := auth.UserClaim{
 		ID:           keeperUser.UserID.Hex(),
 		KeeperUserID: keeperUser.ID.Hex(),
