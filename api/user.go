@@ -46,6 +46,29 @@ func (a *API) updateMe(requestCTX *handler.RequestContext, w http.ResponseWriter
 	requestCTX.SetAppResponse(map[string]interface{}{"token": token, "data": res}, http.StatusOK)
 }
 
+func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	sID, err := a.SessionAuth.GetSessionID(r)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	userSession, err := a.SessionAuth.GetToken(sID)
+	fmt.Println(userSession.Token)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Println(1)
+
+	claim, err := a.TokenAuth.VerifyToken(userSession.Token)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Println(1)
+	requestCTX.SetAppResponse(claim, http.StatusOK)
+}
+
 func (a *API) forgotPassword(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ForgotPasswordOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {

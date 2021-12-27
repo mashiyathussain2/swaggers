@@ -26,6 +26,7 @@ type KeeperUser interface {
 	SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error)
 	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []model.UserGroup) auth.Claim
 	GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error)
+	CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKeeperUser) (*schema.KeeperUserInfoResp, error)
 }
 
 type KeeperUserOpts struct {

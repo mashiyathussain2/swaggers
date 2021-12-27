@@ -25,6 +25,8 @@ type SessionAuth interface {
 	Delete(*http.Request) error
 	CreateAndReturn(st string, w http.ResponseWriter) (string, error)
 	UpdateSession(key, val string) error
+	GetToken(sid string) (*UserSession, error)
+	GetSessionID(r *http.Request) (string, error)
 }
 
 // UserSession := user session representation
@@ -154,4 +156,25 @@ func (s *SessionAuthImpl) NewSessionID() string {
 func (s *SessionAuthImpl) UpdateSession(key, val string) error {
 	_, err := s.Client.Do("SET", key, val)
 	return err
+}
+
+// GetToken := implementing GetToken from session method
+func (s *SessionAuthImpl) GetToken(sid string) (*UserSession, error) {
+	result, err := s.get(sid)
+	if err != nil {
+		return nil, err
+	}
+	if result == "" {
+		return nil, nil
+	}
+	return &UserSession{Token: result}, nil
+}
+
+// GetSessionID to get Session ID
+func (s *SessionAuthImpl) GetSessionID(r *http.Request) (string, error) {
+	cookie, err := r.Cookie(s.Config.CookieConfig.Name)
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
 }
