@@ -66,7 +66,7 @@ func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.Response
 		return
 	}
 	fmt.Println(1)
-	requestCTX.SetAppResponse(claim, http.StatusOK)
+	requestCTX.SetAppResponse(map[string]interface{}{"token": userSession.Token, "data": claim}, http.StatusOK)
 }
 
 func (a *API) forgotPassword(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
