@@ -573,8 +573,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 	for brand, oi := range oiBrandMap {
 		orderItem := schema.OrderItemOpts{
-			Source:          opts.Source,
-			SourceID:        &opts.SourceID,
 			UserID:          opts.UserID,
 			BrandID:         brand,
 			ShippingAddress: opts.Address,
