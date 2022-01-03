@@ -582,6 +582,8 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			Platform:        "web",
 			CartType:        model.ExpressCheckout,
 			IsWeb:           true,
+			Source:          opts.Source,
+			SourceID:        &opts.SourceID,
 		}
 		if opts.Coupon != "" {
 			orderItem.Coupon = &couponOrderOpts
