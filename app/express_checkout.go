@@ -535,8 +535,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			VariantType: s.Payload.VariantType,
 			HSNCode:     s.Payload.HSNCode,
 
-			TransferPrice: s.Payload.TransferPrice,
-			ETA:           s.Payload.ETA,
+			TransferPrice:  s.Payload.TransferPrice,
+			ETA:            s.Payload.ETA,
+			CommissionRate: s.Payload.CommissionRate,
 		}
 		orderItem.Tax = s.Payload.Tax
 		// orderItems = append(orderItems, orderItem)
@@ -581,6 +582,8 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			Platform:        "web",
 			CartType:        model.ExpressCheckout,
 			IsWeb:           true,
+			Source:          opts.Source,
+			SourceID:        &opts.SourceID,
 		}
 		if opts.Coupon != "" {
 			orderItem.Coupon = &couponOrderOpts
