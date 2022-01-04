@@ -1004,20 +1004,19 @@ func (ii *InfluencerImpl) AddCreditTransaction(opts *schema.CommisionOrderItem) 
 		}
 
 		//2. Calculate Commission based on item total price
-		commision := math.Floor(cr / 100.0 * float64(opts.TotalPrice.Value))
+		commission := math.Floor(cr / 100.0 * float64(opts.TotalPrice.Value))
 		//3. Add transaction to ledger collection
 
-		fmt.Println(commision)
 		iID, err := primitive.ObjectIDFromHex(opts.Source.ID)
 		if err != nil {
 			return err
 		}
 
-		oldBalanc, err := ii.GetBalance(&sc, iID)
+		oldBalance, err := ii.GetBalance(&sc, iID)
 		if err != nil {
 			return err
 		}
-		balance := oldBalanc + commision
+		balance := oldBalance + commission
 
 		brand, err := ii.App.Brand.GetBrandByID(opts.CatalogInfo.BrandID)
 		if err != nil {
@@ -1032,7 +1031,7 @@ func (ii *InfluencerImpl) AddCreditTransaction(opts *schema.CommisionOrderItem) 
 			OrderNo:         opts.OrderNo,
 			OrderValue:      opts.TotalPrice,
 			CatalogInfo:     opts.CatalogInfo,
-			CommissionValue: commision,
+			CommissionValue: commission,
 			CreatedAt:       time.Now(),
 			Balance:         balance,
 		}
