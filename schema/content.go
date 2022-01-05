@@ -386,6 +386,7 @@ type GetPebbleByInfluencerID struct {
 	UserID       string `json:"user_id,omitempty" queryparam:"user_id"`
 	InfluencerID string `queryparam:"influencer_id"`
 	Page         int    `queryparam:"page"`
+	IsActive     bool
 }
 
 type GetCatalogsByInfluencerID struct {
