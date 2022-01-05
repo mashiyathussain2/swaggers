@@ -23,8 +23,10 @@ type ExpressCheckoutOpts struct {
 }
 
 type ExpressCheckoutWebOpts struct {
-	UserID  primitive.ObjectID `json:"user_id" validate:"required"`
-	Address *OrderAddressOpts  `json:"address" validate:"required"`
-	Items   []ItemExpress      `json:"items" validate:"required"`
-	Coupon  string             `json:"coupon"`
+	UserID   primitive.ObjectID `json:"user_id" validate:"required"`
+	Address  *OrderAddressOpts  `json:"address" validate:"required"`
+	Items    []ItemExpress      `json:"items" validate:"required"`
+	Coupon   string             `json:"coupon"`
+	Source   string             `json:"source"`
+	SourceID primitive.ObjectID `json:"source_id"`
 }
