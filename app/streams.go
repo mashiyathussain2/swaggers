@@ -7,6 +7,7 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
+	"sync"
 
 	"github.com/rs/zerolog"
 	segKafka "github.com/segmentio/kafka-go"
@@ -96,6 +97,7 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 type InfluencerProcessor struct {
 	App    *App
 	Logger *zerolog.Logger
+	Mutex  sync.Mutex
 }
 
 type InfluencerProcessorOpts struct {
@@ -177,12 +179,13 @@ func (op *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
 		op.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
 		return
 	}
-	fmt.Println("comm data : ", item)
+	op.Mutex.Lock()
+	fmt.Printf("PROCESSING COMMISSION FOR ITEM: %+v\n", item)
 	err := op.App.Influencer.AddCreditTransaction(&item)
+	op.Mutex.Unlock()
 	if err != nil {
 		op.Logger.Err(err).Msg("error adding credit transaction")
 	}
-	return
 }
 
 type UserProcessor struct {
