@@ -17,6 +17,7 @@ type TokenAuth interface {
 	VerifyToken(string) error
 	GetClaim() Claim
 	SetClaim(Claim)
+	AuthorizeKeeperRequest(method, host, uri, cookieValue string) error
 }
 
 // Claim defines custom token claim type methods.
