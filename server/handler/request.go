@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-app/server/auth"
 	"go-app/server/middleware"
 	"net/http"
@@ -43,6 +44,20 @@ func (rh *Request) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if !requestCTX.UserClaim.IsSudo() {
 					requestCTX.SetErr(errors.New("permission denied: required keeper user type", &errors.PermissionDenied), http.StatusForbidden)
 					goto SKIP_REQUEST
+				}
+				fmt.Println("Sudo user")
+				cookie, err := r.Cookie("session")
+				if err != nil {
+					requestCTX.SetErr(errors.Wrap(err, "failed to get session id", &errors.BadRequest), http.StatusBadGateway)
+					goto SKIP_REQUEST
+				}
+				fmt.Println(cookie)
+				if cookie.Value != "" {
+					err := rh.AuthFunc.AuthorizeKeeperRequest(r.Method, r.Host, r.RequestURI, cookie.Value)
+					if err != nil {
+						requestCTX.SetErr(err, http.StatusUnauthorized)
+						goto SKIP_REQUEST
+					}
 				}
 			} else {
 				if requestCTX.UserClaim.IsSudo() {
