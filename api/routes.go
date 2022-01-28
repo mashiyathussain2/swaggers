@@ -51,6 +51,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.createLiveStreamByApp)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/live", a.requestWithAuthHandler(a.getAppLiveStreamsByInfluencerID)).Methods("GET")
+	a.Router.APIRoot.Handle("/v2/app/influencer/live", a.requestWithAuthHandler(a.v2GetAppLiveStreamsByInfluencerID)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/catalog", a.requestWithAuthHandler(a.pushCatalog)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/start", a.requestWithAuthHandler(a.startLiveStream)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/live/{liveID}/stop", a.requestWithAuthHandler(a.stopLiveStream)).Methods("GET")

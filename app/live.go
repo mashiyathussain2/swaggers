@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/kafka"
@@ -42,6 +43,7 @@ type Live interface {
 	GetAppLiveStreams(*schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamResp, error)
 	GetAppLiveStreamByID(primitive.ObjectID) (*schema.GetAppLiveStreamResp, error)
 	GetAppLiveStreamsByInfluencerID(primitive.ObjectID, *schema.GetAppLiveStreamsFilter) ([]schema.GetAppLiveStreamInfluencerResp, error)
+	GetAppLiveStreamsByInfluencerIDV2(id primitive.ObjectID, filterOpts *schema.GetAppLiveStreamsFilter) (*schema.GetLiveByInfluencerID, error)
 }
 
 // LiveImpl implemethods Live interface methods
@@ -538,6 +540,19 @@ func (li *LiveImpl) GetAppLiveStreams(filterOpts *schema.GetAppLiveStreamsFilter
 	if err := cur.All(ctx, &resp); err != nil {
 		return nil, errors.Wrap(err, "failed to get live streams")
 	}
+
+	//TODO: Need to change when Influencer gets tagged in LIVE
+	var ids []string
+	for _, r := range resp {
+		ids = append(ids, r.InfluencerIDs[0].Hex())
+	}
+	infMap, err := li.GetInfluencerInfo(ids)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get influencer info")
+	}
+	for i, r := range resp {
+		resp[i].InfluencerName = infMap[r.InfluencerIDs[0]].Name
+	}
 	return resp, nil
 }
 
@@ -580,4 +595,85 @@ func (li *LiveImpl) GetAppLiveStreamsByInfluencerID(id primitive.ObjectID, filte
 		return nil, errors.Wrap(err, "failed to get live streams")
 	}
 	return resp, nil
+}
+
+func (li *LiveImpl) GetInfluencerInfo(ids []string) (map[primitive.ObjectID]model.InfluencerInfo, error) {
+	influecerInfo, err := li.App.Content.GetInfluencerInfo(ids)
+	if err != nil {
+		return nil, err
+	}
+	infMap := make(map[primitive.ObjectID]model.InfluencerInfo)
+	for _, v := range influecerInfo {
+		infMap[v.ID] = v
+	}
+	return infMap, nil
+}
+
+func (li *LiveImpl) GetAppLiveStreamsByInfluencerIDV2(id primitive.ObjectID, filterOpts *schema.GetAppLiveStreamsFilter) (*schema.GetLiveByInfluencerID, error) {
+	ctx := context.TODO()
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"influencer_ids": id,
+		},
+	}}
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"scheduled_at": -1,
+		},
+	}}
+	fmt.Println(time.Now().UTC())
+	facetStage := bson.D{{
+		Key: "$facet", Value: bson.M{
+			"upcoming": bson.A{
+				bson.D{{
+					Key: "$match", Value: bson.M{
+						"$and": bson.A{
+							bson.M{"scheduled_at": bson.M{
+								"$gte": time.Now().UTC(),
+							}},
+							bson.M{
+								"status.name": bson.M{
+									"$nin": bson.A{model.EndStatus},
+								},
+							},
+						},
+					},
+				}},
+			},
+			"completed": bson.A{
+				bson.D{{
+					Key: "$match", Value: bson.M{
+						"$or": bson.A{
+							bson.M{
+								"scheduled_at": bson.M{
+									"$lte": time.Now().UTC(),
+								},
+							},
+							bson.M{
+								"status.name": "end",
+							},
+						},
+					},
+				}},
+
+				bson.D{{
+					Key: "$skip", Value: int64(filterOpts.Page * 10),
+				}},
+				bson.D{{
+					Key: "$limit", Value: 10,
+				}},
+			},
+		},
+	}}
+
+	var res []schema.GetLiveByInfluencerID
+	cur, err := li.DB.Collection(model.LiveColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage, facetStage})
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed to get live")
+	}
+	if err := cur.All(ctx, &res); err != nil {
+		return nil, errors.Wrap(err, "failed to decode live")
+	}
+
+	return &res[0], nil
 }
