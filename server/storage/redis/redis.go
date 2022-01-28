@@ -23,9 +23,9 @@ func (rs *RedisStorage) Close() {
 func NewRedisStorage(c *config.RedisConfig) *RedisStorage {
 	var client *redis.Pool
 	client = &redis.Pool{
-		MaxActive: 50,
 		// Maximum number of idle connections in the pool.
-		MaxIdle: 25,
+		MaxIdle: 15,
+		// IdleTimeout: 240 * time.Second,
 		// max number of connections
 		Dial: func() (redis.Conn, error) {
 			redisConnStart := time.Now()
@@ -43,7 +43,8 @@ func NewRedisStorage(c *config.RedisConfig) *RedisStorage {
 			if time.Since(t) < time.Minute {
 				return nil
 			}
-			_, err := c.Do("PING")
+			res, err := c.Do("PING")
+			fmt.Println(res, err)
 			return err
 		},
 	}

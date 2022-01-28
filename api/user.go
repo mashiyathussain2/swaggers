@@ -422,6 +422,12 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 	}
 	fmt.Println(1)
 
+	t, err := a.SessionAuth.GetToken(sid)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	fmt.Println("session id:", sid, "\n", "token:", t)
 	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
