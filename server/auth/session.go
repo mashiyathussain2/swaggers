@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"go-app/server/config"
@@ -122,6 +123,7 @@ func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (str
 	sessionID := s.NewSessionID()
 	err := s.set(sessionID, st)
 	if err != nil {
+		fmt.Println("create and return", err)
 		return "", err
 	}
 	cookie := &http.Cookie{
@@ -134,6 +136,8 @@ func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (str
 		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, cookie)
+	fmt.Println("create and return set cookie")
+
 	return sessionID, err
 }
 
