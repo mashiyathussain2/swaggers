@@ -3,12 +3,16 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 
 	"go-app/model"
 	"go-app/server/config"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 )
 
 // TokenAuthentication contains authentication related attributes and methods
@@ -139,4 +143,43 @@ func (t *TokenAuthentication) SetClaim(uc Claim) {
 	t.User = &UserAuth{
 		UserClaim: uc.(interface{}).(*UserClaim),
 	}
+}
+
+func (t *TokenAuthentication) AuthorizeKeeperRequest(method, host, uri, cookieValue string) error {
+
+	url := "https://" + host + uri
+	sID := cookieValue
+
+	authURL := t.Config.AuthServerUrl + "/api/auth"
+
+	finalURL := fmt.Sprintf(authURL+"?&session_id=%s&request_type=%s&path=%s", sID, method, url)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		// requestCTX.SetErr(errors.("failed to request auth service", &errors.PermissionDenied), http.StatusUnauthorized)
+		return errors.Wrap(err, "failed to request auth service")
+		// return nil, errors.Wrapf(err, "failed to request to get catalog info")
+	}
+	// req.Header.Add("Authorization", )
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.Wrap(err, "failed to authorize")
+		// return nil, errors.Wrapf(err, "unable to fetch catlog data")
+	}
+	defer resp.Body.Close()
+
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, "failed to read response from auth")
+	}
+	var s model.RBACResp
+	if err := json.Unmarshal(body, &s); err != nil {
+		return errors.Wrap(err, "failed to unmarshall json")
+	}
+	if !s.Success {
+		return errors.Errorf("user unauthorised")
+	}
+	return nil
 }

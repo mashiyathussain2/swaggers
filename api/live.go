@@ -260,3 +260,27 @@ func (a *API) createLiveStreamByApp(requestCTX *handler.RequestContext, w http.R
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 	return
 }
+
+func (a *API) v2GetAppLiveStreamsByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetAppLiveStreamsFilter
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	influencer_id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if influencer_id == primitive.NilObjectID {
+		requestCTX.SetErr(errors.New("influencer id missing"), http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Live.GetAppLiveStreamsByInfluencerIDV2(influencer_id, &s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+	return
+}

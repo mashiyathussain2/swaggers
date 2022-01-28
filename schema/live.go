@@ -122,6 +122,7 @@ type GetAppLiveStreamResp struct {
 	Name           string               `json:"name,omitempty" bson:"name,omitempty"`
 	Slug           string               `json:"slug,omitempty" bson:"slug,omitempty"`
 	InfluencerIDs  []primitive.ObjectID `json:"influencer_ids" bson:"influencer_ids,omitempty"`
+	InfluencerName string               `json:"influencer_name,omitempty" bson:"influencer_name,omitempty"`
 	CatalogIDs     []primitive.ObjectID `json:"catalog_ids,omitempty" bson:"catalog_ids,omitempty"`
 	ScheduledAt    time.Time            `json:"scheduled_at,omitempty" bson:"scheduled_at,omitempty"`
 	FeaturedImage  *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
@@ -167,4 +168,23 @@ type GetAppLiveStreamInfluencerResp struct {
 	StreamEndImage *model.IMG           `json:"stream_end_image,omitempty" bson:"stream_end_image,omitempty"`
 	Status         *model.StreamStatus  `json:"status,omitempty" bson:"status,omitempty"`
 	CreatedAt      time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+// //Influencer info resp from entity service
+// type GetInfluencerBasicESEesp struct {
+// 	ID               primitive.ObjectID `json:"id,omitempty"`
+// 	Name             string             `json:"name,omitempty"`
+// 	Username         string             `json:"username,omitempty"`
+// 	ProfileImage     *model.IMG         `json:"profile_image,omitempty"`
+// 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
+// }
+
+// type GetInfluencerInfoResp struct {
+// 	Success bool                      `json:"success"`
+// 	Data    *GetInfluencerBasicESEesp `json:"data"`
+// }
+
+type GetLiveByInfluencerID struct {
+	Upcoming  []GetAppLiveStreamInfluencerResp `json:"upcoming" bson:"upcoming"`
+	Completed []GetAppLiveStreamInfluencerResp `json:"completed" bson:"completed"`
 }
