@@ -125,8 +125,9 @@ type ServiceConfig struct {
 
 // TokenAuthConfig contains token authentication related configuration
 type TokenAuthConfig struct {
-	JWTSignKey   string `mapstructure:"jwtSignKey"`
-	JWTExpiresAt int64  `mapstructure:"expiresAt"`
+	JWTSignKey    string `mapstructure:"jwtSignKey"`
+	JWTExpiresAt  int64  `mapstructure:"expiresAt"`
+	AuthServerUrl string `mapstructure:"authServerUrl"`
 }
 
 // KafkaConfig has kafka cluster specific configuration
