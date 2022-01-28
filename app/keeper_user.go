@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -21,6 +22,11 @@ import (
 type KeeperUser interface {
 	Login() string
 	Callback(state, code string) (auth.Claim, error)
+	AddNewSessionID(userID primitive.ObjectID, sessionID string) error
+	SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error)
+	GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []model.UserGroup) auth.Claim
+	GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error)
+	CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKeeperUser) (*schema.KeeperUserInfoResp, error)
 }
 
 type KeeperUserOpts struct {
@@ -96,6 +102,7 @@ func (ku *KeeperUserImpl) Callback(state, code string) (auth.Claim, error) {
 		KeeperUserID:  user.ID.Hex(),
 		Type:          user.UserInfo.Type,
 		Role:          user.UserInfo.Role,
+		UserGroups:    user.UserGroups,
 		FullName:      user.FullName,
 		Email:         user.UserInfo.Email,
 		ProfileImage:  user.ProfileImage,
@@ -187,8 +194,138 @@ func (ku *KeeperUserImpl) CreateOrUpdateKeeperUser(opts *schema.CreateOrUpdateKe
 		UserInfo:     user,
 		FullName:     res.FullName,
 		ProfileImage: res.ProfileImage,
+		UserGroups:   res.UserGroups,
 		CreatedAt:    res.CreatedAt,
 	}
 
 	return &resp, nil
+}
+
+func (ku *KeeperUserImpl) AddNewSessionID(userID primitive.ObjectID, sessionID string) error {
+	filter := bson.M{
+		"user_id": userID,
+	}
+	update := bson.M{
+		"$addToSet": bson.M{
+			"session_ids": sessionID,
+		},
+	}
+	_, err := ku.DB.Collection(model.KeeperUserColl).UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return errors.Wrap(err, "failed to add session id")
+	}
+	return nil
+}
+
+func (ku *KeeperUserImpl) GetKeeperUserClaim(user *model.User, keeperUser *model.KeeperUser, userGroups []model.UserGroup) auth.Claim {
+	claim := auth.UserClaim{
+		ID:           keeperUser.UserID.Hex(),
+		KeeperUserID: keeperUser.ID.Hex(),
+		Type:         user.Type,
+		Role:         user.Role,
+		FullName:     keeperUser.FullName,
+		Email:        user.Email,
+		ProfileImage: keeperUser.ProfileImage,
+		CreatedVia:   user.CreatedVia,
+		UserGroups:   userGroups,
+		// EmailVerified: user.EmailVerified,
+	}
+
+	return &claim
+}
+
+func (ku *KeeperUserImpl) SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.Claim, []string, error) {
+	filter := bson.M{
+		"_id": opts.UserID,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"user_groups": opts.UserGroups,
+		},
+	}
+
+	var keeperUser *model.KeeperUser
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	if err := ku.DB.Collection(model.KeeperUserColl).FindOneAndUpdate(context.TODO(), filter, update, queryOpts).Decode(&keeperUser); err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, []string{}, errors.Wrapf(err, "user with id:%s not found", opts.UserID.Hex())
+		}
+		return nil, []string{}, errors.Wrapf(err, "failed to update user with id:%s", opts.UserID.Hex())
+	}
+
+	var user model.User
+	if err := ku.DB.Collection(model.UserColl).FindOne(context.TODO(), bson.M{"_id": keeperUser.UserID}).Decode(&user); err != nil {
+		return nil, []string{}, errors.Wrap(err, "failed to get user info")
+	}
+	//Get Session IDs Done
+
+	//Get New AuthToken
+	claim := ku.GetKeeperUserClaim(&user, keeperUser, opts.UserGroups)
+	// token := claim.GetJWTToken()
+	// token.Raw
+	// auth.SessionAuth.UpdateSession(keeperUser.SessionIDs, claim)
+	return &claim, keeperUser.SessionIDs, nil
+}
+
+// func (ku *KeeperUserImpl) UpdateRedisSession(token string, sessionIDs []string) error {
+// 	//Update Session ID with Auth Token
+// 	for _, sessionID := range sessionIDs {
+// 		if err := auth.SessionAuth.UpdateSession(sessionID, token); err != nil {
+// 			return errors.Wrap(err, "failed to update session id")
+// 		}
+// 	}
+// 	return nil
+// }
+
+func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error) {
+
+	fmt.Println("query", opts.Query)
+	var pipeline mongo.Pipeline
+
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "user",
+			"localField":   "user_id",
+			"foreignField": "_id",
+			"as":           "user_info",
+		},
+	}}
+	pipeline = append(pipeline, lookupStage)
+	if opts.Query != "" {
+		matchStage := bson.D{{
+			Key: "$match", Value: bson.M{
+				"$or": bson.A{
+					bson.M{"full_name": bson.M{"$regex": primitive.Regex{Pattern: opts.Query, Options: "i"}}},
+					bson.M{"user_info.email": bson.M{"$regex": primitive.Regex{Pattern: opts.Query, Options: "i"}}},
+				},
+			},
+		}}
+		pipeline = append(pipeline, matchStage)
+	}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"full_name":   1,
+			"user_groups": 1,
+			"email":       bson.M{"$first": "$user_info.email"},
+		},
+	}}
+	skipStage := bson.D{{
+		Key: "$skip", Value: int64(opts.Page) * 20,
+	}}
+
+	limitStage := bson.D{{
+		Key: "$limit", Value: 20,
+	}}
+	pipeline = append(pipeline, skipStage, limitStage, projectStage)
+	var resp []schema.GetKeeperUsersResp
+	ctx := context.TODO()
+	cur, err := ku.DB.Collection(model.KeeperUserColl).Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get keeper users")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "error decoding keeper users")
+	}
+	return resp, nil
 }

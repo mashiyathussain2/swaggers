@@ -51,3 +51,12 @@ type Price struct {
 func SetINRPrice(v float32) *Price {
 	return &Price{CurrencyISO: INR, Value: v}
 }
+
+type RBACResp struct {
+	Success bool        `json:"success"`
+	Error   []ErrorResp `json:"error"`
+}
+type ErrorResp struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+}

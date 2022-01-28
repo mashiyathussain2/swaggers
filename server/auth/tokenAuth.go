@@ -16,6 +16,7 @@ type TokenAuth interface {
 	SignToken(Claim) (string, error)
 	SignKeeperToken(Claim) (string, error)
 	VerifyToken(string) (Claim, error)
+	AuthorizeKeeperRequest(method, host, uri, cookieValue string) error
 }
 
 // Claim defines custom token claim type methods.

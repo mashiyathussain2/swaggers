@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	errors "github.com/vasupal1996/goerror"
@@ -89,4 +90,17 @@ func (a *API) DecodeJSONBody(r *http.Request, dst interface{}) error {
 		// return &malformedRequest{status: http.StatusBadRequest, msg: msg}
 	}
 	return nil
+}
+
+//Extracts page value from the request
+func GetPageValue(r *http.Request) int {
+	var val int
+	var err error
+	if r.URL.Query().Get("page") != "" {
+		val, err = strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil {
+			val = 0
+		}
+	}
+	return val
 }
