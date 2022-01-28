@@ -577,7 +577,7 @@ func (di *DiscountImpl) GetActiveDiscountByCatalogID(catalogID primitive.ObjectI
 func (di *DiscountImpl) GetSales(opts *schema.GetSalesOpts) ([]schema.GetSalesResp, error) {
 	var resp []schema.GetSalesResp
 	ctx := context.TODO()
-	queryOpts := options.Find().SetSkip(int64(opts.Page) * 20).SetLimit(20)
+	queryOpts := options.Find().SetSkip(int64(opts.Page) * 20).SetLimit(20).SetSort(bson.M{"created_at": -1})
 	cur, err := di.DB.Collection(model.SaleColl).Find(ctx, bson.M{}, queryOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "query failed to find sales")
