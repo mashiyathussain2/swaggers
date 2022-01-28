@@ -162,6 +162,7 @@ type TokenAuthConfig struct {
 	HashPasswordCost int    `mapstructure:"hashPasswordCost"`
 	JWTSignKey       string `mapstructure:"jwtSignKey"`
 	JWTExpiresAt     int64  `mapstructure:"expiresAt"`
+	AuthServerUrl    string `mapstructure:"authServerUrl"`
 }
 
 // CORSConfig contains cors related config
