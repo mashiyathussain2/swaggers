@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"go-app/server/config"
 	"go-app/server/storage"
@@ -113,6 +114,7 @@ func (s *SessionAuthImpl) Create(st string, w http.ResponseWriter) error {
 		Domain:   s.Config.CookieConfig.Domain,
 		Secure:   s.Config.CookieConfig.Secure,
 		SameSite: http.SameSiteNoneMode,
+		Expires:  time.Now().AddDate(1, 0, 0),
 	}
 	http.SetCookie(w, cookie)
 	return err
@@ -123,7 +125,6 @@ func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (str
 	sessionID := s.NewSessionID()
 	err := s.set(sessionID, st)
 	if err != nil {
-		fmt.Println("create and return", err)
 		return "", err
 	}
 	cookie := &http.Cookie{
@@ -134,6 +135,7 @@ func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (str
 		Domain:   s.Config.CookieConfig.Domain,
 		Secure:   s.Config.CookieConfig.Secure,
 		SameSite: http.SameSiteNoneMode,
+		Expires:  time.Now().AddDate(1, 0, 0),
 	}
 	http.SetCookie(w, cookie)
 	fmt.Println("create and return set cookie")

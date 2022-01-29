@@ -53,19 +53,16 @@ func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.Response
 		return
 	}
 	userSession, err := a.SessionAuth.GetToken(sID)
-	fmt.Println(userSession.Token)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
 
 	claim, err := a.TokenAuth.VerifyToken(userSession.Token)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
 	requestCTX.SetAppResponse(map[string]interface{}{"token": userSession.Token, "data": claim}, http.StatusOK)
 }
 
@@ -413,113 +410,27 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
 
 	sid, err := a.SessionAuth.CreateAndReturn(token, w)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
-
-	t, err := a.SessionAuth.GetToken(sid)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
-	fmt.Println("session id:", sid, "\n", "token:", t)
 	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
 
 	err = a.App.KeeperUser.AddNewSessionID(id, sid)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	fmt.Println(1)
-
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
 	fmt.Println(redirectURL)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
-
-// func (a *API) updateUserEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-// 	var s schema.UpdateUserEmailOpts
-// 	var isWeb bool
-// 	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
-// 	if err := a.DecodeJSONBody(r, &s); err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if errs := a.Validator.Validate(&s); errs != nil {
-// 		requestCTX.SetErrs(errs, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
-// 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-// 		return
-// 	}
-// 	claim, err := a.App.User.UpdateUserEmail(&s)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	token, err := a.TokenAuth.SignToken(claim)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if isWeb {
-// 		if err := a.SessionAuth.Create(token, w); err != nil {
-// 			requestCTX.SetErr(fmt.Errorf("failed to update user: %s", err), http.StatusInternalServerError)
-// 			return
-// 		}
-// 		requestCTX.SetAppResponse(true, http.StatusOK)
-// 		return
-// 	}
-// 	requestCTX.SetAppResponse(true, http.StatusAccepted)
-// }
-
-// func (a *API) updateUserPhoneNo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-// 	var s schema.UpdateUserPhoneNoOpts
-// 	var isWeb bool
-// 	isWeb, _ = strconv.ParseBool(r.URL.Query().Get("isWeb"))
-// 	if err := a.DecodeJSONBody(r, &s); err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if errs := a.Validator.Validate(&s); errs != nil {
-// 		requestCTX.SetErrs(errs, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).ID {
-// 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
-// 		return
-// 	}
-// 	claim, err := a.App.User.UpdateUserPhoneNo(&s)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	token, err := a.TokenAuth.SignToken(claim)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	if isWeb {
-// 		if err := a.SessionAuth.Create(token, w); err != nil {
-// 			requestCTX.SetErr(fmt.Errorf("failed to update user: %s", err), http.StatusInternalServerError)
-// 			return
-// 		}
-// 		requestCTX.SetAppResponse(true, http.StatusOK)
-// 		return
-// 	}
-// 	requestCTX.SetAppResponse(true, http.StatusAccepted)
-// }
 
 func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	if requestCTX.UserClaim != nil {
