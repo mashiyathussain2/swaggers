@@ -368,7 +368,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					applied = true
 				}
 			}
-			if applied == false {
+			if !applied {
 				gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
 			}
 		} else {
@@ -553,7 +553,6 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 		for _, item := range c.Items {
 
 			var cv model.GetCatalogVariant
-			// url := "http://localhost:8000" + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
 
 			url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
 			client := http.Client{}
@@ -1046,11 +1045,10 @@ func (ci *CartImpl) UpdateCouponInsideCart(opts *schema.CouponUpdateOpts) {
 		},
 	}
 
-	res, err := ci.DB.Collection(model.CartColl).UpdateMany(ctx, filter, update)
+	_, err := ci.DB.Collection(model.CartColl).UpdateMany(ctx, filter, update)
 	if err != nil {
 		ci.Logger.Err(err).Str("code", opts.Code).Msg("unable to update coupon inside catalog")
 		return
 	}
-	ci.Logger.Log().Str("response", string(res.ModifiedCount))
 
 }

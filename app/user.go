@@ -112,6 +112,7 @@ func (ui *UserImpl) CreateUser(opts *schema.CreateUserOpts) (*schema.CreateUserR
 	user.EmailVerificationCode, _ = GenerateOTP(ui.App.Config.TokenAuthConfig.OTPLength)
 
 	if err := ui.sendConfirmationEmail(&user); err != nil {
+		ui.Logger.Err(err).Interface("user", user).Msgf("failed to send confirmation email:%s", opts.Email)
 	}
 
 	res, err := ui.DB.Collection(model.UserColl).InsertOne(context.TODO(), user)
@@ -192,19 +193,6 @@ func (ui *UserImpl) sendConfirmationEmail(u *model.User) error {
 	}
 	return nil
 }
-
-// func (ui *UserImpl) sendConfirmationOTP(u *model.User) error {
-// 	// Sending OTP to phone number via SNS
-// 	params := &sns.PublishInput{
-// 		Message:     aws.String(fmt.Sprintf("OTP for login: %s", u.PhoneVerificationCode)),
-// 		PhoneNumber: aws.String(fmt.Sprintf("%s%s", u.PhoneNo.Prefix, u.PhoneNo.Number)),
-// 	}
-// 	if _, err := ui.App.SNS.Publish(params); err != nil {
-// 		ui.Logger.Err(err).Interface("phone  no", u.PhoneNo.Number).Msg("failed to send otp")
-// 		return errors.Wrap(err, "failed to send otp")
-// 	}
-// 	return nil
-// }
 
 func (ui *UserImpl) sendConfirmationOTP(u *model.User) error {
 	// Sending OTP to phone number via SNS
@@ -411,7 +399,7 @@ func (ui *UserImpl) ResendConfirmationEmail(opts *schema.ResendVerificationEmail
 	}
 
 	if err := ui.sendConfirmationEmail(&user); err != nil {
-
+		ui.Logger.Err(err).Interface("user", user).Msgf("failed to send confirmation email:%s", opts.Email)
 	}
 	return true, nil
 }
@@ -486,6 +474,7 @@ func (ui *UserImpl) ForgotPassword(opts *schema.ForgotPasswordOpts) (bool, error
 
 	// Sending Email
 	if err := ui.sendForgotPasswordOTPEmail(&model.User{Email: opts.Email, PasswordResetCode: otp}); err != nil {
+		ui.Logger.Err(err).Msgf("failed to send forgot password otp over email:%s", opts.Email)
 	}
 	return true, nil
 }
@@ -612,7 +601,7 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 			UserID:    user.ID,
 			CreatedAt: time.Now().UTC(),
 		}
-		res, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
+		_, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
 		if err != nil {
 			ui.Logger.Err(err).Msgf("failed to generate customer using phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 			return false, errors.Wrapf(err, "failed to generate customer using phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
@@ -635,11 +624,6 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		}
 	}
 
-	// Sending OTP to phone number via SNS
-	// params := &sns.PublishInput{
-	// 	Message:     aws.String(fmt.Sprintf("OTP for login: %s", otp)),
-	// 	PhoneNumber: aws.String(fmt.Sprintf("%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)),
-	// }
 	err = ui.App.Kaleyra.SendOTP(&schema.SendOTPOpts{
 		PhoneNo: model.PhoneNumber{
 			Prefix: opts.PhoneNo.Prefix,
@@ -647,7 +631,6 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		},
 		OTP: otp,
 	})
-	// _, err = ui.App.SNS.Publish(params)
 	if err != nil {
 		ui.Logger.Err(err).Interface("opts", opts).Msg("failed to send otp")
 		return false, errors.Wrap(err, "failed to send otp")

@@ -257,25 +257,11 @@ func (ku *KeeperUserImpl) SetUserGroups(opts *schema.SetUserGroupsOpts) (*auth.C
 	if err := ku.DB.Collection(model.UserColl).FindOne(context.TODO(), bson.M{"_id": keeperUser.UserID}).Decode(&user); err != nil {
 		return nil, []string{}, errors.Wrap(err, "failed to get user info")
 	}
-	//Get Session IDs Done
 
 	//Get New AuthToken
 	claim := ku.GetKeeperUserClaim(&user, keeperUser, opts.UserGroups)
-	// token := claim.GetJWTToken()
-	// token.Raw
-	// auth.SessionAuth.UpdateSession(keeperUser.SessionIDs, claim)
 	return &claim, keeperUser.SessionIDs, nil
 }
-
-// func (ku *KeeperUserImpl) UpdateRedisSession(token string, sessionIDs []string) error {
-// 	//Update Session ID with Auth Token
-// 	for _, sessionID := range sessionIDs {
-// 		if err := auth.SessionAuth.UpdateSession(sessionID, token); err != nil {
-// 			return errors.Wrap(err, "failed to update session id")
-// 		}
-// 	}
-// 	return nil
-// }
 
 func (ku *KeeperUserImpl) GetKeeperUsers(opts *schema.GetKeeperUsersOpts) ([]schema.GetKeeperUsersResp, error) {
 

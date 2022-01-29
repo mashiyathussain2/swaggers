@@ -747,6 +747,7 @@ func (bi *BrandImpl) ForgotPassword(opts *schema.ForgotPasswordOpts) (bool, erro
 
 	// Sending Email
 	if err := bi.sendForgotPasswordOTPEmail(&model.BrandUser{Email: opts.Email, PasswordResetCode: otp}); err != nil {
+		bi.Logger.Err(err).Msgf("failed to send forgot password otp over email:%s", opts.Email)
 	}
 	return true, nil
 }
