@@ -520,7 +520,7 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 			return errors.Wrap(err, "failed to check for existing requests")
 		}
 	}
-	if request.ID.IsZero() == false {
+	if !request.ID.IsZero() {
 		if request.Status == model.AcceptedStatus {
 			return errors.Errorf("account already has influencer access")
 		}
@@ -663,7 +663,7 @@ func (ii *InfluencerImpl) UpdateInfluencerAccountRequestStatus(opts *schema.Upda
 			session.AbortTransaction(sc)
 			return errors.Wrap(err, "failed to update request status")
 		}
-		if request.ID.IsZero() == true {
+		if request.ID.IsZero() {
 			session.AbortTransaction(sc)
 			return errors.Errorf("influencer account request failed")
 		}
@@ -692,75 +692,6 @@ func (ii *InfluencerImpl) UpdateInfluencerAccountRequestStatus(opts *schema.Upda
 
 	return nil
 }
-
-// func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAccountRequestResp, error) {
-// 	var resp []schema.InfluencerAccountRequestResp
-// 	ctx := context.TODO()
-// 	matchStage := bson.D{
-// 		{
-// 			Key: "$match",
-// 			Value: bson.M{
-// 				"is_active": true,
-// 			},
-// 		},
-// 	}
-// 	lookupStage := bson.D{
-// 		{
-// 			Key: "$lookup",
-// 			Value: bson.M{
-// 				"from":         model.InfluencerColl,
-// 				"localField":   "influencer_id",
-// 				"foreignField": "_id",
-// 				"as":           "influencer_info",
-// 			},
-// 		},
-// 	}
-// 	lookupStage2 := bson.D{
-// 		{
-// 			Key: "$lookup",
-// 			Value: bson.M{
-// 				"from":         model.UserColl,
-// 				"localField":   "user_id",
-// 				"foreignField": "_id",
-// 				"as":           "user_info",
-// 			},
-// 		},
-// 	}
-// 	setStage := bson.D{
-// 		{
-// 			Key: "$set",
-// 			Value: bson.M{
-// 				"influencer_info": bson.M{
-// 					"$arrayElemAt": bson.A{
-// 						"$influencer_info",
-// 						0,
-// 					},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	setStage2 := bson.D{
-// 		{
-// 			Key: "$set",
-// 			Value: bson.M{
-// 				"user_info": bson.M{
-// 					"$arrayElemAt": bson.A{
-// 						"$user_info",
-// 						0,
-// 					},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	cur, err := ii.DB.Collection(model.InfluencerAccountRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2, setStage, setStage2})
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "failed to query influencer account requests")
-// 	}
-// 	if err := cur.All(ctx, &resp); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get results")
-// 	}
-// 	return resp, nil
-// }
 
 func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAccountRequestResp, error) {
 	var resp []schema.InfluencerAccountRequestResp
@@ -820,24 +751,7 @@ func (ii *InfluencerImpl) GetInfluencerAccountRequest() ([]schema.InfluencerAcco
 			},
 		},
 	}
-	// projectStage := bson.D{
-	// 	{
-	// 		Key: "$project",
-	// 		Value: bson.M{
-	// 			"name":           "$customer_info.full_name",
-	// 			"profile_image":  1,
-	// 			"cover_image":    1,
-	// 			"bio":            1,
-	// 			"website":        1,
-	// 			"social_account": 1,
-	// 			"email":          "$user_info.email",
-	// 			"phone_no":       "$user_info.phone_no",
-	// 			"gender":         "$customer_info.gender",
-	// 			"dob":            "$customer_info.dob",
-	// 			"created_at":     1,
-	// 		},
-	// 	},
-	// }
+
 	cur, err := ii.DB.Collection(model.InfluencerAccountRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage, lookupStage, lookupStage2, setStage})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query influencer account requests")
@@ -1307,16 +1221,6 @@ func (ii *InfluencerImpl) GetInfluencerDashboard(opts *schema.GetInfluencerDashb
 					},
 				}},
 			},
-			// "ledger": bson.A{
-			// 	bson.M{
-			// 		"$sort": bson.M{
-			// 			"_id": -1,
-			// 		},
-			// 	},
-			// 	bson.M{
-			// 		"$limit": 10,
-			// 	},
-			// },
 		},
 	}}
 
