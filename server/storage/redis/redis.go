@@ -12,6 +12,7 @@ import (
 type RedisStorage struct {
 	Config *config.RedisConfig
 	Conn   redis.Conn
+	Client *redis.Pool
 }
 
 // Close closes redis connection
@@ -48,11 +49,13 @@ func NewRedisStorage(c *config.RedisConfig) *RedisStorage {
 			return err
 		},
 	}
-	conn := client.Get()
-	return &RedisStorage{Conn: conn}
+	return &RedisStorage{Client: client}
 }
 
 // Close closes redis connection
 func (rs *RedisStorage) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
-	return rs.Conn.Do(commandName, args...)
+	conn := rs.Client.Get()
+	defer conn.Close()
+	return conn.Do(commandName, args...)
+
 }
