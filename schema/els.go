@@ -64,8 +64,8 @@ type GetInfluencerInfoEsResp struct {
 	CoverImg         *model.IMG           `json:"cover_img,omitempty"`
 	ProfileImage     *model.IMG           `json:"profile_image,omitempty"`
 	SocialAccount    *model.SocialAccount `json:"social_account,omitempty"`
-	ExternalLinks    []string             `json:"external_links,omitempty"`
-	Bio              string               `json:"bio,omitempty"`
+	ExternalLinks    []string             `json:"external_links"`
+	Bio              string               `json:"bio"`
 	FollowersCount   uint                 `json:"followers_count"`
 	CreatedAt        time.Time            `json:"created_at,omitempty"`
 	UpdatedAt        time.Time            `json:"updated_at,omitempty"`
