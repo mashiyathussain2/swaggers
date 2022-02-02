@@ -126,6 +126,9 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/creator/payout-info", a.requestWithAuthHandler(a.getInfluencerPayoutInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/creator/commission", a.requestWithAuthHandler(a.getCommissionAndRevenue)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/v2/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequestV2)).Methods("POST")
+	a.Router.APIRoot.Handle("/v2/app/influencer", a.requestWithAuthHandler(a.editInfluencerAppV2)).Methods("PUT")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
