@@ -48,6 +48,7 @@ type User interface {
 
 	UpdateUserEmail(*schema.UpdateUserEmailOpts) error
 	UpdateUserPhoneNo(*schema.UpdateUserPhoneNoOpts) error
+	GetUserIDByInfluencerID(opts *schema.GetUserInfoByIDOpts) (primitive.ObjectID, error)
 }
 
 // UserImpl implements user interface methods
@@ -969,4 +970,13 @@ func (ui *UserImpl) UpdateUserPhoneNo(opts *schema.UpdateUserPhoneNoOpts) error 
 	// }()
 	// wg.Wait()
 	return nil
+}
+
+func (ui *UserImpl) GetUserIDByInfluencerID(opts *schema.GetUserInfoByIDOpts) (primitive.ObjectID, error) {
+	filter := bson.M{"influencer_id": opts.ID}
+	var user model.User
+	if err := ui.DB.Collection(model.UserColl).FindOne(context.TODO(), filter).Decode(&user); err != nil {
+		return primitive.NilObjectID, errors.Wrap(err, "failed to find user by influencer id")
+	}
+	return user.ID, nil
 }

@@ -446,6 +446,22 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
 }
 
+func (a *API) getUserIDByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetUserInfoByIDOpts
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.ID = id
+	res, err := a.App.User.GetUserIDByInfluencerID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
 func (a *API) setUserGroups(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SetUserGroupsOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
