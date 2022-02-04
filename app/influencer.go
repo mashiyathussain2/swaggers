@@ -804,7 +804,8 @@ func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, o
 
 func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mongo.SessionContext) error {
 	// ctx := context.TODO()
-	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
+
+	isAlpha := regexp.MustCompile(`^[a-z0-9\_\-\.]{5,30}$`).MatchString
 	if !isAlpha(username) {
 		return errors.Errorf("%s is not valid", username)
 	}

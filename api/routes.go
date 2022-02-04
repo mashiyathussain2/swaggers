@@ -44,6 +44,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email/resend", a.requestHandler(a.resendEmailVerificationCode)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/influencerid", a.requestWithInternalHandler(a.getUserIDByInfluencerID)).Methods("GET")
 
 	// LOGIN AND SIGNUP APIS
 	a.Router.APIRoot.Handle("/customer/social/login", a.requestHandler(a.loginViaSocial)).Methods("POST")
