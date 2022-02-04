@@ -658,6 +658,7 @@ func (csp *ContentUpdateProcessor) ProcessLikeForSeries(msg kafka.Message) {
 }
 
 func (csp *ContentUpdateProcessor) ProduceNotification(msg *schema.SendNotificationOpts) {
+	fmt.Println("pushing notification")
 	if msg != nil {
 		value, err := json.Marshal(msg)
 		if err != nil {
