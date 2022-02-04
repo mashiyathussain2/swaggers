@@ -115,6 +115,10 @@ func InitProducer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.CollectionFullProducerConfig,
 	})
+	a.NotificationProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.NotificationProducerConfig,
+	})
 }
 
 func CloseProducer(a *App) {
@@ -122,6 +126,7 @@ func CloseProducer(a *App) {
 	a.ContentFullProducer.Close()
 	a.PebbleSeriesProducer.Close()
 	a.PebbleCollectionProducer.Close()
+	a.NotificationProducer.Close()
 }
 
 func InitProcessor(a *App) {

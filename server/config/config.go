@@ -81,6 +81,7 @@ type APPConfig struct {
 	ContentFullProducerConfig    ProducerConfig `mapstructure:"contentFullProducer"`
 	SeriesFullProducerConfig     ProducerConfig `mapstructure:"seriesFullProducer"`
 	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
+	NotificationProducerConfig   ProducerConfig `mapstructure:"notificationProducer"`
 
 	LikeChangeConfig                  ListenerConfig `mapstructure:"likeChangesConsumer"`
 	LikeChangeForSeriesConfig         ListenerConfig `mapstructure:"likeChangeForSeriesConsumer"`

@@ -656,3 +656,19 @@ func (csp *ContentUpdateProcessor) ProcessLikeForSeries(msg kafka.Message) {
 		return
 	}
 }
+
+func (csp *ContentUpdateProcessor) ProduceNotification(msg *schema.SendNotificationOpts) {
+	if msg != nil {
+		value, err := json.Marshal(msg)
+		if err != nil {
+			csp.Logger.Err(err).Interface("msg", msg).Msgf("failed to push notification event: failed to convert json to bytes")
+			return
+		}
+		m := segKafka.Message{
+			Key:   []byte(primitive.NewObjectID().Hex()),
+			Value: value,
+		}
+		csp.App.NotificationProducer.Publish(m)
+		fmt.Println("saved notification event")
+	}
+}

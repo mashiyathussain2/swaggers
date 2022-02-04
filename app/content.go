@@ -64,7 +64,7 @@ type Content interface {
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
-	SendNotification(opts *schema.SendNotificationOpts) error
+	// SendNotification(opts *schema.SendNotificationOpts) error
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -331,12 +331,8 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 			},
 			Label: "pebble-processed",
 		}
-		err = ci.SendNotification(&notificationOpts)
-		if err != nil {
-			ci.Logger.Log().Err(err).Msg("error sending notification")
-			return true, nil
-		}
 		// 2. Call SendNotification function
+		ci.App.ContentUpdateProcessor.ProduceNotification(&notificationOpts)
 	}
 	return true, nil
 }
@@ -1292,41 +1288,41 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 	return resp, nil
 }
 
-func (ci *ContentImpl) SendNotification(opts *schema.SendNotificationOpts) error {
-	url := ci.App.Config.HypdAPIConfig.NotificationAPI + "/api/notification"
-	postBody, _ := json.Marshal(opts)
-	fmt.Println(opts)
-	client := http.Client{}
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
-	if err != nil {
-		return errors.Wrap(err, "failed to generate request to send notification")
-	}
-	req.Header.Add("Content-Type", "application/json")
-	// req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
-	resp, err := client.Do(req)
-	//Handle Error
-	if err != nil {
-		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
-		return errors.Wrap(err, "failed to send notification")
-	}
-	defer resp.Body.Close()
-	var s *schema.SendNotificationResp
-	//Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
-		return errors.Wrap(err, "failed to send notification")
-	}
-	if err := json.Unmarshal(body, &s); err != nil {
-		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
-		return errors.Wrap(err, "failed to decode body into struct")
-	}
-	if !s.Success {
-		ci.Logger.Err(errors.New("success false from notification")).Str("body", string(body)).Msg("got success false response from notification")
-		return errors.New("got success false response from notification")
-	}
-	return nil
-}
+// func (ci *ContentImpl) SendNotification(opts *schema.SendNotificationOpts) error {
+// 	url := ci.App.Config.HypdAPIConfig.NotificationAPI + "/api/notification"
+// 	postBody, _ := json.Marshal(opts)
+// 	fmt.Println(opts)
+// 	client := http.Client{}
+// 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postBody))
+// 	if err != nil {
+// 		return errors.Wrap(err, "failed to generate request to send notification")
+// 	}
+// 	req.Header.Add("Content-Type", "application/json")
+// 	// req.Header.Add("Authorization", ci.App.Config.HypdAPIConfig.Token)
+// 	resp, err := client.Do(req)
+// 	//Handle Error
+// 	if err != nil {
+// 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to send request to api %s", url)
+// 		return errors.Wrap(err, "failed to send notification")
+// 	}
+// 	defer resp.Body.Close()
+// 	var s *schema.SendNotificationResp
+// 	//Read the response body
+// 	body, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		ci.Logger.Err(err).Str("responseBody", string(postBody)).Msgf("failed to read response from api %s", url)
+// 		return errors.Wrap(err, "failed to send notification")
+// 	}
+// 	if err := json.Unmarshal(body, &s); err != nil {
+// 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+// 		return errors.Wrap(err, "failed to decode body into struct")
+// 	}
+// 	if !s.Success {
+// 		ci.Logger.Err(errors.New("success false from notification")).Str("body", string(body)).Msg("got success false response from notification")
+// 		return errors.New("got success false response from notification")
+// 	}
+// 	return nil
+// }
 
 func (ci *ContentImpl) GetUserIDFromInfluencrID(id primitive.ObjectID) (string, error) {
 	url := ci.App.Config.HypdAPIConfig.EntityAPI + "/api/user/influencerid?id=" + id.Hex()

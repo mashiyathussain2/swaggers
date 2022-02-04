@@ -54,6 +54,7 @@ type App struct {
 	ContentFullProducer      kafka.Producer
 	PebbleSeriesProducer     kafka.Producer
 	PebbleCollectionProducer kafka.Producer
+	NotificationProducer     kafka.Producer
 }
 
 // NewApp returns new app instance
