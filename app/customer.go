@@ -34,6 +34,7 @@ type Customer interface {
 
 	RemoveAddress(primitive.ObjectID, primitive.ObjectID) error
 	EditAddress(opts *schema.EditAddressOpts) error
+	// UpdateCustomerAndInfluencer(opts *schema.UpdateCustomerOptsV2) (auth.Claim, error)
 }
 
 // CustomerImpl implements Customer interface methods

@@ -385,3 +385,72 @@ func (a *API) getCommissionAndRevenue(requestCTX *handler.RequestContext, w http
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) editInfluencerAppV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.EditInfluencerAppV2Opts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	var err error
+	s.ID, err = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID)
+	if err != nil {
+		requestCTX.SetErr(errors.Wrapf(err, "influencer id invalid"), http.StatusBadRequest)
+		return
+	}
+	if s.ID.Hex() != requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID {
+		requestCTX.SetErr(errors.New("not authorized"), http.StatusForbidden)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Influencer.EditInfluencerAppV2(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
+
+func (a *API) claimInfluencerRequestV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.InfluencerAccountRequestV2Opts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if requestCTX.UserClaim != nil {
+		s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+		s.CustomerID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).CustomerID)
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	if s.Email != "" {
+		err := a.App.User.UpdateUserEmail(&schema.UpdateUserEmailOpts{
+			ID:    s.UserID,
+			Email: s.Email,
+		})
+		if err != nil {
+			requestCTX.SetErr(err, http.StatusBadRequest)
+			return
+		}
+	}
+	if s.Phone != nil {
+		err := a.App.User.UpdateUserPhoneNo(&schema.UpdateUserPhoneNoOpts{
+			ID:      s.UserID,
+			PhoneNo: s.Phone,
+		})
+		if err != nil {
+			requestCTX.SetErr(err, http.StatusBadRequest)
+			return
+		}
+	}
+	if err := a.App.Influencer.InfluencerAccountRequestV2(&s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}

@@ -44,6 +44,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/user/reset-password", a.requestHandler(a.resetPassword)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email", a.requestWithAuthHandler(a.verifyEmail)).Methods("POST")
 	a.Router.APIRoot.Handle("/user/verify-email/resend", a.requestHandler(a.resendEmailVerificationCode)).Methods("POST")
+	a.Router.APIRoot.Handle("/user/influencerid", a.requestWithInternalHandler(a.getUserIDByInfluencerID)).Methods("GET")
 
 	// LOGIN AND SIGNUP APIS
 	a.Router.APIRoot.Handle("/customer/social/login", a.requestHandler(a.loginViaSocial)).Methods("POST")
@@ -125,6 +126,9 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/creator/ledger", a.requestWithAuthHandler(a.getInfluencerLedger)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/creator/payout-info", a.requestWithAuthHandler(a.getInfluencerPayoutInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/creator/commission", a.requestWithAuthHandler(a.getCommissionAndRevenue)).Methods("GET")
+
+	a.Router.APIRoot.Handle("/v2/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequestV2)).Methods("POST")
+	a.Router.APIRoot.Handle("/v2/app/influencer", a.requestWithAuthHandler(a.editInfluencerAppV2)).Methods("PUT")
 
 }
 

@@ -53,7 +53,6 @@ func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.Response
 		return
 	}
 	userSession, err := a.SessionAuth.GetToken(sID)
-
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -64,7 +63,6 @@ func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.Response
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
 	requestCTX.SetAppResponse(map[string]interface{}{"token": userSession.Token, "data": claim}, http.StatusOK)
 }
 
@@ -406,7 +404,7 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println(1)
 	token, err := a.TokenAuth.SignKeeperToken(claim)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -418,7 +416,6 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-
 	id, err := primitive.ObjectIDFromHex(claim.(*auth.UserClaim).ID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
@@ -431,6 +428,7 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 		return
 	}
 	redirectURL := fmt.Sprintf("%s?token=%s", a.Config.KeeperLoginRedirectURL, token)
+	fmt.Println(redirectURL)
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
 
@@ -446,6 +444,22 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 	}
 	http.SetCookie(w, cookie)
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
+}
+
+func (a *API) getUserIDByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetUserInfoByIDOpts
+	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.ID = id
+	res, err := a.App.User.GetUserIDByInfluencerID(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
 func (a *API) setUserGroups(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {

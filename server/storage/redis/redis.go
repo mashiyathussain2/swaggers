@@ -26,7 +26,6 @@ func NewRedisStorage(c *config.RedisConfig) *RedisStorage {
 	client = &redis.Pool{
 		// Maximum number of idle connections in the pool.
 		MaxIdle: 15,
-
 		// IdleTimeout: 240 * time.Second,
 		// max number of connections
 		Dial: func() (redis.Conn, error) {

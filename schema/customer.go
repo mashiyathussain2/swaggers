@@ -106,3 +106,23 @@ type EditAddressOpts struct {
 	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
 	ContactNumber     *model.PhoneNumber `json:"contact_number" validate:"required"`
 }
+
+// UpdateCustomerOpts contains fields and validations to update existing customer
+type UpdateCustomerOptsV2 struct {
+	ID           primitive.ObjectID `json:"id" validate:"required"`
+	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+	FullName     string             `json:"full_name"`
+	DOB          time.Time          `json:"dob"`
+	Gender       string             `json:"gender"`
+	ProfileImage *Img               `json:"profile_image"`
+	Email        string             `json:"email"`
+	PhoneNo      *PhoneNoOpts       `json:"phone_no"`
+
+	InfluencerID      primitive.ObjectID     `json:"influencer_id"`
+	Username          string                 `json:"username,omitempty"`
+	Bio               string                 `json:"bio,omitempty"`
+	CoverImg          *Img                   `json:"cover_img,omitempty"`
+	ExternalLinks     []string               `json:"external_links,omitempty"`
+	SocialAccount     *SocialAccountOpts     `json:"social_account,omitempty"`
+	PayoutInformation *PayoutInformationOpts `json:"payout_information,omitempty"`
+}

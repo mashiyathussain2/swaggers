@@ -44,6 +44,10 @@ type Influencer interface {
 	GetInfluencerLedger(opts *schema.GetInfluencerLedgerOpts) ([]schema.GetInfluencerLedgerResp, error)
 	GetInfluencerPayoutInfo(id primitive.ObjectID) (*schema.GetPayoutInfoResp, error)
 	GetCommissionAndRevenue(opts *schema.GetCommissionAndRevenueOpts) (*schema.GetCommissionAndRevenueResp, error)
+	EditInfluencerAppV2(opts *schema.EditInfluencerAppV2Opts) (*schema.EditInfluencerResp, error)
+
+	//v2
+	InfluencerAccountRequestV2(opts *schema.InfluencerAccountRequestV2Opts) error
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -800,7 +804,8 @@ func (ii *InfluencerImpl) createInfluencerFromRequest(sc mongo.SessionContext, o
 
 func (ii *InfluencerImpl) CheckInfluencerUsernameExists(username string, sc *mongo.SessionContext) error {
 	// ctx := context.TODO()
-	isAlpha := regexp.MustCompile(`^[a-z0-9_]+$`).MatchString
+
+	isAlpha := regexp.MustCompile(`^[a-z0-9\_\-\.]{5,30}$`).MatchString
 	if !isAlpha(username) {
 		return errors.Errorf("%s is not valid", username)
 	}
@@ -1459,4 +1464,196 @@ func (ii *InfluencerImpl) GetCommissionAndRevenue(opts *schema.GetCommissionAndR
 		return nil, nil
 	}
 	return &resp[0], nil
+}
+
+// EditInfluencerAppV2 updates existing influencer details
+func (ii *InfluencerImpl) EditInfluencerAppV2(opts *schema.EditInfluencerAppV2Opts) (*schema.EditInfluencerResp, error) {
+	var influencer model.Influencer
+	var update bson.D
+	if opts.Username != "" {
+		err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
+		if err != nil {
+			return nil, err
+		}
+		update = append(update, bson.E{Key: "username", Value: opts.Username})
+	}
+	if opts.PayoutInformation != nil {
+		update = append(update, bson.E{Key: "payout_information", Value: model.PayoutInformation{
+			UPIID:           opts.PayoutInformation.UPIID,
+			BankInformation: opts.PayoutInformation.BankInformation,
+			PanCard:         strings.ToUpper(opts.PayoutInformation.PanCard),
+		}})
+	}
+	if opts.Name != "" {
+		update = append(update, bson.E{Key: "name", Value: opts.Name})
+	}
+	if opts.Bio != "" {
+		update = append(update, bson.E{Key: "bio", Value: opts.Bio})
+	}
+	if opts.ProfileImage != nil {
+		img := model.IMG{
+			SRC: opts.ProfileImage.SRC,
+		}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "invalid profile image for influencer")
+		}
+		update = append(update, bson.E{Key: "profile_image", Value: img})
+	}
+	if opts.CoverImg != nil {
+		img := model.IMG{
+			SRC: opts.CoverImg.SRC,
+		}
+		if err := img.LoadFromURL(); err != nil {
+			return nil, errors.Wrap(err, "invalid cover image for influencer")
+		}
+		update = append(update, bson.E{Key: "cover_img", Value: img})
+	}
+	if len(opts.ExternalLinks) != 0 {
+		update = append(update, bson.E{Key: "external_links", Value: opts.ExternalLinks})
+	}
+	if opts.SocialAccount != nil {
+		if opts.SocialAccount.Facebook != nil {
+			facebook := &model.SocialMedia{
+				URL:            opts.SocialAccount.Facebook.URL,
+				FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount),
+			}
+			update = append(update, bson.E{Key: "social_account.facebook", Value: facebook})
+		}
+		if opts.SocialAccount.Instagram != nil {
+			instagram := &model.SocialMedia{
+				URL:            opts.SocialAccount.Instagram.URL,
+				FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount),
+			}
+			update = append(update, bson.E{Key: "social_account.instagram", Value: instagram})
+		}
+		if opts.SocialAccount.Youtube != nil {
+			youtube := &model.SocialMedia{
+				URL:            opts.SocialAccount.Youtube.URL,
+				FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount),
+			}
+			update = append(update, bson.E{Key: "social_account.youtube", Value: youtube})
+		}
+		if opts.SocialAccount.Twitter != nil {
+			twitter := &model.SocialMedia{
+				URL:            opts.SocialAccount.Twitter.URL,
+				FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount),
+			}
+			update = append(update, bson.E{Key: "social_account.twitter", Value: twitter})
+		}
+	}
+	if update == nil {
+		return nil, errors.New("no fields found to update")
+	}
+	update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
+
+	filterQuery := bson.M{"_id": opts.ID}
+	updateQuery := bson.M{"$set": update}
+
+	queryOpts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	err := ii.DB.Collection(model.InfluencerColl).FindOneAndUpdate(context.TODO(), filterQuery, updateQuery, queryOpts).Decode(&influencer)
+	if err != nil {
+		if err == mongo.ErrNilDocument || err == mongo.ErrNoDocuments {
+			return nil, errors.Wrapf(err, "influencer with id:%s not found", opts.ID.Hex())
+		}
+		return nil, errors.Wrapf(err, "failed to update influencer with id:%s", opts.ID.Hex())
+	}
+
+	resp := schema.EditInfluencerResp{
+		ID:            influencer.ID,
+		Name:          influencer.Name,
+		Username:      influencer.Username,
+		ExternalLinks: influencer.ExternalLinks,
+		CoverImg:      influencer.CoverImg,
+		ProfileImage:  influencer.ProfileImage,
+		SocialAccount: influencer.SocialAccount,
+		Bio:           influencer.Bio,
+		CreatedAt:     influencer.CreatedAt,
+		UpdatedAt:     influencer.UpdatedAt,
+	}
+	return &resp, nil
+}
+
+//InfluencerAccountRequestV2 creates a new influencer account request
+func (ii *InfluencerImpl) InfluencerAccountRequestV2(opts *schema.InfluencerAccountRequestV2Opts) error {
+	var request model.InfluencerAccountRequest
+	ctx := context.TODO()
+	filter := bson.M{
+		"user_id":   opts.UserID,
+		"is_active": true,
+	}
+	if err := ii.DB.Collection(model.InfluencerAccountRequestColl).FindOne(ctx, filter).Decode(&request); err != nil {
+		if err != mongo.ErrNilDocument && err != mongo.ErrNoDocuments {
+			return errors.Wrap(err, "failed to check for existing requests")
+		}
+	}
+	if !request.ID.IsZero() {
+		if request.Status == model.AcceptedStatus {
+			return errors.Errorf("account already has influencer access")
+		}
+		return errors.Errorf("account upgrade request is already in active status")
+	}
+	if opts.Username == "" {
+		opts.Username = GenerateUsernameInfluencer(opts.FullName)
+	}
+	err := ii.CheckInfluencerUsernameExists(opts.Username, nil)
+	if err != nil {
+		return err
+	}
+	r := model.InfluencerAccountRequest{
+		UserID:     opts.UserID,
+		CustomerID: opts.CustomerID,
+		// InfluencerID: opts.InfluencerID,
+		Name:     opts.FullName,
+		Username: opts.Username,
+		ProfileImage: &model.IMG{
+			SRC: opts.ProfileImage.SRC,
+		},
+		CoverImage: &model.IMG{
+			SRC: opts.CoverImage.SRC,
+		},
+		// Bio:       opts.Bio,
+		// Website:   opts.Website,
+		IsActive:  true,
+		CreatedAt: time.Now().UTC(),
+		Status:    model.InReviewStatus,
+	}
+	if err := r.ProfileImage.LoadFromURL(); err != nil {
+		return errors.Wrap(err, "invalid profile image for influencer")
+	}
+	if err := r.CoverImage.LoadFromURL(); err != nil {
+		return errors.Wrap(err, "invalid cover image for influencer")
+	}
+
+	if opts.SocialAccount != nil {
+		r.SocialAccount = &model.SocialAccount{}
+		if opts.SocialAccount.Facebook != nil {
+			r.SocialAccount.Facebook = &model.SocialMedia{
+				URL:            opts.SocialAccount.Facebook.URL,
+				FollowersCount: uint(opts.SocialAccount.Facebook.FollowersCount),
+			}
+		}
+		if opts.SocialAccount.Instagram != nil {
+			r.SocialAccount.Instagram = &model.SocialMedia{
+				URL:            opts.SocialAccount.Instagram.URL,
+				FollowersCount: uint(opts.SocialAccount.Instagram.FollowersCount),
+			}
+		}
+		if opts.SocialAccount.Youtube != nil {
+			r.SocialAccount.Youtube = &model.SocialMedia{
+				URL:            opts.SocialAccount.Youtube.URL,
+				FollowersCount: uint(opts.SocialAccount.Youtube.FollowersCount),
+			}
+		}
+		if opts.SocialAccount.Twitter != nil {
+			r.SocialAccount.Twitter = &model.SocialMedia{
+				URL:            opts.SocialAccount.Twitter.URL,
+				FollowersCount: uint(opts.SocialAccount.Twitter.FollowersCount),
+			}
+		}
+	}
+	if _, err := ii.DB.Collection(model.InfluencerAccountRequestColl).InsertOne(ctx, r); err != nil {
+		return errors.Wrap(err, "failed to create account upgrade request")
+	}
+	return nil
 }

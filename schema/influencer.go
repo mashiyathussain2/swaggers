@@ -309,3 +309,28 @@ type GetCommissionAndRevenueResp struct {
 	Revenue    uint `json:"revenue,omitempty" bson:"revenue,omitempty"`
 	Balance    uint `json:"balance,omitempty" bson:"balance,omitempty"`
 }
+
+// EditInfluencerAppV2Opts contains fields and validations required to edit existing influencer
+type EditInfluencerAppV2Opts struct {
+	ID                primitive.ObjectID     `json:"id" validate:"required"`
+	Name              string                 `json:"name,omitempty"`
+	Username          string                 `json:"username,omitempty"`
+	Bio               string                 `json:"bio,omitempty"`
+	CoverImg          *Img                   `json:"cover_img,omitempty"`
+	ProfileImage      *Img                   `json:"profile_image,omitempty"`
+	ExternalLinks     []string               `json:"external_links,omitempty"`
+	SocialAccount     *SocialAccountOpts     `json:"social_account,omitempty"`
+	PayoutInformation *PayoutInformationOpts `json:"payout_information,omitempty"`
+}
+
+type InfluencerAccountRequestV2Opts struct {
+	UserID        primitive.ObjectID `json:"user_id" validate:"required"`
+	CustomerID    primitive.ObjectID `json:"customer_id" validate:"required"`
+	FullName      string             `json:"full_name" validate:"required"`
+	Username      string             `json:"username,omitempty"`
+	Email         string             `json:"email,omitempty"`
+	Phone         *PhoneNoOpts       `json:"phone,omitempty"`
+	ProfileImage  Img                `json:"profile_image" validate:"required"`
+	CoverImage    Img                `json:"cover_image" validate:"required"`
+	SocialAccount *SocialAccountOpts `json:"social_account"`
+}
