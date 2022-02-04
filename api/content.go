@@ -520,16 +520,16 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
-func (a *API) sendNotification(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.SendNotificationOpts
-	if err := a.DecodeJSONBody(r, &s); err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
-	err := a.App.Content.SendNotification(&s)
-	if err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
-	requestCTX.SetAppResponse(true, http.StatusOK)
-}
+// func (a *API) sendNotification(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+// 	var s schema.SendNotificationOpts
+// 	if err := a.DecodeJSONBody(r, &s); err != nil {
+// 		requestCTX.SetErr(err, http.StatusBadRequest)
+// 		return
+// 	}
+// 	err := a.App.Content.SendNotification(&s)
+// 	if err != nil {
+// 		requestCTX.SetErr(err, http.StatusBadRequest)
+// 		return
+// 	}
+// 	requestCTX.SetAppResponse(true, http.StatusOK)
+// }
