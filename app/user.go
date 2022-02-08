@@ -10,6 +10,7 @@ import (
 	"go-app/model"
 	"go-app/schema"
 	"go-app/server/auth"
+	"go-app/server/config"
 
 	"strconv"
 	"strings"
@@ -562,6 +563,8 @@ func (ui *UserImpl) MobileLoginCustomerUser(opts *schema.MobileLoginCustomerUser
 
 // GenerateMobileLoginOTP checks provided phone number in DB and sends an otp.
 // If phone number does not exists then it create a new user and sends the otp.
+// GenerateMobileLoginOTP checks provided phone number in DB and sends an otp.
+// If phone number does not exists then it create a new user and sends the otp.
 func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOpts) (bool, error) {
 	ctx := context.TODO()
 	filter := bson.M{"phone_no.prefix": opts.PhoneNo.Prefix, "phone_no.number": opts.PhoneNo.Number}
@@ -571,6 +574,14 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		return false, errors.Wrapf(err, "failed to check for user with phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 	}
 	otp, _ := GenerateOTP(6)
+	if config.GetConfig().ServerConfig.Env == "staging" {
+		if opts.PhoneNo.Number == "1000000001" || opts.PhoneNo.Number == "1000000002" ||
+			opts.PhoneNo.Number == "2000000001" || opts.PhoneNo.Number == "2000000002" ||
+			opts.PhoneNo.Number == "3000000001" || opts.PhoneNo.Number == "3000000002" ||
+			opts.PhoneNo.Number == "9999999999" {
+			otp = "000000"
+		}
+	}
 	switch count {
 	// When no user exists thus creating a new one
 	case 0:
@@ -602,7 +613,7 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 			UserID:    user.ID,
 			CreatedAt: time.Now().UTC(),
 		}
-		_, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
+		res, err = ui.DB.Collection(model.CustomerColl).InsertOne(ctx, customer)
 		if err != nil {
 			ui.Logger.Err(err).Msgf("failed to generate customer using phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
 			return false, errors.Wrapf(err, "failed to generate customer using phone_no:%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)
@@ -625,6 +636,19 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		}
 	}
 
+	if config.GetConfig().ServerConfig.Env == "staging" {
+		if opts.PhoneNo.Number == "1000000001" || opts.PhoneNo.Number == "1000000002" ||
+			opts.PhoneNo.Number == "2000000001" || opts.PhoneNo.Number == "2000000002" ||
+			opts.PhoneNo.Number == "3000000001" || opts.PhoneNo.Number == "3000000002" ||
+			opts.PhoneNo.Number == "9999999999" {
+			return true, nil
+		}
+	}
+	// Sending OTP to phone number via SNS
+	// params := &sns.PublishInput{
+	// 	Message:     aws.String(fmt.Sprintf("OTP for login: %s", otp)),
+	// 	PhoneNumber: aws.String(fmt.Sprintf("%s%s", opts.PhoneNo.Prefix, opts.PhoneNo.Number)),
+	// }
 	err = ui.App.Kaleyra.SendOTP(&schema.SendOTPOpts{
 		PhoneNo: model.PhoneNumber{
 			Prefix: opts.PhoneNo.Prefix,
@@ -632,6 +656,7 @@ func (ui *UserImpl) GenerateMobileLoginOTP(opts *schema.GenerateMobileLoginOTPOp
 		},
 		OTP: otp,
 	})
+	// _, err = ui.App.SNS.Publish(params)
 	if err != nil {
 		ui.Logger.Err(err).Interface("opts", opts).Msg("failed to send otp")
 		return false, errors.Wrap(err, "failed to send otp")

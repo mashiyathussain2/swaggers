@@ -28,6 +28,7 @@ type Config struct {
 	SentryConfig        SentryConfig        `mapstructure:"sentry"`
 	KaleyraConfig       KaleyraConfig       `mapstructure:"kaleyra"`
 	MSGPlatformConfig   MSGPlatformConfig   `mapstructure:"message_platform"`
+	GoKwikConfig        GoKwikConfig        `mapstructure:"goKwik"`
 	// CommissionOrderListeneronfig ListenerConfig      `mapstructure:"commissionOrderListenerConsumer"`
 }
 
@@ -67,6 +68,7 @@ type APIConfig struct {
 	MaxRequestDataSize     int    `mapstructure:"maxRequestDataSize"`
 	KeeperLoginRedirectURL string `mapstructure:"keeperLoginRedirectURL"`
 	HypdApiConfig          HypdApiConfig
+	GoKwikConfig           GoKwikConfig
 }
 
 type SessionConfig struct {
@@ -89,6 +91,7 @@ type APPConfig struct {
 	SNSConfig           SNSConfig
 	SESConfig           SESConfig
 	HypdApiConfig       HypdApiConfig
+	GoKwikConfig        GoKwikConfig
 	ElasticsearchConfig ElasticsearchConfig
 	GoogleOAuth         GoogleOAuth
 	Kaleyra             KaleyraConfig
@@ -131,6 +134,15 @@ type HypdApiConfig struct {
 	OrderApi   string `mapstructure:"orderApi"`
 	CouponApi  string `mapstructure:"couponApi"`
 	Token      string `mapstructure:"token"`
+	CatalogURL string `mapstructure:"catalogURL"`
+}
+
+// GoKwikConfig has GoKwik configurations
+type GoKwikConfig struct {
+	RTOApi     string `mapstructure:"rtoApi"`
+	AppID      string `mapstructure:"appID"`
+	MerchantID string `mapstructure:"merchantID"`
+	AppSecret  string `mapstructure:"appSecret"`
 }
 
 // ServiceConfig contains app service related config
@@ -334,6 +346,8 @@ func GetConfigFromFile(fileName string) *Config {
 	config.SessionConfig.RedisConfig = config.RedisConfig
 	config.APPConfig.Kaleyra = config.KaleyraConfig
 	config.APPConfig.MSGPlatform = config.MSGPlatformConfig
+	config.APIConfig.GoKwikConfig = config.GoKwikConfig
+	config.APPConfig.GoKwikConfig = config.GoKwikConfig
 
 	return config
 }

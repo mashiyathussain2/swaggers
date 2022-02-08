@@ -129,6 +129,10 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/v2/app/user/influencer-request", a.requestWithAuthHandler(a.claimInfluencerRequestV2)).Methods("POST")
 	a.Router.APIRoot.Handle("/v2/app/influencer", a.requestWithAuthHandler(a.editInfluencerAppV2)).Methods("PUT")
+	//Check COD via GoKwik
+	a.Router.APIRoot.Handle("/app/check/cod", a.requestWithAuthHandler(a.checkCODEligiblity)).Methods("GET")
+	a.Router.APIRoot.Handle("/v2/app/cart/checkout", a.requestWithAuthHandler(a.checkoutCartV2)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/express-checkout/check/cod", a.requestWithAuthHandler(a.expressCheckoutRTO)).Methods("POST")
 
 }
 

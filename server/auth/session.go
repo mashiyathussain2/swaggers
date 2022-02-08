@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -138,8 +137,6 @@ func (s *SessionAuthImpl) CreateAndReturn(st string, w http.ResponseWriter) (str
 		Expires:  time.Now().AddDate(1, 0, 0),
 	}
 	http.SetCookie(w, cookie)
-	fmt.Println("create and return set cookie")
-
 	return sessionID, err
 }
 
