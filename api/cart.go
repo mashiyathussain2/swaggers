@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pasztorpisti/qs"
 	"github.com/vasupal1996/goerror"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -124,13 +125,8 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(goerror.New("empty source in query", &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-
 	platform := r.URL.Query().Get("platform")
 
-	// To remove after app update
-	if platform == "" {
-		platform = "android"
-	}
 	if platform != "web" && platform != "android" && platform != "ios" {
 		requestCTX.SetErr(goerror.New("platform incorrect", &goerror.BadRequest), http.StatusBadRequest)
 	}
@@ -139,14 +135,29 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 		requestCTX.SetErr(errors.New("invalid user"), http.StatusForbidden)
 		return
 	}
+	cod := r.URL.Query().Get("cod")
+	requestID := ""
+
+	isCOD := true
+	if cod != "true" {
+		isCOD = false
+	}
+	if isCOD {
+		requestID = r.URL.Query().Get("request_id")
+		if requestID == "" {
+			requestCTX.SetErr(goerror.New("request id is required for cod orders", &goerror.BadRequest), http.StatusBadRequest)
+			return
+		}
+	}
+
 	fullName := requestCTX.UserClaim.(*auth.UserClaim).FullName
-	resp, err := a.App.Cart.CheckoutCart(id, source, platform, fullName)
+
+	resp, err := a.App.Cart.CheckoutCart(id, source, platform, fullName, isCOD, requestID)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
-
 }
 
 func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -213,4 +224,48 @@ func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWr
 	}
 	requestCTX.SetAppResponse(true, http.StatusOK)
 
+}
+
+func (a *API) checkCODEligiblity(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	if err != nil {
+		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", mux.Vars(r)["userID"]), &goerror.BadRequest), http.StatusBadRequest)
+		return
+	}
+	email := requestCTX.UserClaim.(*auth.UserClaim).Email
+	resp, err := a.App.Cart.CheckCODEligiblity(id, r.UserAgent(), r.RemoteAddr, email)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+
+}
+
+func (a *API) checkoutCartV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.CheckoutOpts
+	var err error
+
+	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.ID, err = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.FullName = requestCTX.UserClaim.(*auth.UserClaim).FullName
+	if s.IsCOD {
+		if s.RequestID == "" {
+			requestCTX.SetErr(goerror.New("request id is required for cod orders", &goerror.BadRequest), http.StatusBadRequest)
+			return
+		}
+	}
+	resp, err := a.App.Cart.CheckoutCartV2(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
