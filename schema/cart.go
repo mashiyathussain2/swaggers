@@ -66,6 +66,8 @@ type OrderItemOpts struct {
 	Source          string              `json:"source"`
 	SourceID        *primitive.ObjectID `json:"source_id,omitempty"`
 	IsWeb           bool                `json:"is_web"`
+	IsCOD           bool                `json:"is_cod,omitempty"`
+	RequestID       string              `json:"request_id,omitempty"`
 	Platform        string              `json:"platform"`
 	OrderItems      []OrderItem         `json:"order_items" bson:"order_items"`
 	Coupon          *CouponOrderOpts    `json:"coupon_info"`
@@ -78,9 +80,10 @@ type OrderResp struct {
 }
 
 type OrderInfo struct {
-	OrderID    string  `json:"order_id" bson:"order_id"`
-	RazorpayID string  `json:"razorpay_id" bson:"razorpay_id"`
-	Amount     float32 `json:"amount" bson:"amount"`
+	OrderID        string                  `json:"order_id" bson:"order_id"`
+	RazorpayID     string                  `json:"razorpay_id" bson:"razorpay_id"`
+	Amount         float32                 `json:"amount" bson:"amount"`
+	GoKwikResponse []GoKwikCreateOrderResp `json:"go_kwik"`
 }
 
 //OrderItem is a unique catalogs data inside the cart
@@ -282,4 +285,29 @@ type CommisionOrderItem struct {
 	Source     *model.Source      `json:"source,omitempty" bson:"source,omitempty"`
 	OrderID    primitive.ObjectID `json:"order_id,omitempty" bson:"order_id,omitempty"`
 	OrderNo    string             `json:"order_no,omitempty" bson:"order_no,omitempty"`
+}
+
+type GoKwikCreateOrderResp struct {
+	StatusCode    uint            `json:"statusCode"`
+	StatusMessage string          `json:"statusMessage"`
+	Data          GoKwikOrderData `json:"data"`
+}
+type GoKwikOrderData struct {
+	RequestID   string `json:"request_id"`
+	GokwikOID   string `json:"gokwik_oid"`
+	OrderStatus string `json:"order_status"`
+	Total       string `json:"total"`
+	Moid        string `json:"moid"`
+	Mid         string `json:"mid"`
+	Phone       string `json:"phone"`
+	OrderType   string `json:"order_type"`
+}
+
+type CheckoutOpts struct {
+	ID        primitive.ObjectID `json:"id,omitempty" validate:"required"`
+	Source    string             `json:"source,omitempty" validate:"required"`
+	Platform  string             `json:"platform,omitempty" validate:"required,oneof=web android ios"`
+	FullName  string             `json:"full_name,omitempty" validate:"required"`
+	IsCOD     bool               `json:"is_cod,omitempty"`
+	RequestID string             `json:"request_id,omitempty"`
 }

@@ -27,7 +27,7 @@ type Cart interface {
 	UpdateItemQty(*schema.UpdateItemQtyOpts) (*model.Cart, error)
 	GetCartInfo(primitive.ObjectID) (*schema.GetCartInfoResp, error)
 	SetCartAddress(*schema.AddressOpts) error
-	CheckoutCart(primitive.ObjectID, string, string, string) (*schema.OrderInfo, error)
+	CheckoutCart(primitive.ObjectID, string, string, string, bool, string) (*schema.OrderInfo, error)
 	ClearCart(primitive.ObjectID) error
 
 	AddDiscountInCartItems(*schema.DiscountInCartItemsOpts)
@@ -39,6 +39,9 @@ type Cart interface {
 	UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts)
 	UpdateCouponInsideCart(opts *schema.CouponUpdateOpts)
 	GetCoupon(code string) (*model.Coupon, error)
+	CheckCODEligiblity(userID primitive.ObjectID, userAgent, ipAddress, email string) (interface{}, error)
+
+	CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo, error)
 }
 
 // CartImpl implements Cart interface methods
@@ -458,7 +461,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 	return nil
 }
 
-func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userName string) (*schema.OrderInfo, error) {
+func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userName string, isCOD bool, requestID string) (*schema.OrderInfo, error) {
 
 	ctx := context.TODO()
 
@@ -540,6 +543,8 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 			OrderItems:      []schema.OrderItem{},
 			Source:          source,
 			IsWeb:           isWeb,
+			IsCOD:           isCOD,
+			RequestID:       requestID,
 			Platform:        platform,
 			CartType:        model.CartCheckout,
 		}
@@ -738,6 +743,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
+	fmt.Println(orderResp)
 	if !orderResp.Success {
 		ci.Logger.Err(errors.New("success false from order")).Str("body", string(body)).Msg("got success false response from order")
 		return nil, errors.Errorf("%s - got success false response from order", string(body))
@@ -1051,4 +1057,416 @@ func (ci *CartImpl) UpdateCouponInsideCart(opts *schema.CouponUpdateOpts) {
 		return
 	}
 
+}
+
+func (ci *CartImpl) CheckCODEligiblity(userID primitive.ObjectID, userAgent, ipAddress, email string) (interface{}, error) {
+	ctx := context.TODO()
+	var cart model.Cart
+
+	err := ci.DB.Collection(model.CartColl).FindOne(ctx, bson.M{"user_id": userID}).Decode(&cart)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get cart info")
+	}
+	fmt.Println("cart", cart)
+	totalPrice := 0
+	totalItems := 0
+	var lineItems []schema.GoKwikLineItems
+	for _, item := range cart.Items {
+		totalPrice += int(item.Quantity) * int(item.RetailPrice.Value)
+		totalItems += int(item.Quantity)
+
+		var sku string
+		for _, variant := range item.CatalogInfo.Variants {
+			if variant.ID == item.VariantID {
+				sku = variant.SKU
+			}
+		}
+
+		lineItems = append(lineItems, schema.GoKwikLineItems{
+			Sku:                 sku,
+			Price:               float64(item.RetailPrice.Value),
+			Quantity:            int(item.Quantity),
+			Total:               int(item.Quantity) * int(item.RetailPrice.Value),
+			ProductThumbnailURL: item.CatalogInfo.FeaturedImage.SRC,
+			ProductURL:          ci.App.Config.HypdApiConfig.CatalogURL + "/product?id=" + item.CatalogID.Hex(),
+		},
+		)
+	}
+	nameParts := strings.Split(cart.BillingAddress.DisplayName, " ")
+	address := schema.GoKwikShippingAddress{
+		FirstName: nameParts[0],
+		LastName:  strings.Join(nameParts[1:], " "),
+		Address1:  cart.ShippingAddress.Line1,
+		Address2:  cart.ShippingAddress.Line2,
+		City:      cart.ShippingAddress.City,
+		State:     cart.ShippingAddress.State.Name,
+		Postcode:  cart.ShippingAddress.PostalCode,
+		Phone:     cart.ShippingAddress.ContactNumber.Number,
+		Email:     email,
+	}
+	baddress := schema.GoKwikBillingAddress{
+		Address1: cart.ShippingAddress.Line1,
+		Address2: cart.ShippingAddress.Line2,
+		City:     cart.ShippingAddress.City,
+		State:    cart.ShippingAddress.State.Name,
+		Postcode: cart.ShippingAddress.PostalCode,
+	}
+	eOpts := schema.CheckCODEligiblityOpts{
+		Customer: schema.GoKwikCustomer{},
+		Order: schema.GoKwikOrder{
+			OrderDate:              time.Now(),
+			Subtotal:               totalPrice,
+			TotalLineItems:         len(cart.Items),
+			TotalLineItemsQuantity: totalItems,
+			TotalDiscount:          0,
+			Total:                  totalPrice,
+			PromoCode:              "",
+			LineItems:              lineItems,
+			ShippingAddress:        address,
+			BillingAddress:         baddress,
+			Session: schema.GoKwikSession{
+				Source:            "organic",
+				CustomerUserAgent: userAgent,
+				CustomerIP:        ipAddress,
+			},
+		},
+	}
+
+	//Sending request to gokwik RTO API
+	coURL := ci.App.Config.GoKwikConfig.RTOApi
+
+	var rtoResp interface{}
+	reqBody, err := json.Marshal(eOpts)
+
+	fmt.Println(4)
+	fmt.Println(string(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("eOpts", eOpts).Msgf("failed to prepare request json to api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get cart info")
+	}
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("eOpts", eOpts).Msgf("failed to create request to check eligiblity %s", coURL)
+		return nil, errors.Wrap(err, "failed to create request to check eligiblity")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("appid", ci.App.Config.GoKwikConfig.AppID)
+	req.Header.Add("appsecret", ci.App.Config.GoKwikConfig.AppSecret)
+
+	resp, err := client.Do(req)
+	//Handle Error
+	if err != nil {
+		ci.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to to check eligiblity %s", coURL)
+		return nil, errors.Wrap(err, "failed to send request to check eligiblity")
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(5)
+
+	if err != nil {
+		ci.Logger.Err(err).RawJSON("reqBody", reqBody).Msgf("failed to read response from gokwik api %s", coURL)
+		return nil, errors.Wrap(err, "failed to read gokwik info")
+	}
+	if err := json.Unmarshal(body, &rtoResp); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+
+	return &rtoResp, nil
+}
+
+func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo, error) {
+
+	ctx := context.TODO()
+	isWeb := false
+	if opts.Platform == "web" {
+		isWeb = true
+	}
+	grandTotal := 0
+	couponGrandTotal := 0
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"user_id": opts.ID,
+		},
+	}}
+
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$items",
+		},
+	}}
+
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$items.brand_id",
+			"items": bson.M{
+				"$push": "$items",
+			},
+			"cartInfo": bson.M{
+				"$first": "$$ROOT",
+			},
+		},
+	}}
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"cartInfo.items":    "$items",
+			"cartInfo.brand_id": "$_id",
+		},
+	}}
+
+	replaceRootStage := bson.D{{
+		Key: "$replaceRoot", Value: bson.M{
+			"newRoot": "$cartInfo",
+		},
+	}}
+
+	projectStage := bson.D{{
+		Key: "$project", Value: bson.M{
+			"items._id": 0,
+		},
+	}}
+	cartCursor, err := ci.DB.Collection(model.CartColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		unwindStage,
+		groupStage,
+		setStage,
+		replaceRootStage,
+		projectStage,
+	})
+
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get cart data")
+	}
+
+	var cartUnwindBrands []schema.CartUnwindBrand
+
+	if err := cartCursor.All(ctx, &cartUnwindBrands); err != nil {
+		return nil, errors.Wrap(err, "error decoding cart")
+	}
+	var orderItemsOpts []schema.OrderItemOpts
+
+	outOfStockString := ""
+
+	for _, c := range cartUnwindBrands {
+		order := schema.OrderItemOpts{
+			UserID:          c.UserID,
+			BrandID:         c.BrandID,
+			ShippingAddress: c.ShippingAddress,
+			BillingAddress:  c.BillingAddress,
+			OrderItems:      []schema.OrderItem{},
+			Source:          opts.Source,
+			IsWeb:           isWeb,
+			IsCOD:           opts.IsCOD,
+			RequestID:       opts.RequestID,
+			Platform:        opts.Platform,
+			CartType:        model.CartCheckout,
+		}
+
+		displayName := strings.ToLower(c.ShippingAddress.DisplayName)
+		if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
+			order.ShippingAddress.DisplayName = opts.FullName
+			order.BillingAddress.DisplayName = opts.FullName
+		}
+
+		for _, item := range c.Items {
+
+			var cv model.GetCatalogVariant
+			// url := "http://localhost:8000" + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
+
+			url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
+			client := http.Client{}
+			req, err := http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
+			}
+			req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+			resp, err := client.Do(req)
+			if err != nil {
+				return nil, errors.Wrapf(err, "unable to fetch catlog data")
+			}
+			defer resp.Body.Close()
+
+			//Read the response body
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				ci.Logger.Err(err).Msgf("failed to read response from api %s", url)
+				return nil, errors.Wrap(err, "failed to get brandinfo")
+			}
+			if err := json.Unmarshal(body, &cv); err != nil {
+				ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+				return nil, errors.Wrap(err, "failed to decode body into struct")
+			}
+			if !cv.Success {
+				ci.Logger.Err(errors.New("success false from inventory")).Str("body", string(body)).Msg("got success false response from inventory")
+				return nil, errors.New("got success false response from catalog")
+			}
+			if cv.Payload.InventoryInfo.UnitInStock == 0 || cv.Payload.InventoryInfo.Status.Value == model.OutOfStockStatus {
+				outOfStockString = outOfStockString + fmt.Sprintf("item %s is out of stock", item.CatalogInfo.Name)
+				continue
+			}
+			if cv.Payload.InventoryInfo.UnitInStock < int(item.Quantity) {
+				outOfStockString = outOfStockString + fmt.Sprintf("only %d unit available for item %s in stock", cv.Payload.InventoryInfo.UnitInStock, item.CatalogInfo.Name) + "\n"
+				continue
+			}
+			item.CatalogInfo.TransferPrice = cv.Payload.TransferPrice
+			// item.CatalogInfo.BasePrice = cv.Payload.BasePrice
+			// item.CatalogInfo.RetailPrice = cv.Payload.RetailPrice
+
+			var dp *model.Price
+
+			if cv.Payload.DiscountInfo != nil {
+
+				switch cv.Payload.DiscountInfo.Type {
+				case model.FlatOffType:
+					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(cv.Payload.DiscountInfo.Value))
+				case model.PercentOffType:
+					d := uint(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
+					if d > cv.Payload.DiscountInfo.MaxValue && cv.Payload.DiscountInfo.MaxValue > 0 {
+						d = cv.Payload.DiscountInfo.MaxValue
+					}
+					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(d))
+				default:
+				}
+			}
+
+			it := schema.OrderItem{
+				CatalogID: item.CatalogID,
+				VariantID: item.VariantID,
+				CatalogInfo: schema.OrderCatalogInfo{
+					ID:      item.CatalogID,
+					BrandID: item.BrandID,
+					Name:    item.CatalogInfo.Name,
+					FeaturedImage: schema.Img{
+						SRC: cv.Payload.FeaturedImage.SRC,
+					},
+					VariantType: item.CatalogInfo.VariantType,
+					Variant: schema.OrderVariant{
+						ID:        item.VariantID,
+						Attribute: cv.Payload.Variant.Attribute,
+						SKU:       cv.Payload.Variant.SKU,
+					},
+					ETA:            item.CatalogInfo.ETA,
+					HSNCode:        item.CatalogInfo.HSNCode,
+					TransferPrice:  cv.Payload.TransferPrice,
+					CommissionRate: item.CatalogInfo.CommissionRate,
+				},
+				Tax:         item.CatalogInfo.Tax,
+				BasePrice:   &cv.Payload.BasePrice,
+				RetailPrice: &cv.Payload.RetailPrice,
+				Quantity:    item.Quantity,
+				Source:      item.Source,
+			}
+			if !cv.Payload.DiscountInfo.ID.IsZero() {
+				it.DiscountID = cv.Payload.DiscountInfo.ID
+				it.DiscountInfo = cv.Payload.DiscountInfo
+				it.DiscountedPrice = dp
+				grandTotal += int(dp.Value)
+				couponGrandTotal += int(dp.Value) * int(item.Quantity)
+			} else {
+				grandTotal += int(cv.Payload.RetailPrice.Value)
+				couponGrandTotal += int(cv.Payload.RetailPrice.Value) * int(item.Quantity)
+			}
+
+			order.OrderItems = append(order.OrderItems, it)
+		}
+		orderItemsOpts = append(orderItemsOpts, order)
+	}
+	fmt.Println("grand total, coupon Grand total", grandTotal, couponGrandTotal)
+
+	if len(outOfStockString) > 0 {
+		return nil, errors.Errorf(outOfStockString)
+	}
+
+	var coupon schema.CouponOrderOpts
+
+	if len(cartUnwindBrands) == 0 {
+		return nil, errors.Errorf("cart is empty")
+	}
+	if cartUnwindBrands[0].Coupon != nil {
+
+		if cartUnwindBrands[0].Coupon.Status != "active" || cartUnwindBrands[0].Coupon.ValidBefore.Before(time.Now()) {
+			cartUnwindBrands[0].Coupon = nil
+			ci.RemoveCoupon(opts.ID)
+			return nil, errors.New("Coupon Expired")
+		}
+
+		coupon.ID = cartUnwindBrands[0].Coupon.ID
+		coupon.Code = cartUnwindBrands[0].Coupon.Code
+
+		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
+			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
+		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
+			fmt.Println("grand total, coupon value", couponGrandTotal, cartUnwindBrands[0].Coupon.Value)
+			av := (couponGrandTotal * cartUnwindBrands[0].Coupon.Value) / 100
+			fmt.Println("calculated coupon value", av)
+			if cartUnwindBrands[0].Coupon.MaxDiscount != nil {
+				if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
+					av = int(cartUnwindBrands[0].Coupon.MaxDiscount.Value)
+				}
+			}
+			fmt.Println("applied value", av)
+			coupon.AppliedValue = model.SetINRPrice(float32(av))
+		}
+
+		if cartUnwindBrands[0].Coupon.Type != model.FreeDelivery {
+			for i := range orderItemsOpts {
+				orderItemsOpts[i].Coupon = &coupon
+			}
+		}
+
+		if couponGrandTotal-int(coupon.AppliedValue.Value) < 1 {
+			return nil, errors.New("Checkout amount cannot be less than 1")
+		}
+
+	}
+
+	// b, err := json.MarshalIndent(orderItemsOpts, "", "  ")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Print(string(b))
+
+	//Create Order
+	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
+
+	var orderResp schema.OrderResp
+	reqBody, err := json.Marshal(orderItemsOpts)
+	if err != nil {
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to prepare request json to api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get order info")
+	}
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to create request to create order %s", coURL)
+		return nil, errors.Wrap(err, "failed to create request to generete order")
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	//Handle Error
+	if err != nil {
+		ci.Logger.Err(err).RawJSON("responseBody", reqBody).Msgf("failed to send request to api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get order info")
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).RawJSON("reqBody", reqBody).Msgf("failed to read response from api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get order info")
+	}
+	if err := json.Unmarshal(body, &orderResp); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	fmt.Println(orderResp)
+	if !orderResp.Success {
+		ci.Logger.Err(errors.New("success false from order")).Str("body", string(body)).Msg("got success false response from order")
+		return nil, errors.Errorf("%s - got success false response from order", string(body))
+	}
+
+	return &orderResp.Payload, nil
 }
