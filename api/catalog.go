@@ -640,3 +640,23 @@ func (a *API) getCommissionRateUsingBrandID(requestCTX *handler.RequestContext, 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 	return
 }
+
+func (a *API) getCatalogVariantInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s []schema.GetCatalogVariantInfoOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	for _, opt := range s {
+		if errs := a.Validator.Validate(&opt); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogVariantInfo(s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}

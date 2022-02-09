@@ -128,6 +128,8 @@ func (a *API) InitRoutes() {
 	// a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogCSV)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogJSON)).Methods("POST")
 
+	a.Router.APIRoot.Handle("/catalog/variant", a.requestWithInternalHandler(a.getCatalogVariantInfo)).Methods("POST")
+
 	//COMMISSION
 
 }

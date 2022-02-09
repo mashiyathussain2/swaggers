@@ -580,3 +580,8 @@ type AddCommissionRateBasedonBrandIDOpts struct {
 	ID             primitive.ObjectID `json:"id" validate:"required"`
 	CommissionRate uint               `json:"commission_rate" validate:"required"`
 }
+
+type GetCatalogVariantInfoOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
+}

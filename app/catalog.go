@@ -62,6 +62,7 @@ type KeeperCatalog interface {
 	BulkUpdateCommission(opts []schema.BulkUpdateCommissionOpts) error
 	AddCommissionRateBasedonBrandID(opts *schema.AddCommissionRateBasedonBrandIDOpts) error
 	GetCommissionRateUsingBrandID(id primitive.ObjectID) (uint, error)
+	GetCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]schema.GetCatalogVariantResp, error)
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
@@ -1769,10 +1770,8 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 
 // BulkAddCatalog to create new catalogs in bulk through .csv
 // func (kc *KeeperCatalogImpl) BulkAddCatalogsCSV(file multipart.File) (*bytes.Buffer, error) {
-
 // 	currentTime := time.Now().UTC()
 // 	returnFile := excelize.NewFile()
-
 // 	lines, err := csv.NewReader(file).ReadAll()
 // 	if err != nil {
 // 		return nil, err
@@ -1784,13 +1783,10 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 	var catalogs []model.Catalog
 // 	for i, line := range lines {
 // 		returnFile.SetSheetRow("Sheet1", "A"+fmt.Sprint(i+1), &line)
-
 // 		if i == 0 {
 // 			continue
 // 		}
-
 // 		isCorrect := true
-
 // 		brandID, err := primitive.ObjectIDFromHex(line[1])
 // 		if err != nil {
 // 			returnFile.SetCellStyle("Sheet1", "A"+fmt.Sprint(i+1), "B"+fmt.Sprint(i+1), style)
@@ -1814,7 +1810,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			isCorrect = false
 // 			// return nil, errors.Errorf("brand id %s does not exists", line[1])
 // 		}
-
 // 		status := &model.Status{
 // 			Name:      "Draft",
 // 			Value:     "draft",
@@ -1827,10 +1822,8 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				CreatedAt: currentTime,
 // 			},
 // 		}
-
 // 		var catIDs []primitive.ObjectID
 // 		var catID primitive.ObjectID
-
 // 		catID, err = primitive.ObjectIDFromHex(line[3])
 // 		if err != nil {
 // 			returnFile.SetCellStyle("Sheet1", "C"+fmt.Sprint(i+1), "D"+fmt.Sprint(i+1), style)
@@ -1849,7 +1842,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				// continue
 // 			}
 // 			catIDs = append(catIDs, catID)
-
 // 		}
 // 		if line[7] != "" {
 // 			catID, err = primitive.ObjectIDFromHex(line[3])
@@ -1861,7 +1853,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				// continue
 // 			}
 // 			catIDs = append(catIDs, catID)
-
 // 		}
 // 		if line[9] != "" {
 // 			catID, err = primitive.ObjectIDFromHex(line[3])
@@ -1873,18 +1864,13 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				// continue
 // 			}
 // 			catIDs = append(catIDs, catID)
-
 // 		}
-
 // 		var specs []model.Specification
-
 // 		inputSpecs := strings.Split(line[12], ";")
 // 		isSpecCorrect := true
 // 		// fmt.Println(inputSpecs)
-
 // 		for _, inpspec := range inputSpecs {
 // 			// fmt.Println(inpspec)
-
 // 			nv := strings.Split(inpspec, ":")
 // 			if len(nv) < 2 {
 // 				isSpecCorrect = false
@@ -1903,7 +1889,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		if !isSpecCorrect {
 // 			isCorrect = false
 // 		}
-
 // 		etaMin, err := strconv.Atoi(line[13])
 // 		if err != nil {
 // 			returnFile.SetCellStyle("Sheet1", "N"+fmt.Sprint(i+1), "N"+fmt.Sprint(i+1), style)
@@ -1920,9 +1905,7 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			isCorrect = false
 // 			// continue
 // 		}
-
 // 		keywords := strings.Split(line[15], ";")
-
 // 		basePrice, err := strconv.ParseFloat(line[16], 32)
 // 		if err != nil {
 // 			returnFile.SetCellStyle("Sheet1", "Q"+fmt.Sprint(i+1), "Q"+fmt.Sprint(i+1), style)
@@ -1931,7 +1914,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			isCorrect = false
 // 			// continue
 // 		}
-
 // 		retailPrice, err := strconv.ParseFloat(line[17], 32)
 // 		if err != nil {
 // 			returnFile.SetCellStyle("Sheet1", "R"+fmt.Sprint(i+1), "R"+fmt.Sprint(i+1), style)
@@ -1948,15 +1930,11 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			isCorrect = false
 // 			// continue
 // 		}
-
 // 		var variants []model.Variant
-
 // 		vAttr := strings.Split(line[24], ";")
 // 		vInv := strings.Split(line[25], ";")
 // 		vSku := strings.Split(line[26], ";")
-
 // 		fmt.Println(len(vAttr), len(vInv))
-
 // 		if len(vAttr) != len(vInv) || len(vAttr) != len(vSku) {
 // 			returnFile.SetCellStyle("Sheet1", "Y"+fmt.Sprint(i+1), "AA"+fmt.Sprint(i+1), style)
 // 			e := returnFile.AddComment("Sheet1", "Y"+fmt.Sprint(i+1), `{"text":"no. of attr, inv, sku mismatch"}`)
@@ -1966,7 +1944,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		} else {
 // 			for k := range vAttr {
 // 				fmt.Println(vAttr, vInv)
-
 // 				unit, err := strconv.Atoi(vInv[k])
 // 				if err != nil {
 // 					returnFile.SetCellStyle("Sheet1", "Z"+fmt.Sprint(i+1), "Z"+fmt.Sprint(i+1), style)
@@ -1990,7 +1967,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				variants = append(variants, *variant)
 // 			}
 // 		}
-
 // 		catalog := model.Catalog{
 // 			BrandID:        brandID,
 // 			Name:           line[10],
@@ -2031,7 +2007,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			}
 // 			catalog.Paths = append(catalog.Paths, path)
 // 		}
-
 // 		if strings.ToLower(catalog.Tax.Type) == model.SingleTax {
 // 			taxRate, err := strconv.Atoi(line[21])
 // 			if err != nil {
@@ -2098,9 +2073,7 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		if isCorrect {
 // 			catalogs = append(catalogs, catalog)
 // 		}
-
 // 	}
-
 // 	// var b bytes.Buffer
 // 	// writer := bufio.NewWriter(&b)
 // 	// returnFile.Write(writer)
@@ -2115,25 +2088,18 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // }
 
 // func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*bytes.Buffer, string, error) {
-
 // 	sheet := "Sheet1"
 // 	ctx := context.TODO()
 // 	var catalogs []interface{}
-
 // 	currentTime := time.Now().UTC()
-
 // 	file := excelize.NewFile()
 // 	file.SetSheetRow(sheet, "A1", &[]interface{}{"Brand ID", "Category 1", "Category ID 1", "Category 2", "Category ID 2", "Category 3", "Category ID 3", "Category 4", "Category ID 4", "Name", "Description", "Specs", "ETA Minimum", "ETA Maximum", "Keywords", "Base Price", "Retail Price", "HSN Code", "Transfer Price", "Tax Type", "Tax Rate", "Tax Range", "Variant Type", "Variant Attribute", "Variant Inventory", "Variant SKUs"})
-
 // 	style, err := file.NewStyle(`{"fill":{"type":"pattern","color":["#FF0000"],"pattern":1}}`)
 // 	if err != nil {
 // 		return nil, "", errors.Wrap(err, "Style se kaam karo")
 // 	}
-
 // 	// file.AddComment(sheet, "A"+fmt.Sprint(1), `{"text":"hell"}`)
-
 // 	for i, catOpt := range opts {
-
 // 		fmt.Print(i)
 // 		isError := false
 // 		// file.SetSheetRow("Sheet1", "A"+fmt.Sprint(i+1), &[]interface{}{
@@ -2142,7 +2108,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		// })
 // 		// file.SetCellValue(sheet, "A"+fmt.Sprint(i+1),)
 // 		row := []interface{}{catOpt.BrandID.Hex()}
-
 // 		for c := range catOpt.CategoryID {
 // 			row = append(row, catOpt.CategoryValue[c])
 // 			row = append(row, catOpt.CategoryID[c].Hex())
@@ -2151,10 +2116,8 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			row = append(row, "")
 // 			row = append(row, "")
 // 		}
-
 // 		row = append(row, catOpt.Name)
 // 		row = append(row, catOpt.Description)
-
 // 		s := ""
 // 		for _, sp := range catOpt.Specifications {
 // 			s = fmt.Sprintf("%s %s:%s;", s, sp.Name, sp.Value)
@@ -2162,7 +2125,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		row = append(row, s)
 // 		row = append(row, catOpt.ETA.Min)
 // 		row = append(row, catOpt.ETA.Max)
-
 // 		s = ""
 // 		for _, k := range catOpt.Keywords {
 // 			s = fmt.Sprintf("%s %s;", s, k)
@@ -2173,11 +2135,9 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		row = append(row, catOpt.HSNCode)
 // 		row = append(row, catOpt.TransferPrice)
 // 		row = append(row, catOpt.Tax.Type)
-
 // 		if catOpt.Tax.Type == model.SingleTax {
 // 			row = append(row, catOpt.Tax.Rate)
 // 			row = append(row, "")
-
 // 		} else {
 // 			row = append(row, "")
 // 			s = ""
@@ -2186,11 +2146,9 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			}
 // 		}
 // 		row = append(row, catOpt.VariantType)
-
 // 		va := ""
 // 		vi := ""
 // 		vs := ""
-
 // 		for _, k := range catOpt.Variants {
 // 			va = fmt.Sprintf("%s %s:", va, k.Attribute)
 // 			vs = fmt.Sprintf("%s %s:", vs, k.SKU)
@@ -2199,10 +2157,8 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		row = append(row, va)
 // 		row = append(row, vi)
 // 		row = append(row, vs)
-
 // 		e := file.SetSheetRow(sheet, "A"+fmt.Sprint(i+2), &row)
 // 		fmt.Println(e)
-
 // 		catalog := model.Catalog{
 // 			Name:        catOpt.Name,
 // 			LName:       strings.ToLower(catOpt.Name),
@@ -2227,7 +2183,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			TransferPrice: model.SetINRPrice(float32(catOpt.TransferPrice)),
 // 			CreatedAt:     currentTime,
 // 		}
-
 // 		brandID, err := primitive.ObjectIDFromHex(catOpt.BrandID.Hex())
 // 		if err != nil {
 // 			file.SetCellStyle(sheet, "A"+fmt.Sprint(i+2), "A"+fmt.Sprint(i+2), style)
@@ -2242,7 +2197,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				catalog.BrandID = brandID
 // 			}
 // 		}
-
 // 		// Setting up category path
 // 		for c, id := range catOpt.CategoryID {
 // 			path, err := kc.App.Category.GetCategoryPath(id)
@@ -2254,10 +2208,8 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				catalog.Paths = append(catalog.Paths, path)
 // 			}
 // 		}
-
 // 		//specifications
 // 		var specs []model.Specification
-
 // 		for _, s := range catOpt.Specifications {
 // 			spec := model.Specification{
 // 				Name:  s.Name,
@@ -2266,16 +2218,13 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			specs = append(specs, spec)
 // 		}
 // 		catalog.Specifications = specs
-
 // 		//Variants
 // 		if catOpt.VariantType != "" {
-
 // 			var variants []model.Variant
 // 			for _, v := range catOpt.Variants {
 // 				variant, err := kc.createVariant(primitive.NewObjectID(), &v)
 // 				if err != nil {
 // 					isError = true
-
 // 				} else {
 // 					variants = append(variants, *variant)
 // 				}
@@ -2291,7 +2240,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 				Unit: catOpt.ETA.Unit,
 // 			}
 // 		}
-
 // 		//TAX
 // 		tax := &model.Tax{
 // 			Type: catOpt.Tax.Type,
@@ -2302,19 +2250,15 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 			if len(catOpt.Tax.TaxRanges) == 0 {
 // 				//error
 // 				isError = true
-
 // 			}
 // 			tax.TaxRanges = catOpt.Tax.TaxRanges
 // 		}
 // 		catalog.Tax = tax
-
 // 		if !isError {
 // 			fmt.Println("added")
 // 			catalogs = append(catalogs, catalog)
 // 		}
-
 // 	}
-
 // 	if len(catalogs) > 0 {
 // 		_, err := kc.DB.Collection(model.CatalogColl).InsertMany(ctx, catalogs)
 // 		if err != nil {
@@ -2326,7 +2270,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 // 		return nil, fmt.Sprintf("Successfully added %d Catalogs", len(catalogs)), err
 // 	}
 // 	return buffer, fmt.Sprintf("Successfully added %d Catalogs", len(catalogs)), nil
-
 // }
 
 func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error) {
@@ -2543,4 +2486,105 @@ func (kc *KeeperCatalogImpl) GetCommissionRateUsingBrandID(id primitive.ObjectID
 		return 0, errors.Wrap(err, "error getting commission rate")
 	}
 	return cat.CommissionRate, nil
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]schema.GetCatalogVariantResp, error) {
+
+	cat_ids := []primitive.ObjectID{}
+	var_ids := []primitive.ObjectID{}
+	for _, i := range opts {
+		cat_ids = append(cat_ids, i.CatalogID)
+		var_ids = append(var_ids, i.VariantID)
+	}
+
+	matchStage := bson.D{{
+		Key: "$match", Value: bson.M{
+			"_id": bson.M{
+				"$in": cat_ids,
+			},
+		},
+	}}
+	unwindStage := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path": "$variants",
+		},
+	}}
+	matchStage2 := bson.D{{
+		Key: "$match", Value: bson.M{
+			"variants._id": bson.M{
+				"$in": var_ids,
+			},
+		},
+	}}
+	lookupStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from": model.DiscountColl,
+			"let": bson.M{
+				"variant_id": "$variants._id",
+			},
+			"pipeline": bson.A{
+				bson.M{
+					"$match": bson.M{
+						"$expr":     bson.M{"$in": bson.A{"$$variant_id", "$variants_id"}},
+						"is_active": true,
+					}},
+			},
+			"as": "discount_info",
+		},
+	}}
+	unwindStage2 := bson.D{{
+		Key: "$unwind", Value: bson.M{
+			"path":                       "$discount_info",
+			"preserveNullAndEmptyArrays": true,
+		},
+	}}
+	inventoryLookUpStage := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "inventory",
+			"localField":   "variants.inventory_id",
+			"foreignField": "_id",
+			"as":           "inventory_info",
+		},
+	}}
+	projectStage :=
+		bson.D{{
+			Key: "$project", Value: bson.M{
+				"_id":                     1,
+				"name":                    1,
+				"base_price":              1,
+				"retail_price":            1,
+				"transfer_price":          1,
+				"discount_info._id":       1,
+				"discount_info.value":     1,
+				"discount_info.type":      1,
+				"discount_info.max_value": 1,
+				"variant_type":            1,
+				"variant":                 "$variants",
+				"featured_image":          1,
+				"inventory_info":          bson.M{"$arrayElemAt": bson.A{"$inventory_info", 0}},
+			},
+		}}
+
+	ctx := context.TODO()
+
+	catalogsCursor, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, mongo.Pipeline{
+		matchStage,
+		unwindStage,
+		matchStage2,
+		lookupStage,
+		unwindStage2,
+		inventoryLookUpStage,
+		projectStage,
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to query for catalogs")
+	}
+	var catalog []schema.GetCatalogVariantResp
+	if err := catalogsCursor.All(ctx, &catalog); err != nil {
+		return nil, errors.Wrap(err, "error decoding Catalogs")
+	}
+	if len(catalog) > 0 {
+		return catalog, nil
+	}
+	return nil, nil
 }
