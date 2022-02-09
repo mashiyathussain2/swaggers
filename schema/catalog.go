@@ -28,3 +28,13 @@ type OrderVariant struct {
 	Attribute string             `json:"attribute,omitempty" bson:"attribute,omitempty"`
 	SKU       string             `json:"sku,omitempty" bson:"sku,omitempty"`
 }
+
+type GetCatalogVariantInfoOpts struct {
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
+}
+
+type GetCatalogVariantResp struct {
+	Success bool                   `json:"success"`
+	Payload []model.CatalogVariant `json:"payload"`
+}

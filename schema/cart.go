@@ -311,3 +311,23 @@ type CheckoutOpts struct {
 	IsCOD     bool               `json:"is_cod,omitempty"`
 	RequestID string             `json:"request_id,omitempty"`
 }
+
+type CreateOrderOpts struct {
+	UserID          primitive.ObjectID       `json:"user_id"`
+	ShippingAddress *OrderAddressOpts        `json:"shipping_address"`
+	BillingAddress  *OrderAddressOpts        `json:"billing_address"`
+	Source          string                   `json:"source"`
+	SourceID        *primitive.ObjectID      `json:"source_id,omitempty"`
+	IsWeb           bool                     `json:"is_web"`
+	IsCOD           bool                     `json:"is_cod,omitempty"`
+	RequestID       string                   `json:"request_id,omitempty"`
+	Platform        string                   `json:"platform"`
+	Coupon          *CouponOrderOpts         `json:"coupon_info"`
+	CartType        string                   `json:"cart_type"`
+	BrandWiseItems  []OrderBrandWiseItemOpts `json:"brand_wise_items"`
+}
+
+type OrderBrandWiseItemOpts struct {
+	BrandID    primitive.ObjectID `json:"brand_id"`
+	OrderItems []OrderItem        `json:"order_items" bson:"order_items"`
+}

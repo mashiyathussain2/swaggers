@@ -1245,88 +1245,80 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 	if err := cartCursor.All(ctx, &cartUnwindBrands); err != nil {
 		return nil, errors.Wrap(err, "error decoding cart")
 	}
-	var orderItemsOpts []schema.OrderItemOpts
+	// var orderItemsOpts []schema.OrderItemOpts
 
 	outOfStockString := ""
+	displayName := strings.ToLower(cartUnwindBrands[0].ShippingAddress.DisplayName)
+	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
+		cartUnwindBrands[0].ShippingAddress.DisplayName = opts.FullName
+		cartUnwindBrands[0].BillingAddress.DisplayName = opts.FullName
+	}
+
+	createOrderOpts := schema.CreateOrderOpts{
+		UserID:          opts.ID,
+		ShippingAddress: cartUnwindBrands[0].ShippingAddress,
+		BillingAddress:  cartUnwindBrands[0].BillingAddress,
+		// SourceID:        "",
+		// Coupon:         "",
+		BrandWiseItems: []schema.OrderBrandWiseItemOpts{},
+		Source:         opts.Source,
+		IsWeb:          isWeb,
+		IsCOD:          opts.IsCOD,
+		RequestID:      opts.RequestID,
+		Platform:       opts.Platform,
+		CartType:       model.CartCheckout,
+	}
+
+	var getCatalogVariantInfoOpts []schema.GetCatalogVariantInfoOpts
 
 	for _, c := range cartUnwindBrands {
-		order := schema.OrderItemOpts{
-			UserID:          c.UserID,
-			BrandID:         c.BrandID,
-			ShippingAddress: c.ShippingAddress,
-			BillingAddress:  c.BillingAddress,
-			OrderItems:      []schema.OrderItem{},
-			Source:          opts.Source,
-			IsWeb:           isWeb,
-			IsCOD:           opts.IsCOD,
-			RequestID:       opts.RequestID,
-			Platform:        opts.Platform,
-			CartType:        model.CartCheckout,
+		for _, item := range c.Items {
+			getCatalogVariantInfoOpts = append(getCatalogVariantInfoOpts, schema.GetCatalogVariantInfoOpts{
+				CatalogID: item.CatalogID,
+				VariantID: item.VariantID,
+			})
 		}
 
-		displayName := strings.ToLower(c.ShippingAddress.DisplayName)
-		if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
-			order.ShippingAddress.DisplayName = opts.FullName
-			order.BillingAddress.DisplayName = opts.FullName
-		}
+	}
+	cvInfo, err := ci.getCatalogVariantInfo(getCatalogVariantInfoOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting catalog variant info")
+	}
+	cvMap := make(map[primitive.ObjectID]*model.CatalogVariant)
+	for _, cv := range cvInfo {
+		cvMap[cv.Variant.ID] = &cv
+	}
+
+	for _, c := range cartUnwindBrands {
+		var orderItems []schema.OrderItem
 
 		for _, item := range c.Items {
-
-			var cv model.GetCatalogVariant
-			// url := "http://localhost:8000" + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
-
-			url := ci.App.Config.HypdApiConfig.CatalogApi + "/api/keeper/catalog/" + item.CatalogID.Hex() + "/variant/" + item.VariantID.Hex()
-			client := http.Client{}
-			req, err := http.NewRequest(http.MethodGet, url, nil)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to generate request to get catalog & variant")
-			}
-			req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
-			resp, err := client.Do(req)
-			if err != nil {
-				return nil, errors.Wrapf(err, "unable to fetch catlog data")
-			}
-			defer resp.Body.Close()
-
-			//Read the response body
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				ci.Logger.Err(err).Msgf("failed to read response from api %s", url)
-				return nil, errors.Wrap(err, "failed to get brandinfo")
-			}
-			if err := json.Unmarshal(body, &cv); err != nil {
-				ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
-				return nil, errors.Wrap(err, "failed to decode body into struct")
-			}
-			if !cv.Success {
-				ci.Logger.Err(errors.New("success false from inventory")).Str("body", string(body)).Msg("got success false response from inventory")
-				return nil, errors.New("got success false response from catalog")
-			}
-			if cv.Payload.InventoryInfo.UnitInStock == 0 || cv.Payload.InventoryInfo.Status.Value == model.OutOfStockStatus {
+			variantInfo := cvMap[item.VariantID]
+			if variantInfo.InventoryInfo.UnitInStock == 0 || variantInfo.InventoryInfo.Status.Value == model.OutOfStockStatus {
 				outOfStockString = outOfStockString + fmt.Sprintf("item %s is out of stock", item.CatalogInfo.Name)
 				continue
 			}
-			if cv.Payload.InventoryInfo.UnitInStock < int(item.Quantity) {
-				outOfStockString = outOfStockString + fmt.Sprintf("only %d unit available for item %s in stock", cv.Payload.InventoryInfo.UnitInStock, item.CatalogInfo.Name) + "\n"
+			if variantInfo.InventoryInfo.UnitInStock < int(item.Quantity) {
+				outOfStockString = outOfStockString + fmt.Sprintf("only %d unit available for item %s in stock", variantInfo.InventoryInfo.UnitInStock, item.CatalogInfo.Name) + "\n"
 				continue
 			}
-			item.CatalogInfo.TransferPrice = cv.Payload.TransferPrice
+			item.CatalogInfo.TransferPrice = variantInfo.TransferPrice
 			// item.CatalogInfo.BasePrice = cv.Payload.BasePrice
 			// item.CatalogInfo.RetailPrice = cv.Payload.RetailPrice
 
 			var dp *model.Price
 
-			if cv.Payload.DiscountInfo != nil {
+			if variantInfo.DiscountInfo != nil {
 
-				switch cv.Payload.DiscountInfo.Type {
+				switch variantInfo.DiscountInfo.Type {
 				case model.FlatOffType:
-					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(cv.Payload.DiscountInfo.Value))
+					dp = model.SetINRPrice(variantInfo.RetailPrice.Value - float32(variantInfo.DiscountInfo.Value))
 				case model.PercentOffType:
-					d := uint(float64((cv.Payload.DiscountInfo.Value * uint(cv.Payload.RetailPrice.Value)) / 100.0))
-					if d > cv.Payload.DiscountInfo.MaxValue && cv.Payload.DiscountInfo.MaxValue > 0 {
-						d = cv.Payload.DiscountInfo.MaxValue
+					d := uint(float64((variantInfo.DiscountInfo.Value * uint(variantInfo.RetailPrice.Value)) / 100.0))
+					if d > variantInfo.DiscountInfo.MaxValue && variantInfo.DiscountInfo.MaxValue > 0 {
+						d = variantInfo.DiscountInfo.MaxValue
 					}
-					dp = model.SetINRPrice(cv.Payload.RetailPrice.Value - float32(d))
+					dp = model.SetINRPrice(variantInfo.RetailPrice.Value - float32(d))
 				default:
 				}
 			}
@@ -1339,39 +1331,44 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 					BrandID: item.BrandID,
 					Name:    item.CatalogInfo.Name,
 					FeaturedImage: schema.Img{
-						SRC: cv.Payload.FeaturedImage.SRC,
+						SRC: variantInfo.FeaturedImage.SRC,
 					},
 					VariantType: item.CatalogInfo.VariantType,
 					Variant: schema.OrderVariant{
 						ID:        item.VariantID,
-						Attribute: cv.Payload.Variant.Attribute,
-						SKU:       cv.Payload.Variant.SKU,
+						Attribute: variantInfo.Variant.Attribute,
+						SKU:       variantInfo.Variant.SKU,
 					},
 					ETA:            item.CatalogInfo.ETA,
 					HSNCode:        item.CatalogInfo.HSNCode,
-					TransferPrice:  cv.Payload.TransferPrice,
+					TransferPrice:  variantInfo.TransferPrice,
 					CommissionRate: item.CatalogInfo.CommissionRate,
 				},
 				Tax:         item.CatalogInfo.Tax,
-				BasePrice:   &cv.Payload.BasePrice,
-				RetailPrice: &cv.Payload.RetailPrice,
+				BasePrice:   &cvMap[item.VariantID].BasePrice,
+				RetailPrice: &cvMap[item.VariantID].RetailPrice,
 				Quantity:    item.Quantity,
 				Source:      item.Source,
 			}
-			if !cv.Payload.DiscountInfo.ID.IsZero() {
-				it.DiscountID = cv.Payload.DiscountInfo.ID
-				it.DiscountInfo = cv.Payload.DiscountInfo
+			if !cvMap[item.VariantID].DiscountInfo.ID.IsZero() {
+				it.DiscountID = cvMap[item.VariantID].DiscountInfo.ID
+				it.DiscountInfo = cvMap[item.VariantID].DiscountInfo
 				it.DiscountedPrice = dp
 				grandTotal += int(dp.Value)
 				couponGrandTotal += int(dp.Value) * int(item.Quantity)
 			} else {
-				grandTotal += int(cv.Payload.RetailPrice.Value)
-				couponGrandTotal += int(cv.Payload.RetailPrice.Value) * int(item.Quantity)
+				grandTotal += int(variantInfo.RetailPrice.Value)
+				couponGrandTotal += int(variantInfo.RetailPrice.Value) * int(item.Quantity)
 			}
 
-			order.OrderItems = append(order.OrderItems, it)
+			orderItems = append(orderItems, it)
 		}
-		orderItemsOpts = append(orderItemsOpts, order)
+		brandWiseItem := schema.OrderBrandWiseItemOpts{
+			BrandID:    c.BrandID,
+			OrderItems: orderItems,
+		}
+		createOrderOpts.BrandWiseItems = append(createOrderOpts.BrandWiseItems, brandWiseItem)
+
 	}
 	fmt.Println("grand total, coupon Grand total", grandTotal, couponGrandTotal)
 
@@ -1411,9 +1408,10 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 		}
 
 		if cartUnwindBrands[0].Coupon.Type != model.FreeDelivery {
-			for i := range orderItemsOpts {
-				orderItemsOpts[i].Coupon = &coupon
-			}
+			// for i := range orderItemsOpts {
+			// 	orderItemsOpts[i].Coupon = &coupon
+			// }
+			createOrderOpts.Coupon = &coupon
 		}
 
 		if couponGrandTotal-int(coupon.AppliedValue.Value) < 1 {
@@ -1432,15 +1430,15 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
 
 	var orderResp schema.OrderResp
-	reqBody, err := json.Marshal(orderItemsOpts)
+	reqBody, err := json.Marshal(createOrderOpts)
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to prepare request json to api %s", coURL)
+		ci.Logger.Err(err).Interface("createOrderOpts", createOrderOpts).Msgf("failed to prepare request json to api %s", coURL)
 		return nil, errors.Wrap(err, "failed to get order info")
 	}
 	client := http.Client{}
 	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		ci.Logger.Err(err).Interface("orderItemsOpts", orderItemsOpts).Msgf("failed to create request to create order %s", coURL)
+		ci.Logger.Err(err).Interface("createOrderOpts", createOrderOpts).Msgf("failed to create request to create order %s", coURL)
 		return nil, errors.Wrap(err, "failed to create request to generete order")
 	}
 	req.Header.Add("Content-Type", "application/json")
@@ -1469,4 +1467,41 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 	}
 
 	return &orderResp.Payload, nil
+}
+
+func (ci *CartImpl) getCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]model.CatalogVariant, error) {
+	var catalogVariantResp schema.GetCatalogVariantResp
+	reqBody, err := json.Marshal(opts)
+	if err != nil {
+		return nil, err
+	}
+	coURL := ci.App.Config.HypdApiConfig.CatalogApi + "/api/catalog/variant"
+	client := http.Client{}
+	req, err := http.NewRequest(http.MethodPost, coURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		ci.Logger.Err(err).Interface("reqBody", reqBody).Msgf("failed to get catalog variant info %s", coURL)
+		return nil, errors.Wrap(err, "failed to get catalog variant info")
+	}
+	req.Header.Add("Authorization", ci.App.Config.HypdApiConfig.Token)
+	resp, err := client.Do(req)
+	if err != nil {
+		ci.Logger.Err(err).Interface("reqBody", reqBody).Msgf("unable to fetch catalog variant info")
+		return nil, errors.Wrapf(err, "unable to fetch get catalog variant info")
+	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ci.Logger.Err(err).RawJSON("reqBody", reqBody).Msgf("failed to read response from api %s", coURL)
+		return nil, errors.Wrap(err, "failed to get catalog variant info")
+	}
+	if err := json.Unmarshal(body, &catalogVariantResp); err != nil {
+		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
+		return nil, errors.Wrap(err, "failed to decode body into struct")
+	}
+	if !catalogVariantResp.Success {
+		ci.Logger.Err(errors.New("success false from catalog")).Str("body", string(body)).Msg("got success false response from catalog")
+		return nil, errors.New("got success false response from catalog")
+	}
+	return catalogVariantResp.Payload, nil
 }
