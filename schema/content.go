@@ -202,6 +202,8 @@ type ContentUpdateOpts struct {
 	Label          *model.Label           `json:"label,omitempty" bson:"label,omitempty"`
 	IsProcessed    bool                   `json:"is_processed" bson:"is_processed"`
 	IsActive       bool                   `json:"is_active" bson:"is_active"`
+	IsFailed       bool                   `json:"is_failed" bson:"is_failed"`
+	ErrorMsg       bool                   `json:"error_msg" bson:"error_msg"`
 	ViewCount      uint                   `json:"view_count" bson:"view_count"`
 	LikeCount      uint                   `json:"like_count" bson:"like_count"`
 	LikeIDs        []primitive.ObjectID   `json:"like_ids" bson:"like_ids"`
@@ -487,4 +489,9 @@ type CreatorGetContentResp struct {
 	Path          []model.Path         `json:"category_path" bson:"category_path,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+}
+
+type ContentProcessFail struct {
+	ErrorMessage string            `json:"errorMessage"`
+	Event        map[string]string `json:"event"`
 }

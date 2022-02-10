@@ -90,6 +90,8 @@ type Content struct {
 	IsProcessed bool `json:"is_processed" bson:"is_processed"`
 	// Flag to toggle content visibility
 	IsActive bool `json:"is_active" bson:"is_active"`
+	IsFailed bool `json:"is_failed" bson:"is_failed"`
+	ErrorMsg bool `json:"error_msg" bson:"error_msg"`
 
 	ViewCount    uint                 `json:"view_count" bson:"view_count"`
 	LikeCount    uint                 `json:"like_count" bson:"like_count"`

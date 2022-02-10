@@ -63,6 +63,7 @@ type Content interface {
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
+	ContentProcessFail(opts *schema.ContentProcessFail)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -1246,4 +1247,26 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 		return nil, errors.Wrap(err, " failed to get pebbles")
 	}
 	return resp, nil
+}
+
+func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
+	ctx := context.TODO()
+	id := opts.Event["srcVideo"]
+	filter := bson.M{
+		"_id": id,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"is_active":    false,
+			"is_processed": true,
+			"is_failed":    true,
+			"error_msg":    opts.ErrorMessage,
+		},
+	}
+	_, err := ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)
+	if err != nil {
+		ci.Logger.Err(err).Msg("error updating process fail data to DB")
+		return
+	}
+	ci.Logger.Log().Msg("Process failed data saved successfully")
 }

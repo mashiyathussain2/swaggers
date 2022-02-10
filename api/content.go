@@ -537,3 +537,17 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.ContentProcessFail
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	a.App.Content.ContentProcessFail(&s)
+	requestCTX.SetAppResponse(true, http.StatusOK)
+}

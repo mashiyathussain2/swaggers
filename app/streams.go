@@ -179,6 +179,17 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 		return
 	}
 
+	// Removing content from index if is is_failed true set to false
+	if !contentSchema.IsFailed {
+		// m := segKafka.Message{
+		// 	Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+		// 	Value: nil,
+		// }
+		// csp.App.ContentFullProducer.Publish(m)
+		csp.Logger.Log().Msg("pebble processing failed")
+		return
+	}
+
 	if len(contentSchema.BrandIDs) > 0 {
 		wg.Add(1)
 		go func() {

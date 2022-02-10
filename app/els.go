@@ -79,6 +79,7 @@ func (ei *ElasticsearchImpl) GetPebble(opts *schema.GetPebbleFilter) ([]schema.G
 	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
 	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
 	queries = append(queries, elastic.NewTermQuery("is_active", true))
+
 	boolQuery := elastic.NewBoolQuery().Must(queries...)
 
 	sf := elastic.NewScriptField("is_liked_by_user", elastic.NewScript(fmt.Sprintf(`if (doc['liked_by'].contains('%s')) {return true} return false`, opts.UserID)))
@@ -234,6 +235,9 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 
 	queries = append(queries, elastic.NewTermQuery("type", model.PebbleType))
 	queries = append(queries, elastic.NewTermQuery("media_type", model.VideoType))
+
+	// queries = append(queries, elastic.NewBoolQuery().MustNot([&elastic.ExistsQuery{}]))
+
 	if opts.IsActive {
 		queries = append(queries, elastic.NewTermQuery("is_active", true))
 	}
