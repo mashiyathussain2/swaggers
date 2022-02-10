@@ -1272,7 +1272,7 @@ func (ci *ContentImpl) ContentProcessFail(opts string) {
 			"is_active":    false,
 			"is_processed": true,
 			"is_failed":    true,
-			"error_msg":    opts.ErrorMessage,
+			"error_msg":    jsonMap["errorMessage"],
 		},
 	}
 	_, err = ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)
