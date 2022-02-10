@@ -181,7 +181,7 @@ func (csp *ContentUpdateProcessor) ProcessContentMessage(msg kafka.Message) {
 
 	// Removing content from index if is is_failed true set to false
 	fmt.Println("is_failed", contentSchema.IsFailed, " id ", contentSchema.ID)
-	if !contentSchema.IsFailed {
+	if contentSchema.IsFailed {
 		// m := segKafka.Message{
 		// 	Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
 		// 	Value: nil,
