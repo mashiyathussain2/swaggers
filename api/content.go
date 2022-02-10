@@ -554,12 +554,15 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	fmt.Println(s["Message"])
 	message, ok := s["Message"].(map[string]interface{})
 	if !ok {
+		a.Logger.Log().Msg("message to map string")
 		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
 		return
 	}
 	if message["workflowStatus"].(string) == "Error" {
 		event, ok := message["event"].(map[string]interface{})
 		if !ok {
+			a.Logger.Log().Msg("event to map string")
+
 			requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
 			return
 		}
