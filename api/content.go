@@ -555,7 +555,7 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	// 	return
 	// }
 
-	fmt.Println(s)
+	fmt.Println(s["Message"])
 	// if errs := a.Validator.Validate(&s); errs != nil {
 	// 	requestCTX.SetErrs(errs, http.StatusBadRequest)
 	// 	return
