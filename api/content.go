@@ -1,10 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -542,10 +544,10 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ContentProcessFail
 	// fmt.Println(r)
-	// bodyBytes, _ := ioutil.ReadAll(r.Body)
-	// r.Body.Close() //  must close
-	// r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	// fmt.Println(string(bodyBytes))
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	r.Body.Close() //  must close
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	fmt.Println(string(bodyBytes))
 
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
