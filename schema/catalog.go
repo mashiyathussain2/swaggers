@@ -565,6 +565,33 @@ type GetCollectionCatalogByIDs struct {
 	FeatIDs []string `qs:"fid" json:"fid"`
 }
 
+type GetCatalogCountOpts struct {
+	BrandID  primitive.ObjectID `json:"brand_id"`
+	IsActive bool               `json:"is_active"`
+}
+
+type GetCatalogOpts struct {
+	BrandID  primitive.ObjectID `json:"brand_id"`
+	IsActive bool               `json:"is_active"`
+	Page     int                `json:"page"`
+	Size     int                `json:"size"`
+	SKU      string             `json:"sku"`
+}
+
+type GetUnicommerceVariantResp struct {
+	VariantID primitive.ObjectID `json:"variantId" bson:"variantId"`
+	Title     string             `json:"title" bson:"title"`
+	SKU       string             `json:"sku" bson:"sku"`
+	Size      string             `json:"size" bson:"size"`
+	Live      bool               `json:"live" bson:"live"`
+}
+
+type GetUnicommerceProductsResp struct {
+	ID          primitive.ObjectID          `json:"id" bson:"id"`
+	ParentTitle string                      `json:"parentTitle" bson:"parentTitle"`
+	Brand       string                      `json:"brand" bson:"brand"`
+	Variants    []GetUnicommerceVariantResp `json:"variants" bson:"variants"`
+}
 type GetCatalogInfoByBrandIDResp struct {
 	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name           string             `json:"name,omitempty" bson:"name,omitempty"`

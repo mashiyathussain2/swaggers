@@ -58,6 +58,9 @@ type KeeperCatalog interface {
 	// EditVariant(primitive.ObjectID, *schema.CreateVariantOpts)
 	BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error)
 	// DeleteVariant(primitive.ObjectID)
+
+	GetCatalogCount(*schema.GetCatalogCountOpts) (int64, error)
+	GetCatalogs(opts *schema.GetCatalogOpts) ([]schema.GetUnicommerceProductsResp, error)
 	GetCatalogInfoByBrandID(id primitive.ObjectID) ([]schema.GetCatalogInfoByBrandIDResp, error)
 	BulkUpdateCommission(opts []schema.BulkUpdateCommissionOpts) error
 	AddCommissionRateBasedonBrandID(opts *schema.AddCommissionRateBasedonBrandIDOpts) error
@@ -374,17 +377,6 @@ func (kc *KeeperCatalogImpl) createVariant(id primitive.ObjectID, opts *schema.C
 func (kc *KeeperCatalogImpl) AddVariant(opts *schema.AddVariantOpts) (*schema.AddVariantResp, error) {
 	ctx := context.TODO()
 
-	// var catalog model.Catalog
-	// err := kc.DB.Collection(model.CatalogColl).FindOne(ctx, bson.M{"_id": opts.ID}).Decode(&catalog)
-	// if err != nil {
-	// 	if err == mongo.ErrNoDocuments {
-	// 		return nil, errors.Errorf("catalog with id:%s not found", opts.ID.Hex())
-	// 	}
-	// 	return nil, errors.Wrapf(err, "unable to query for catalog")
-	// }
-	// if catalog.VariantType != opts.VariantType {
-	// 	return nil, errors.Errorf("variant type do not match")
-	// }
 	if err := kc.validateAddVariant(ctx, opts); err != nil {
 		return nil, err
 	}
@@ -644,13 +636,7 @@ func (kc *KeeperCatalogImpl) UpdateCatalogStatus(opts *schema.UpdateCatalogStatu
 				Field:   "Featured Image",
 			})
 		}
-		// if catalog.FilterAttribute == nil {
-		// 	resp = append(resp, schema.UpdateCatalogStatusResp{
-		// 		Type:    "Field Missing",
-		// 		Message: "Filter Attribute" + isRequiredString,
-		// 		Field:   "Filter Attribute",
-		// 	})
-		// }
+
 		if len(catalog.Variants) == 0 {
 			resp = append(resp, schema.UpdateCatalogStatusResp{
 				Type:    "Field Missing",
@@ -897,61 +883,6 @@ func (kc *KeeperCatalogImpl) AddCatalogContentImage(opts *schema.AddCatalogConte
 	}
 	return nil
 }
-
-//GetCatalogsByFilter returns catalogs based on the filters entered
-// func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
-
-// 	var cur *mongo.Cursor
-// 	var err error
-// 	ctx := context.TODO()
-// 	var filterQuery bson.D
-// 	if len(opts.BrandIDs) > 0 {
-// 		bQuery := bson.E{
-// 			Key: "brand_id", Value: bson.M{
-// 				"$in": opts.BrandIDs,
-// 			},
-// 		}
-// 		filterQuery = append(filterQuery, bQuery)
-// 	}
-// 	if len(opts.Status) > 0 {
-// 		sQuery := bson.E{
-// 			Key: "status.value", Value: bson.M{
-// 				"$in": opts.Status,
-// 			},
-// 		}
-// 		filterQuery = append(filterQuery, sQuery)
-// 	}
-// 	if opts.Name != "" {
-// 		nQuery := bson.E{
-// 			Key: "lname", Value: bson.M{
-// 				"$regex": strings.ToLower(opts.Name),
-// 			},
-// 		}
-// 		filterQuery = append(filterQuery, nQuery)
-// 	}
-// 	// filter := bson.M{"lname": bson.M{"$regex": strings.ToLower(keeperSearchCatalogOpts.Name)}}
-
-// 	var catalogs []schema.GetCatalogResp
-
-// 	pageSize := kc.App.Config.PageSize
-// 	skip := int64(pageSize * opts.Page)
-// 	limit := int64(pageSize)
-// 	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
-// 	fmt.Println(len(filterQuery))
-// 	if len(filterQuery) == 0 {
-// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{}, findOpts)
-// 	} else {
-// 		cur, err = kc.DB.Collection(model.CatalogColl).Find(ctx, filterQuery, findOpts)
-// 	}
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "error finding catalogs")
-// 	}
-// 	if err := cur.All(ctx, &catalogs); err != nil {
-// 		return nil, err
-// 	}
-
-// 	return catalogs, nil
-// }
 
 func (kc *KeeperCatalogImpl) GetCatalogsByFilter(opts *schema.GetCatalogsByFilterOpts) ([]schema.GetCatalogResp, error) {
 	var err error
@@ -1767,568 +1698,6 @@ func (kc *KeeperCatalogImpl) EditVariantSKU(opts *schema.EditVariantSKU) (bool, 
 	return true, nil
 }
 
-// BulkAddCatalog to create new catalogs in bulk through .csv
-// func (kc *KeeperCatalogImpl) BulkAddCatalogsCSV(file multipart.File) (*bytes.Buffer, error) {
-
-// 	currentTime := time.Now().UTC()
-// 	returnFile := excelize.NewFile()
-
-// 	lines, err := csv.NewReader(file).ReadAll()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	style, err := returnFile.NewStyle(`{"fill":{"type":"pattern","color":["#FF0000"],"pattern":1}}`)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	var catalogs []model.Catalog
-// 	for i, line := range lines {
-// 		returnFile.SetSheetRow("Sheet1", "A"+fmt.Sprint(i+1), &line)
-
-// 		if i == 0 {
-// 			continue
-// 		}
-
-// 		isCorrect := true
-
-// 		brandID, err := primitive.ObjectIDFromHex(line[1])
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "A"+fmt.Sprint(i+1), "B"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "B"+fmt.Sprint(i+1), `{"text":"Brand id is not correct"}`)
-// 			fmt.Println(e)
-// 			// fmt.Println(e)
-// 			isCorrect = false
-// 		}
-// 		exists, err := kc.App.Brand.CheckBrandIDExists(context.Background(), brandID)
-// 		if err != nil || !exists {
-// 			if err != nil {
-// 				returnFile.SetCellStyle("Sheet1", "A"+fmt.Sprint(i+1), "B"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "B"+fmt.Sprint(i+1), `{"text":"Failed to find brand with id"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				// return nil, errors.Wrapf(err, "failed to find brand with id: %s", line[1])
-// 			}
-// 			returnFile.SetCellStyle("Sheet1", "A"+fmt.Sprint(i+1), "B"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "B"+fmt.Sprint(i+1), `{"text":"Brand id does not exists"} `)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// return nil, errors.Errorf("brand id %s does not exists", line[1])
-// 		}
-
-// 		status := &model.Status{
-// 			Name:      "Draft",
-// 			Value:     "draft",
-// 			CreatedAt: currentTime,
-// 		}
-// 		statusHistory := []model.Status{
-// 			{
-// 				Name:      "Draft",
-// 				Value:     model.Draft,
-// 				CreatedAt: currentTime,
-// 			},
-// 		}
-
-// 		var catIDs []primitive.ObjectID
-// 		var catID primitive.ObjectID
-
-// 		catID, err = primitive.ObjectIDFromHex(line[3])
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "C"+fmt.Sprint(i+1), "D"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "C"+fmt.Sprint(i+1), `{"text":"Category ID 1 is not correct"} `)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 		}
-// 		catIDs = append(catIDs, catID)
-// 		if line[5] != "" {
-// 			catID, err = primitive.ObjectIDFromHex(line[3])
-// 			if err != nil {
-// 				returnFile.SetCellStyle("Sheet1", "E"+fmt.Sprint(i+1), "F"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "E"+fmt.Sprint(i+1), `{"text":"Category ID 2 is not correct"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				// continue
-// 			}
-// 			catIDs = append(catIDs, catID)
-
-// 		}
-// 		if line[7] != "" {
-// 			catID, err = primitive.ObjectIDFromHex(line[3])
-// 			if err != nil {
-// 				returnFile.SetCellStyle("Sheet1", "G"+fmt.Sprint(i+1), "H"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "G"+fmt.Sprint(i+1), `{"text":"Category ID 3 is not correct"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				// continue
-// 			}
-// 			catIDs = append(catIDs, catID)
-
-// 		}
-// 		if line[9] != "" {
-// 			catID, err = primitive.ObjectIDFromHex(line[3])
-// 			if err != nil {
-// 				isCorrect = false
-// 				returnFile.SetCellStyle("Sheet1", "I"+fmt.Sprint(i+1), "J"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "I"+fmt.Sprint(i+1), `{"text":"Category ID 4 is not correct"} `)
-// 				fmt.Println(e)
-// 				// continue
-// 			}
-// 			catIDs = append(catIDs, catID)
-
-// 		}
-
-// 		var specs []model.Specification
-
-// 		inputSpecs := strings.Split(line[12], ";")
-// 		isSpecCorrect := true
-// 		// fmt.Println(inputSpecs)
-
-// 		for _, inpspec := range inputSpecs {
-// 			// fmt.Println(inpspec)
-
-// 			nv := strings.Split(inpspec, ":")
-// 			if len(nv) < 2 {
-// 				isSpecCorrect = false
-// 				returnFile.SetCellStyle("Sheet1", "M"+fmt.Sprint(i+1), "M"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "M"+fmt.Sprint(i+1), `{"text":"Specs are not in correct format"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				break
-// 			}
-// 			spec := model.Specification{
-// 				Name:  nv[0],
-// 				Value: nv[1],
-// 			}
-// 			specs = append(specs, spec)
-// 		}
-// 		if !isSpecCorrect {
-// 			isCorrect = false
-// 		}
-
-// 		etaMin, err := strconv.Atoi(line[13])
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "N"+fmt.Sprint(i+1), "N"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "N"+fmt.Sprint(i+1), `{"text":"ETA Minimum should be an integer"}`)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// continue
-// 		}
-// 		etaMax, err := strconv.Atoi(line[14])
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "O"+fmt.Sprint(i+1), "O"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "O"+fmt.Sprint(i+1), `{"text":"ETA Max should be an integer"}`)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// continue
-// 		}
-
-// 		keywords := strings.Split(line[15], ";")
-
-// 		basePrice, err := strconv.ParseFloat(line[16], 32)
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "Q"+fmt.Sprint(i+1), "Q"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "Q"+fmt.Sprint(i+1), `{"text":"Base Price should be decimal or integer"}`)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// continue
-// 		}
-
-// 		retailPrice, err := strconv.ParseFloat(line[17], 32)
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "R"+fmt.Sprint(i+1), "R"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "R"+fmt.Sprint(i+1), `{"text":"Retail Price should be decimal or integer"}`)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// continue
-// 		}
-// 		transferPrice, err := strconv.ParseFloat(line[17], 32)
-// 		if err != nil {
-// 			returnFile.SetCellStyle("Sheet1", "T"+fmt.Sprint(i+1), "T"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "T"+fmt.Sprint(i+1), `{"text":"Transfer Price should be decimal or integer"}`)
-// 			fmt.Println(e)
-// 			isCorrect = false
-// 			// continue
-// 		}
-
-// 		var variants []model.Variant
-
-// 		vAttr := strings.Split(line[24], ";")
-// 		vInv := strings.Split(line[25], ";")
-// 		vSku := strings.Split(line[26], ";")
-
-// 		fmt.Println(len(vAttr), len(vInv))
-
-// 		if len(vAttr) != len(vInv) || len(vAttr) != len(vSku) {
-// 			returnFile.SetCellStyle("Sheet1", "Y"+fmt.Sprint(i+1), "AA"+fmt.Sprint(i+1), style)
-// 			e := returnFile.AddComment("Sheet1", "Y"+fmt.Sprint(i+1), `{"text":"no. of attr, inv, sku mismatch"}`)
-// 			fmt.Println(e)
-// 			fmt.Println(len(vAttr) != len(vInv), len(vAttr) != len(vSku))
-// 			isCorrect = false
-// 		} else {
-// 			for k := range vAttr {
-// 				fmt.Println(vAttr, vInv)
-
-// 				unit, err := strconv.Atoi(vInv[k])
-// 				if err != nil {
-// 					returnFile.SetCellStyle("Sheet1", "Z"+fmt.Sprint(i+1), "Z"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "Z"+fmt.Sprint(i+1), `{"text":"Inventory should be integer"}`)
-// 					fmt.Println(e)
-// 					isCorrect = false
-// 					continue
-// 				}
-// 				variant, err := kc.createVariant(primitive.NewObjectID(), &schema.CreateVariantOpts{
-// 					SKU:       vSku[k],
-// 					Attribute: vAttr[k],
-// 					Unit:      unit,
-// 				})
-// 				if err != nil {
-// 					returnFile.SetCellStyle("Sheet1", "Y"+fmt.Sprint(i+1), "AA"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "Y"+fmt.Sprint(i+1), `{"text":"Error creating variant"}`)
-// 					fmt.Println(e)
-// 					isCorrect = false
-// 					// continue
-// 				}
-// 				variants = append(variants, *variant)
-// 			}
-// 		}
-
-// 		catalog := model.Catalog{
-// 			BrandID:        brandID,
-// 			Name:           line[10],
-// 			LName:          strings.ToLower(line[10]),
-// 			Slug:           UniqueSlug(line[10]),
-// 			Description:    line[11],
-// 			Specifications: specs,
-// 			ETA: &model.ETA{
-// 				Min:  etaMin,
-// 				Max:  etaMax,
-// 				Unit: "days",
-// 			},
-// 			Keywords:      keywords,
-// 			BasePrice:     model.SetINRPrice(float32(basePrice)),
-// 			RetailPrice:   model.SetINRPrice(float32(retailPrice)),
-// 			HSNCode:       line[18],
-// 			TransferPrice: model.SetINRPrice(float32(transferPrice)),
-// 			Tax: &model.Tax{
-// 				Type: line[20],
-// 			},
-// 			VariantType:   line[23],
-// 			Variants:      variants,
-// 			Status:        status,
-// 			StatusHistory: statusHistory,
-// 			CreatedAt:     currentTime,
-// 		}
-// 		// Setting up category path
-// 		for _, id := range catIDs {
-// 			path, err := kc.App.Category.GetCategoryPath(id)
-// 			if err != nil {
-// 				fmt.Println(err)
-// 				returnFile.SetCellStyle("Sheet1", "C"+fmt.Sprint(i+1), "J"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "C"+fmt.Sprint(i+1), `{"text": "Error getting category Path"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				// continue
-// 				// return nil, nil, err
-// 			}
-// 			catalog.Paths = append(catalog.Paths, path)
-// 		}
-
-// 		if strings.ToLower(catalog.Tax.Type) == model.SingleTax {
-// 			taxRate, err := strconv.Atoi(line[21])
-// 			if err != nil {
-// 				returnFile.SetCellStyle("Sheet1", "V"+fmt.Sprint(i+1), "V"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "V"+fmt.Sprint(i+1), `{"text": "Tax rate should be integer"} `)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				// continue
-// 			}
-// 			catalog.Tax.Rate = float32(taxRate)
-// 		} else {
-// 			var taxRanges []model.TaxRange
-// 			taxInput := strings.Split(line[22], ";")
-// 			if len(taxInput) == 0 {
-// 				returnFile.SetCellStyle("Sheet1", "W"+fmt.Sprint(i+1), "W"+fmt.Sprint(i+1), style)
-// 				e := returnFile.AddComment("Sheet1", "W"+fmt.Sprint(i+1), `{"text": "Tax range cannot be empty}"`)
-// 				fmt.Println(e)
-// 				isCorrect = false
-// 				continue
-// 			}
-// 			for _, txR := range taxInput {
-// 				taxValues := strings.Split(txR, ":")
-// 				if len(taxValues) != 3 {
-// 					returnFile.SetCellStyle("Sheet1", "W"+fmt.Sprint(i+1), "W"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "W"+fmt.Sprint(i+1), `{"text": "Tax range not complete"}`)
-// 					fmt.Println(e)
-// 					// fmt.Println(e)
-// 					isCorrect = false
-// 					continue
-// 				}
-// 				minValue, err := strconv.Atoi(taxValues[0])
-// 				if err != nil {
-// 					returnFile.SetCellStyle("Sheet1", "W"+fmt.Sprint(i+1), "W"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "W"+fmt.Sprint(i+1), `{"text": "Minimum Value should be integer"} `)
-// 					fmt.Println(e)
-// 					isCorrect = false
-// 					// continue
-// 				}
-// 				maxValue, err := strconv.Atoi(taxValues[1])
-// 				if err != nil {
-// 					returnFile.SetCellStyle("Sheet1", "W"+fmt.Sprint(i+1), "W"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "W"+fmt.Sprint(i+1), `{"text":"Max Value should be integer"} `)
-// 					fmt.Println(e)
-// 					isCorrect = false
-// 					// continue
-// 				}
-// 				rate, err := strconv.Atoi(taxValues[2])
-// 				if err != nil {
-// 					returnFile.SetCellStyle("Sheet1", "W"+fmt.Sprint(i+1), "W"+fmt.Sprint(i+1), style)
-// 					e := returnFile.AddComment("Sheet1", "W"+fmt.Sprint(i+1), `{"text": "Rate should be integer"} `)
-// 					fmt.Println(e)
-// 					isCorrect = false
-// 					continue
-// 				}
-// 				taxRange := model.TaxRange{
-// 					MinValue: minValue,
-// 					MaxValue: maxValue,
-// 					Rate:     float32(rate),
-// 				}
-// 				taxRanges = append(taxRanges, taxRange)
-// 				catalog.Tax.TaxRanges = taxRanges
-// 			}
-// 		}
-// 		if isCorrect {
-// 			catalogs = append(catalogs, catalog)
-// 		}
-
-// 	}
-
-// 	// var b bytes.Buffer
-// 	// writer := bufio.NewWriter(&b)
-// 	// returnFile.Write(writer)
-// 	// writer.Flush()
-// 	// returnFile.SetCellStyle("Sheet1", "A2", "A9", style)
-// 	buffer, err := returnFile.WriteToBuffer()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return buffer, nil
-// 	// return b.Bytes(), nil
-// }
-
-// func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*bytes.Buffer, string, error) {
-
-// 	sheet := "Sheet1"
-// 	ctx := context.TODO()
-// 	var catalogs []interface{}
-
-// 	currentTime := time.Now().UTC()
-
-// 	file := excelize.NewFile()
-// 	file.SetSheetRow(sheet, "A1", &[]interface{}{"Brand ID", "Category 1", "Category ID 1", "Category 2", "Category ID 2", "Category 3", "Category ID 3", "Category 4", "Category ID 4", "Name", "Description", "Specs", "ETA Minimum", "ETA Maximum", "Keywords", "Base Price", "Retail Price", "HSN Code", "Transfer Price", "Tax Type", "Tax Rate", "Tax Range", "Variant Type", "Variant Attribute", "Variant Inventory", "Variant SKUs"})
-
-// 	style, err := file.NewStyle(`{"fill":{"type":"pattern","color":["#FF0000"],"pattern":1}}`)
-// 	if err != nil {
-// 		return nil, "", errors.Wrap(err, "Style se kaam karo")
-// 	}
-
-// 	// file.AddComment(sheet, "A"+fmt.Sprint(1), `{"text":"hell"}`)
-
-// 	for i, catOpt := range opts {
-
-// 		fmt.Print(i)
-// 		isError := false
-// 		// file.SetSheetRow("Sheet1", "A"+fmt.Sprint(i+1), &[]interface{}{
-// 		// 	catalogOpts.BrandID,
-// 		// 	catalogOpts.CategoryValue,
-// 		// })
-// 		// file.SetCellValue(sheet, "A"+fmt.Sprint(i+1),)
-// 		row := []interface{}{catOpt.BrandID.Hex()}
-
-// 		for c := range catOpt.CategoryID {
-// 			row = append(row, catOpt.CategoryValue[c])
-// 			row = append(row, catOpt.CategoryID[c].Hex())
-// 		}
-// 		for i := 0; i < 4-len(catOpt.CategoryID); i++ {
-// 			row = append(row, "")
-// 			row = append(row, "")
-// 		}
-
-// 		row = append(row, catOpt.Name)
-// 		row = append(row, catOpt.Description)
-
-// 		s := ""
-// 		for _, sp := range catOpt.Specifications {
-// 			s = fmt.Sprintf("%s %s:%s;", s, sp.Name, sp.Value)
-// 		}
-// 		row = append(row, s)
-// 		row = append(row, catOpt.ETA.Min)
-// 		row = append(row, catOpt.ETA.Max)
-
-// 		s = ""
-// 		for _, k := range catOpt.Keywords {
-// 			s = fmt.Sprintf("%s %s;", s, k)
-// 		}
-// 		row = append(row, s)
-// 		row = append(row, catOpt.BasePrice)
-// 		row = append(row, catOpt.RetailPrice)
-// 		row = append(row, catOpt.HSNCode)
-// 		row = append(row, catOpt.TransferPrice)
-// 		row = append(row, catOpt.Tax.Type)
-
-// 		if catOpt.Tax.Type == model.SingleTax {
-// 			row = append(row, catOpt.Tax.Rate)
-// 			row = append(row, "")
-
-// 		} else {
-// 			row = append(row, "")
-// 			s = ""
-// 			for _, t := range catOpt.Tax.TaxRanges {
-// 				s = fmt.Sprintf("%s %d:%d:%f;", s, t.MinValue, t.MaxValue, t.Rate)
-// 			}
-// 		}
-// 		row = append(row, catOpt.VariantType)
-
-// 		va := ""
-// 		vi := ""
-// 		vs := ""
-
-// 		for _, k := range catOpt.Variants {
-// 			va = fmt.Sprintf("%s %s:", va, k.Attribute)
-// 			vs = fmt.Sprintf("%s %s:", vs, k.SKU)
-// 			vi = fmt.Sprintf("%s %d:", vi, k.Unit)
-// 		}
-// 		row = append(row, va)
-// 		row = append(row, vi)
-// 		row = append(row, vs)
-
-// 		e := file.SetSheetRow(sheet, "A"+fmt.Sprint(i+2), &row)
-// 		fmt.Println(e)
-
-// 		catalog := model.Catalog{
-// 			Name:        catOpt.Name,
-// 			LName:       strings.ToLower(catOpt.Name),
-// 			Slug:        UniqueSlug(catOpt.Name),
-// 			Description: catOpt.Description,
-// 			Keywords:    catOpt.Keywords,
-// 			Status: &model.Status{
-// 				Name:      "Draft",
-// 				Value:     "draft",
-// 				CreatedAt: currentTime,
-// 			},
-// 			StatusHistory: []model.Status{
-// 				{
-// 					Name:      "Draft",
-// 					Value:     model.Draft,
-// 					CreatedAt: currentTime,
-// 				},
-// 			},
-// 			HSNCode:       catOpt.HSNCode,
-// 			BasePrice:     model.SetINRPrice(float32(catOpt.BasePrice)),
-// 			RetailPrice:   model.SetINRPrice(float32(catOpt.RetailPrice)),
-// 			TransferPrice: model.SetINRPrice(float32(catOpt.TransferPrice)),
-// 			CreatedAt:     currentTime,
-// 		}
-
-// 		brandID, err := primitive.ObjectIDFromHex(catOpt.BrandID.Hex())
-// 		if err != nil {
-// 			file.SetCellStyle(sheet, "A"+fmt.Sprint(i+2), "A"+fmt.Sprint(i+2), style)
-// 			isError = true
-// 		} else {
-// 			exists, err := kc.App.Brand.CheckBrandIDExists(context.Background(), brandID)
-// 			if err != nil || !exists {
-// 				file.SetCellStyle(sheet, "A"+fmt.Sprint(i+2), "A"+fmt.Sprint(i+2), style)
-// 				isError = true
-// 				fmt.Print("brand doesn't exist")
-// 			} else {
-// 				catalog.BrandID = brandID
-// 			}
-// 		}
-
-// 		// Setting up category path
-// 		for c, id := range catOpt.CategoryID {
-// 			path, err := kc.App.Category.GetCategoryPath(id)
-// 			if err != nil {
-// 				fmt.Println(err, string(66+c*2))
-// 				isError = true
-// 				file.SetCellStyle(sheet, string(66+c*2)+fmt.Sprint(i+2), string(66+c*2)+fmt.Sprint(i+2), style)
-// 			} else {
-// 				catalog.Paths = append(catalog.Paths, path)
-// 			}
-// 		}
-
-// 		//specifications
-// 		var specs []model.Specification
-
-// 		for _, s := range catOpt.Specifications {
-// 			spec := model.Specification{
-// 				Name:  s.Name,
-// 				Value: s.Value,
-// 			}
-// 			specs = append(specs, spec)
-// 		}
-// 		catalog.Specifications = specs
-
-// 		//Variants
-// 		if catOpt.VariantType != "" {
-
-// 			var variants []model.Variant
-// 			for _, v := range catOpt.Variants {
-// 				variant, err := kc.createVariant(primitive.NewObjectID(), &v)
-// 				if err != nil {
-// 					isError = true
-
-// 				} else {
-// 					variants = append(variants, *variant)
-// 				}
-// 			}
-// 			catalog.VariantType = catOpt.VariantType
-// 			catalog.Variants = variants
-// 		}
-// 		//ETA
-// 		if catOpt.ETA != nil {
-// 			catalog.ETA = &model.ETA{
-// 				Min:  int(catOpt.ETA.Min),
-// 				Max:  int(catOpt.ETA.Max),
-// 				Unit: catOpt.ETA.Unit,
-// 			}
-// 		}
-
-// 		//TAX
-// 		tax := &model.Tax{
-// 			Type: catOpt.Tax.Type,
-// 		}
-// 		if catOpt.Tax.Type == model.SingleTax {
-// 			tax.Rate = catOpt.Tax.Rate
-// 		} else {
-// 			if len(catOpt.Tax.TaxRanges) == 0 {
-// 				//error
-// 				isError = true
-
-// 			}
-// 			tax.TaxRanges = catOpt.Tax.TaxRanges
-// 		}
-// 		catalog.Tax = tax
-
-// 		if !isError {
-// 			fmt.Println("added")
-// 			catalogs = append(catalogs, catalog)
-// 		}
-
-// 	}
-
-// 	if len(catalogs) > 0 {
-// 		_, err := kc.DB.Collection(model.CatalogColl).InsertMany(ctx, catalogs)
-// 		if err != nil {
-// 			return nil, "", err
-// 		}
-// 	}
-// 	buffer, err := file.WriteToBuffer()
-// 	if err != nil {
-// 		return nil, fmt.Sprintf("Successfully added %d Catalogs", len(catalogs)), err
-// 	}
-// 	return buffer, fmt.Sprintf("Successfully added %d Catalogs", len(catalogs)), nil
-
-// }
-
 func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalogJSONOpts) (*schema.BulkUploadCatalogResp, error) {
 	ctx := context.TODO()
 	var catalogs []interface{}
@@ -2543,4 +1912,146 @@ func (kc *KeeperCatalogImpl) GetCommissionRateUsingBrandID(id primitive.ObjectID
 		return 0, errors.Wrap(err, "error getting commission rate")
 	}
 	return cat.CommissionRate, nil
+}
+
+/*
+UNICOMMERCE RELATED ENDPOINTS
+*/
+
+func (kc *KeeperCatalogImpl) GetCatalogCount(opts *schema.GetCatalogCountOpts) (int64, error) {
+	ctx := context.TODO()
+	var filter bson.M
+	if opts.IsActive {
+		filter = bson.M{"status.value": "publish", "brand_id": opts.BrandID}
+	} else {
+		filter = bson.M{"status.value": "draft", "brand_id": opts.BrandID}
+	}
+
+	count, err := kc.DB.Collection(model.CatalogColl).CountDocuments(ctx, filter)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to get catalog count")
+	}
+	return count, nil
+}
+
+func (kc *KeeperCatalogImpl) GetCatalogs(opts *schema.GetCatalogOpts) ([]schema.GetUnicommerceProductsResp, error) {
+	ctx := context.TODO()
+	var err error
+	brandInfo, err := kc.App.Brand.GetBrandInfo([]string{opts.BrandID.Hex()})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get brand info")
+	}
+
+	var matchStage bson.D
+	var pipeline mongo.Pipeline
+	if opts.IsActive {
+		matchStage = append(matchStage, bson.E{Key: "$match", Value: bson.M{"status.value": "publish", "brand_id": opts.BrandID}})
+	} else {
+		matchStage = append(matchStage, bson.E{Key: "$match", Value: bson.M{"status.value": "draft", "brand_id": opts.BrandID}})
+	}
+	pipeline = append(pipeline, matchStage)
+	if opts.SKU != "" {
+		pipeline = append(pipeline, bson.D{{Key: "$match", Value: bson.M{"variants.sku": opts.SKU}}})
+	}
+
+	skipStage := bson.D{
+		{
+			Key:   "$skip",
+			Value: opts.Page * opts.Size,
+		},
+	}
+	pipeline = append(pipeline, skipStage)
+
+	limitStage := bson.D{
+		{
+			Key:   "$limit",
+			Value: opts.Size,
+		},
+	}
+	pipeline = append(pipeline, limitStage)
+
+	unwindStage := bson.D{
+		{
+			Key: "$unwind",
+			Value: bson.M{
+				"path": "$variants",
+			},
+		},
+	}
+	pipeline = append(pipeline, unwindStage)
+
+	groupStage := bson.D{
+		{
+			Key: "$group",
+			Value: bson.M{
+				"_id": "$_id",
+				"variants": bson.M{
+					"$push": bson.M{
+						"variantId": "$variants._id",
+						"title":     "$name",
+						"sku":       "$variants.sku",
+						"live": bson.M{
+							"$cond": bson.M{
+								"if": bson.M{
+									"$eq": bson.A{"$status.value", "publish"},
+								},
+								"then": true,
+								"else": false,
+							},
+						},
+						"size": "$variants.attribute",
+					},
+				},
+				"product": bson.M{
+					"$push": bson.M{
+						"parentTitle": "$name",
+						"brand_id":    "$brand_id",
+						"id":          "$_id",
+						"brand":       brandInfo.Name,
+					},
+				},
+			},
+		},
+	}
+	pipeline = append(pipeline, groupStage)
+
+	setStage := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"product": bson.M{"$first": "$product"},
+			},
+		},
+	}
+	pipeline = append(pipeline, setStage)
+
+	setStage1 := bson.D{
+		{
+			Key: "$set",
+			Value: bson.M{
+				"product.variants": "$variants",
+			},
+		},
+	}
+	pipeline = append(pipeline, setStage1)
+
+	replaceRootStage := bson.D{
+		{
+			Key: "$replaceRoot",
+			Value: bson.M{
+				"newRoot": "$product",
+			},
+		},
+	}
+	pipeline = append(pipeline, replaceRootStage)
+
+	var resp []schema.GetUnicommerceProductsResp
+	cur, err := kc.DB.Collection(model.CatalogColl).Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query for unicommerce catalogs")
+	}
+	if err := cur.All(ctx, &resp); err != nil {
+		return nil, errors.Wrap(err, "failed to get unicommerce catalogs")
+	}
+	return resp, nil
 }
