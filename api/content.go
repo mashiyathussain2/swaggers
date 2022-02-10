@@ -547,10 +547,10 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 		return
 	}
 	fmt.Println(s)
-	if errs := a.Validator.Validate(&s); errs != nil {
-		requestCTX.SetErrs(errs, http.StatusBadRequest)
-		return
-	}
+	// if errs := a.Validator.Validate(&s); errs != nil {
+	// 	requestCTX.SetErrs(errs, http.StatusBadRequest)
+	// 	return
+	// }
 	// a.App.Content.ContentProcessFail(&s)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
