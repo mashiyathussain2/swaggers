@@ -552,14 +552,23 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	json.Unmarshal(bodyBytes, &s)
 
 	fmt.Println(s["Message"])
-
-	body, ok := s["Message"].(schema.ContentProcessFail)
-	fmt.Println("body", body)
-	if !ok {
-		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
-		// 	return
+	if workflowStatus, ok := s["Message"].(map[string]interface{})["workflowStatus"]; ok {
+		if workflowStatus == "Error" {
+			event := s["Message"].(map[string]interface{})["event"]
+			fmt.Printf("EVENT:= %+v\n", event)
+			if body, ok := event.(schema.ContentProcessFail); ok {
+				fmt.Printf("BODY %+v\n", body)
+			}
+		}
 	}
-	fmt.Println(body)
-	a.App.Content.ContentProcessFail(&body)
+
+	// body, ok := s["Message"].(schema.ContentProcessFail)
+	// fmt.Println("body", body)
+	// if !ok {
+	// 	requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
+	// 	// 	return
+	// }
+	// fmt.Println(body)
+	// a.App.Content.ContentProcessFail(&body)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
