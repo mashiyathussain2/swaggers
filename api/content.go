@@ -550,22 +550,15 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	// fmt.Println(string(bodyBytes))
 	json.Unmarshal(bodyBytes, &s)
-	// if err := a.DecodeJSONBody(r, &s); err != nil {
-	// 	requestCTX.SetErr(err, http.StatusBadRequest)
-	// 	return
-	// }
 
 	fmt.Println(s["Message"])
 
-	// if errs := a.Validator.Validate(&s); errs != nil {
-	// 	requestCTX.SetErrs(errs, http.StatusBadRequest)
-	// 	return
-	// }
 	body, ok := s["Message"].(schema.ContentProcessFail)
 	if !ok {
 		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
 		// 	return
 	}
+	fmt.Println(body)
 	a.App.Content.ContentProcessFail(&body)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
