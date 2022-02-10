@@ -63,7 +63,7 @@ type Content interface {
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
-	ContentProcessFail(opts string)
+	ContentProcessFail(opts *schema.ContentProcessFail)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -1249,13 +1249,10 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 	return resp, nil
 }
 
-func (ci *ContentImpl) ContentProcessFail(opts string) {
-
-	var jsonMap map[string]interface{}
-	json.Unmarshal([]byte(opts), &jsonMap)
+func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 
 	ctx := context.TODO()
-	sid := jsonMap["srcVideo"].(string)
+	sid := opts.Event["srcVideo"]
 	fmt.Println("sid", sid)
 	sid = strings.Split(sid, ".")[0]
 	fmt.Println(sid)
@@ -1272,7 +1269,7 @@ func (ci *ContentImpl) ContentProcessFail(opts string) {
 			"is_active":    false,
 			"is_processed": true,
 			"is_failed":    true,
-			"error_msg":    jsonMap["errorMessage"],
+			"error_msg":    opts.ErrorMessage,
 		},
 	}
 	_, err = ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)

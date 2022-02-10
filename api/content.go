@@ -556,10 +556,16 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	// }
 
 	fmt.Println(s["Message"])
+
 	// if errs := a.Validator.Validate(&s); errs != nil {
 	// 	requestCTX.SetErrs(errs, http.StatusBadRequest)
 	// 	return
 	// }
-	// a.App.Content.ContentProcessFail(s.Message)
+	body, ok := s["Message"].(schema.ContentProcessFail)
+	if !ok {
+		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
+		// 	return
+	}
+	a.App.Content.ContentProcessFail(&body)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
