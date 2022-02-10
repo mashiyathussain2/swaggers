@@ -554,6 +554,7 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	fmt.Println(s["Message"])
 
 	body, ok := s["Message"].(schema.ContentProcessFail)
+	fmt.Println("body", body)
 	if !ok {
 		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
 		// 	return
