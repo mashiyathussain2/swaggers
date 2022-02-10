@@ -548,7 +548,7 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	r.Body.Close() //  must close
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	fmt.Println(string(bodyBytes))
+	// fmt.Println(string(bodyBytes))
 	json.Unmarshal(bodyBytes, &s)
 	// if err := a.DecodeJSONBody(r, &s); err != nil {
 	// 	requestCTX.SetErr(err, http.StatusBadRequest)
@@ -556,10 +556,10 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	// }
 
 	fmt.Println(s)
-	if errs := a.Validator.Validate(&s); errs != nil {
-		requestCTX.SetErrs(errs, http.StatusBadRequest)
-		return
-	}
+	// if errs := a.Validator.Validate(&s); errs != nil {
+	// 	requestCTX.SetErrs(errs, http.StatusBadRequest)
+	// 	return
+	// }
 	// a.App.Content.ContentProcessFail(s.Message)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
