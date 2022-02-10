@@ -540,7 +540,8 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 }
 
 func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s interface{}
+	var s map[string]interface{}
+
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
