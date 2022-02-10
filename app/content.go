@@ -1251,7 +1251,14 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 
 func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 	ctx := context.TODO()
-	id := opts.Event["srcVideo"]
+	sid := opts.Event["srcVideo"]
+	sid = strings.Split(sid, ".")[0]
+	fmt.Println(sid)
+	id, err := primitive.ObjectIDFromHex(sid)
+	if err != nil {
+		ci.Logger.Err(err).Msg("error getting media id from request")
+		return
+	}
 	filter := bson.M{
 		"_id": id,
 	}
@@ -1263,7 +1270,7 @@ func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 			"error_msg":    opts.ErrorMessage,
 		},
 	}
-	_, err := ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)
+	_, err = ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)
 	if err != nil {
 		ci.Logger.Err(err).Msg("error updating process fail data to DB")
 		return
