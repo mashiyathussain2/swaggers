@@ -492,6 +492,5 @@ type CreatorGetContentResp struct {
 }
 
 type ContentProcessFail struct {
-	ErrorMessage string            `json:"errorMessage" validate:"required"`
-	Event        map[string]string `json:"event" validate:"required"`
+	Message string `json:"error"`
 }

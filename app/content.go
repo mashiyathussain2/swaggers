@@ -63,7 +63,7 @@ type Content interface {
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
-	ContentProcessFail(opts *schema.ContentProcessFail)
+	ContentProcessFail(opts string)
 }
 
 // ContentImpl implements `Pebble` functionality
@@ -1249,9 +1249,13 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 	return resp, nil
 }
 
-func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
+func (ci *ContentImpl) ContentProcessFail(opts string) {
+
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(opts), &jsonMap)
+
 	ctx := context.TODO()
-	sid := opts.Event["srcVideo"]
+	sid := jsonMap["srcVideo"].(string)
 	fmt.Println("sid", sid)
 	sid = strings.Split(sid, ".")[0]
 	fmt.Println(sid)

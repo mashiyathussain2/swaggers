@@ -558,6 +558,6 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	a.App.Content.ContentProcessFail(&s)
+	a.App.Content.ContentProcessFail(s.Message)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
