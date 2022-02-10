@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
@@ -548,11 +549,12 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	r.Body.Close() //  must close
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	fmt.Println(string(bodyBytes))
+	json.Unmarshal(bodyBytes, &s)
+	// if err := a.DecodeJSONBody(r, &s); err != nil {
+	// 	requestCTX.SetErr(err, http.StatusBadRequest)
+	// 	return
+	// }
 
-	if err := a.DecodeJSONBody(r, &s); err != nil {
-		requestCTX.SetErr(err, http.StatusBadRequest)
-		return
-	}
 	fmt.Println(s)
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
