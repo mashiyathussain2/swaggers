@@ -552,15 +552,28 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 	json.Unmarshal(bodyBytes, &s)
 
 	fmt.Println(s["Message"])
-	if workflowStatus, ok := s["Message"].(map[string]interface{})["workflowStatus"]; ok {
-		if workflowStatus == "Error" {
-			event := s["Message"].(map[string]interface{})["event"]
-			fmt.Printf("EVENT:= %+v\n", event)
-			if body, ok := event.(schema.ContentProcessFail); ok {
-				fmt.Printf("BODY %+v\n", body)
-			}
-		}
+	message, ok := s["Message"].(map[string]interface{})
+	if !ok {
+		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
+		return
 	}
+	if message["workflowStatus"].(string) == "Error" {
+		event, ok := message["event"].(map[string]interface{})
+		if !ok {
+			requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
+			return
+		}
+		fmt.Println(event)
+	}
+	// if workflowStatus, ok := s["Message"].(map[string]interface{})["workflowStatus"]; ok {
+	// 	if workflowStatus == "Error" {
+	// 		event := s["Message"].(map[string]interface{})["event"]
+	// 		fmt.Printf("EVENT:= %+v\n", event)
+	// 		if body, ok := event.(schema.ContentProcessFail); ok {
+	// 			fmt.Printf("BODY %+v\n", body)
+	// 		}
+	// 	}
+	// }
 
 	// body, ok := s["Message"].(schema.ContentProcessFail)
 	// fmt.Println("body", body)
