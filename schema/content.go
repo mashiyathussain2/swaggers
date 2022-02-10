@@ -492,6 +492,7 @@ type CreatorGetContentResp struct {
 }
 
 type ContentProcessFail struct {
-	ErrorMessage string            `json:"errorMessage" validate:"required"`
-	Event        map[string]string `json:"event" validate:"required"`
+	ErrorMessage   string `json:"error_message" validate:"required"`
+	WorkFlowStatus string `json:"workflow_status" validate:"required"`
+	SRCVideo       string `json:"src_video" validate:"required"`
 }

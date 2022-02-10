@@ -1252,7 +1252,7 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 
 	ctx := context.TODO()
-	sid := opts.Event["srcVideo"]
+	sid := opts.SRCVideo
 	fmt.Println("sid", sid)
 	sid = strings.Split(sid, ".")[0]
 	fmt.Println(sid)
@@ -1269,7 +1269,7 @@ func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 			"is_active":    false,
 			"is_processed": true,
 			"is_failed":    true,
-			"error_msg":    opts.ErrorMessage,
+			"error_msg":    opts.WorkFlowStatus + " : " + opts.ErrorMessage,
 		},
 	}
 	_, err = ci.DB.Collection(model.ContentColl).UpdateOne(ctx, filter, update)
