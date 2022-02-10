@@ -543,7 +543,7 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 }
 
 func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.ContentProcessFail
+	var s interface{}
 	// fmt.Println(r)
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	r.Body.Close() //  must close
@@ -560,6 +560,6 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
-	a.App.Content.ContentProcessFail(s.Message)
+	// a.App.Content.ContentProcessFail(s.Message)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
