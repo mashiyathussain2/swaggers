@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
@@ -544,6 +545,7 @@ func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.Resp
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Println(s)
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return

@@ -88,7 +88,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.createPebbleApp)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.editPebbleApp)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.getPebblesForCreator)).Methods("GET")
-	a.Router.APIRoot.Handle("/content/fail", a.requestWithInternalHandler(a.contentProcessFail)).Methods("POST")
+	a.Router.APIRoot.Handle("/content/fail", a.requestHandler(a.contentProcessFail)).Methods("POST")
 
 }
 
