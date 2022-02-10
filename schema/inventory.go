@@ -51,3 +51,14 @@ type UpdateInventoryBySKUResp struct {
 	DuplicateSKUs []string `json:"duplicate_skus"`
 	InvalidSKUs   []string `json:"invalid_skus"`
 }
+
+type UnicommerceUpdateInventoryByInventoryIDsVariantOpts struct {
+	ProductID string `json:"productId"`
+	VariantID string `json:"variantId"`
+	Unit      int    `json:"inventory"`
+	HSNCode   string `json:"hsnCode"`
+}
+
+type UnicommerceUpdateInventoryByInventoryIDsOpts struct {
+	InventoryList []UnicommerceUpdateInventoryByInventoryIDsVariantOpts `json:"inventoryList"`
+}
