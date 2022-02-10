@@ -1,13 +1,9 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"go-app/schema"
 	"go-app/server/auth"
 	"go-app/server/handler"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -543,48 +539,15 @@ func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.Re
 }
 
 func (a *API) contentProcessFail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s map[string]interface{}
-	// fmt.Println(r)
-	bodyBytes, _ := ioutil.ReadAll(r.Body)
-	r.Body.Close() //  must close
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	// fmt.Println(string(bodyBytes))
-	json.Unmarshal(bodyBytes, &s)
-
-	fmt.Println(s["Message"])
-	message, ok := s["Message"].(map[string]interface{})
-	if !ok {
-		a.Logger.Log().Msg("message to map string")
-		requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
+	var s schema.ContentProcessFail
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	if message["workflowStatus"].(string) == "Error" {
-		event, ok := message["event"].(map[string]interface{})
-		if !ok {
-			a.Logger.Log().Msg("event to map string")
-
-			requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
-			return
-		}
-		fmt.Println(event)
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
 	}
-	// if workflowStatus, ok := s["Message"].(map[string]interface{})["workflowStatus"]; ok {
-	// 	if workflowStatus == "Error" {
-	// 		event := s["Message"].(map[string]interface{})["event"]
-	// 		fmt.Printf("EVENT:= %+v\n", event)
-	// 		if body, ok := event.(schema.ContentProcessFail); ok {
-	// 			fmt.Printf("BODY %+v\n", body)
-	// 		}
-	// 	}
-	// }
-
-	// body, ok := s["Message"].(schema.ContentProcessFail)
-	// fmt.Println("body", body)
-	// if !ok {
-	// 	requestCTX.SetErr(errors.New("error converting"), http.StatusBadRequest)
-	// 	// 	return
-	// }
-	// fmt.Println(body)
-	// a.App.Content.ContentProcessFail(&body)
+	a.App.Content.ContentProcessFail(&s)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
