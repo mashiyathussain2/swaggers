@@ -1252,6 +1252,7 @@ func (ci *ContentImpl) GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter
 func (ci *ContentImpl) ContentProcessFail(opts *schema.ContentProcessFail) {
 	ctx := context.TODO()
 	sid := opts.Event["srcVideo"]
+	fmt.Println("sid", sid)
 	sid = strings.Split(sid, ".")[0]
 	fmt.Println(sid)
 	id, err := primitive.ObjectIDFromHex(sid)
