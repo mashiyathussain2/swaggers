@@ -1427,7 +1427,7 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 	// fmt.Print(string(b))
 
 	//Create Order
-	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/order"
+	coURL := ci.App.Config.HypdApiConfig.OrderApi + "/api/v2/order"
 
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(createOrderOpts)
