@@ -55,7 +55,7 @@ type UpdateInventoryBySKUResp struct {
 type UnicommerceUpdateInventoryByInventoryIDsVariantOpts struct {
 	ProductID string `json:"productId"`
 	VariantID string `json:"variantId"`
-	Unit      int    `json:"inventory"`
+	Unit      string `json:"inventory"`
 	HSNCode   string `json:"hsnCode"`
 }
 
