@@ -33,18 +33,22 @@ func (a *API) updateInventory(requestCTX *handler.RequestContext, w http.Respons
 func (a *API) unicommerceUpdateInventory(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.UnicommerceUpdateInventoryByInventoryIDsOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
+		fmt.Println(err)
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("REQ 0: %+v\n", s)
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("REQ: %+v\n", s)
 	err := a.App.Inventory.UnicommerceUpdateInventoryByVariantIDs(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("ERR: %+v\n", err)
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 

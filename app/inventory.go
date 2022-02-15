@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -372,13 +373,18 @@ func (ii *InventoryImpl) UnicommerceUpdateInventoryByVariantIDs(opts *schema.Uni
 			continue
 		}
 
+		unit, err := strconv.Atoi(opts.Unit)
+		if err != nil {
+			continue
+		}
+
 		findQuery := bson.M{
 			"catalog_id": catalogId,
 			"variant_id": variantId,
 		}
 
 		var updateQuery bson.D
-		if opts.Unit != 0 {
+		if unit != 0 {
 			updateQuery = append(updateQuery, bson.E{
 				Key: "$set",
 				Value: bson.M{
@@ -386,7 +392,7 @@ func (ii *InventoryImpl) UnicommerceUpdateInventoryByVariantIDs(opts *schema.Uni
 						Value:     model.InStockStatus,
 						CreatedAt: time.Now().UTC(),
 					},
-					"unit_in_stock": opts.Unit,
+					"unit_in_stock": unit,
 				},
 			})
 		} else {
