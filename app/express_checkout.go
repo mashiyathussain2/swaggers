@@ -861,7 +861,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutRTO(opts *schema.ExpressCheckoutWe
 
 func (ec *ExpressCheckoutImpl) ExpressCheckoutWebV2(opts *schema.ExpressCheckoutWebV2Opts, userName string) (*schema.OrderInfo, error) {
 
-	// var orderItems []schema.OrderItem
 	grandTotal := 0
 
 	displayName := strings.ToLower(opts.Address.DisplayName)
@@ -981,10 +980,8 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWebV2(opts *schema.ExpressCheckout
 		FeaturedImage: schema.Img{
 			SRC: s.Payload.FeaturedImage.SRC,
 		},
-
-		VariantType: s.Payload.VariantType,
-		HSNCode:     s.Payload.HSNCode,
-
+		VariantType:    s.Payload.VariantType,
+		HSNCode:        s.Payload.HSNCode,
 		TransferPrice:  s.Payload.TransferPrice,
 		ETA:            s.Payload.ETA,
 		CommissionRate: s.Payload.CommissionRate,
@@ -1027,7 +1024,6 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWebV2(opts *schema.ExpressCheckout
 
 	// //Create Order
 	coURL := ec.App.Config.HypdApiConfig.OrderApi + "/api/v2/order"
-
 	var orderResp schema.OrderResp
 	reqBody, err := json.Marshal(createOrderOpts)
 	if err != nil {
