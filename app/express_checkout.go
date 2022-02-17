@@ -995,8 +995,8 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWebV2(opts *schema.ExpressCheckout
 		BrandID:    orderItem.CatalogInfo.BrandID,
 		OrderItems: []schema.OrderItem{orderItem},
 	})
-	var couponOrderOpts schema.CouponOrderOpts
 	if opts.Coupon != "" {
+		var couponOrderOpts schema.CouponOrderOpts
 		appliedValue := model.SetINRPrice(0)
 		coupon, err := ec.App.Cart.GetCoupon(opts.Coupon)
 		if err != nil {
@@ -1021,8 +1021,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWebV2(opts *schema.ExpressCheckout
 			Code:         coupon.Code,
 			AppliedValue: appliedValue,
 		}
+		createOrderOpts.Coupon = &couponOrderOpts
+
 	}
-	createOrderOpts.Coupon = &couponOrderOpts
 
 	// //Create Order
 	coURL := ec.App.Config.HypdApiConfig.OrderApi + "/api/v2/order"
