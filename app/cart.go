@@ -42,6 +42,7 @@ type Cart interface {
 	CheckCODEligiblity(userID primitive.ObjectID, userAgent, ipAddress, email string) (interface{}, error)
 
 	CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo, error)
+	GetCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]model.CatalogVariant, error)
 }
 
 // CartImpl implements Cart interface methods
@@ -1280,7 +1281,7 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 		}
 
 	}
-	cvInfo, err := ci.getCatalogVariantInfo(getCatalogVariantInfoOpts)
+	cvInfo, err := ci.GetCatalogVariantInfo(getCatalogVariantInfoOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting catalog variant info")
 	}
@@ -1469,7 +1470,7 @@ func (ci *CartImpl) CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo
 	return &orderResp.Payload, nil
 }
 
-func (ci *CartImpl) getCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]model.CatalogVariant, error) {
+func (ci *CartImpl) GetCatalogVariantInfo(opts []schema.GetCatalogVariantInfoOpts) ([]model.CatalogVariant, error) {
 	var catalogVariantResp schema.GetCatalogVariantResp
 	reqBody, err := json.Marshal(opts)
 	if err != nil {

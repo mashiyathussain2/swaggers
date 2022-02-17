@@ -32,3 +32,14 @@ type ExpressCheckoutWebOpts struct {
 	IsCOD     bool               `json:"is_cod,omitempty"`
 	RequestID string             `json:"request_id,omitempty"`
 }
+
+type ExpressCheckoutWebV2Opts struct {
+	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
+	Address   *OrderAddressOpts  `json:"address" validate:"required"`
+	Item      ItemExpress        `json:"item" validate:"required"`
+	Coupon    string             `json:"coupon"`
+	Source    string             `json:"source"`
+	SourceID  primitive.ObjectID `json:"source_id"`
+	IsCOD     bool               `json:"is_cod,omitempty"`
+	RequestID string             `json:"request_id,omitempty"`
+}
