@@ -97,6 +97,7 @@ func (a *API) InitRoutes() {
 	//Express Checkout
 	a.Router.APIRoot.Handle("/app/express-checkout", a.requestWithAuthHandler(a.expressCheckout)).Methods("POST")
 	a.Router.APIRoot.Handle("/web/express-checkout", a.requestWithAuthHandler(a.expressCheckoutWeb)).Methods("POST")
+	a.Router.APIRoot.Handle("/v2/web/express-checkout", a.requestWithAuthHandler(a.expressCheckoutWeb)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.addToWishlist)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/wishlist", a.requestWithAuthHandler(a.removeFromWishlist)).Methods("DELETE")

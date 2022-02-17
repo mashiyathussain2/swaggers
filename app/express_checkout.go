@@ -23,6 +23,7 @@ type ExpressCheckout interface {
 	ExpressCheckoutComplete(*schema.ExpressCheckoutOpts, string, string) (*schema.OrderInfo, error)
 	ExpressCheckoutWeb(*schema.ExpressCheckoutWebOpts, string) (*schema.OrderInfo, error)
 	ExpressCheckoutRTO(opts *schema.ExpressCheckoutWebOpts, userName string, userAgent, ipAddress, email string) (interface{}, error)
+	ExpressCheckoutWebV2(opts *schema.ExpressCheckoutWebV2Opts, userName string) (*schema.OrderInfo, error)
 }
 
 // ExpressCheckoutImpl implements ExpressCheckout interface methods
