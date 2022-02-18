@@ -515,27 +515,6 @@ func (a *API) getCatalogInfoByBrandId(requestCTX *handler.RequestContext, w http
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
-// func (a *API) bulkAddCatalogCSV(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-// 	file, _, err := r.FormFile("myFile")
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	defer file.Close()
-// 	returnFile, err := a.App.KeeperCatalog.BulkAddCatalogsCSV(file)
-// 	if err != nil {
-// 		requestCTX.SetErr(err, http.StatusBadRequest)
-// 		return
-// 	}
-// 	w.Header().Set("Content-Disposition", "attachment; filename=WHATEVER_YOU_WANT.xlsx")
-// 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-// 	// w.Header().Set("Content-Length", fileSize)
-// 	// t := bytes.NewReader(fileContents)
-// 	// t.Seek(0, 0)
-// 	io.Copy(w, returnFile)
-// 	return
-// }
-
 func (a *API) bulkAddCatalogJSON(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	var s []schema.BulkUploadCatalogJSONOpts
@@ -555,7 +534,6 @@ func (a *API) bulkAddCatalogJSON(requestCTX *handler.RequestContext, w http.Resp
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
-	return
 }
 func (a *API) getCollectionCatalogByIDs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCollectionCatalogByIDs
@@ -569,7 +547,6 @@ func (a *API) getCollectionCatalogByIDs(requestCTX *handler.RequestContext, w ht
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
-	return
 }
 
 func (a *API) getCatalogsByBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
@@ -589,10 +566,12 @@ func (a *API) getCatalogsByBrandID(requestCTX *handler.RequestContext, w http.Re
 func (a *API) bulkUpdateCommission(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	var s []schema.BulkUpdateCommissionOpts
+
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+
 	for _, opt := range s {
 		if errs := a.Validator.Validate(&opt); errs != nil {
 			requestCTX.SetErrs(errs, http.StatusBadRequest)
@@ -600,16 +579,18 @@ func (a *API) bulkUpdateCommission(requestCTX *handler.RequestContext, w http.Re
 		}
 	}
 	err := a.App.KeeperCatalog.BulkUpdateCommission(s)
+
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+
 	requestCTX.SetAppResponse(true, http.StatusOK)
-	return
 }
 
 func (a *API) addCommissionRateBasedonBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.AddCommissionRateBasedonBrandIDOpts
+
 	if err := a.DecodeJSONBody(r, &s); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -618,14 +599,17 @@ func (a *API) addCommissionRateBasedonBrandID(requestCTX *handler.RequestContext
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
 	}
+
 	err := a.App.KeeperCatalog.AddCommissionRateBasedonBrandID(&s)
+
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+
 	requestCTX.SetAppResponse(true, http.StatusOK)
-	return
 }
+
 func (a *API) getCommissionRateUsingBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 	if err != nil {
@@ -638,5 +622,47 @@ func (a *API) getCommissionRateUsingBrandID(requestCTX *handler.RequestContext, 
 		return
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
-	return
+
+}
+
+/*
+
+Unicommerce Related Internal Endpoints
+
+*/
+
+func (a *API) getCatalogCount(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCatalogCountOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogCount(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) getCatalogs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.GetCatalogOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogs(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
 }

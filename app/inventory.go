@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -25,6 +26,8 @@ type Inventory interface {
 	CheckInventoryExists(primitive.ObjectID, primitive.ObjectID, int) (bool, error)
 	UpdateInventoryInternal([]schema.UpdateInventoryCVOpts) error
 	UpdateInventorybySKUs([]schema.UpdateInventoryBySKUOpt) (*schema.UpdateInventoryBySKUResp, error)
+
+	UnicommerceUpdateInventoryByVariantIDs(*schema.UnicommerceUpdateInventoryByInventoryIDsOpts) error
 }
 
 // InventoryImpl implements Inventory related operations
@@ -329,25 +332,11 @@ func (ii *InventoryImpl) UpdateInventoryInternal(opts []schema.UpdateInventoryCV
 				})
 			}
 		}
-		// updateQuery = append(updateQuery, bson.E{
-		// 	Key: "$set", Value: bson.M{
-		// 		"updated_at": time.Now(),
-		// 	},
-		// })
 
 		operation.SetFilter(findQuery)
 		operation.SetUpdate(updateQuery)
 		operations = append(operations, operation)
-		// res, err := ii.DB.Collection(model.InventoryColl).UpdateOne(ctx, findQuery, updateQuery)
-		// if err != nil {
-		// 	return errors.Wrapf(err, "unable to update inventory with id: %s", opts[i].ID.Hex())
-		// }
-		// if res.MatchedCount == 0 {
-		// 	return errors.Errorf("unable to find the inventory with id: %s", opts[i].ID.Hex())
-		// }
-		// if res.ModifiedCount == 0 {
-		// 	return errors.Errorf("unable to update the inventory with id: %s", opts[i].ID.Hex())
-		// }
+
 	}
 
 	if len(operations) == 0 {
@@ -360,105 +349,84 @@ func (ii *InventoryImpl) UpdateInventoryInternal(opts []schema.UpdateInventoryCV
 	_, err := ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
 	if err != nil {
 		ii.Logger.Err(err).Msgf("failed to update inventory")
+		return errors.Wrap(err, "failed to update inventory")
 	}
 	return nil
 }
 
-// func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySKUOpt) error {
-// 	ctx := context.TODO()
-// 	inStockStatus := model.InventoryStatus{
-// 		Value:     model.InStockStatus,
-// 		CreatedAt: time.Now(),
-// 	}
-// 	outOfStockStatus := model.InventoryStatus{
-// 		Value:     model.OutOfStockStatus,
-// 		CreatedAt: time.Now(),
-// 	}
-// 	var models []mongo.WriteModel
-// 	for i := 0; i < len(opts); i++ {
-// 		// find inventory id from SKU and brand_id
-// 		matchQuery1 := bson.D{{
-// 			Key: "$match", Value: bson.M{
-// 				"brand_id":     opts[0].BrandID,
-// 				"variants.sku": opts[0].SKU,
-// 			},
-// 		}}
-// 		unWindQuery := bson.D{{
-// 			Key: "$unwind", Value: bson.M{
-// 				"path": "$variants",
-// 			},
-// 		}}
-// 		matchQuery2 := bson.D{{
-// 			Key: "$match", Value: bson.M{
-// 				"variants.sku": opts[0].SKU,
-// 			},
-// 		}}
-// 		projectQuery1 := bson.D{{
-// 			Key: "$project", Value: bson.M{
-// 				"inventory_id": "$variants.inventory_id",
-// 			},
-// 		}}
-// 		lookUpQuery := bson.D{{
-// 			Key: "$lookup", Value: bson.M{
-// 				"from":         "inventory",
-// 				"localField":   "inventory_id",
-// 				"foreignField": "_id",
-// 				"as":           "inventory",
-// 			},
-// 		}}
-// 		setQuery1 := bson.D{{
-// 			Key: "$set", Value: bson.M{
-// 				"inventory": bson.M{"$first": "$inventory"},
-// 			},
-// 		}}
-// 		projectQuery2 := bson.D{{
-// 			Key: "$project", Value: bson.M{
-// 				"_id":           "$inventory._id",
-// 				"unit_in_stock": "$inventory.unit_in_stock",
-// 			},
-// 		}}
-// 		var setQuery2 bson.D
-// 		if opts[0].Unit > 0 {
-// 			setQuery2 = bson.D{{
-// 				Key: "$set", Value: bson.M{
-// 					"unit_in_stock": opts[0].Unit,
-// 					"status":        inStockStatus,
-// 				},
-// 			}}
-// 		} else {
-// 			setQuery2 = bson.D{{
-// 				Key: "$set", Value: bson.M{
-// 					"unit_in_stock": 0,
-// 					"status":        outOfStockStatus,
-// 				},
-// 			}}
-// 		}
-// 		mergeQuery := bson.D{{
-// 			Key: "$merge", Value: bson.M{
-// 				"into":           "inventory",
-// 				"on":             "_id",
-// 				"whenMatched":    "merge",
-// 				"whenNotMatched": "discard",
-// 			},
-// 		}}
-// 		m := mongo.NewUpdateOneModel()
-// 		m.SetFilter(bson.M{"variants.sku": opts[0].SKU})
+func (ii *InventoryImpl) UnicommerceUpdateInventoryByVariantIDs(opts *schema.UnicommerceUpdateInventoryByInventoryIDsOpts) error {
+	var operations []mongo.WriteModel
+	for _, opts := range opts.InventoryList {
 
-// 		m.SetUpdate(mongo.Pipeline{matchQuery1, unWindQuery, matchQuery2, projectQuery1, lookUpQuery, setQuery1, projectQuery2, setQuery2, mergeQuery})
-// 		models = append(models, m)
-// 		// models = append(models, mongo.UpdateOneModel{
-// 		// 	Update: bson.M{
-// 		// 		"update": mongo.Pipeline{matchQuery1, unWindQuery, matchQuery2, projectQuery1, lookUpQuery, setQuery1, projectQuery2, setQuery2, mergeQuery},
-// 		// 	},
-// 		// })
-// 	}
-// 	res, err := ii.DB.Collection(model.CatalogColl).BulkWrite(ctx, models)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println(res)
-// 	return nil
-// }
+		var catalogId primitive.ObjectID
+		var variantId primitive.ObjectID
+		var err error
+		operation := mongo.NewUpdateOneModel()
+
+		if catalogId, err = primitive.ObjectIDFromHex(opts.ProductID); err != nil {
+			ii.Logger.Err(err).Msgf("invalid catalog id for: %s", opts.ProductID)
+			continue
+		}
+
+		if variantId, err = primitive.ObjectIDFromHex(opts.VariantID); err != nil {
+			ii.Logger.Err(err).Msgf("invalid variant id for: %s", opts.VariantID)
+			continue
+		}
+
+		unit, err := strconv.Atoi(opts.Unit)
+		if err != nil {
+			continue
+		}
+
+		findQuery := bson.M{
+			"catalog_id": catalogId,
+			"variant_id": variantId,
+		}
+
+		var updateQuery bson.D
+		if unit != 0 {
+			updateQuery = append(updateQuery, bson.E{
+				Key: "$set",
+				Value: bson.M{
+					"status": model.InventoryStatus{
+						Value:     model.InStockStatus,
+						CreatedAt: time.Now().UTC(),
+					},
+					"unit_in_stock": unit,
+				},
+			})
+		} else {
+			updateQuery = append(updateQuery, bson.E{
+				Key: "$set",
+				Value: bson.M{
+					"status": model.InventoryStatus{
+						Value:     model.OutOfStockStatus,
+						CreatedAt: time.Now().UTC(),
+					},
+					"unit_in_stock": 0,
+				},
+			})
+		}
+		operation.SetFilter(findQuery)
+		operation.SetUpdate(updateQuery)
+		operations = append(operations, operation)
+	}
+
+	if len(operations) == 0 {
+		ii.Logger.Info().Msgf("no operations")
+		return errors.Errorf("no products in the request to update")
+	}
+
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	resp, err := ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		ii.Logger.Err(err).Msgf("failed to update inventory")
+		return errors.Wrap(err, "failed to update inventory")
+	}
+	fmt.Printf("RESP: %+v\n", resp)
+	return nil
+}
 
 func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySKUOpt) (*schema.UpdateInventoryBySKUResp, error) {
 	ctx := context.TODO()
@@ -522,7 +490,6 @@ func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySK
 	if err := cur.All(ctx, &variantResp); err != nil {
 		return nil, err
 	}
-	fmt.Println(variantResp)
 	resp := schema.UpdateInventoryBySKUResp{}
 
 	//finding invalid SKUs
@@ -567,12 +534,10 @@ func (ii *InventoryImpl) UpdateInventorybySKUs(opts []schema.UpdateInventoryBySK
 		ii.Logger.Info().Msgf("no operations for skus")
 		return &resp, nil
 	}
-	fmt.Println(operations)
 
 	bulkOption := options.BulkWriteOptions{}
 	bulkOption.SetOrdered(true)
-	res, err := ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
-	fmt.Println(res)
+	_, err = ii.DB.Collection(model.InventoryColl).BulkWrite(context.TODO(), operations, &bulkOption)
 	if err != nil {
 		ii.Logger.Err(err).Msgf("failed to update inventory")
 		return nil, errors.Wrapf(err, "failed to update inventory")
