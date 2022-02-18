@@ -30,6 +30,11 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/catalog", a.requestWithSudoHandler(a.getCatalogsByFilter)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}/get", a.requestWithSudoHandler(a.getAllCatalogInfo)).Methods("GET")
 
+	// UNICOMMERCE APIS
+	a.Router.APIRoot.Handle("/unicommerce/catalog/count", a.requestWithInternalHandler(a.getCatalogCount)).Methods("POST")
+	a.Router.APIRoot.Handle("/unicommerce/catalog", a.requestWithInternalHandler(a.getCatalogs)).Methods("POST")
+
+	//INTERNAL APIS
 	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}", a.requestWithInternalHandler(a.getAllCatalogInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/{catalogID}/variant/{variantID}", a.requestWithInternalHandler(a.getCatalogVariant)).Methods("GET")
 	a.Router.APIRoot.Handle("/keeper/catalog/get/ids", a.requestWithInternalHandler(a.getPebbleCatalogInfo)).Methods("POST")
@@ -46,6 +51,7 @@ func (a *API) InitRoutes() {
 
 	//KEEPER INVENTORY
 	a.Router.APIRoot.Handle("/keeper/inventory", a.requestWithSudoHandler(a.updateInventory)).Methods("POST")
+	a.Router.APIRoot.Handle("/unicommerce/inventory", a.requestWithInternalHandler(a.unicommerceUpdateInventory)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/outofstock", a.requestWithSudoHandler(a.setOutOfStock)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/catalog/{catalogID}/variant/{variantID}/quantity/{quantity}", a.requestWithSudoHandler(a.checkInventoryExists)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/inventory/sku", a.requestWithSudoHandler(a.updateInventoryBySKU)).Methods("POST")
