@@ -246,7 +246,7 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 	if opts.Page > 0 {
 		from = int(opts.Page)*10 + 1
 	}
-	fmt.Println(" getPebblesByInfluencerID From ", opts.Page)
+	fmt.Println(" getPebblesByInfluencerID From ", from)
 
 	resp, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Size(10).From(from).Sort("id", false).Do(context.Background())
 	if err != nil {
