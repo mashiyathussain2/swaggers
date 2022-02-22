@@ -244,7 +244,7 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 	var from int
 	fmt.Println(" getPebblesByInfluencerID Page ", opts.Page)
 	if opts.Page > 0 {
-		from = int(opts.Page) * 10
+		from = int(opts.Page)*10 + 1
 	}
 	fmt.Println(" getPebblesByInfluencerID From ", from)
 
