@@ -242,9 +242,12 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 	boolQuery := elastic.NewBoolQuery().Must(queries...)
 
 	var from int
+	fmt.Println(" getPebblesByInfluencerID Page ", opts.Page)
 	if opts.Page > 0 {
 		from = int(opts.Page)*10 + 1
 	}
+	fmt.Println(" getPebblesByInfluencerID From ", opts.Page)
+
 	resp, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Size(10).From(from).Sort("id", false).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble by influencer id")
