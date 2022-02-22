@@ -244,7 +244,7 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 	var from int
 	fmt.Println(" getPebblesByInfluencerID Page ", opts.Page)
 	if opts.Page > 0 {
-		from = int(opts.Page)*10 + 1
+		from = int(opts.Page) * 10
 	}
 	fmt.Println(" getPebblesByInfluencerID From ", from)
 
@@ -253,6 +253,7 @@ func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByIn
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble by influencer id")
 		return nil, errors.Wrap(err, "failed to get pebbles by influencer id")
 	}
+	fmt.Println(" getPebblesByInfluencerID From ", resp)
 
 	var res []schema.GetPebbleESResp
 	for _, hit := range resp.Hits.Hits {
