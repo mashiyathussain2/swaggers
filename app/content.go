@@ -1154,7 +1154,7 @@ func (ci *ContentImpl) EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.Ed
 		}
 		update = append(update, bson.E{Key: "category_path", Value: paths})
 	}
-	filter := bson.M{"_id": opts.ID, "creator_id": opts.CreatorID}
+	filter := bson.M{"_id": opts.ID}
 	updateQuery := bson.M{"$set": update}
 
 	res, err := ci.DB.Collection(model.ContentColl).UpdateOne(context.TODO(), filter, updateQuery)
