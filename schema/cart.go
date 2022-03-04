@@ -226,9 +226,10 @@ type ApplyCouponOpts struct {
 }
 
 type CouponOrderOpts struct {
-	ID           primitive.ObjectID `json:"id" validate:"required"`
-	Code         string             `json:"code" validate:"required"`
-	AppliedValue *model.Price       `json:"applied_value" validate:"required"`
+	ID           primitive.ObjectID  `json:"id" validate:"required"`
+	Code         string              `json:"code" validate:"required"`
+	AppliedValue *model.Price        `json:"applied_value" validate:"required"`
+	ApplicableON *model.ApplicableON `json:"applicable_on,omitempty" bson:"applicable_on,omitempty"`
 }
 
 type GetCouponResp struct {

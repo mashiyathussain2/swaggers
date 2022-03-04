@@ -423,7 +423,16 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 	var orderOpts []schema.OrderItemOpts
 	// var orderItems []schema.OrderItem
 	grandTotal := 0
-
+	isCouponApplied := false
+	var coupon *model.Coupon
+	var err error
+	if opts.Coupon != "" {
+		isCouponApplied = true
+		coupon, err = ec.App.Cart.GetCoupon(opts.Coupon)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error getting coupon")
+		}
+	}
 	displayName := strings.ToLower(opts.Address.DisplayName)
 	if displayName == "home" || displayName == "other" || displayName == "work" || displayName == "" {
 		opts.Address.DisplayName = userName
@@ -519,9 +528,47 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 
 				}
 			}
-			grandTotal += int(dp.Value) * int(orderItem.Quantity)
+			if isCouponApplied {
+				toAdd := false
+				switch coupon.ApplicableON.Name {
+				case "brand":
+					if orderItem.CatalogInfo.BrandID == coupon.ApplicableON.IDs[0] {
+						toAdd = true
+					}
+				case "influencer":
+					if orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
+						toAdd = true
+					}
+				case "cart":
+					toAdd = true
+				}
+				if toAdd {
+					grandTotal += int(dp.Value) * int(orderItem.Quantity)
+				}
+			} else {
+				grandTotal += int(dp.Value) * int(orderItem.Quantity)
+			}
 		} else {
-			grandTotal += int(s.Payload.RetailPrice.Value) * int(orderItem.Quantity)
+			if isCouponApplied {
+				toAdd := false
+				switch coupon.ApplicableON.Name {
+				case "brand":
+					if orderItem.CatalogInfo.BrandID == coupon.ApplicableON.IDs[0] {
+						toAdd = true
+					}
+				case "influencer":
+					if orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
+						toAdd = true
+					}
+				case "cart":
+					toAdd = true
+				}
+				if toAdd {
+					grandTotal += int(s.Payload.RetailPrice.Value) * int(orderItem.Quantity)
+				}
+			} else {
+				grandTotal += int(s.Payload.RetailPrice.Value) * int(orderItem.Quantity)
+			}
 		}
 
 		orderItem.BasePrice = &s.Payload.BasePrice
@@ -548,12 +595,8 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 	}
 
 	var couponOrderOpts schema.CouponOrderOpts
-	if opts.Coupon != "" {
+	if isCouponApplied {
 		appliedValue := model.SetINRPrice(0)
-		coupon, err := ec.App.Cart.GetCoupon(opts.Coupon)
-		if err != nil {
-			return nil, errors.Wrapf(err, "error getting coupon")
-		}
 		if coupon.Status != "active" {
 			return nil, errors.Errorf("coupon is not active")
 		}
@@ -572,6 +615,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			ID:           coupon.ID,
 			Code:         coupon.Code,
 			AppliedValue: appliedValue,
+			ApplicableON: coupon.ApplicableON,
 		}
 	}
 
