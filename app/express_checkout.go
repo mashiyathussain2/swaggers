@@ -531,6 +531,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			}
 			if isCouponApplied {
 				toAdd := false
+				fmt.Println("apply coupon on ", coupon.ApplicableON.Name)
 				switch coupon.ApplicableON.Name {
 				case "brand":
 					if orderItem.CatalogInfo.BrandID == coupon.ApplicableON.IDs[0] {
@@ -618,6 +619,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			AppliedValue: appliedValue,
 			ApplicableON: coupon.ApplicableON,
 		}
+		fmt.Println("coupon order opts ", couponOrderOpts)
 	}
 
 	for brand, oi := range oiBrandMap {
