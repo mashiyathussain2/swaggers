@@ -335,6 +335,8 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	rp := uint(0)
 	td := uint(0)
 	gt := uint(0)
+	valueToApplyCouponOn := int(0)
+
 	for i, cartItem := range cart.Items {
 		tp = tp + uint(cartItem.BasePrice.Value)*cartItem.Quantity
 		rp = rp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
@@ -369,12 +371,73 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 					cart.Items[i].TransferPrice = model.SetINRPrice(0)
 					gt = gt + uint(dp.Value)*cartItem.Quantity
 					applied = true
+
+					if cart.Coupon != nil {
+						toAdd := false
+						fmt.Println("apply coupon on ", cart.Coupon.ApplicableON.Name)
+						switch cart.Coupon.ApplicableON.Name {
+						case "brand":
+							if cartItem.CatalogInfo.BrandID == cart.Coupon.ApplicableON.IDs[0] {
+								fmt.Println("coupon brand match")
+								toAdd = true
+							}
+						case "influencer":
+							if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
+								toAdd = true
+							}
+						case "cart":
+							toAdd = true
+						}
+						if toAdd {
+							valueToApplyCouponOn += int(dp.Value) * int(cartItem.Quantity)
+						}
+					}
 				}
 			}
 			if !applied {
 				gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
+				if cart.Coupon != nil {
+					toAdd := false
+					fmt.Println("apply coupon on ", cart.Coupon.ApplicableON.Name)
+					switch cart.Coupon.ApplicableON.Name {
+					case "brand":
+						if cartItem.CatalogInfo.BrandID == cart.Coupon.ApplicableON.IDs[0] {
+							fmt.Println("coupon brand match")
+							toAdd = true
+						}
+					case "influencer":
+						if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
+							toAdd = true
+						}
+					case "cart":
+						toAdd = true
+					}
+					if toAdd {
+						valueToApplyCouponOn += int(cartItem.RetailPrice.Value) * int(cartItem.Quantity)
+					}
+				}
 			}
 		} else {
+			if cart.Coupon != nil {
+				toAdd := false
+				fmt.Println("apply coupon on ", cart.Coupon.ApplicableON.Name)
+				switch cart.Coupon.ApplicableON.Name {
+				case "brand":
+					if cartItem.CatalogInfo.BrandID == cart.Coupon.ApplicableON.IDs[0] {
+						fmt.Println("coupon brand match")
+						toAdd = true
+					}
+				case "influencer":
+					if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
+						toAdd = true
+					}
+				case "cart":
+					toAdd = true
+				}
+				if toAdd {
+					valueToApplyCouponOn += int(cartItem.RetailPrice.Value) * int(cartItem.Quantity)
+				}
+			}
 			gt += uint(cartItem.RetailPrice.Value) * cartItem.Quantity
 		}
 
@@ -400,7 +463,7 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		if cart.Coupon.Type == model.FlatOffType {
 			couponValue = model.SetINRPrice(float32(cart.Coupon.Value))
 		} else if cart.Coupon.Type == model.PercentOffType {
-			av := (int(gt) * cart.Coupon.Value) / 100
+			av := (int(valueToApplyCouponOn) * cart.Coupon.Value) / 100
 			if cart.Coupon.MaxDiscount != nil {
 				if av > int(cart.Coupon.MaxDiscount.Value) {
 					av = int(cart.Coupon.MaxDiscount.Value)
