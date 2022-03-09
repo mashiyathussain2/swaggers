@@ -499,6 +499,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 		if !found {
 			return nil, errors.Errorf("variant with id %s not found", item.VariantID.Hex())
 		}
+		orderItem.CatalogInfo.BrandID = s.Payload.BrandID
 		//calculate discount if available
 		discount := uint(0)
 		discountInfo := model.DiscountInfo{}
@@ -556,6 +557,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 				switch coupon.ApplicableON.Name {
 				case "brand":
 					if orderItem.CatalogInfo.BrandID == coupon.ApplicableON.IDs[0] {
+						fmt.Println("coupon brand match")
 						toAdd = true
 					}
 				case "influencer":
