@@ -613,6 +613,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			}
 			appliedValue = model.SetINRPrice(float32(av))
 		}
+		fmt.Println("coupon applied value ", appliedValue)
 		couponOrderOpts = schema.CouponOrderOpts{
 			ID:           coupon.ID,
 			Code:         coupon.Code,
