@@ -552,6 +552,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 		} else {
 			if isCouponApplied {
 				toAdd := false
+				fmt.Println("apply coupon on ", coupon.ApplicableON.Name)
 				switch coupon.ApplicableON.Name {
 				case "brand":
 					if orderItem.CatalogInfo.BrandID == coupon.ApplicableON.IDs[0] {
