@@ -780,7 +780,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 
 		coupon.ID = cartUnwindBrands[0].Coupon.ID
 		coupon.Code = cartUnwindBrands[0].Coupon.Code
-
+		coupon.ApplicableON = cartUnwindBrands[0].Coupon.ApplicableON
 		if cartUnwindBrands[0].Coupon.Type == model.FlatOffType {
 			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
 		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
