@@ -336,7 +336,6 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 	td := uint(0)
 	gt := uint(0)
 	valueToApplyCouponOn := int(0)
-
 	for i, cartItem := range cart.Items {
 		tp = tp + uint(cartItem.BasePrice.Value)*cartItem.Quantity
 		rp = rp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
@@ -527,7 +526,7 @@ func (ci *CartImpl) SetCartAddress(opts *schema.AddressOpts) error {
 func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userName string, isCOD bool, requestID string) (*schema.OrderInfo, error) {
 
 	ctx := context.TODO()
-
+	valueToApplyCouponOn := int(0)
 	isWeb := false
 	if platform == "web" {
 		isWeb = true
@@ -711,16 +710,59 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 				it.DiscountedPrice = dp
 				grandTotal += int(dp.Value)
 				couponGrandTotal += int(dp.Value) * int(item.Quantity)
+
+				if c.Coupon != nil {
+					toAdd := false
+					fmt.Println("apply coupon on ", c.Coupon.ApplicableON.Name)
+					switch c.Coupon.ApplicableON.Name {
+					case "brand":
+						if cv.Payload.BrandID == c.Coupon.ApplicableON.IDs[0] {
+							fmt.Println("coupon brand match")
+							toAdd = true
+						}
+					case "influencer":
+						if item.Source.ID == c.Coupon.ApplicableON.IDs[0].Hex() {
+							toAdd = true
+						}
+					case "cart":
+						toAdd = true
+					}
+					if toAdd {
+						valueToApplyCouponOn += int(dp.Value) * int(item.Quantity)
+					}
+				}
+
 			} else {
 				grandTotal += int(cv.Payload.RetailPrice.Value)
 				couponGrandTotal += int(cv.Payload.RetailPrice.Value) * int(item.Quantity)
+
+				if c.Coupon != nil {
+					toAdd := false
+					fmt.Println("apply coupon on ", c.Coupon.ApplicableON.Name)
+					switch c.Coupon.ApplicableON.Name {
+					case "brand":
+						if item.CatalogInfo.BrandID == c.Coupon.ApplicableON.IDs[0] {
+							fmt.Println("coupon brand match")
+							toAdd = true
+						}
+					case "influencer":
+						if item.Source.ID == c.Coupon.ApplicableON.IDs[0].Hex() {
+							toAdd = true
+						}
+					case "cart":
+						toAdd = true
+					}
+					if toAdd {
+						valueToApplyCouponOn += int(cv.Payload.RetailPrice.Value) * int(item.Quantity)
+					}
+				}
 			}
 
 			order.OrderItems = append(order.OrderItems, it)
 		}
 		orderItemsOpts = append(orderItemsOpts, order)
 	}
-	fmt.Println("grand total, coupon Grand total", grandTotal, couponGrandTotal)
+	fmt.Println("grand total, coupon Grand total, valueToApplyCouponOn", grandTotal, couponGrandTotal, valueToApplyCouponOn)
 
 	if len(outOfStockString) > 0 {
 		return nil, errors.Errorf(outOfStockString)
@@ -743,7 +785,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 			coupon.AppliedValue = model.SetINRPrice(float32(cartUnwindBrands[0].Coupon.Value))
 		} else if cartUnwindBrands[0].Coupon.Type == model.PercentOffType {
 			fmt.Println("grand total, coupon value", couponGrandTotal, cartUnwindBrands[0].Coupon.Value)
-			av := (couponGrandTotal * cartUnwindBrands[0].Coupon.Value) / 100
+			av := (valueToApplyCouponOn * cartUnwindBrands[0].Coupon.Value) / 100
 			fmt.Println("calculated coupon value", av)
 			if cartUnwindBrands[0].Coupon.MaxDiscount != nil {
 				if av > int(cartUnwindBrands[0].Coupon.MaxDiscount.Value) {
