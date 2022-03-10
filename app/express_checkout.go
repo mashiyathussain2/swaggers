@@ -599,9 +599,9 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 		oiBrandMap[orderItem.CatalogInfo.BrandID] = append(oiBrandMap[orderItem.CatalogInfo.BrandID], orderItem)
 	}
 
+	appliedValue := model.SetINRPrice(0)
 	var couponOrderOpts schema.CouponOrderOpts
 	if isCouponApplied {
-		appliedValue := model.SetINRPrice(0)
 		if coupon.Status != "active" {
 			return nil, errors.Errorf("coupon is not active")
 		}
@@ -641,7 +641,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 			IsCOD:           opts.IsCOD,
 			RequestID:       opts.RequestID,
 		}
-		if opts.Coupon != "" {
+		if isCouponApplied && appliedValue.Value > 0 {
 			orderItem.Coupon = &couponOrderOpts
 		}
 		orderOpts = append(orderOpts, orderItem)
