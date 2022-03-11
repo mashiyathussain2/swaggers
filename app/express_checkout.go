@@ -326,7 +326,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutComplete(opts *schema.ExpressCheck
 	var couponOrderOpts schema.CouponOrderOpts
 	if opts.Coupon != "" {
 		appliedValue := model.SetINRPrice(0)
-		coupon, err := ec.App.Cart.GetCoupon(opts.Coupon)
+		coupon, err := ec.App.Cart.GetCoupon(opts.UserID, opts.Coupon)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting coupon")
 		}
@@ -429,7 +429,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 	var err error
 	if opts.Coupon != "" {
 		isCouponApplied = true
-		coupon, err = ec.App.Cart.GetCoupon(opts.Coupon)
+		coupon, err = ec.App.Cart.GetCoupon(opts.UserID, opts.Coupon)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting coupon")
 		}
