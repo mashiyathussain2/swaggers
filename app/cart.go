@@ -746,7 +746,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 							toAdd = true
 						}
 					case "influencer":
-						if item.Source.ID == c.Coupon.ApplicableON.IDs[0].Hex() {
+						if item.Source != nil && item.Source.ID == c.Coupon.ApplicableON.IDs[0].Hex() {
 							toAdd = true
 						}
 					case "cart":
