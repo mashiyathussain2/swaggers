@@ -540,7 +540,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 						toAdd = true
 					}
 				case "influencer":
-					if orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
+					if orderItem.Source != nil && orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
 						toAdd = true
 					}
 				case "cart":
@@ -563,7 +563,7 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutWeb(opts *schema.ExpressCheckoutWe
 						toAdd = true
 					}
 				case "influencer":
-					if orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
+					if orderItem.Source != nil && orderItem.Source.ID == coupon.ApplicableON.IDs[0].Hex() {
 						toAdd = true
 					}
 				case "cart":
