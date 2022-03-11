@@ -38,7 +38,7 @@ type Cart interface {
 	RemoveCoupon(primitive.ObjectID) error
 	UpdateInventoryStatusInsideCatalogInfo(opts *schema.InventoryUpdateOpts)
 	UpdateCouponInsideCart(opts *schema.CouponUpdateOpts)
-	GetCoupon(code string) (*model.Coupon, error)
+	GetCoupon(primitive.ObjectID, string) (*model.Coupon, error)
 	CheckCODEligiblity(userID primitive.ObjectID, userAgent, ipAddress, email string) (interface{}, error)
 
 	CheckoutCartV2(opts *schema.CheckoutOpts) (*schema.OrderInfo, error)
@@ -1026,7 +1026,7 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 
 func (ci *CartImpl) ApplyCoupon(user_id primitive.ObjectID, opts *schema.ApplyCouponOpts) (*schema.GetCartInfoResp, error) {
 
-	coupon, err := ci.GetCoupon(strings.ToUpper(opts.Code))
+	coupon, err := ci.GetCoupon(user_id, strings.ToUpper(opts.Code))
 	if err != nil {
 		return nil, errors.Wrapf(err, "error getting coupon")
 	}
@@ -1072,10 +1072,10 @@ func (ci *CartImpl) RemoveCoupon(user_id primitive.ObjectID) error {
 	return nil
 }
 
-func (ci *CartImpl) GetCoupon(code string) (*model.Coupon, error) {
+func (ci *CartImpl) GetCoupon(id primitive.ObjectID, code string) (*model.Coupon, error) {
 	var s schema.GetCouponResp
 
-	url := ci.App.Config.HypdApiConfig.CouponApi + "/api/get-coupon?code=" + code
+	url := ci.App.Config.HypdApiConfig.CouponApi + "/api/get-coupon?code=" + code + "&id=" + id.Hex()
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
