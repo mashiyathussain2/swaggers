@@ -90,6 +90,7 @@ type Transaction struct {
 	Balance           float64            `json:"balance" bson:"balance"`
 	DebitAmount       float64            `json:"debit_amount,omitempty" bson:"debit_amount,omitempty"`
 	PayoutInformation *PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
+	OrderDate         time.Time          `json:"order_date,omitempty" bson:"order_date,omitempty"`
 }
 
 type DebitRequest struct {

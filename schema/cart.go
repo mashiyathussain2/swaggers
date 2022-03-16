@@ -285,6 +285,7 @@ type CommisionOrderItem struct {
 	Source     *model.Source      `json:"source,omitempty" bson:"source,omitempty"`
 	OrderID    primitive.ObjectID `json:"order_id,omitempty" bson:"order_id,omitempty"`
 	OrderNo    string             `json:"order_no,omitempty" bson:"order_no,omitempty"`
+	OrderDate  time.Time          `json:"order_date,omitempty" bson:"order_date,omitempty"`
 }
 
 type GoKwikCreateOrderResp struct {

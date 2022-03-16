@@ -953,6 +953,7 @@ func (ii *InfluencerImpl) AddCreditTransaction(opts *schema.CommisionOrderItem) 
 			CommissionValue: commission,
 			CreatedAt:       time.Now(),
 			Balance:         balance,
+			OrderDate:       opts.OrderDate,
 		}
 		_, err = ii.DB.Collection(model.CommissionLedgerColl).InsertOne(sc, transaction)
 		if err != nil {
@@ -1279,7 +1280,7 @@ func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOp
 			Key: "$match", Value: bson.M{
 				"type":          opts.Type,
 				"influencer_id": opts.ID,
-				"created_at": bson.M{
+				"order_date": bson.M{
 					"$gte": opts.StartDate,
 					"$lte": opts.EndDate,
 				},
@@ -1300,7 +1301,7 @@ func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOp
 						"monthsInString": bson.A{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"},
 					},
 					"in": bson.M{
-						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$created_at"}},
+						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$order_date"}},
 					},
 				},
 			},
@@ -1311,11 +1312,11 @@ func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOp
 		Key: "$set", Value: bson.M{
 			"date": bson.M{
 				"$concat": bson.A{
-					bson.M{"$toString": bson.M{"$dayOfMonth": "$created_at"}},
+					bson.M{"$toString": bson.M{"$dayOfMonth": "$order_date"}},
 					" ",
 					"$month",
 					",",
-					bson.M{"$toString": bson.M{"$year": "$created_at"}},
+					bson.M{"$toString": bson.M{"$year": "$order_date"}},
 				},
 			},
 		},
@@ -1338,7 +1339,7 @@ func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOp
 
 	sortStage := bson.D{{
 		Key: "$sort", Value: bson.M{
-			"ledger.created_at": -1,
+			"ledger.order_date": -1,
 		},
 	}}
 
