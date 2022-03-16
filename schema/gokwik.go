@@ -2,6 +2,11 @@ package schema
 
 import "time"
 
+//Define name of the cart collection
+const (
+	RTOColl string = "rto_data"
+)
+
 type CheckCODEligiblityOpts struct {
 	Customer GoKwikCustomer `json:"customer"`
 	Order    GoKwikOrder    `json:"order"`
