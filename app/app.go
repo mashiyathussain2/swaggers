@@ -33,7 +33,7 @@ type App struct {
 	Review        Review
 
 	// Consumers
-	CatalogChanges           kafka.Consumer
+	CatalogChanges           []kafka.Consumer
 	CollectionCatalogChanges kafka.Consumer
 	CollectionChanges        kafka.Consumer
 	BrandChanges             kafka.Consumer

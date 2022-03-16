@@ -143,11 +143,12 @@ type KafkaConfig struct {
 
 // ListenerConfig contains app kafka topic listener related config
 type ListenerConfig struct {
-	GroupID  string   `mapstructure:"groupId"`
-	Brokers  []string `mapstructure:"brokers"`
-	Topic    string   `mapstructure:"topic"`
-	Username string   `mapstructure:"username"`
-	Password string   `mapstructure:"password"`
+	GroupID       string   `mapstructure:"groupId"`
+	Brokers       []string `mapstructure:"brokers"`
+	Topic         string   `mapstructure:"topic"`
+	Username      string   `mapstructure:"username"`
+	Password      string   `mapstructure:"password"`
+	ConsumerCount int      `mapstructure:"consumerCount"`
 }
 
 // ListenerConfig contains app kafka topic producer related config
