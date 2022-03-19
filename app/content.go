@@ -61,6 +61,7 @@ type Content interface {
 
 	//APIs for Creators on the App
 	CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schema.CreatePebbleResp, error)
+	CreatePebbleAppV2(opts *schema.CreatePebbleAppV2Opts) (*schema.CreatePebbleResp, error)
 	EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.EditPebbleAppResp, error)
 	GetPebblesForCreator(opts *schema.GetPebblesCreatorFilter) ([]schema.CreatorGetContentResp, error)
 }
@@ -1080,6 +1081,37 @@ func (ci *ContentImpl) CreatePebbleApp(opts *schema.CreatePebbleAppOpts) (*schem
 			return nil, errors.Wrap(err, "failed to create pebble document, error fetching category path")
 		}
 		pebble.Paths = append(pebble.Paths, path)
+	}
+
+	res1, err1 := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), pebble)
+	if err1 != nil {
+		return nil, errors.Wrap(err1, "failed to create pebble document")
+	}
+
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid file type: missing file extension")
+	}
+	// Getting s3 upload token with provided args
+	// This token is then used by frontend to directly upload media to s3
+	res0, err0 := ci.App.Media.GenerateVideoUploadToken(
+		&schema.GenerateVideoUploadTokenOpts{
+			FileName: fmt.Sprintf("%s.%s", res1.InsertedID.(primitive.ObjectID).Hex(), fType),
+		},
+	)
+	if err0 != nil {
+		return nil, err0
+	}
+	return &schema.CreatePebbleResp{ID: res1.InsertedID.(primitive.ObjectID), Token: res0.Token}, nil
+}
+
+// CreatePebbleApp creates new create a new pebble document in the db, and generates and returns a token to upload video
+func (ci *ContentImpl) CreatePebbleAppV2(opts *schema.CreatePebbleAppV2Opts) (*schema.CreatePebbleResp, error) {
+	pebble := model.Content{
+		Type:      model.PebbleType,
+		MediaType: model.VideoType,
+		CreatorID: opts.CreatorID,
+		CreatedAt: time.Now().UTC(),
 	}
 
 	res1, err1 := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), pebble)

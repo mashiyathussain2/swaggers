@@ -433,6 +433,17 @@ type CreatePebbleAppOpts struct {
 	CategoryID []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
 }
 
+type CreatePebbleAppV2Opts struct {
+	FileName string `json:"file_name" validate:"required"`
+	// Caption       string               `json:"caption" validate:"required"`
+	CreatorID primitive.ObjectID `json:"creator_id" validate:"required"`
+	// InfluencerIDs []primitive.ObjectID `json:"influencer_ids" validate:"required,min=1"`
+	// BrandIDs   []primitive.ObjectID `json:"brand_ids"`
+	// CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
+	// Label         *CreatorLabelOpts    `json:"label" validate:"required"`
+	// CategoryID []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
+}
+
 // EditPebbleAppOpts contains and validates args required to update an existing pebble content
 type EditPebbleAppOpts struct {
 	ID            primitive.ObjectID    `json:"id,omitempty" validate:"required"`
