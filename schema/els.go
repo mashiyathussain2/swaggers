@@ -68,8 +68,9 @@ type GetCatalogByCategoryIDOpts struct {
 }
 
 type SearchOpts struct {
-	Query string `qs:"query"`
-	Page  int    `qs:"page"`
+	Query   string `qs:"query"`
+	Page    int    `qs:"page"`
+	BrandID string `qs:"brand_id"`
 }
 
 type BrandSearchResp struct {

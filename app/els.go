@@ -434,8 +434,12 @@ func (ei *ElasticsearchImpl) SearchDiscover(opts *schema.SearchOpts) (*schema.Di
 
 func (ei *ElasticsearchImpl) SearchCatalog(opts *schema.SearchOpts) (*schema.SearchResp, error) {
 	mustQuery := elastic.NewMultiMatchQuery(opts.Query, "keywords.*^3", "name.*^2", "brand_info.name^2").Operator("or").Type("best_fields")
-	filterQuery := elastic.NewTermQuery("status.value", model.Publish)
-	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery)
+	var filterQuery []elastic.Query
+	filterQuery = append(filterQuery, elastic.NewTermQuery("status.value", model.Publish))
+	if opts.BrandID != "" {
+		filterQuery = append(filterQuery, elastic.NewTermQuery("brand_id", opts.BrandID))
+	}
+	query := elastic.NewBoolQuery().Must(mustQuery).Filter(filterQuery...)
 	var fromPage int
 	if opts.Page != 0 {
 		fromPage = (int(opts.Page) * 20) + 1
