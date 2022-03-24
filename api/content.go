@@ -489,6 +489,31 @@ func (a *API) createPebbleApp(requestCTX *handler.RequestContext, w http.Respons
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 }
 
+func (a *API) createPebbleAppV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s schema.CreatePebbleAppV2Opts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.CreatorID = id
+	// s.InfluencerIDs = append(s.InfluencerIDs, id)
+	if errs := a.Validator.Validate(&s); errs != nil {
+		requestCTX.SetErrs(errs, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.Content.CreatePebbleAppV2(&s)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusCreated)
+}
+
 func (a *API) editPebbleApp(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.EditPebbleAppOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
