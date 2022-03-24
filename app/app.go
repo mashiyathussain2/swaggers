@@ -23,29 +23,35 @@ type App struct {
 	Elasticsearch Elasticsearch
 
 	// List of services this app is implementing
-	KeeperCatalog KeeperCatalog
-	Brand         Brand
-	Category      Category
-	Discount      Discount
-	Group         Group
-	Collection    Collection
-	Inventory     Inventory
-	Review        Review
+	KeeperCatalog        KeeperCatalog
+	Brand                Brand
+	Category             Category
+	Discount             Discount
+	Group                Group
+	Collection           Collection
+	InfluencerCollection InfluencerCollection
+	InfluencerProducts   InfluencerProducts
+	Inventory            Inventory
+	Review               Review
 
 	// Consumers
-	CatalogChanges           kafka.Consumer
-	CollectionCatalogChanges kafka.Consumer
-	CollectionChanges        kafka.Consumer
-	BrandChanges             kafka.Consumer
-	InventoryChanges         kafka.Consumer
-	DiscountChanges          kafka.Consumer
-	ContentChanges           kafka.Consumer
-	GroupChanges             kafka.Consumer
-	ReviewChanges            kafka.Consumer
+	CatalogChanges              kafka.Consumer
+	CollectionCatalogChanges    kafka.Consumer
+	CollectionChanges           kafka.Consumer
+	BrandChanges                kafka.Consumer
+	InventoryChanges            kafka.Consumer
+	DiscountChanges             kafka.Consumer
+	ContentChanges              kafka.Consumer
+	GroupChanges                kafka.Consumer
+	ReviewChanges               kafka.Consumer
+	InfluencerCollectionChanges kafka.Consumer
+	InfluencerProductChanges    kafka.Consumer
 
-	CatalogFullProducer    kafka.Producer
-	CollectionFullProducer kafka.Producer
-	ReviewFullProducer     kafka.Producer
+	CatalogFullProducer          kafka.Producer
+	CollectionFullProducer       kafka.Producer
+	InfluencerCollectionProducer kafka.Producer
+	InfluencerProductProducer    kafka.Producer
+	ReviewFullProducer           kafka.Producer
 
 	// Processor
 	CatalogProcessor    *CatalogProcessor

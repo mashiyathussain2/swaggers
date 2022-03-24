@@ -70,6 +70,18 @@ func InitConsumer(a *App) {
 	})
 	go a.ReviewChanges.ConsumeAndCommit(ctx, a.ReviewProcessor.ProcessReviewUpdate)
 
+	a.InfluencerCollectionChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InfluencerCollectionChangeConfig,
+	})
+	go a.InfluencerCollectionChanges.ConsumeAndCommit(ctx, a.CollectionProcessor.ProcessInfluencerCollectionUpdate)
+
+	a.InfluencerProductChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InfluencerProductChangeConfig,
+	})
+	go a.InfluencerProductChanges.ConsumeAndCommit(ctx, a.CollectionProcessor.ProcessInfluencerProductUpdate)
+
 	go RunEvery(10*time.Second, a.Discount.CheckAndUpdateStatus)
 
 }
@@ -84,6 +96,8 @@ func CloseConsumer(a *App) {
 	a.DiscountChanges.Close()
 	a.CollectionChanges.Close()
 	a.GroupChanges.Close()
+	a.InfluencerCollectionChanges.Close()
+	a.InfluencerProductChanges.Close()
 }
 
 // InitProducer initializes kafka message producers
@@ -102,12 +116,25 @@ func InitProducer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.ReviewFullProducerConfig,
 	})
+
+	a.InfluencerCollectionProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InfluencerCollectionProducerConfig,
+	})
+
+	a.InfluencerProductProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.InfluencerProductProducerConfig,
+	})
 }
 
 // CloseProducer terminates all producer connections
 func CloseProducer(a *App) {
 	a.CatalogFullProducer.Close()
 	a.CollectionFullProducer.Close()
+	a.InfluencerCollectionProducer.Close()
+	a.InfluencerProductProducer.Close()
+
 }
 
 func InitProcessor(a *App) {

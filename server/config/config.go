@@ -70,46 +70,54 @@ type APIConfig struct {
 
 // APPConfig contains api package related configurations
 type APPConfig struct {
-	DatabaseConfig      DatabaseConfig
-	HypdApiConfig       HypdApiConfig
-	ElasticsearchConfig ElasticsearchConfig
-	KeeperCatalogConfig ServiceConfig `mapstructure:"keeperCatalog"`
-	CategoryConfig      ServiceConfig `mapstructure:"category"`
-	BrandConfig         ServiceConfig `mapstructure:"brand"`
-	DiscountConfig      ServiceConfig `mapstructure:"discount"`
-	GroupConfig         ServiceConfig `mapstructure:"group"`
-	CollectionConfig    ServiceConfig `mapstructure:"collection"`
-	ReviewConfig        ServiceConfig `mapstructure:"review"`
-	InventoryConfig     ServiceConfig `mapstructure:"inventory"`
-	PageSize            int           `mapstructure:"pageSize"`
+	DatabaseConfig             DatabaseConfig
+	HypdApiConfig              HypdApiConfig
+	ElasticsearchConfig        ElasticsearchConfig
+	KeeperCatalogConfig        ServiceConfig `mapstructure:"keeperCatalog"`
+	CategoryConfig             ServiceConfig `mapstructure:"category"`
+	BrandConfig                ServiceConfig `mapstructure:"brand"`
+	DiscountConfig             ServiceConfig `mapstructure:"discount"`
+	GroupConfig                ServiceConfig `mapstructure:"group"`
+	CollectionConfig           ServiceConfig `mapstructure:"collection"`
+	InfluencerCollectionConfig ServiceConfig `mapstructure:"influencer_collection"`
+	InfluencerProductsConfig   ServiceConfig `mapstructure:"influencer_products"`
+	ReviewConfig               ServiceConfig `mapstructure:"review"`
+	InventoryConfig            ServiceConfig `mapstructure:"inventory"`
+	PageSize                   int           `mapstructure:"pageSize"`
 
-	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
-	CollectionCatalogChangeConfig ListenerConfig `mapstructure:"collectionCatalogChangeConsumer"`
-	CollectionChangeConfig        ListenerConfig `mapstructure:"collectionChangeConsumer"`
-	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
-	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
-	BrandChangeConfig             ListenerConfig `mapstructure:"brandChangeConsumer"`
-	ContentChangeConfig           ListenerConfig `mapstructure:"contentChangeConsumer"`
-	GroupChangeConfig             ListenerConfig `mapstructure:"groupChangeConsumer"`
-	ReviewChangeConfig            ListenerConfig `mapstructure:"reviewChangeConsumer"`
+	CatalogChangeConfig              ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	CollectionCatalogChangeConfig    ListenerConfig `mapstructure:"collectionCatalogChangeConsumer"`
+	CollectionChangeConfig           ListenerConfig `mapstructure:"collectionChangeConsumer"`
+	DiscountChangeConfig             ListenerConfig `mapstructure:"discountChangeConsumer"`
+	InventoryChangeConfig            ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	BrandChangeConfig                ListenerConfig `mapstructure:"brandChangeConsumer"`
+	ContentChangeConfig              ListenerConfig `mapstructure:"contentChangeConsumer"`
+	GroupChangeConfig                ListenerConfig `mapstructure:"groupChangeConsumer"`
+	ReviewChangeConfig               ListenerConfig `mapstructure:"reviewChangeConsumer"`
+	InfluencerCollectionChangeConfig ListenerConfig `mapstructure:"influencerCollectionChangeConsumer"`
+	InfluencerProductChangeConfig    ListenerConfig `mapstructure:"influencerProductChangeConfig"`
 
-	CatalogFullProducerConfig    ProducerConfig `mapstructure:"catalogFullProducer"`
-	CollectionFullProducerConfig ProducerConfig `mapstructure:"collectionFullProducer"`
-	ReviewFullProducerConfig     ProducerConfig `mapstructure:"reviewFullProducer"`
+	CatalogFullProducerConfig          ProducerConfig `mapstructure:"catalogFullProducer"`
+	CollectionFullProducerConfig       ProducerConfig `mapstructure:"collectionFullProducer"`
+	InfluencerCollectionProducerConfig ProducerConfig `mapstructure:"influencerCollectionProducer"`
+	InfluencerProductProducerConfig    ProducerConfig `mapstructure:"influencerProductProducer"`
+	ReviewFullProducerConfig           ProducerConfig `mapstructure:"reviewFullProducer"`
 }
 
 // ElasticsearchConfig contains elasticsearch related configurations
 type ElasticsearchConfig struct {
-	Endpoint            string `mapstructure:"endpoint"`
-	Username            string `mapstructure:"username"`
-	Password            string `mapstructure:"password"`
-	CollectionFullIndex string `mapstructure:"collectionFullIndex"`
-	ReviewFullIndex     string `mapstructure:"reviewFullIndex"`
-	CatalogFullIndex    string `mapstructure:"catalogFullIndex"`
-	BrandFullIndex      string `mapstructure:"brandFullIndex"`
-	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
-	ContentFullIndex    string `mapstructure:"contentFullIndex"`
-	SeriesFullIndex     string `mapstructure:"seriesFullIndex"`
+	Endpoint                  string `mapstructure:"endpoint"`
+	Username                  string `mapstructure:"username"`
+	Password                  string `mapstructure:"password"`
+	CollectionFullIndex       string `mapstructure:"collectionFullIndex"`
+	ReviewFullIndex           string `mapstructure:"reviewFullIndex"`
+	CatalogFullIndex          string `mapstructure:"catalogFullIndex"`
+	BrandFullIndex            string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex       string `mapstructure:"influencerFullIndex"`
+	ContentFullIndex          string `mapstructure:"contentFullIndex"`
+	SeriesFullIndex           string `mapstructure:"seriesFullIndex"`
+	InfluencerCollectionIndex string `mapstructure:"influencerCollectionIndex"`
+	InfluencerProductIndex    string `mapstructure:"influencerProductIndex"`
 }
 type HypdApiConfig struct {
 	CmsApi    string `mapstructure:"cmsApi"`

@@ -168,3 +168,31 @@ type GetCatalogByBrandIDOpts struct {
 	Page    uint   `qs:"page"`
 	BrandID string `qs:"brand_id"`
 }
+
+type GetInfluencerCollectionESResp struct {
+	ID           primitive.ObjectID `json:"id,omitempty"`
+	InfluencerID primitive.ObjectID `json:"influencer_id"`
+	// InfluencerInfo *InfluencerInfo       `json:"influencer_info"`
+	Name       string               `json:"name"`
+	Slug       string               `json:"slug" bson:"slug"`
+	Image      *Img                 `json:"image" bson:"image"`
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
+	// CatalogInfo    []GetCatalogBasicResp `json:"catalog_info"`
+	Status    string    `json:"status" bson:"status"`
+	Order     int       `json:"order" bson:"order"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+}
+
+type GetActiveInfluencerCollectionsOpts struct {
+	InfluencerID string `qs:"influencer_id"`
+	Page         int    `qs:"page"`
+	Size         int    `qs:"size"`
+}
+
+type GetInfluencerProductESResp struct {
+	ID           primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
+	InfluencerID primitive.ObjectID   `json:"influencer_id" bson:"influencer_id,omitempty"`
+	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
+	UpdatedAt    time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
