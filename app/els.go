@@ -299,5 +299,41 @@ func (ei *ElasticsearchImpl) GetInfluencerInfoByUsername(opts *schema.GetInfluen
 		}
 		resp = append(resp, s)
 	}
+	cres, err := ei.GetInfluencerContentCount(&schema.GetInfluencerContentCount{ID: resp[0].ID.Hex()})
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get content count")
+		return nil, errors.Wrap(err, "failed to get influencer content count")
+	}
+	resp[0].ContentCount = cres
 	return &resp[0], nil
+}
+
+func (ei *ElasticsearchImpl) GetInfluencerContentCount(opts *schema.GetInfluencerContentCount) (*schema.GetInfluencerContentCountResp, error) {
+	query := elastic.NewTermsQueryFromStrings("id", opts.ID)
+	// builder := elastic.NewSearchSource().Query(query).FetchSource(true)
+	s := schema.GetInfluencerContentCountResp{}
+	res, err := ei.Client.Count().Index(ei.Config.InfluencerFullIndex).Query(query).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencers")
+		return nil, errors.Wrap(err, "failed to get influencers")
+	}
+	s.Pebbles = res
+
+	sf := elastic.NewScriptField("count", elastic.NewScript(`inline: doc.catalog_ids.size()`))
+	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
+
+	resp, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).SearchSource(builder).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencer product")
+		return nil, errors.Wrap(err, "failed to get influencer product")
+	}
+	s.Products = resp.Hits.Hits[0].Fields["count"].(int64)
+
+	res, err = ei.Client.Count().Index(ei.Config.InfluencerCollectionIndex).Query(query).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencers")
+		return nil, errors.Wrap(err, "failed to get influencers")
+	}
+	s.Collections = res
+	return &s, nil
 }
