@@ -275,6 +275,7 @@ func (ui *UserImpl) GetUserClaim(user *model.User, customer *model.Customer) aut
 				ID:           user.InfluencerID.Hex(),
 				Name:         influencer.Name,
 				ProfileImage: influencer.ProfileImage,
+				Username:     influencer.Username,
 			}
 		}
 	}

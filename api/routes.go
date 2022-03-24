@@ -87,6 +87,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/app/brand/{brandID}", a.requestHandler(a.getBrandInfo)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/brand/username/basic", a.requestHandler(a.getBrandsBasicByUsername)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/brand/username/{username}", a.requestHandler(a.getBrandInfoByUsername)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/brands", a.requestHandler(a.getActiveBrandsList)).Methods("GET")
 
 	a.Router.APIRoot.Handle("/app/influencer/basic", a.requestHandler(a.getInfluencersBasic)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/{influencerID}", a.requestHandler(a.getInfluencerInfo)).Methods("GET")

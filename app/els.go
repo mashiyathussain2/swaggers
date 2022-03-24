@@ -18,6 +18,7 @@ type Elasticsearch interface {
 	GetBrandsByIDBasic(*schema.GetBrandsByIDBasicOpts) ([]schema.GetBrandBasicESEesp, error)
 	GetBrandInfoByID(*schema.GetBrandsInfoByIDOpts) (*schema.GetBrandInfoEsResp, error)
 	GetBrandsByUsernameBasic(opts *schema.GetBrandsByUsernameBasicOpts) ([]schema.GetBrandBasicESEesp, error)
+	GetBrandsList(*schema.GetBrandsListOpts) ([]schema.GetActiveBrandsListESEesp, error)
 	GetBrandInfoByUsername(opts *schema.GetBrandsInfoByUsernameOpts) (*schema.GetBrandInfoEsResp, error)
 
 	GetInfluencerInfoByID(*schema.GetInfluencerInfoByIDOpts) (*schema.GetInfluencerInfoEsResp, error)
@@ -306,6 +307,29 @@ func (ei *ElasticsearchImpl) GetInfluencerInfoByUsername(opts *schema.GetInfluen
 	}
 	resp[0].ContentCount = cres
 	return &resp[0], nil
+}
+
+func (ei *ElasticsearchImpl) GetBrandsList(opts *schema.GetBrandsListOpts) ([]schema.GetActiveBrandsListESEesp, error) {
+	var from int
+	if opts.Page > 0 {
+		from = opts.Page*opts.Size + 1
+	}
+	query := elastic.NewMatchAllQuery()
+	resp, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).Query(query).Size(opts.Size).Sort("name", true).From(from).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get brands list")
+		return nil, errors.Wrap(err, "failed to get brands list")
+	}
+	var res []schema.GetActiveBrandsListESEesp
+	for _, hit := range resp.Hits.Hits {
+		var s schema.GetActiveBrandsListESEesp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		res = append(res, s)
+	}
+	return res, nil
 }
 
 func (ei *ElasticsearchImpl) GetInfluencerContentCount(opts *schema.GetInfluencerContentCount) (*schema.GetInfluencerContentCountResp, error) {
