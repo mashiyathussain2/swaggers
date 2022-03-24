@@ -58,18 +58,19 @@ type GetInfluencerBasicESEesp struct {
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
 type GetInfluencerInfoEsResp struct {
-	ID               primitive.ObjectID   `json:"id,omitempty"`
-	Name             string               `json:"name,omitempty"`
-	Username         string               `json:"username,omitempty"`
-	CoverImg         *model.IMG           `json:"cover_img,omitempty"`
-	ProfileImage     *model.IMG           `json:"profile_image,omitempty"`
-	SocialAccount    *model.SocialAccount `json:"social_account,omitempty"`
-	ExternalLinks    []string             `json:"external_links"`
-	Bio              string               `json:"bio"`
-	FollowersCount   uint                 `json:"followers_count"`
-	CreatedAt        time.Time            `json:"created_at,omitempty"`
-	UpdatedAt        time.Time            `json:"updated_at,omitempty"`
-	IsFollowedByUser bool                 `json:"is_followed_by_user,omitempty"`
+	ID               primitive.ObjectID             `json:"id,omitempty"`
+	Name             string                         `json:"name,omitempty"`
+	Username         string                         `json:"username,omitempty"`
+	CoverImg         *model.IMG                     `json:"cover_img,omitempty"`
+	ProfileImage     *model.IMG                     `json:"profile_image,omitempty"`
+	SocialAccount    *model.SocialAccount           `json:"social_account,omitempty"`
+	ExternalLinks    []string                       `json:"external_links"`
+	Bio              string                         `json:"bio"`
+	FollowersCount   uint                           `json:"followers_count"`
+	CreatedAt        time.Time                      `json:"created_at,omitempty"`
+	UpdatedAt        time.Time                      `json:"updated_at,omitempty"`
+	IsFollowedByUser bool                           `json:"is_followed_by_user,omitempty"`
+	ContentCount     *GetInfluencerContentCountResp `json:"content_count,omitempty"`
 }
 
 type GetInfluencersByIDBasicOpts struct {
@@ -90,4 +91,15 @@ type GetInfluencersByUsernameBasicOpts struct {
 type GetInfluencerInfoByUsernameOpts struct {
 	Username   string `json:"username"`
 	CustomerID primitive.ObjectID
+}
+
+type GetInfluencerContentCount struct {
+	Username string `json:"username"`
+	ID       string `json:"id"`
+}
+
+type GetInfluencerContentCountResp struct {
+	Pebbles     int64 `json:"pebbles"`
+	Products    int64 `json:"products"`
+	Collections int64 `json:"collections"`
 }
