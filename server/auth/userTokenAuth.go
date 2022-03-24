@@ -35,6 +35,7 @@ type InfluencerInfo struct {
 	ID           string     `json:"_id,omitempty"`
 	Name         string     `json:"name,omitempty"`
 	ProfileImage *model.IMG `json:"profile_image,omitempty"`
+	Username     string     `json:"username,omitempty"`
 }
 
 // UserClaim contains customer related info for jwt token

@@ -14,6 +14,18 @@ type GetBrandBasicESEesp struct {
 	Logo             *model.IMG         `json:"logo,omitempty"`
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
+
+type GetBrandsListOpts struct {
+	Page int `json:"page,omitempty"`
+	Size int `json:"size,omitempty"`
+}
+
+type GetActiveBrandsListESEesp struct {
+	ID   primitive.ObjectID `json:"id,omitempty"`
+	Name string             `json:"name,omitempty"`
+	Logo *model.IMG         `json:"logo,omitempty"`
+}
+
 type GetBrandInfoEsResp struct {
 	ID               primitive.ObjectID   `json:"id,omitempty"`
 	Name             string               `json:"name,omitempty"`
