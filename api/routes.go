@@ -136,6 +136,22 @@ func (a *API) InitRoutes() {
 
 	//COMMISSION
 
+	//Influencer Collection - KEEPER
+	a.Router.APIRoot.Handle("/keeper/influencer/collection", a.requestWithSudoHandler(a.createInfluencerCollection)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/influencer/collections", a.requestWithSudoHandler(a.keeperGetInfluencerCollection)).Methods("GET")
+	a.Router.APIRoot.Handle("/keeper/influencer/collection", a.requestWithSudoHandler(a.editInfluencerCollection)).Methods("PUT")
+
+	//Influencer Collection - APP
+	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestWithAuthHandler(a.createInfluencerCollectionApp)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestWithAuthHandler(a.editInfluencerCollectionApp)).Methods("PUT")
+	a.Router.APIRoot.Handle("/app/influencer/collections/active", a.requestWithAuthHandler(a.getActiveInfluencerCollections)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/collections", a.requestWithAuthHandler(a.appGetInfluencerCollections)).Methods("GET")
+
+	//Influencer Collection - KEEPER
+	a.Router.APIRoot.Handle("/app/influencer/products", a.requestWithAuthHandler(a.addInfluencerProducts)).Methods("POST")
+	a.Router.APIRoot.Handle("/app/influencer/products", a.requestWithAuthHandler(a.removeInfluencerProducts)).Methods("DELETE")
+	a.Router.APIRoot.Handle("/app/influencer/products", a.requestWithAuthHandler(a.getInfluencerProducts)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

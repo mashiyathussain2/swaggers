@@ -371,6 +371,133 @@ func (cp *CollectionProcessor) ProcessCatalogUpdate(msg kafka.Message) {
 	}
 }
 
+func (cp *CollectionProcessor) ProcessInfluencerCollectionUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	fmt.Println("GOT COLLECTION DATA")
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+	if s.Meta.Operation == "d" {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		cp.App.InfluencerCollectionProducer.Publish(m)
+		return
+	}
+	// if s.Meta.Operation == "i" {
+	// 	cp.App.Collection.AddCatalogInfoToCollection(s.Meta.ID.(primitive.ObjectID))
+	// 	return
+	// }
+	// if s.Meta.Operation == "u" {
+	// 	if updates, ok := s.Meta.Updates.(bson.D).Map()["changed"]; ok {
+	// 		if _, ok := updates.(primitive.D).Map()["sub_collections.0.catalog_ids"]; ok {
+	// 			cp.App.Collection.AddCatalogInfoToCollection(s.Meta.ID.(primitive.ObjectID))
+	// 		}
+	// 	}
+	// }
+	var collectionSchema schema.InfluencerCollectionKafkaMessage
+	collByteData, err := json.Marshal(s.Data)
+	if err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode collection update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(collByteData, &collectionSchema); err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+	if collectionSchema.Status == model.Archive {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		cp.App.InfluencerCollectionProducer.Publish(m)
+		return
+	}
+	//1. get Influncer info
+	//2. get catalog info
+	// var cids []string
+	// for _, cid := range collectionSchema.CatalogIDs {
+	// 	cids = append(cids, cid.Hex())
+	// }
+	// catalogInfo, err := cp.App.Elasticsearch.GetCatalogByIDs(cids)
+	// if err != nil {
+	// 	cp.Logger.Err(err).Interface("influencer collection Schema", collectionSchema.ID).Msg("failed to get catalog info")
+	// 	return
+	// }
+	collData := schema.InfluencerCollectionFullKafkaMessage{
+		ID:           collectionSchema.ID,
+		InfluencerID: collectionSchema.InfluencerID,
+		Name:         collectionSchema.Name,
+		Slug:         collectionSchema.Slug,
+		Image:        collectionSchema.Image,
+		CatalogIDs:   collectionSchema.CatalogIDs,
+		// CatalogInfo:  catalogInfo,
+		Status:    collectionSchema.Status,
+		Order:     collectionSchema.Order,
+		CreatedAt: collectionSchema.CreatedAt,
+		UpdatedAt: collectionSchema.UpdatedAt,
+	}
+	val, err := json.Marshal(collData)
+	if err != nil {
+		cp.Logger.Err(err).Interface("collectionSchema", collData).Msg("failed to convert collectionschema to json")
+		return
+	}
+	m := segKafka.Message{
+		Key:   []byte(collData.ID.Hex()),
+		Value: val,
+	}
+	fmt.Println("PRODUCE COLLECTION DATA")
+	cp.App.InfluencerCollectionProducer.Publish(m)
+}
+
+func (cp *CollectionProcessor) ProcessInfluencerProductUpdate(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	fmt.Println("GOT Product DATA")
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		cp.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode catalog update message")
+		return
+	}
+	if s.Meta.Operation == "d" {
+		m := segKafka.Message{
+			Key:   []byte(s.Meta.ID.(primitive.ObjectID).Hex()),
+			Value: nil,
+		}
+		cp.App.InfluencerProductProducer.Publish(m)
+		return
+	}
+	var productSchema schema.InfluencerProductKafkaConsumerMessage
+	collByteData, err := json.Marshal(s.Data)
+	if err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode collection update data fields into bytes")
+		return
+	}
+	if err := json.Unmarshal(collByteData, &productSchema); err != nil {
+		cp.Logger.Err(err).Interface("data", s.Data).Msg("failed to convert bson to struct")
+		return
+	}
+	collData := schema.InfluencerProductKafkaProducerMessage{
+		ID:           productSchema.ID,
+		InfluencerID: productSchema.InfluencerID,
+		CatalogIDs:   productSchema.CatalogIDs,
+		UpdatedAt:    productSchema.UpdatedAt,
+	}
+	val, err := json.Marshal(collData)
+	if err != nil {
+		cp.Logger.Err(err).Interface("influencer product Schema", collData).Msg("failed to convert influencer product schema to json")
+		return
+	}
+	m := segKafka.Message{
+		Key:   []byte(collData.ID.Hex()),
+		Value: val,
+	}
+	fmt.Println("PRODUCE influencer product DATA")
+	cp.App.InfluencerProductProducer.Publish(m)
+}
+
 type ReviewProcessor struct {
 	App    *App
 	Logger *zerolog.Logger
