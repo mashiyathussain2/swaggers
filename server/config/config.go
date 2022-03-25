@@ -116,6 +116,7 @@ type ElasticsearchConfig struct {
 	ViewIndex                 string `mapstructure:"viewIndex"`
 	PebbleSeriesFullIndex     string `mapstructure:"pebbleFullIndex"`
 	PebbleCollectionFullIndex string `mapstructure:"pebbleCollectionFullIndex"`
+	InfluencerProductIndex    string `mapstructure:"influencerProductIndex"`
 }
 
 // ServiceConfig contains app service related config
