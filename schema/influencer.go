@@ -324,13 +324,14 @@ type EditInfluencerAppV2Opts struct {
 }
 
 type InfluencerAccountRequestV2Opts struct {
-	UserID        primitive.ObjectID `json:"user_id" validate:"required"`
-	CustomerID    primitive.ObjectID `json:"customer_id" validate:"required"`
-	FullName      string             `json:"full_name" validate:"required"`
-	Username      string             `json:"username,omitempty"`
-	Email         string             `json:"email,omitempty"`
-	Phone         *PhoneNoOpts       `json:"phone,omitempty"`
-	ProfileImage  Img                `json:"profile_image" validate:"required"`
-	CoverImage    Img                `json:"cover_image" validate:"required"`
-	SocialAccount *SocialAccountOpts `json:"social_account"`
+	UserID          primitive.ObjectID `json:"user_id" validate:"required"`
+	CustomerID      primitive.ObjectID `json:"customer_id" validate:"required"`
+	FullName        string             `json:"full_name" validate:"required"`
+	Username        string             `json:"username,omitempty"`
+	Email           string             `json:"email,omitempty"`
+	Phone           *PhoneNoOpts       `json:"phone,omitempty"`
+	ProfileImage    Img                `json:"profile_image" validate:"required"`
+	CoverImage      Img                `json:"cover_image" validate:"required"`
+	SocialAccount   *SocialAccountOpts `json:"social_account"`
+	AreaOfExpertise string             `json:"area_of_expertise"`
 }

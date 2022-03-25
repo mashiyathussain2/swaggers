@@ -58,10 +58,11 @@ type InfluencerAccountRequest struct {
 	SocialAccount *SocialAccount `json:"social_account,omitempty" bson:"social_account,omitempty"`
 	IsActive      bool           `json:"is_active,omitempty" bson:"is_active,omitempty"`
 	// IsGranted     *bool              `json:"is_granted,omitempty" bson:"is_granted,omitempty"`
-	GranteeID primitive.ObjectID `json:"grantee_id,omitempty" bson:"grantee_id,omitempty"`
-	CreatedAt time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	GrantedAt time.Time          `json:"granted_at,omitempty" bson:"granted_at,omitempty"`
-	Status    string             `json:"status,omitempty" bson:"status,omitempty"`
+	GranteeID       primitive.ObjectID `json:"grantee_id,omitempty" bson:"grantee_id,omitempty"`
+	CreatedAt       time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	GrantedAt       time.Time          `json:"granted_at,omitempty" bson:"granted_at,omitempty"`
+	Status          string             `json:"status,omitempty" bson:"status,omitempty"`
+	AreaOfExpertise string             `json:"area_of_expertise,omitempty" bson:"area_of_expertise,omitempty"`
 }
 
 type PayoutInformation struct {
@@ -90,6 +91,7 @@ type Transaction struct {
 	Balance           float64            `json:"balance" bson:"balance"`
 	DebitAmount       float64            `json:"debit_amount,omitempty" bson:"debit_amount,omitempty"`
 	PayoutInformation *PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
+	OrderDate         time.Time          `json:"order_date,omitempty" bson:"order_date,omitempty"`
 }
 
 type DebitRequest struct {

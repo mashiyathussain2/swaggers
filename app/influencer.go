@@ -329,9 +329,25 @@ func (ii *InfluencerImpl) GetInfluencerByID(id primitive.ObjectID) (*schema.GetI
 func (ii *InfluencerImpl) GetInfluencerByName(name string) ([]schema.GetInfluencerResp, error) {
 	ctx := context.TODO()
 	filter := bson.M{
-		"name": primitive.Regex{
-			Pattern: name,
-			Options: "i",
+		"$or": bson.A{
+			bson.M{
+				"name": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
+			bson.M{
+				"external_links": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
+			bson.M{
+				"social_account.instagram.url": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
 		},
 	}
 	cur, err := ii.DB.Collection(model.InfluencerColl).Find(ctx, filter)
@@ -953,6 +969,7 @@ func (ii *InfluencerImpl) AddCreditTransaction(opts *schema.CommisionOrderItem) 
 			CommissionValue: commission,
 			CreatedAt:       time.Now(),
 			Balance:         balance,
+			OrderDate:       opts.OrderDate,
 		}
 		_, err = ii.DB.Collection(model.CommissionLedgerColl).InsertOne(sc, transaction)
 		if err != nil {
@@ -1266,92 +1283,15 @@ func (ii *InfluencerImpl) GetInfluencerDashboard(opts *schema.GetInfluencerDashb
 func (ii *InfluencerImpl) GetInfluencerLedger(opts *schema.GetInfluencerLedgerOpts) ([]schema.GetInfluencerLedgerResp, error) {
 	ctx := context.TODO()
 
-	var matchStage bson.D
-	if opts.StartDate.IsZero() && opts.EndDate.IsZero() {
-		matchStage = bson.D{{
-			Key: "$match", Value: bson.M{
-				"type":          opts.Type,
-				"influencer_id": opts.ID,
-			},
-		}}
+	var pipeline mongo.Pipeline
+	if opts.Type == "credit" {
+		pipeline = ii.commissionCreditPipeline(opts)
 	} else {
-		matchStage = bson.D{{
-			Key: "$match", Value: bson.M{
-				"type":          opts.Type,
-				"influencer_id": opts.ID,
-				"created_at": bson.M{
-					"$gte": opts.StartDate,
-					"$lte": opts.EndDate,
-				},
-			},
-		}}
+		pipeline = ii.commissionDebitPipeline(opts)
 	}
-
-	sortStage1 := bson.D{{
-		Key: "$sort", Value: bson.M{
-			"_id": -1,
-		},
-	}}
-	addFieldsStage := bson.D{{
-		Key: "$addFields", Value: bson.M{
-			"month": bson.M{
-				"$let": bson.M{
-					"vars": bson.M{
-						"monthsInString": bson.A{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"},
-					},
-					"in": bson.M{
-						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$created_at"}},
-					},
-				},
-			},
-		},
-	}}
-
-	setStage := bson.D{{
-		Key: "$set", Value: bson.M{
-			"date": bson.M{
-				"$concat": bson.A{
-					bson.M{"$toString": bson.M{"$dayOfMonth": "$created_at"}},
-					" ",
-					"$month",
-					",",
-					bson.M{"$toString": bson.M{"$year": "$created_at"}},
-				},
-			},
-		},
-	}}
-
-	groupStage := bson.D{{
-		Key: "$group", Value: bson.M{
-			"_id": "$date",
-			"ledger": bson.M{
-				"$push": "$$ROOT",
-			},
-			"commission": bson.M{
-				"$sum": "$commission_value",
-			},
-			"revenue": bson.M{
-				"$sum": "$order_value.value",
-			},
-		},
-	}}
-
-	sortStage := bson.D{{
-		Key: "$sort", Value: bson.M{
-			"ledger.created_at": -1,
-		},
-	}}
-
-	skipStage := bson.D{{
-		Key: "$skip", Value: int64(opts.Page) * 10,
-	}}
-
-	limitStage := bson.D{{
-		Key: "$limit", Value: 10,
-	}}
 	var resp []schema.GetInfluencerLedgerResp
-
-	cur, err := ii.DB.Collection(model.CommissionLedgerColl).Aggregate(ctx, mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage})
+	fmt.Println(pipeline)
+	cur, err := ii.DB.Collection(model.CommissionLedgerColl).Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -1614,9 +1554,10 @@ func (ii *InfluencerImpl) InfluencerAccountRequestV2(opts *schema.InfluencerAcco
 		},
 		// Bio:       opts.Bio,
 		// Website:   opts.Website,
-		IsActive:  true,
-		CreatedAt: time.Now().UTC(),
-		Status:    model.InReviewStatus,
+		IsActive:        true,
+		CreatedAt:       time.Now().UTC(),
+		Status:          model.InReviewStatus,
+		AreaOfExpertise: opts.AreaOfExpertise,
 	}
 	if err := r.ProfileImage.LoadFromURL(); err != nil {
 		return errors.Wrap(err, "invalid profile image for influencer")
@@ -1656,4 +1597,182 @@ func (ii *InfluencerImpl) InfluencerAccountRequestV2(opts *schema.InfluencerAcco
 		return errors.Wrap(err, "failed to create account upgrade request")
 	}
 	return nil
+}
+
+func (ii *InfluencerImpl) commissionCreditPipeline(opts *schema.GetInfluencerLedgerOpts) mongo.Pipeline {
+
+	var matchStage bson.D
+	if opts.StartDate.IsZero() && opts.EndDate.IsZero() {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+			},
+		}}
+	} else {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+				"order_date": bson.M{
+					"$gte": opts.StartDate,
+					"$lte": opts.EndDate,
+				},
+			},
+		}}
+	}
+
+	sortStage1 := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"_id": -1,
+		},
+	}}
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"month": bson.M{
+				"$let": bson.M{
+					"vars": bson.M{
+						"monthsInString": bson.A{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"},
+					},
+					"in": bson.M{
+						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$order_date"}},
+					},
+				},
+			},
+		},
+	}}
+
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"date": bson.M{
+				"$concat": bson.A{
+					bson.M{"$toString": bson.M{"$dayOfMonth": "$order_date"}},
+					" ",
+					"$month",
+					",",
+					bson.M{"$toString": bson.M{"$year": "$order_date"}},
+				},
+			},
+		},
+	}}
+
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$date",
+			"ledger": bson.M{
+				"$push": "$$ROOT",
+			},
+			"commission": bson.M{
+				"$sum": "$commission_value",
+			},
+			"revenue": bson.M{
+				"$sum": "$order_value.value",
+			},
+		},
+	}}
+
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"ledger.order_date": -1,
+		},
+	}}
+
+	skipStage := bson.D{{
+		Key: "$skip", Value: int64(opts.Page) * 10,
+	}}
+
+	limitStage := bson.D{{
+		Key: "$limit", Value: 10,
+	}}
+
+	return mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage}
+}
+
+func (ii *InfluencerImpl) commissionDebitPipeline(opts *schema.GetInfluencerLedgerOpts) mongo.Pipeline {
+
+	var matchStage bson.D
+	if opts.StartDate.IsZero() && opts.EndDate.IsZero() {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+			},
+		}}
+	} else {
+		matchStage = bson.D{{
+			Key: "$match", Value: bson.M{
+				"type":          opts.Type,
+				"influencer_id": opts.ID,
+				"created_at": bson.M{
+					"$gte": opts.StartDate,
+					"$lte": opts.EndDate,
+				},
+			},
+		}}
+	}
+
+	sortStage1 := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"_id": -1,
+		},
+	}}
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"month": bson.M{
+				"$let": bson.M{
+					"vars": bson.M{
+						"monthsInString": bson.A{"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"},
+					},
+					"in": bson.M{
+						"$arrayElemAt": bson.A{"$$monthsInString", bson.M{"$month": "$created_at"}},
+					},
+				},
+			},
+		},
+	}}
+
+	setStage := bson.D{{
+		Key: "$set", Value: bson.M{
+			"date": bson.M{
+				"$concat": bson.A{
+					bson.M{"$toString": bson.M{"$dayOfMonth": "$created_at"}},
+					" ",
+					"$month",
+					",",
+					bson.M{"$toString": bson.M{"$year": "$created_at"}},
+				},
+			},
+		},
+	}}
+
+	groupStage := bson.D{{
+		Key: "$group", Value: bson.M{
+			"_id": "$date",
+			"ledger": bson.M{
+				"$push": "$$ROOT",
+			},
+			"commission": bson.M{
+				"$sum": "$commission_value",
+			},
+			"revenue": bson.M{
+				"$sum": "$order_value.value",
+			},
+		},
+	}}
+
+	sortStage := bson.D{{
+		Key: "$sort", Value: bson.M{
+			"ledger.created_at": -1,
+		},
+	}}
+
+	skipStage := bson.D{{
+		Key: "$skip", Value: int64(opts.Page) * 10,
+	}}
+
+	limitStage := bson.D{{
+		Key: "$limit", Value: 10,
+	}}
+
+	return mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage}
 }

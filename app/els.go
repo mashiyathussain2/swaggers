@@ -18,6 +18,7 @@ type Elasticsearch interface {
 	GetBrandsByIDBasic(*schema.GetBrandsByIDBasicOpts) ([]schema.GetBrandBasicESEesp, error)
 	GetBrandInfoByID(*schema.GetBrandsInfoByIDOpts) (*schema.GetBrandInfoEsResp, error)
 	GetBrandsByUsernameBasic(opts *schema.GetBrandsByUsernameBasicOpts) ([]schema.GetBrandBasicESEesp, error)
+	GetBrandsList(*schema.GetBrandsListOpts) ([]schema.GetActiveBrandsListESEesp, error)
 	GetBrandInfoByUsername(opts *schema.GetBrandsInfoByUsernameOpts) (*schema.GetBrandInfoEsResp, error)
 
 	GetInfluencerInfoByID(*schema.GetInfluencerInfoByIDOpts) (*schema.GetInfluencerInfoEsResp, error)
@@ -299,5 +300,70 @@ func (ei *ElasticsearchImpl) GetInfluencerInfoByUsername(opts *schema.GetInfluen
 		}
 		resp = append(resp, s)
 	}
+	cres, err := ei.GetInfluencerContentCount(&schema.GetInfluencerContentCount{ID: resp[0].ID.Hex()})
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get content count")
+		return nil, errors.Wrap(err, "failed to get influencer content count")
+	}
+	resp[0].ContentCount = cres
 	return &resp[0], nil
+}
+
+func (ei *ElasticsearchImpl) GetBrandsList(opts *schema.GetBrandsListOpts) ([]schema.GetActiveBrandsListESEesp, error) {
+	var from int
+	if opts.Page > 0 {
+		from = opts.Page*opts.Size + 1
+	}
+	query := elastic.NewMatchAllQuery()
+	resp, err := ei.Client.Search().Index(ei.Config.BrandFullIndex).Query(query).Size(opts.Size).Sort("name", true).From(from).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get brands list")
+		return nil, errors.Wrap(err, "failed to get brands list")
+	}
+	var res []schema.GetActiveBrandsListESEesp
+	for _, hit := range resp.Hits.Hits {
+		var s schema.GetActiveBrandsListESEesp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		res = append(res, s)
+	}
+	return res, nil
+}
+
+func (ei *ElasticsearchImpl) GetInfluencerContentCount(opts *schema.GetInfluencerContentCount) (*schema.GetInfluencerContentCountResp, error) {
+	query := elastic.NewTermsQueryFromStrings("influencer_id", opts.ID)
+	// builder := elastic.NewSearchSource().Query(query).FetchSource(true)
+	s := schema.GetInfluencerContentCountResp{}
+	query_content := elastic.NewTermsQueryFromStrings("influencer_ids", opts.ID)
+	res, err := ei.Client.Count().Index(ei.Config.ContentFullIndex).Query(query_content).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencers")
+		return nil, errors.Wrap(err, "failed to get influencers")
+	}
+	s.Pebbles = res
+
+	// query = elastic.NewTermsQueryFromStrings("influencer_id", opts.ID)
+	sf := elastic.NewScriptField("count", elastic.NewScript(`return doc['catalog_ids'].size()`))
+	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
+
+	resp, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).SearchSource(builder).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencer product")
+		return nil, errors.Wrap(err, "failed to get influencer product")
+	}
+	if len(resp.Hits.Hits) > 0 {
+		s.Products = resp.Hits.Hits[0].Fields["count"].([]interface{})[0].(float64)
+	} else {
+		s.Products = 0
+	}
+
+	res, err = ei.Client.Count().Index(ei.Config.InfluencerCollectionIndex).Query(query).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencers")
+		return nil, errors.Wrap(err, "failed to get influencers")
+	}
+	s.Collections = res
+	return &s, nil
 }
