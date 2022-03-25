@@ -15,6 +15,7 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Elasticsearch interface {
@@ -42,9 +43,9 @@ type Elasticsearch interface {
 	//InfluencerCollection
 	GetActiveInfluencerCollections(opts *schema.GetActiveInfluencerCollectionsOpts) ([]schema.GetInfluencerCollectionESResp, error)
 	GetInfluencerCollections(opts *schema.GetActiveInfluencerCollectionsOpts) ([]schema.GetInfluencerCollectionESResp, error)
-
+	GetActiveInfluencerCollectionByID(id string) (*schema.GetInfluencerCollectionESResp, error)
 	//InfluencerProduct
-	GetInfluencerProducts(id string) (*schema.GetInfluencerProductESResp, error)
+	GetInfluencerProducts(id string, page int) (*schema.GetInfluencerProductESResp, error)
 }
 
 type ElasticsearchImpl struct {
@@ -774,25 +775,134 @@ func (ei *ElasticsearchImpl) GetInfluencerCollections(opts *schema.GetActiveInfl
 	return resp, nil
 }
 
-func (ei *ElasticsearchImpl) GetInfluencerProducts(id string) (*schema.GetInfluencerProductESResp, error) {
-	var mustQueries []elastic.Query
-	mustQueries = append(mustQueries, elastic.NewTermQuery("influencer_id", id))
-	query := elastic.NewBoolQuery().Must(mustQueries...)
-	fmt.Println(query)
-	res, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).Query(query).Do(context.Background())
-	if err != nil {
-		ei.Logger.Err(err).Msg("failed to get active influencer products")
-		return nil, errors.Wrap(err, "failed to get active influencer products")
+func (ei *ElasticsearchImpl) GetInfluencerProducts(id string, page int) (*schema.GetInfluencerProductESResp, error) {
+
+	if page == 0 {
+		var mustQueries []elastic.Query
+		mustQueries = append(mustQueries, elastic.NewTermQuery("influencer_id", id))
+		query := elastic.NewBoolQuery().Must(mustQueries...)
+		fmt.Println(query)
+		res, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).Query(query).Do(context.Background())
+		if err != nil {
+			ei.Logger.Err(err).Msg("failed to get active influencer products")
+			return nil, errors.Wrap(err, "failed to get active influencer products")
+		}
+		var resp []schema.GetInfluencerProductESResp
+		for _, hit := range res.Hits.Hits {
+			// Deserialize hit.Source into a GetPebbleESResp
+			var s schema.GetInfluencerProductESResp
+			if err := json.Unmarshal(hit.Source, &s); err != nil {
+				ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+				return nil, errors.Wrap(err, "failed to decode content json")
+			}
+			resp = append(resp, s)
+		}
+		if len(resp) > 0 {
+			return &resp[0], nil
+		}
+		return nil, nil
 	}
-	var resp []schema.GetInfluencerProductESResp
+	cids, err := ei.GetCatalogsByInfluencerIDFromPebble(&schema.GetCatalogsByInfluencerID{
+		InfluencerID: id,
+		Page:         page - 1,
+	})
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get products from pebble")
+		return nil, errors.Wrap(err, "failed to get products from pebble")
+	}
+	pid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		ei.Logger.Err(err).Msg("failed to get products from pebble")
+		return nil, errors.Wrap(err, "failed to get products from pebble")
+	}
+	return &schema.GetInfluencerProductESResp{
+		ID:         pid,
+		CatalogIDs: cids,
+	}, nil
+}
+
+// GetCatalogsByInfluencerID returns catalogs with matching influencer_id
+func (ei *ElasticsearchImpl) GetCatalogsByInfluencerIDFromPebble(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error) {
+
+	pebblesOpts := schema.GetPebbleByInfluencerID{
+		UserID:       opts.UserID,
+		InfluencerID: opts.InfluencerID,
+		Page:         opts.Page,
+		IsActive:     true,
+	}
+
+	resp, err := ei.getPebblesByInfluencerID(&pebblesOpts)
+	fmt.Println("here")
+	fmt.Printf("%+v\n", resp)
+	if err != nil {
+		return nil, err
+	}
+	var catIDs []primitive.ObjectID
+	for _, r := range resp {
+		catIDs = append(catIDs, r.CatalogIDs...)
+	}
+	return catIDs, nil
+}
+
+func (ei *ElasticsearchImpl) getPebblesByInfluencerID(opts *schema.GetPebbleByInfluencerID) ([]schema.GetPebbleESResp, error) {
+	var queries []elastic.Query
+
+	queries = append(queries, elastic.NewTermQuery("type", "pebble"))
+	queries = append(queries, elastic.NewTermQuery("media_type", "video"))
+	if opts.IsActive {
+		queries = append(queries, elastic.NewTermQuery("is_active", true))
+	}
+	queries = append(queries, elastic.NewTermQuery("influencer_ids", opts.InfluencerID))
+
+	boolQuery := elastic.NewBoolQuery().Must(queries...)
+
+	var from int
+	if opts.Page > 0 {
+		from = int(opts.Page) * 10
+	}
+	fmt.Println("getPebblesByInfluencerID, from: ", from)
+	resp, err := ei.Client.Search().Index(ei.Config.ContentFullIndex).Query(boolQuery).Size(10).From(from).Sort("id", false).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get pebble by influencer id")
+		return nil, errors.Wrap(err, "failed to get pebbles by influencer id")
+	}
+	fmt.Println("getPebblesByInfluencerID, resp len: ", len(resp.Hits.Hits))
+
+	var res []schema.GetPebbleESResp
+	for _, hit := range resp.Hits.Hits {
+		var s schema.GetPebbleESResp
+		if err := json.Unmarshal(hit.Source, &s); err != nil {
+			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+			return nil, errors.Wrap(err, "failed to decode content json")
+		}
+		res = append(res, s)
+	}
+
+	return res, nil
+}
+
+func (ei *ElasticsearchImpl) GetActiveInfluencerCollectionByID(id string) (*schema.GetInfluencerCollectionESResp, error) {
+	var mustQueries []elastic.Query
+	mustQueries = append(mustQueries, elastic.NewTermQuery("status", model.Publish))
+	mustQueries = append(mustQueries, elastic.NewTermQuery("id", id))
+	query := elastic.NewBoolQuery().Must(mustQueries...)
+	res, err := ei.Client.Search().Index(ei.Config.InfluencerCollectionIndex).Query(query).Do(context.Background())
+	if err != nil {
+		ei.Logger.Err(err).Msgf("failed to get influencer collection by id: %s", id)
+		return nil, errors.Wrapf(err, "failed to get influencer collection by id %s", id)
+	}
+	var resp []schema.GetInfluencerCollectionESResp
 	for _, hit := range res.Hits.Hits {
 		// Deserialize hit.Source into a GetPebbleESResp
-		var s schema.GetInfluencerProductESResp
+		var s schema.GetInfluencerCollectionESResp
 		if err := json.Unmarshal(hit.Source, &s); err != nil {
 			ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
 			return nil, errors.Wrap(err, "failed to decode content json")
 		}
 		resp = append(resp, s)
 	}
-	return &resp[0], nil
+	if len(resp) > 0 {
+		return &resp[0], nil
+	}
+	return nil, nil
 }

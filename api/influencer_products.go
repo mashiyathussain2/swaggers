@@ -76,7 +76,7 @@ func (a *API) getInfluencerProducts(requestCTX *handler.RequestContext, w http.R
 			requestCTX.SetErrs(errs, http.StatusBadRequest)
 			return
 		}
-		resp, err = a.App.Elasticsearch.GetInfluencerProducts(s.InfluencerID)
+		resp, err = a.App.Elasticsearch.GetInfluencerProducts(s.InfluencerID, s.Page)
 	}
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
