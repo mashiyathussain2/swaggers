@@ -91,6 +91,8 @@ type Content struct {
 	// Flag to toggle content visibility
 	IsActive bool `json:"is_active" bson:"is_active"`
 
+	IsDraft bool `json:"is_draft" bson:"is_draft"`
+
 	ViewCount    uint                 `json:"view_count" bson:"view_count"`
 	LikeCount    uint                 `json:"like_count" bson:"like_count"`
 	LikeIDs      []primitive.ObjectID `json:"like_ids,omitempty" bson:"like_ids,omitempty"`

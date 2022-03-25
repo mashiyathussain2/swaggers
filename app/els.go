@@ -456,10 +456,54 @@ func (ei *ElasticsearchImpl) GetPebblesByInfluencerID(opts *schema.GetPebbleByIn
 // GetCatalogsByInfluencerID returns catalogs with matching influencer_id
 func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error) {
 
+	if opts.Page == 0 {
+		var mustQueries []elastic.Query
+		mustQueries = append(mustQueries, elastic.NewTermQuery("influencer_id", opts.InfluencerID))
+		query := elastic.NewBoolQuery().Must(mustQueries...)
+		fmt.Println(query)
+		res, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).Query(query).Do(context.Background())
+		if err != nil {
+			ei.Logger.Err(err).Msg("failed to get active influencer products")
+			return nil, errors.Wrap(err, "failed to get active influencer products")
+		}
+		var resp []schema.GetInfluencerProductESResp
+		for _, hit := range res.Hits.Hits {
+			// Deserialize hit.Source into a GetPebbleESResp
+			var s schema.GetInfluencerProductESResp
+			if err := json.Unmarshal(hit.Source, &s); err != nil {
+				ei.Logger.Err(err).Str("source", string(hit.Source)).Msg("failed to unmarshal struct from json")
+				return nil, errors.Wrap(err, "failed to decode content json")
+			}
+			resp = append(resp, s)
+		}
+		if len(resp) > 0 {
+			return resp[0].CatalogIDs, nil
+		} else {
+			pebblesOpts := schema.GetPebbleByInfluencerID{
+				UserID:       opts.UserID,
+				InfluencerID: opts.InfluencerID,
+				Page:         opts.Page,
+				IsActive:     true,
+			}
+
+			resp, err := ei.getPebblesByInfluencerID(&pebblesOpts)
+			fmt.Println("here")
+			fmt.Printf("%+v\n", resp)
+			if err != nil {
+				return nil, err
+			}
+			var catIDs []primitive.ObjectID
+			for _, r := range resp {
+				catIDs = append(catIDs, r.CatalogIDs...)
+			}
+			return catIDs, nil
+		}
+	}
+
 	pebblesOpts := schema.GetPebbleByInfluencerID{
 		UserID:       opts.UserID,
 		InfluencerID: opts.InfluencerID,
-		Page:         opts.Page,
+		Page:         opts.Page - 1,
 		IsActive:     true,
 	}
 
