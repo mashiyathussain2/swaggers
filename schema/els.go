@@ -111,7 +111,7 @@ type GetInfluencerContentCount struct {
 }
 
 type GetInfluencerContentCountResp struct {
-	Pebbles     int64 `json:"pebbles"`
-	Products    int64 `json:"products"`
-	Collections int64 `json:"collections"`
+	Pebbles     int64   `json:"pebbles"`
+	Products    float64 `json:"products"`
+	Collections int64   `json:"collections"`
 }

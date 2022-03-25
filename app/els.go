@@ -333,17 +333,19 @@ func (ei *ElasticsearchImpl) GetBrandsList(opts *schema.GetBrandsListOpts) ([]sc
 }
 
 func (ei *ElasticsearchImpl) GetInfluencerContentCount(opts *schema.GetInfluencerContentCount) (*schema.GetInfluencerContentCountResp, error) {
-	query := elastic.NewTermsQueryFromStrings("id", opts.ID)
+	query := elastic.NewTermsQueryFromStrings("influencer_id", opts.ID)
 	// builder := elastic.NewSearchSource().Query(query).FetchSource(true)
 	s := schema.GetInfluencerContentCountResp{}
-	res, err := ei.Client.Count().Index(ei.Config.InfluencerFullIndex).Query(query).Do(context.Background())
+	query_content := elastic.NewTermsQueryFromStrings("influencer_ids", opts.ID)
+	res, err := ei.Client.Count().Index(ei.Config.ContentFullIndex).Query(query_content).Do(context.Background())
 	if err != nil {
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencers")
 		return nil, errors.Wrap(err, "failed to get influencers")
 	}
 	s.Pebbles = res
 
-	sf := elastic.NewScriptField("count", elastic.NewScript(`inline: doc.catalog_ids.size()`))
+	// query = elastic.NewTermsQueryFromStrings("influencer_id", opts.ID)
+	sf := elastic.NewScriptField("count", elastic.NewScript(`return doc['catalog_ids'].size()`))
 	builder := elastic.NewSearchSource().Query(query).FetchSource(true).ScriptFields(sf)
 
 	resp, err := ei.Client.Search().Index(ei.Config.InfluencerProductIndex).SearchSource(builder).Do(context.Background())
@@ -351,7 +353,11 @@ func (ei *ElasticsearchImpl) GetInfluencerContentCount(opts *schema.GetInfluence
 		ei.Logger.Err(err).Interface("opts", opts).Msg("failed to get influencer product")
 		return nil, errors.Wrap(err, "failed to get influencer product")
 	}
-	s.Products = resp.Hits.Hits[0].Fields["count"].(int64)
+	if len(resp.Hits.Hits) > 0 {
+		s.Products = resp.Hits.Hits[0].Fields["count"].([]interface{})[0].(float64)
+	} else {
+		s.Products = 0
+	}
 
 	res, err = ei.Client.Count().Index(ei.Config.InfluencerCollectionIndex).Query(query).Do(context.Background())
 	if err != nil {

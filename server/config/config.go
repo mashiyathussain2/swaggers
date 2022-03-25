@@ -128,6 +128,7 @@ type ElasticsearchConfig struct {
 	InfluencerFullIndex       string `mapstructure:"influencerFullIndex"`
 	InfluencerCollectionIndex string `mapstructure:"influencerCollectionIndex"`
 	InfluencerProductIndex    string `mapstructure:"influencerProductIndex"`
+	ContentFullIndex          string `mapstructure:"contentFullIndex"`
 }
 
 //HypdApiConfig contains config related to other services
