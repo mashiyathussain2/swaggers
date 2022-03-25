@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"go-app/model"
@@ -856,5 +857,15 @@ func (ec *ExpressCheckoutImpl) ExpressCheckoutRTO(opts *schema.ExpressCheckoutWe
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
 
+	rtoData := make(map[string]interface{})
+	rtoData["input"] = eOpts
+	rtoData["resp"] = rtoResp
+	rtoData["created_at"] = time.Now()
+
+	_, err = ec.DB.Collection(schema.RTOColl).InsertOne(context.TODO(), rtoData)
+	if err != nil {
+		ec.Logger.Err(err).Msgf("failed to add gokwik data to collection")
+		// return nil, errors.Wrap(err, "failed to add rto data to collection gokwik info")
+	}
 	return &rtoResp, nil
 }

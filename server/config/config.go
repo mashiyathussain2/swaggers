@@ -121,11 +121,14 @@ type APPConfig struct {
 
 // ElasticsearchConfig contains elasticsearch related configurations
 type ElasticsearchConfig struct {
-	Endpoint            string `mapstructure:"endpoint"`
-	Username            string `mapstructure:"username"`
-	Password            string `mapstructure:"password"`
-	BrandFullIndex      string `mapstructure:"brandFullIndex"`
-	InfluencerFullIndex string `mapstructure:"influencerFullIndex"`
+	Endpoint                  string `mapstructure:"endpoint"`
+	Username                  string `mapstructure:"username"`
+	Password                  string `mapstructure:"password"`
+	BrandFullIndex            string `mapstructure:"brandFullIndex"`
+	InfluencerFullIndex       string `mapstructure:"influencerFullIndex"`
+	InfluencerCollectionIndex string `mapstructure:"influencerCollectionIndex"`
+	InfluencerProductIndex    string `mapstructure:"influencerProductIndex"`
+	ContentFullIndex          string `mapstructure:"contentFullIndex"`
 }
 
 //HypdApiConfig contains config related to other services

@@ -1173,7 +1173,16 @@ func (ci *CartImpl) CheckCODEligiblity(userID primitive.ObjectID, userAgent, ipA
 		ci.Logger.Err(err).Str("body", string(body)).Msg("failed to decode body into struct")
 		return nil, errors.Wrap(err, "failed to decode body into struct")
 	}
+	rtoData := make(map[string]interface{})
+	rtoData["input"] = eOpts
+	rtoData["resp"] = rtoResp
+	rtoData["created_at"] = time.Now()
 
+	_, err = ci.DB.Collection(schema.RTOColl).InsertOne(context.TODO(), rtoData)
+	if err != nil {
+		ci.Logger.Err(err).Msgf("failed to add gokwik data to collection")
+		// return nil, errors.Wrap(err, "failed to add rto data to collection gokwik info")
+	}
 	return &rtoResp, nil
 }
 
