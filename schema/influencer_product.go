@@ -33,4 +33,5 @@ type InfluencerProductKafkaProducerMessage struct {
 type GetInfluencerProducts struct {
 	InfluencerID string `qs:"id" json:"id" validate:"required"`
 	Type         string `qs:"type" json:"type" validate:"required"`
+	Page         int    `qs:"page" json:"page"`
 }

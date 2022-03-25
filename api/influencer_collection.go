@@ -142,3 +142,13 @@ func (a *API) editInfluencerCollectionApp(requestCTX *handler.RequestContext, w 
 	}
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 }
+
+func (a *API) getActiveInfluencerCollectionByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	resp, err := a.App.Elasticsearch.GetActiveInfluencerCollectionByID(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
