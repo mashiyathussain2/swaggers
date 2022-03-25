@@ -329,9 +329,25 @@ func (ii *InfluencerImpl) GetInfluencerByID(id primitive.ObjectID) (*schema.GetI
 func (ii *InfluencerImpl) GetInfluencerByName(name string) ([]schema.GetInfluencerResp, error) {
 	ctx := context.TODO()
 	filter := bson.M{
-		"name": primitive.Regex{
-			Pattern: name,
-			Options: "i",
+		"$or": bson.A{
+			bson.M{
+				"name": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
+			bson.M{
+				"external_links": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
+			bson.M{
+				"social_account.instagram.url": primitive.Regex{
+					Pattern: name,
+					Options: "i",
+				},
+			},
 		},
 	}
 	cur, err := ii.DB.Collection(model.InfluencerColl).Find(ctx, filter)
@@ -1538,9 +1554,10 @@ func (ii *InfluencerImpl) InfluencerAccountRequestV2(opts *schema.InfluencerAcco
 		},
 		// Bio:       opts.Bio,
 		// Website:   opts.Website,
-		IsActive:  true,
-		CreatedAt: time.Now().UTC(),
-		Status:    model.InReviewStatus,
+		IsActive:        true,
+		CreatedAt:       time.Now().UTC(),
+		Status:          model.InReviewStatus,
+		AreaOfExpertise: opts.AreaOfExpertise,
 	}
 	if err := r.ProfileImage.LoadFromURL(); err != nil {
 		return errors.Wrap(err, "invalid profile image for influencer")
