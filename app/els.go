@@ -502,7 +502,7 @@ func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsB
 	pebblesOpts := schema.GetPebbleByInfluencerID{
 		UserID:       opts.UserID,
 		InfluencerID: opts.InfluencerID,
-		Page:         opts.Page,
+		Page:         opts.Page - 1,
 		IsActive:     true,
 	}
 
