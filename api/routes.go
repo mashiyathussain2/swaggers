@@ -85,6 +85,7 @@ func (a *API) InitRoutes() {
 
 	a.Router.APIRoot.Handle("/keeper/pebble/search", a.requestHandler(a.searchPebbleByCaption)).Methods("GET")
 
+	a.Router.APIRoot.Handle("/v2/app/influencer/pebble", a.requestWithAuthHandler(a.createPebbleAppV2)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.createPebbleApp)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.editPebbleApp)).Methods("PUT")
 	a.Router.APIRoot.Handle("/app/influencer/pebble", a.requestWithAuthHandler(a.getPebblesForCreator)).Methods("GET")
