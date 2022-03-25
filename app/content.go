@@ -274,7 +274,7 @@ func (ci *ContentImpl) ProcessVideoContent(opts *schema.ProcessVideoContentOpts)
 	filter := bson.M{"_id": cID}
 	var update bson.M
 	if content.Type != model.CatalogContentType && content.Type != model.ReviewStoryType {
-		if content.CreatorID != primitive.NilObjectID {
+		if content.CreatorID != primitive.NilObjectID && !content.IsDraft {
 			update = bson.M{
 				"$set": bson.M{
 					"is_processed": true,
@@ -1112,6 +1112,7 @@ func (ci *ContentImpl) CreatePebbleAppV2(opts *schema.CreatePebbleAppV2Opts) (*s
 		MediaType: model.VideoType,
 		CreatorID: opts.CreatorID,
 		CreatedAt: time.Now().UTC(),
+		IsDraft:   true,
 	}
 
 	res1, err1 := ci.DB.Collection(model.ContentColl).InsertOne(context.TODO(), pebble)
@@ -1173,6 +1174,7 @@ func (ci *ContentImpl) EditPebbleApp(opts *schema.EditPebbleAppOpts) (*schema.Ed
 	// }
 	if opts.IsActive != nil {
 		update = append(update, bson.E{Key: "is_active", Value: opts.IsActive})
+		update = append(update, bson.E{Key: "is_draft", Value: false})
 	}
 	if len(opts.CategoryID) > 0 {
 		var paths []model.Path
