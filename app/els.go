@@ -457,6 +457,7 @@ func (ei *ElasticsearchImpl) GetPebblesByInfluencerID(opts *schema.GetPebbleByIn
 func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsByInfluencerID) ([]primitive.ObjectID, error) {
 
 	if opts.Page == 0 {
+		cids := []primitive.ObjectID{}
 		var mustQueries []elastic.Query
 		mustQueries = append(mustQueries, elastic.NewTermQuery("influencer_id", opts.InfluencerID))
 		query := elastic.NewBoolQuery().Must(mustQueries...)
@@ -476,40 +477,38 @@ func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsB
 			}
 			resp = append(resp, s)
 		}
-		if len(resp) > 0 {
-			return resp[0].CatalogIDs, nil
-		} else {
-			pebblesOpts := schema.GetPebbleByInfluencerID{
-				UserID:       opts.UserID,
-				InfluencerID: opts.InfluencerID,
-				Page:         opts.Page,
-				IsActive:     true,
-			}
-
-			resp, err := ei.getPebblesByInfluencerID(&pebblesOpts)
-			fmt.Println("here")
-			fmt.Printf("%+v\n", resp)
-			if err != nil {
-				return nil, err
-			}
-			var catIDs []primitive.ObjectID
-			for _, r := range resp {
-				catIDs = append(catIDs, r.CatalogIDs...)
-			}
-			return catIDs, nil
+		if len(resp) > 0 && len(resp[0].CatalogIDs) > 0 {
+			cids = append(cids, resp[0].CatalogIDs...)
 		}
+		pebblesOpts := schema.GetPebbleByInfluencerID{
+			UserID:       opts.UserID,
+			InfluencerID: opts.InfluencerID,
+			Page:         opts.Page,
+			IsActive:     true,
+		}
+
+		pebbleResp, err := ei.getPebblesByInfluencerID(&pebblesOpts)
+		// fmt.Println("here")
+		// fmt.Printf("%+v\n", resp)
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range pebbleResp {
+			cids = append(cids, r.CatalogIDs...)
+		}
+		return cids, nil
 	}
 
 	pebblesOpts := schema.GetPebbleByInfluencerID{
 		UserID:       opts.UserID,
 		InfluencerID: opts.InfluencerID,
-		Page:         opts.Page - 1,
+		Page:         opts.Page,
 		IsActive:     true,
 	}
 
 	resp, err := ei.getPebblesByInfluencerID(&pebblesOpts)
-	fmt.Println("here")
-	fmt.Printf("%+v\n", resp)
+	// fmt.Println("here")
+	// fmt.Printf("%+v\n", resp)
 	if err != nil {
 		return nil, err
 	}
