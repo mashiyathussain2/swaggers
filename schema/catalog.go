@@ -472,6 +472,7 @@ type GetCatalogInfoResp struct {
 	Variants         []VariantInfo            `json:"variants,omitempty"`
 	ContentInfo      []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
 	SizeProfile      string                   `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	ETA              *model.ETA               `json:"eta,omitempty" bson:"eta,omitempty"`
 	AvgRating        float32                  `json:"avg_rating,omitempty"`
 	TotalRatingCount uint                     `json:"total_rating_count,omitempty"`
 }

@@ -42,4 +42,14 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.ReviewConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.InfluencerCollection = InitInfluencerCollection(&InfluencerCollectionOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.InfluencerCollectionConfig.DBName),
+		Logger: a.Logger,
+	})
+	a.InfluencerProducts = InitInfluencerProducts(&InfluencerProductsOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.InfluencerProductsConfig.DBName),
+		Logger: a.Logger,
+	})
 }
