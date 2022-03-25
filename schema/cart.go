@@ -312,3 +312,28 @@ type CheckoutOpts struct {
 	IsCOD     bool               `json:"is_cod,omitempty"`
 	RequestID string             `json:"request_id,omitempty"`
 }
+
+type GoKwikCreateOrderResp struct {
+	StatusCode    uint            `json:"statusCode"`
+	StatusMessage string          `json:"statusMessage"`
+	Data          GoKwikOrderData `json:"data"`
+}
+type GoKwikOrderData struct {
+	RequestID   string `json:"request_id"`
+	GokwikOID   string `json:"gokwik_oid"`
+	OrderStatus string `json:"order_status"`
+	Total       string `json:"total"`
+	Moid        string `json:"moid"`
+	Mid         string `json:"mid"`
+	Phone       string `json:"phone"`
+	OrderType   string `json:"order_type"`
+}
+
+type CheckoutOpts struct {
+	ID        primitive.ObjectID `json:"id,omitempty" validate:"required"`
+	Source    string             `json:"source,omitempty" validate:"required"`
+	Platform  string             `json:"platform,omitempty" validate:"required,oneof=web android ios"`
+	FullName  string             `json:"full_name,omitempty" validate:"required"`
+	IsCOD     bool               `json:"is_cod,omitempty"`
+	RequestID string             `json:"request_id,omitempty"`
+}
