@@ -144,9 +144,9 @@ func (a *API) InitRoutes() {
 	//Influencer Collection - APP
 	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestWithAuthHandler(a.createInfluencerCollectionApp)).Methods("POST")
 	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestWithAuthHandler(a.editInfluencerCollectionApp)).Methods("PUT")
-	a.Router.APIRoot.Handle("/app/influencer/collections/active", a.requestWithAuthHandler(a.getActiveInfluencerCollections)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/collections/active", a.requestHandler(a.getActiveInfluencerCollections)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/influencer/collections", a.requestWithAuthHandler(a.appGetInfluencerCollections)).Methods("GET")
-	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestWithAuthHandler(a.getActiveInfluencerCollectionByID)).Methods("GET")
+	a.Router.APIRoot.Handle("/app/influencer/collection", a.requestHandler(a.getActiveInfluencerCollectionByID)).Methods("GET")
 
 	//Influencer Collection - KEEPER
 	a.Router.APIRoot.Handle("/app/influencer/products", a.requestWithAuthHandler(a.addInfluencerProducts)).Methods("POST")
