@@ -16,11 +16,23 @@ func RunEvery(d time.Duration, f func()) {
 func InitConsumer(a *App) {
 	ctx := context.TODO()
 
-	a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
-		Logger: a.Logger,
-		Config: &a.Config.CatalogChangeConfig,
-	})
-	go a.CatalogChanges.ConsumeAndCommit(ctx, a.CatalogProcessor.ProcessCatalogUpdate)
+	// a.CatalogChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+	// 	Logger: a.Logger,
+	// 	Config: &a.Config.CatalogChangeConfig,
+	// })
+
+	// Catalog change consumer
+	for i := 0; i < a.Config.CatalogChangeConfig.ConsumerCount; i++ {
+		a.CatalogChanges = append(a.CatalogChanges, kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+			Logger: a.Logger,
+			Config: &a.Config.CatalogChangeConfig,
+		}))
+	}
+	for i := 0; i < a.Config.CatalogChangeConfig.ConsumerCount; i++ {
+		for _, consumer := range a.CatalogChanges {
+			go consumer.ConsumeAndCommit(ctx, a.CatalogProcessor.ProcessCatalogUpdate)
+		}
+	}
 
 	a.InventoryChanges = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
 		Logger: a.Logger,
@@ -89,7 +101,10 @@ func InitConsumer(a *App) {
 // CloseConsumer close all consumer connections
 func CloseConsumer(a *App) {
 	a.ContentChanges.Close()
-	a.CatalogChanges.Close()
+	// a.CatalogChanges.Close()
+	for i := 0; i < a.Config.CatalogChangeConfig.ConsumerCount; i++ {
+		a.CatalogChanges[i].Close()
+	}
 	a.BrandChanges.Close()
 	a.CollectionCatalogChanges.Close()
 	a.InventoryChanges.Close()
