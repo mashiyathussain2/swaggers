@@ -35,7 +35,9 @@ type App struct {
 	Review               Review
 
 	// Consumers
-	CatalogChanges              kafka.Consumer
+	InfluencerCollectionChanges kafka.Consumer
+	InfluencerProductChanges    kafka.Consumer
+	CatalogChanges              []kafka.Consumer
 	CollectionCatalogChanges    kafka.Consumer
 	CollectionChanges           kafka.Consumer
 	BrandChanges                kafka.Consumer
@@ -44,8 +46,6 @@ type App struct {
 	ContentChanges              kafka.Consumer
 	GroupChanges                kafka.Consumer
 	ReviewChanges               kafka.Consumer
-	InfluencerCollectionChanges kafka.Consumer
-	InfluencerProductChanges    kafka.Consumer
 
 	CatalogFullProducer          kafka.Producer
 	CollectionFullProducer       kafka.Producer
