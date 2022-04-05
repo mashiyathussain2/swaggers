@@ -14,6 +14,7 @@ type CreateInfluencerCollectionOpts struct {
 	Image        *Img                 `json:"image" validate:"required"`
 	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" validate:"required"`
 	Order        uint                 `json:"order"`
+	IsDraft      bool                 `json:"is_draft"`
 	// FeaturedCatalogIDs []primitive.ObjectID `json:"feat_cat_ids" validate:"required"`
 }
 
