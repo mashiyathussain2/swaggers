@@ -67,6 +67,9 @@ func (ii *InfluencerCollectionImpl) CreateInfluencerCollection(opts *schema.Crea
 		return nil, errors.Wrapf(err, "unable to process image for collection %s", opts.Name)
 	}
 	collection.Image = &image
+	if !opts.IsDraft {
+		collection.Status = model.Publish
+	}
 	res, err := ii.DB.Collection(model.InfluencerCollectionColl).InsertOne(ctx, collection)
 	if err != nil {
 		return nil, err
