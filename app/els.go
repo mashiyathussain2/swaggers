@@ -854,8 +854,8 @@ func (ei *ElasticsearchImpl) GetPebblesForCreator(opts *schema.GetPebbleByInflue
 	}()
 
 	wg1.Wait()
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(finalResp), func(i, j int) { finalResp[i], finalResp[j] = finalResp[j], finalResp[i] })
+	// rand.Seed(time.Now().UnixNano())
+	// rand.Shuffle(len(finalResp), func(i, j int) { finalResp[i], finalResp[j] = finalResp[j], finalResp[i] })
 	return finalResp, nil
 
 }
