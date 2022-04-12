@@ -33,6 +33,7 @@ type Media interface {
 	GetVideoMediaByID(primitive.ObjectID) (*schema.GetMediaResp, error)
 
 	GetImageMediaByID(primitive.ObjectID) (*schema.GetMediaResp, error)
+	CreateImageMediaV2(opts *schema.CreateImageMediaV2Opts) (*schema.CreateImageMediaResp, error)
 }
 
 // MediaImpl implements Content service methods
@@ -202,6 +203,77 @@ func (mi *MediaImpl) CreateImageMedia(opts *schema.CreateImageMediaOpts) (*schem
 	}
 
 	_, err := mi.App.S3.PutObject(&params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to upload image to cdn")
+	}
+
+	i.SRCBucketURL = fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", *params.Bucket, mi.App.Config.S3Config.Region, *params.Key)
+	// If cloudfront url is provided then set the url as cloudfront url otherwise s3 bucket url
+	if i.CloudfrontURL != "" {
+		i.URL = fmt.Sprintf("%s%s", mi.App.Config.S3Config.ImageCloudfrontURL, *params.Key)
+	} else {
+		i.URL = i.SRCBucketURL
+	}
+
+	res, err := mi.DB.Collection(model.MediaColl).InsertOne(context.TODO(), i)
+	if err != nil {
+		mi.Logger.Err(err).Msg("failed to generate image media")
+		return nil, errors.Wrap(err, "failed to generate image media")
+	}
+
+	resp := schema.CreateImageMediaResp{
+		ID:            res.InsertedID.(primitive.ObjectID),
+		FileType:      i.FileType,
+		FileName:      i.FileName,
+		Dimensions:    i.Dimensions,
+		SRCBucketURL:  i.SRCBucketURL,
+		CloudfrontURL: i.CloudfrontURL,
+		URL:           i.URL,
+	}
+
+	return &resp, nil
+}
+
+// CreateImageMedia takes a file and uploads to aws and stores the reference in Image collection
+func (mi *MediaImpl) CreateImageMediaV2(opts *schema.CreateImageMediaV2Opts) (*schema.CreateImageMediaResp, error) {
+
+	fType, err := FileTypeFromFileName(opts.FileName)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid file type: missing file extension")
+	}
+
+	switch fType {
+	case "image/png", "image/jpeg", "image/jpg":
+	case "default":
+		return nil, errors.New("invalid image file type")
+	}
+	i := model.Image{
+		FileName:   strings.ToLower(uuid.NewV1().String()[:4] + opts.FileName),
+		FileType:   fType,
+		Dimensions: &model.Dimensions{
+			// Height: uint(img.Conf.Height),
+			// Width:  uint(img.Conf.Width),
+		},
+		SRCBucket:     mi.App.Config.S3Config.ImageUploadBucket,
+		CloudfrontURL: mi.App.Config.S3Config.ImageCloudfrontURL,
+		CreatedAt:     time.Now().UTC(),
+	}
+
+	//if issue arises when uploading jpg images
+
+	// contentType := fType
+	// if contentType == "image/jpg" {
+	// 	contentType = "image/jpeg"
+	// }
+	params := s3.PutObjectInput{
+		Body:        opts.File,
+		Bucket:      aws.String(mi.App.Config.S3Config.ImageUploadBucket),
+		Key:         aws.String("/assets/img/" + i.FileName),
+		ContentType: &fType,
+	}
+	fmt.Println("params :", params)
+
+	_, err = mi.App.S3.PutObject(&params)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to upload image to cdn")
 	}

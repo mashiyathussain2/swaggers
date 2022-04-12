@@ -502,7 +502,7 @@ func (ei *ElasticsearchImpl) GetCatalogsByInfluencerID(opts *schema.GetCatalogsB
 	pebblesOpts := schema.GetPebbleByInfluencerID{
 		UserID:       opts.UserID,
 		InfluencerID: opts.InfluencerID,
-		Page:         opts.Page - 1,
+		Page:         opts.Page,
 		IsActive:     true,
 	}
 
@@ -854,8 +854,8 @@ func (ei *ElasticsearchImpl) GetPebblesForCreator(opts *schema.GetPebbleByInflue
 	}()
 
 	wg1.Wait()
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(finalResp), func(i, j int) { finalResp[i], finalResp[j] = finalResp[j], finalResp[i] })
+	// rand.Seed(time.Now().UnixNano())
+	// rand.Shuffle(len(finalResp), func(i, j int) { finalResp[i], finalResp[j] = finalResp[j], finalResp[i] })
 	return finalResp, nil
 
 }
