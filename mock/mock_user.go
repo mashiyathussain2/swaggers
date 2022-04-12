@@ -19,6 +19,11 @@ type MockUser struct {
 	recorder *MockUserMockRecorder
 }
 
+// GetUserIDByInfluencerID implements app.User
+func (*MockUser) GetUserIDByInfluencerID(opts *schema.GetUserInfoByIDOpts) (primitive.ObjectID, error) {
+	panic("unimplemented")
+}
+
 // MockUserMockRecorder is the mock recorder for MockUser
 type MockUserMockRecorder struct {
 	mock *MockUser

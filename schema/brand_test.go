@@ -70,17 +70,17 @@ func Test_CreateBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 13000,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -132,15 +132,15 @@ func Test_CreateBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
 					Instagram: nil,
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -195,17 +195,17 @@ func Test_CreateBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 0,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -396,17 +396,17 @@ func Test_CreateBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 13000,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -455,17 +455,17 @@ func Test_CreateBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 13000,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -556,17 +556,17 @@ func Test_EditBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 13000,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -620,15 +620,15 @@ func Test_EditBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
 					Instagram: nil,
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
@@ -685,17 +685,17 @@ func Test_EditBrandOpts(t *testing.T) {
 				CoverImg: &Img{
 					SRC: "https://test.com/cover.png",
 				},
-				SocialAccount: &SocialAccountOpts{
-					Facebook: &SocialMediaOpts{
+				SocialAccount: &SocialAccountBrandOpts{
+					Facebook: &SocialMediaBrandOpts{
 						FollowersCount: 12000,
 					},
-					Instagram: &SocialMediaOpts{
+					Instagram: &SocialMediaBrandOpts{
 						FollowersCount: 0,
 					},
-					Twitter: &SocialMediaOpts{
+					Twitter: &SocialMediaBrandOpts{
 						FollowersCount: 14000,
 					},
-					Youtube: &SocialMediaOpts{
+					Youtube: &SocialMediaBrandOpts{
 						FollowersCount: 15000,
 					},
 				},
