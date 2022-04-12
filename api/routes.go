@@ -12,6 +12,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/keeper/content/catalog", a.requestWithSudoHandler(a.editCatalogContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/{contentID}", a.requestWithSudoHandler(a.getContentByID)).Methods("POST")
 	a.Router.APIRoot.Handle("/image/upload", a.requestHandler(a.uploadImage)).Methods("POST")
+	a.Router.APIRoot.Handle("/v2/image/upload", a.requestHandler(a.uploadImageV2)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/keeper/content", a.requestWithInternalHandler(a.getContent)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/content/{contentID}", a.requestWithInternalHandler(a.deleteContent)).Methods("DELETE")

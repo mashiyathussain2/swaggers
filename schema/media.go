@@ -2,6 +2,7 @@ package schema
 
 import (
 	"go-app/model"
+	"mime/multipart"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -98,4 +99,10 @@ type CreateImageMediaResp struct {
 	SRCBucketURL  string             `json:"src_bucket_url"`
 	CloudfrontURL string             `json:"cloudfront_url"`
 	URL           string             `json:"url"`
+}
+
+// CreateImageMediaV2Opts contains fields and validations required to create image media
+type CreateImageMediaV2Opts struct {
+	FileName string         `json:"file_name" validate:"required"`
+	File     multipart.File `json:"file" validate:"required"`
 }

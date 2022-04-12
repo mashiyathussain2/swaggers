@@ -66,3 +66,12 @@ type Image struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
+
+// Size constants
+const (
+	MB = 1 << 20
+)
+
+type Sizer interface {
+	Size() int64
+}
