@@ -21,6 +21,7 @@ type InfluencerCollection interface {
 	KeeperGetInfluencerCollections(opts *schema.GetInfluencerCollectionsOpts) ([]schema.InfluencerCollectionResp, error)
 	EditInfluencerCollection(opts *schema.EditInfluencerCollectionOpts) (*schema.InfluencerCollectionResp, error)
 	EditInfluencerCollectionApp(opts *schema.EditInfluencerCollectionAppOpts) (*schema.InfluencerCollectionResp, error)
+	GetInfluencerCollectionsByInfluencerIDApp(opts *schema.GetInfluencerCollectionsOpts) ([]schema.GetInfluencerCollectionRespApp, error)
 	// GetActiveInfluencerCollections()
 }
 
@@ -67,6 +68,9 @@ func (ii *InfluencerCollectionImpl) CreateInfluencerCollection(opts *schema.Crea
 		return nil, errors.Wrapf(err, "unable to process image for collection %s", opts.Name)
 	}
 	collection.Image = &image
+	if !opts.IsDraft {
+		collection.Status = model.Publish
+	}
 	res, err := ii.DB.Collection(model.InfluencerCollectionColl).InsertOne(ctx, collection)
 	if err != nil {
 		return nil, err
@@ -233,3 +237,41 @@ func (ii *InfluencerCollectionImpl) EditInfluencerCollectionApp(opts *schema.Edi
 // 		ii.Logger.Err(err).Msgf("failed to add catalog info inside collection with id:%s", id.Hex())
 // 	}
 // }
+
+//GetInfluencerCollectionsByInfluencerID gets collection by influnecer id
+func (ii *InfluencerCollectionImpl) GetInfluencerCollectionsByInfluencerIDApp(opts *schema.GetInfluencerCollectionsOpts) ([]schema.GetInfluencerCollectionRespApp, error) {
+	ctx := context.TODO()
+	var filter bson.D
+	fmt.Println(1)
+
+	if opts.InfluencerID != "" {
+		iid, err := primitive.ObjectIDFromHex(opts.InfluencerID)
+		if err != nil {
+			return nil, errors.Wrapf(err, "influencer id is incorrect")
+		}
+		if iid != primitive.NilObjectID {
+			filter = append(filter, bson.E{Key: "influencer_id", Value: iid})
+		}
+	}
+	if opts.Status != "" {
+		filter = append(filter, bson.E{Key: "status", Value: opts.Status})
+	} else {
+		filter = append(filter, bson.E{Key: "status", Value: bson.M{"$ne": model.Archive}})
+	}
+	if filter == nil {
+		filter = bson.D{}
+	}
+	fmt.Println(1)
+	queryOpts := options.Find().SetSkip(int64(ii.App.Config.PageSize * opts.Page)).SetLimit(int64(ii.App.Config.PageSize)).SetSort(bson.M{"_id": -1})
+	fmt.Println(1)
+	cur, err := ii.DB.Collection(model.InfluencerCollectionColl).Find(ctx, filter, queryOpts)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(1)
+	var collectionResp []schema.GetInfluencerCollectionRespApp
+	if err := cur.All(ctx, &collectionResp); err != nil {
+		return nil, err
+	}
+	return collectionResp, nil
+}

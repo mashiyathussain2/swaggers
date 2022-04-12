@@ -82,12 +82,18 @@ func (a *API) getActiveInfluencerCollections(requestCTX *handler.RequestContext,
 }
 
 func (a *API) appGetInfluencerCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
-	var s schema.GetActiveInfluencerCollectionsOpts
+	var s schema.GetInfluencerCollectionsOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.Elasticsearch.GetInfluencerCollections(&s)
+	iid, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	s.InfluencerID = iid.Hex()
+	resp, err := a.App.InfluencerCollection.GetInfluencerCollectionsByInfluencerIDApp(&s)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
