@@ -92,3 +92,17 @@ type EditInfluencerCollectionAppOpts struct {
 	Order        int                  `json:"order"`
 	Status       string               `json:"status"`
 }
+
+// GetInfluencerCollectionRespApp serialize the get collection api response
+type GetInfluencerCollectionRespApp struct {
+	ID           primitive.ObjectID   `json:"id" bson:"_id"`
+	InfluencerID primitive.ObjectID   `json:"influencer_id" bson:"influencer_id"`
+	Name         string               `json:"name" bson:"name"`
+	Slug         string               `json:"slug" bson:"slug"`
+	Image        *model.IMG           `json:"image" bson:"image"`
+	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
+	Status       string               `json:"status" bson:"status"`
+	Order        int                  `json:"order" bson:"order"`
+	CreatedAt    time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt    time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
