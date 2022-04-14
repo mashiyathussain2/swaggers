@@ -261,15 +261,15 @@ func (mi *MediaImpl) CreateImageMediaV2(opts *schema.CreateImageMediaV2Opts) (*s
 
 	//if issue arises when uploading jpg images
 
-	// contentType := fType
-	// if contentType == "image/jpg" {
-	// 	contentType = "image/jpeg"
-	// }
+	contentType := fType
+	if contentType == "image/jpg" {
+		contentType = "image/jpeg"
+	}
 	params := s3.PutObjectInput{
 		Body:        opts.File,
 		Bucket:      aws.String(mi.App.Config.S3Config.ImageUploadBucket),
 		Key:         aws.String("/assets/img/" + i.FileName),
-		ContentType: &fType,
+		ContentType: &contentType,
 	}
 	fmt.Println("params :", params)
 
