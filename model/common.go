@@ -31,7 +31,7 @@ func (i *IMG) LoadFromURL() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("image ", resp)
+	fmt.Println("image ", resp.Body)
 	defer resp.Body.Close()
 
 	m, _, err := image.Decode(resp.Body)
