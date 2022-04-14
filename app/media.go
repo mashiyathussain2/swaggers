@@ -263,7 +263,7 @@ func (mi *MediaImpl) CreateImageMediaV2(opts *schema.CreateImageMediaV2Opts) (*s
 
 	contentType := fType
 	if contentType == "jpg" {
-		contentType = "jpeg"
+		contentType = "image/jpeg"
 	}
 	params := s3.PutObjectInput{
 		Body:        opts.File,
