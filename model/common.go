@@ -2,6 +2,9 @@ package model
 
 import (
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"net/http"
 
 	"github.com/pkg/errors"
