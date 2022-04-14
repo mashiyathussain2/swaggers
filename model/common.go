@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -25,10 +26,12 @@ type IMG struct {
 
 // LoadFromURL loads the image from url and sets the width and height
 func (i *IMG) LoadFromURL() error {
+	fmt.Println(i.SRC)
 	resp, err := http.Get(i.SRC)
 	if err != nil {
 		return err
 	}
+	fmt.Println("image ", resp)
 	defer resp.Body.Close()
 
 	m, _, err := image.Decode(resp.Body)
