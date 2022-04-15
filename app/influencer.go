@@ -570,6 +570,7 @@ func (ii *InfluencerImpl) InfluencerAccountRequest(opts *schema.InfluencerAccoun
 		IsActive:  true,
 		CreatedAt: time.Now().UTC(),
 		Status:    model.InReviewStatus,
+		Source:    opts.Source,
 	}
 	if err := r.ProfileImage.LoadFromURL(); err != nil {
 		return errors.Wrap(err, "invalid profile image for influencer")
@@ -1558,6 +1559,7 @@ func (ii *InfluencerImpl) InfluencerAccountRequestV2(opts *schema.InfluencerAcco
 		CreatedAt:       time.Now().UTC(),
 		Status:          model.InReviewStatus,
 		AreaOfExpertise: opts.AreaOfExpertise,
+		Source:          opts.Source,
 	}
 	if err := r.ProfileImage.LoadFromURL(); err != nil {
 		return errors.Wrap(err, "invalid profile image for influencer")

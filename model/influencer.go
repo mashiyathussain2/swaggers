@@ -63,6 +63,7 @@ type InfluencerAccountRequest struct {
 	GrantedAt       time.Time          `json:"granted_at,omitempty" bson:"granted_at,omitempty"`
 	Status          string             `json:"status,omitempty" bson:"status,omitempty"`
 	AreaOfExpertise string             `json:"area_of_expertise,omitempty" bson:"area_of_expertise,omitempty"`
+	Source          interface{}        `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 type PayoutInformation struct {
