@@ -716,7 +716,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 					fmt.Println("apply coupon on ", c.Coupon.ApplicableON.Name)
 					switch c.Coupon.ApplicableON.Name {
 					case "brand":
-						if cv.Payload.BrandID == c.Coupon.ApplicableON.IDs[0] {
+						if item.CatalogInfo.BrandID == c.Coupon.ApplicableON.IDs[0] {
 							fmt.Println("coupon brand match")
 							toAdd = true
 						}
