@@ -137,6 +137,7 @@ type InfluencerAccountRequestOpts struct {
 	Bio           string             `json:"bio" validate:"required"`
 	Website       string             `json:"website"`
 	SocialAccount *SocialAccountOpts `json:"social_account"`
+	Source        interface{}
 }
 
 type UpdateInfluencerAccountRequestStatusOpts struct {
@@ -168,6 +169,7 @@ type InfluencerAccountRequestUserInfo struct {
 type InfluencerAccountRequestResp struct {
 	ID primitive.ObjectID `json:"id" bson:"_id"`
 	// InfluencerID   primitive.ObjectID                      `json:"influencer_id" bson:"influencer_id"`
+	Name          string                                `json:"name" bson:"name"`
 	ProfileImage  *model.IMG                            `json:"profile_image" bson:"profile_image"`
 	CoverImage    *model.IMG                            `json:"cover_image" bson:"cover_image"`
 	Bio           string                                `json:"bio" bson:"bio"`
@@ -180,6 +182,7 @@ type InfluencerAccountRequestResp struct {
 	CreatedAt     time.Time                             `json:"created_at" bson:"created_at"`
 	GrantedAt     time.Time                             `json:"granted_at" bson:"granted_at"`
 	Status        string                                `json:"status,omitempty" bson:"status,omitempty"`
+	Source        *map[string]string                    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // EditInfluencerAppOpts contains fields and validations required to edit existing influencer
@@ -334,4 +337,5 @@ type InfluencerAccountRequestV2Opts struct {
 	CoverImage      Img                `json:"cover_image" validate:"required"`
 	SocialAccount   *SocialAccountOpts `json:"social_account"`
 	AreaOfExpertise string             `json:"area_of_expertise"`
+	Source          interface{}
 }

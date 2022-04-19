@@ -130,11 +130,17 @@ func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
+	var source map[string]string
+	if err := qs.Unmarshal(&source, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if len(source) != 0 {
+		s.Source = source
+	}
 	if requestCTX.UserClaim != nil {
 		s.UserID, _ = primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
-
 	}
-
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
@@ -427,6 +433,14 @@ func (a *API) claimInfluencerRequestV2(requestCTX *handler.RequestContext, w htt
 	if errs := a.Validator.Validate(&s); errs != nil {
 		requestCTX.SetErrs(errs, http.StatusBadRequest)
 		return
+	}
+	var source map[string]string
+	if err := qs.Unmarshal(&source, r.URL.Query().Encode()); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	if len(source) != 0 {
+		s.Source = source
 	}
 	if s.Email != "" {
 		err := a.App.User.UpdateUserEmail(&schema.UpdateUserEmailOpts{
