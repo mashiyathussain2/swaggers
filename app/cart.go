@@ -381,8 +381,10 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 								toAdd = true
 							}
 						case "influencer":
-							if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
-								toAdd = true
+							if cartItem.Source != nil {
+								if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
+									toAdd = true
+								}
 							}
 						case "cart":
 							toAdd = true
@@ -405,8 +407,10 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 							toAdd = true
 						}
 					case "influencer":
-						if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
-							toAdd = true
+						if cartItem.Source != nil {
+							if cartItem.Source.ID == cart.Coupon.ApplicableON.IDs[0].Hex() {
+								toAdd = true
+							}
 						}
 					case "cart":
 						toAdd = true
