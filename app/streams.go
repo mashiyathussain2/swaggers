@@ -78,6 +78,7 @@ func (bp *BrandProcessor) ProcessBrandUpdate(msg kafka.Message) {
 		Bio:                brand.Bio,
 		CoverImg:           brand.CoverImg,
 		SocialAccount:      brand.SocialAccount,
+		Policies:           brand.Policies,
 		CreatedAt:          brand.CreatedAt,
 		UpdatedAt:          brand.UpdatedAt,
 	}
