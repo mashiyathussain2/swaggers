@@ -50,6 +50,7 @@ type User interface {
 	UpdateUserEmail(*schema.UpdateUserEmailOpts) error
 	UpdateUserPhoneNo(*schema.UpdateUserPhoneNoOpts) error
 	GetUserIDByInfluencerID(opts *schema.GetUserInfoByIDOpts) (primitive.ObjectID, error)
+	SoftDeleteUser(id primitive.ObjectID) (bool, error)
 }
 
 // UserImpl implements user interface methods
@@ -1005,4 +1006,60 @@ func (ui *UserImpl) GetUserIDByInfluencerID(opts *schema.GetUserInfoByIDOpts) (p
 		return primitive.NilObjectID, errors.Wrap(err, "failed to find user by influencer id")
 	}
 	return user.ID, nil
+}
+
+func (ui *UserImpl) SoftDeleteUser(id primitive.ObjectID) (bool, error) {
+
+	//TODO: perform operation inside Session
+	ctx := context.TODO()
+	t := time.Now()
+	filter := bson.M{"_id": id}
+	update := bson.M{
+		"$set": bson.M{
+			"is_deleted": true,
+			"deleted_at": t,
+		},
+		"$unset": bson.M{
+			"email":                   "",
+			"phone_no":                "",
+			"password":                "",
+			"username":                "",
+			"email_verified_at":       "",
+			"email_verification_code": "",
+			"login_otp":               "",
+			"phone_verification_code": "",
+		},
+	}
+
+	_, err := ui.DB.Collection(model.UserColl).UpdateOne(ctx, filter, update)
+	if err != nil {
+		ui.Logger.Err(err).Msg("error deleting user")
+		return false, err
+	}
+
+	filter = bson.M{"user_id": id}
+	update = bson.M{
+		"$set": bson.M{
+			"is_deleted": true,
+			"deleted_at": t,
+		},
+		"$unset": bson.M{
+			"addresses":               "",
+			"brand_follow_count":      "",
+			"brand_following":         "",
+			"dob":                     "",
+			"full_name":               "",
+			"gender":                  "",
+			"influencer_follow_count": "",
+			"influencer_following":    "",
+			"profile_image":           "",
+		},
+	}
+
+	_, err = ui.DB.Collection(model.CustomerColl).UpdateOne(ctx, filter, update)
+	if err != nil {
+		ui.Logger.Err(err).Msg("error deleting customer data")
+		return false, err
+	}
+	return true, nil
 }

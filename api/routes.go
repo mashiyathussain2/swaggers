@@ -135,6 +135,8 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/v2/app/cart/checkout", a.requestWithAuthHandler(a.checkoutCartV2)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/express-checkout/check/cod", a.requestWithAuthHandler(a.expressCheckoutRTO)).Methods("POST")
 
+	a.Router.APIRoot.Handle("/app/user", a.requestWithAuthHandler(a.deleteUser)).Methods("DELETE")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints

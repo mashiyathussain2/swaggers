@@ -506,3 +506,17 @@ func (a *API) getKeeperUsers(requestCTX *handler.RequestContext, w http.Response
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+func (a *API) deleteUser(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	res, err := a.App.User.SoftDeleteUser(id)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(res, http.StatusOK)
+}
