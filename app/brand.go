@@ -292,13 +292,14 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 		}
 
 		// setting brand policies
-		policies := []model.Policy{}
-		for _, policy := range opts.Policies {
-			policies = append(policies, model.Policy{Name: policy.Name, Value: policy.Value})
+		if len(opts.Policies) > 0 {
+			policies := []model.Policy{}
+			for _, policy := range opts.Policies {
+				policies = append(policies, model.Policy{Name: policy.Name, Value: policy.Value})
 
+			}
+			update = append(update, bson.E{Key: "policies", Value: policies})
 		}
-		update = append(update, bson.E{Key: "policies", Value: policies})
-
 		update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
 
 		filterQuery := bson.M{"_id": opts.ID}
