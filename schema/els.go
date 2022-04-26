@@ -41,6 +41,7 @@ type GetBrandInfoEsResp struct {
 	UpdatedAt        time.Time            `json:"updated_at,omitempty"`
 	IsFollowedByUser bool                 `json:"is_followed_by_user,omitempty"`
 	Policies         []model.Policy       `json:"policies,omitempty"`
+	IsCODAvailable   bool                 `json:"is_cod_available"`
 }
 
 type GetBrandsByIDBasicOpts struct {

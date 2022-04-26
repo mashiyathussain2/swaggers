@@ -44,6 +44,7 @@ type CreateBrandOpts struct {
 	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
 	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
 	Policies           []policyOpts            `json:"policies"`
+	IsCODAvailable     bool                    `json:"is_cod_available"`
 }
 
 // CreateBrandResp contains fields to be returned in response to create brand api
@@ -63,6 +64,7 @@ type CreateBrandResp struct {
 	CreatedAt          time.Time                    `json:"created_at"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
 	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 // EditBrandOpts contains and validations required to update a new brand
@@ -81,6 +83,7 @@ type EditBrandOpts struct {
 	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
 	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
 	Policies           []policyOpts            `json:"policies"`
+	IsCODAvailable     *bool                   `json:"is_cod_available"`
 }
 
 // EditBrandResp contains fields to be returned in edit brand operation
@@ -101,6 +104,7 @@ type EditBrandResp struct {
 	UpdatedAt          time.Time                    `json:"updated_at,omitempty"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
 	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 // GetBrandsByIDOpts contains fields and validations for get multiple brands by ids
@@ -129,6 +133,7 @@ type GetBrandResp struct {
 	FollowingCount     uint                         `json:"following_count,omitempty" bson:"following_count,omitempty"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
 	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 type AddBrandFollowerOpts struct {
@@ -155,6 +160,7 @@ type BrandKafkaMessage struct {
 	FollowersID        []primitive.ObjectID `json:"followers_id"`
 	FollowingID        []primitive.ObjectID `json:"following_id"`
 	Policies           []model.Policy       `json:"policies,omitempty"`
+	IsCODAvailable     bool                 `json:"is_cod_available" bson:"is_cod_available"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
@@ -178,6 +184,7 @@ type BrandFullKafkaMessageOpts struct {
 	FollowersID        []primitive.ObjectID `json:"followers_id"`
 	FollowingID        []primitive.ObjectID `json:"following_id"`
 	Policies           []model.Policy       `json:"policies,omitempty"`
+	IsCODAvailable     bool                 `json:"is_cod_available" bson:"is_cod_available"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
