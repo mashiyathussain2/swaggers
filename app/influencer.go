@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"go.mongodb.org/mongo-driver/bson"
@@ -48,6 +50,8 @@ type Influencer interface {
 
 	//v2
 	InfluencerAccountRequestV2(opts *schema.InfluencerAccountRequestV2Opts) error
+
+	SendWelcomeEmail(UserId primitive.ObjectID) (bool, error)
 }
 
 // InfluencerImpl implements influencer interface methods
@@ -1777,4 +1781,54 @@ func (ii *InfluencerImpl) commissionDebitPipeline(opts *schema.GetInfluencerLedg
 	}}
 
 	return mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage}
+}
+
+func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, error) {
+	var user *model.User
+	var err error
+
+	if user, err = ii.App.User.GetUserByID(UserId); err != nil {
+		ii.App.Logger.Err(err).Msgf("failed to get user by user id: %s", UserId.Hex())
+		return false, err
+	}
+	email := user.Email
+	if email == "" {
+		return false, errors.Errorf("no email found for user with id: %s", UserId.Hex())
+	}
+	htmlBody := fmt.Sprintln(`
+		<p>Hey there creator!<br><br>
+
+		Thank you for applying to become a creator-preneur at HYPD. We have successfully received your application.<br>
+
+		Sit back and relax while our team reviews your profile. You'll be notified once you get approved!<br>
+
+		<br>Team HYPD.<br>
+
+		<i>"Creators ke saath bhi. Creators ke baad bhi."</i></p>`)
+
+	input := &ses.SendEmailInput{
+		Destination: &ses.Destination{
+			ToAddresses: []*string{
+				aws.String(email),
+			},
+		},
+		Message: &ses.Message{
+			Body: &ses.Body{
+				Html: &ses.Content{
+					Charset: aws.String("utf-8"),
+					Data:    aws.String(htmlBody),
+				},
+			},
+			Subject: &ses.Content{
+				Charset: aws.String("utf-8"),
+				Data:    aws.String("Form Submitted Successfully | HYPD"),
+			},
+		},
+		Source: aws.String("hello@hypd.in"),
+	}
+	_, err = ii.App.SES.SendEmail(input)
+	if err != nil {
+		ii.Logger.Err(err).Msgf("failed to send welcome email to:%s", email)
+	}
+	return true, nil
 }
