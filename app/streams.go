@@ -115,6 +115,33 @@ func InitInfluencerProcessor(opts *InfluencerProcessorOpts) *InfluencerProcessor
 	return &bp
 }
 
+func (ip *InfluencerProcessor) ProcessInfluencerRequest(msg kafka.Message) {
+	var s *schema.KafkaMessage
+	message := msg.(segKafka.Message)
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		ip.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode influencer request message")
+		return
+	}
+
+	if s.Meta.Operation == "i" {
+		var item schema.InfluencerRequestKafkaMessage
+		b, err := json.Marshal(s.Data)
+		if err != nil {
+			ip.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode influencer request data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(b, &item); err != nil {
+			ip.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
+			return
+		}
+		if _, err = ip.App.Influencer.SendWelcomeEmail(item.UserID); err != nil {
+			ip.Logger.Err(err).Msg("Failed to send welcome email")
+			return
+		}
+		return
+	}
+}
+
 func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	var s *schema.KafkaMessage
 	message := msg.(segKafka.Message)
