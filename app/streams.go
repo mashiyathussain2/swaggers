@@ -188,6 +188,30 @@ func (op *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
 	}
 }
 
+func (op *InfluencerProcessor) InfluencerRequestProcessor(msg kafka.Message) {
+	message := msg.(segKafka.Message)
+	var s *schema.KafkaMessage
+	if err := bson.UnmarshalExtJSON(message.Value, false, &s); err != nil {
+		op.Logger.Err(err).Interface("msg", message.Value).Msg("failed to decode influencer update message")
+		return
+	}
+
+	if s.Meta.Operation == "i" {
+		var item schema.InfluencerRequestKafkaMessage
+		b, err := json.Marshal(s.Data)
+		if err != nil {
+			op.Logger.Err(err).Interface("data", s.Data).Msg("failed to decode influencer request data fields into bytes")
+			return
+		}
+		if err := json.Unmarshal(b, &item); err != nil {
+			op.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
+			return
+		}
+		fmt.Printf("ITEM: %v \n", item)
+		return
+	}
+}
+
 type UserProcessor struct {
 	App    *App
 	Logger *zerolog.Logger

@@ -312,3 +312,18 @@ type CheckoutOpts struct {
 	IsCOD     bool               `json:"is_cod,omitempty"`
 	RequestID string             `json:"request_id,omitempty"`
 }
+
+type InfluencerRequestKafkaMessage struct {
+	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	UserID     primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	CustomerID primitive.ObjectID `json:"customer_id,omitempty" bson:"customer_id,omitempty"`
+	// InfluencerID  primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
+	Name     string `json:"name,omitempty" bson:"name,omitempty"`
+	Username string `json:"username,omitempty" bson:"username,omitempty"`
+	Bio      string `json:"bio,omitempty" bson:"bio,omitempty"`
+	Website  string `json:"website,omitempty" bson:"website,omitempty"`
+
+	IsActive bool `json:"is_active,omitempty" bson:"is_active,omitempty"`
+	// IsGranted     *bool              `json:"is_granted,omitempty" bson:"is_granted,omitempty"`
+	Status string `json:"status,omitempty" bson:"status,omitempty"`
+}

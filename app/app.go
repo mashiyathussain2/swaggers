@@ -38,14 +38,15 @@ type App struct {
 	Kaleyra         Kaleyra
 
 	// Consumer
-	CustomerChanges         kafka.Consumer
-	CatalogChanges          kafka.Consumer
-	InventoryChanges        kafka.Consumer
-	BrandChanges            kafka.Consumer
-	InfluencerChanges       kafka.Consumer
-	DiscountChanges         kafka.Consumer
-	CouponChanges           kafka.Consumer
-	CommissionOrderListener kafka.Consumer
+	CustomerChanges          kafka.Consumer
+	CatalogChanges           kafka.Consumer
+	InventoryChanges         kafka.Consumer
+	BrandChanges             kafka.Consumer
+	InfluencerChanges        kafka.Consumer
+	DiscountChanges          kafka.Consumer
+	CouponChanges            kafka.Consumer
+	CommissionOrderListener  kafka.Consumer
+	InfluencerRequestChanges kafka.Consumer
 
 	// Producer
 	BrandFullProducer      kafka.Producer

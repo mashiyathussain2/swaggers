@@ -107,6 +107,7 @@ type APPConfig struct {
 	SizeProfileConfig     ServiceConfig `mapstructure:"sizeProfile"`
 
 	CustomerChangeConfig          ListenerConfig `mapstructure:"customerChangeConsumer"`
+	InfluencerRequestChangeConfig ListenerConfig `mapstructure:"influencerRequestChangeConsumer"`
 	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
 	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
 	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
