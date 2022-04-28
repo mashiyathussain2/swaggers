@@ -1577,6 +1577,7 @@ func (kc *KeeperCatalogImpl) GetCatalogVariant(cat_id, var_id primitive.ObjectID
 				"discount_info.max_value": 1,
 				"variant_type":            1,
 				"variant":                 "$variants",
+				"status":                  1,
 				"featured_image":          1,
 				"inventory_info":          bson.M{"$arrayElemAt": bson.A{"$inventory_info", 0}},
 			},
