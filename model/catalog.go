@@ -68,6 +68,15 @@ Publish: 	status is set thorugh admin/keeper dashboard to allow visibility of a 
 Discard:	discard is an alias to delete a catalog without actually deleting it from the database to avoid NOT FOUND for
 			other services while searching for catalog
 */
+
+// Defining the type of Catalog Status
+const (
+	Draft   string = "draft"
+	Unlist  string = "unlist"
+	Archive string = "archive"
+	Publish string = "publish"
+)
+
 type Status struct {
 	Name      string    `json:"name,omitempty" bson:"name,omitempty"`
 	Value     string    `json:"value,omitempty" bson:"value,omitempty"`
@@ -188,6 +197,7 @@ type CatalogVariant struct {
 	DiscountInfo  *DiscountInfo         `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	FeaturedImage *CatalogFeaturedImage `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	InventoryInfo Inventory             `json:"inventory_info,omitempty" bson:"inventory_info,omitempty"`
+	Status        *Status               `json:"status,omitempty" bson:"status,omitempty"`
 }
 
 type GetCatalogVariant struct {
