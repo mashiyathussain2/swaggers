@@ -11,6 +11,55 @@ import (
 	"github.com/vasupal1996/goerror"
 )
 
+// swagger:route  POST /app/express-checkout ExpressCheckout expressCheckout
+// expressCheckout
+//
+// This endpoint is for express checkout.
+//
+// Endpoint: /app/express-checkout
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ExpressCheckoutOpts
+//     "$ref": "#/definitions/ExpressCheckoutOpts"
+//   required: true
+//
+// parameters:
+// + name: platform
+//   in: query
+//   description: Platform type for example android, web or ios.
+//   schema:
+//   type: string
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: Invalid User
+//  200: OrderInfo description: OK
 func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ExpressCheckoutOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -45,6 +94,55 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /web/express-checkout ExpressCheckout expressCheckoutWeb
+// expressCheckoutWeb
+//
+// This endpoint is for express checkout for web.
+//
+// Endpoint: /web/express-checkout
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ExpressCheckoutWebOpts
+//     "$ref": "#/definitions/ExpressCheckoutWebOpts"
+//   required: true
+//
+// parameters:
+// + name: platform
+//   in: query
+//   description: Platform type for example android, web or ios.
+//   schema:
+//   type: string
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: Invalid User
+//  200: OrderInfo description: OK
 func (a *API) expressCheckoutWeb(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ExpressCheckoutWebOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -75,6 +173,48 @@ func (a *API) expressCheckoutWeb(requestCTX *handler.RequestContext, w http.Resp
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /app/express-checkout/check/cod CODviaGoKwik expressCheckoutRTO
+// expressCheckoutRTO
+//
+// This endpoint will express checkout RTO.
+//
+// Endpoint: /app/express-checkout/check/cod
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ExpressCheckoutWebOpts
+//     "$ref": "#/definitions/ExpressCheckoutWebOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: OK
 func (a *API) expressCheckoutRTO(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ExpressCheckoutWebOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {

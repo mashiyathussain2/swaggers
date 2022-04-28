@@ -20,6 +20,8 @@ const (
 )
 
 // AppErr := app error struct
+
+// swagger:model AppErr
 type AppErr struct {
 	Error     []error
 	RequestID *string
@@ -87,7 +89,6 @@ func (r *CustomResponse) MarshalJSON() ([]byte, error) {
 	} else {
 		errJSON = append(errJSON, errors.Map(r.Error.(error)))
 	}
-
 	return json.Marshal(&struct {
 		Success bool        `json:"success"`
 		Payload interface{} `json:"payload"`

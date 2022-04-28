@@ -12,6 +12,8 @@ import (
 const HeaderRequestID = "X-Request-ID"
 
 // TokenAuth defines method for implementing token authentication
+
+// swagger:model TokenAuth
 type TokenAuth interface {
 	SignToken(Claim) (string, error)
 	SignKeeperToken(Claim) (string, error)
@@ -21,6 +23,8 @@ type TokenAuth interface {
 
 // Claim defines custom token claim type methods.
 // Note: this claim is used to automatically parse token into struct when a request has jwt token in header
+
+// swagger:model Claim
 type Claim interface {
 	ToJSON() string
 	GetJWTToken() *jwt.Token

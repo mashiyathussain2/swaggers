@@ -30,6 +30,35 @@ func (a *API) createCart(requestCTX *handler.RequestContext, w http.ResponseWrit
 
 }
 
+// swagger:route  POST /app/cart cart addToCart
+// addToCart
+//
+// This endpoint will add product ot the cart.
+//
+// Endpoint: app/cart
+//
+// Method: POST
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// parameters:
+// + name: body
+//   in: body
+//   description: Add to cart
+//   schema:
+//   type: AddToCartOpts
+//     "$ref": "#/definitions/AddToCartOpts"
+//   required: true
+//
+// responses:
+//  400: AppErr description:Bad Request
+//  403: AppErr description:Invalid User
+//  200: addToCart description:OK
 func (a *API) addToCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.AddToCartOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -52,6 +81,39 @@ func (a *API) addToCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  PUT /app/cart/item cart updateItemQty
+// updateItemQty
+//
+// This endpoint will update the item quantity in the cart.
+//
+// Endpoint : /app/cart/item
+// Method: PUT
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: UpdateItemQtyOpts
+//     "$ref": "#/definitions/UpdateItemQtyOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: invalid user
+//  200: addToCart description: OK
 func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.UpdateItemQtyOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -74,6 +136,41 @@ func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  GET /app/cart/{userID} cart getCartInfo
+// getCartInfo
+//
+// This endpoint will get the cart information according to the user id.
+//
+// Endpoint : /app/cart/{userID}
+//
+// Method: GET
+//
+// parameters:
+// + name: userID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 60b50277a97a2d73b211aec7
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+//
+// responses:
+//  400: AppErr description: Bad Request
+//  403: AppErr description: invalid user
+//  200: GetCartInfoResp description: OK
 func (a *API) getCartInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
@@ -92,6 +189,40 @@ func (a *API) getCartInfo(requestCTX *handler.RequestContext, w http.ResponseWri
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /app/cart/address cart setCartAddress
+// setCartAddress
+//
+// This endpoint will set the cart address of the user..
+//
+// Endpoint : /app/cart/address
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: AddressOpts
+//     "$ref": "#/definitions/AddressOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: invalid user
+//  200: description: true
 func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.AddressOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -114,6 +245,76 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 
+// swagger:route  GET /app/cart/{userID}/checkout cart checkoutCart
+// checkoutCart
+//
+// This endpoint will return checkout cart.
+//
+// Endpoint: /app/cart/{userID}/checkout
+//
+// Method: GET
+//
+// parameters:
+// + name: userID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+// parameters:
+// + name: source
+//   in: query
+//   schema:
+//   type: string
+//   required: true
+//
+// parameters:
+// + name: platform
+//   in: query
+//   schema:
+//   type: string
+//   enum: web, android, ios
+//   required: true
+//
+// parameters:
+// + name: isCOD
+//   in: query
+//   schema:
+//   type: boolean
+//   required: true
+//
+// parameters:
+// + name: request_id
+//   in: query
+//   schema:
+//   type: ObjectID
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: OrderInfo description: OK
 func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
@@ -160,6 +361,34 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  DELETE /cart/{userID} cart clearCart
+// clearCart
+//
+// This endpoint will clear the cart of the user.
+//
+// Endpoint: /cart/{userID}
+//
+// Method: DELETE
+//
+// parameters:
+// + name: userID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: Bad Request
+//  200: description: true
 func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
@@ -175,6 +404,50 @@ func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 
 }
 
+// swagger:route  POST /app/cart/{userID}/coupon coupon applyCoupon
+// applyCoupon
+//
+// This endpoint will successful apply the coupon on the product.
+//
+// Endpoint: /app/cart/{userID}/coupon
+//
+// Method: POST
+//
+// parameters:
+// + name: userID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 61dd5c77c69b0de021ce1810
+//   required: true
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ApplyCouponOpts
+//     "$ref": "#/definitions/ApplyCouponOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: Invalid User
+//  200: GetCartInfoResp description: OK
 func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	userID, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
@@ -207,6 +480,43 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  DELETE /app/cart/{userID}/coupon coupon removeCoupon
+// removeCoupon
+//
+// This endpoint will successful remove the coupon on the product.
+//
+// Endpoint: /app/cart/{userID}/coupon
+//
+// Method: DELETE
+//
+// parameters:
+// + name: userID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 611ca3d6c2b96106c6c9ee47
+//   required: true
+//
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: Invalid User
+//  200: description: true
 func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["userID"])
 	if err != nil {
@@ -226,6 +536,39 @@ func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWr
 
 }
 
+// swagger:route  GET /app/check/cod Check CODviaGoKwik checkCODEligiblity
+// checkCODEligiblity
+//
+// This endpoint will check the COD eligiblity.
+//
+// Endpoint: /app/check/cod
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description:Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: OK
 func (a *API) checkCODEligiblity(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
 	if err != nil {
@@ -242,6 +585,48 @@ func (a *API) checkCODEligiblity(requestCTX *handler.RequestContext, w http.Resp
 
 }
 
+// swagger:route  GET /v2/app/cart/checkout CODviaGoKwik checkoutCartV2
+// checkoutCartV2
+//
+// This endpoint will check the chekcout cart.
+//
+// Endpoint: /v2/app/cart/checkout
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CheckoutOpts
+//     "$ref": "#/definitions/CheckoutOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: OrderInfo description: OK
 func (a *API) checkoutCartV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CheckoutOpts
 	var err error

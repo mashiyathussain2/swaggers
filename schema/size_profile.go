@@ -18,6 +18,7 @@ type GetAllSizeProfilesResp struct {
 	Image *model.IMG         `json:"image,omitempty" bson:"image,omitempty"`
 }
 
+// swagger:model GetSizeProfileResp
 type GetSizeProfileResp struct {
 	ID    primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`
 	Name  string              `json:"name,omitempty" bson:"name,omitempty"`

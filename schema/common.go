@@ -3,7 +3,10 @@ package schema
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 // Img contains image src url
+
+// swagger:parameters Img
 type Img struct {
+	// required:true
 	SRC string `json:"src" validate:"required,url"`
 }
 

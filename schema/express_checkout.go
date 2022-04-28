@@ -13,6 +13,7 @@ type ItemExpress struct {
 	Source    *model.Source      `json:"source"`
 }
 
+// swagger:model ExpressCheckoutOpts
 type ExpressCheckoutOpts struct {
 	UserID   primitive.ObjectID `json:"user_id" validate:"required"`
 	Address  *OrderAddressOpts  `json:"address" validate:"required"`
@@ -22,6 +23,7 @@ type ExpressCheckoutOpts struct {
 	Coupon   string             `json:"coupon"`
 }
 
+// swagger:model ExpressCheckoutWebOpts
 type ExpressCheckoutWebOpts struct {
 	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
 	Address   *OrderAddressOpts  `json:"address" validate:"required"`

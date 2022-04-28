@@ -60,6 +60,8 @@ type Customer struct {
 }
 
 // State represents a state containing its iso representation and name of the state
+
+//// swagger:model State
 type State struct {
 	ISOCode string `json:"iso_code,omitempty" bson:"iso_code,omitempty"`
 	Name    string `json:"name,omitempty" bson:"name,omitempty"`
@@ -78,6 +80,8 @@ type PhoneNumber struct {
 }
 
 // Address contains address related info a user
+
+// swagger:model getAddress
 type Address struct {
 	ID                primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	DisplayName       string             `json:"display_name,omitempty" bson:"display_name,omitempty"`

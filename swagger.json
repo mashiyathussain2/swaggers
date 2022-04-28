@@ -1,0 +1,7151 @@
+{
+  "swagger": "2.0",
+  "info": {},
+  "paths": {
+    "/app/brand/basic": {
+      "post": {
+        "description": "This endpoint will return brand basic information.\n\nEndpoint: /app/brand/basic\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getBrandsBasic",
+        "operationId": "getBrandsBasic",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetBrandsByIDBasicOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetBrandBasicESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/brand/username/basic": {
+      "post": {
+        "description": "This endpoint will return brand basic detail by username.\n\nEndpoint: /app/brand/username/basic\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getBrandsBasicByUsername",
+        "operationId": "getBrandsBasicByUsername",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetBrandsByUsernameBasicOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetBrandBasicESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/brand/username/{username}": {
+      "get": {
+        "description": "This endpoint will return brand information by the username of the brand.\n\nEndpoint: /app/brand/username/{username}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getBrandInfoByUsername",
+        "operationId": "getBrandInfoByUsername",
+        "parameters": [
+          {
+            "enum": [
+              "vasu_pal_1"
+            ],
+            "type": "string",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetBrandsInfoByUsernameOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetBrandInfoEsResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/brand/{brandID}": {
+      "get": {
+        "description": "This endpoint will return information of one brand.\n\nEndpoint: /app/brand/{brandID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getBrandInfo",
+        "operationId": "getBrandInfo",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "object",
+            "name": "brandID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetBrandsInfoByIDOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetBrandInfoEsResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/brands": {
+      "get": {
+        "description": "This endpoint will return active brand list.\n\nEndpoint: /app/brands\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getActiveBrandsList",
+        "operationId": "getActiveBrandsList",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetBrandsListOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetActiveBrandsListESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart": {
+      "post": {
+        "description": "This endpoint will add product ot the cart.\n\nEndpoint: app/cart\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "addToCart",
+        "operationId": "addToCart",
+        "parameters": [
+          {
+            "description": "Add to cart",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Add to cart",
+              "type": "object",
+              "$ref": "#/definitions/AddToCartOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/addToCart"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart/address": {
+      "post": {
+        "description": "This endpoint will set the cart address of the user..\n\nEndpoint : /app/cart/address\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "setCartAddress",
+        "operationId": "setCartAddress",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddressOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " invalid user",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart/item": {
+      "put": {
+        "description": "This endpoint will update the item quantity in the cart.\n\nEndpoint : /app/cart/item\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "updateItemQty",
+        "operationId": "updateItemQty",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UpdateItemQtyOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/addToCart"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " invalid user",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart/{userID}": {
+      "get": {
+        "description": "This endpoint will get the cart information according to the user id.\n\nEndpoint : /app/cart/{userID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "getCartInfo",
+        "operationId": "getCartInfo",
+        "parameters": [
+          {
+            "enum": [
+              "60b50277a97a2d73b211aec7"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCartInfoResp"
+            }
+          },
+          "400": {
+            "description": " Bad Request",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " invalid user",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart/{userID}/checkout": {
+      "get": {
+        "description": "This endpoint will return checkout cart.\n\nEndpoint: /app/cart/{userID}/checkout\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "checkoutCart",
+        "operationId": "checkoutCart",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "source",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "web",
+              "android",
+              "ios"
+            ],
+            "type": "string",
+            "name": "platform",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "name": "isCOD",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "object",
+            "name": "request_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/OrderInfo"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/cart/{userID}/coupon": {
+      "post": {
+        "description": "This endpoint will successful apply the coupon on the product.\n\nEndpoint: /app/cart/{userID}/coupon\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "coupon"
+        ],
+        "summary": "applyCoupon",
+        "operationId": "applyCoupon",
+        "parameters": [
+          {
+            "enum": [
+              "61dd5c77c69b0de021ce1810"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ApplyCouponOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCartInfoResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint will successful remove the coupon on the product.\n\nEndpoint: /app/cart/{userID}/coupon\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "coupon"
+        ],
+        "summary": "removeCoupon",
+        "operationId": "removeCoupon",
+        "parameters": [
+          {
+            "enum": [
+              "611ca3d6c2b96106c6c9ee47"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/check/cod": {
+      "get": {
+        "description": "This endpoint will check the COD eligiblity.\n\nEndpoint: /app/check/cod\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Check",
+          "CODviaGoKwik"
+        ],
+        "summary": "checkCODEligiblity",
+        "operationId": "checkCODEligiblity",
+        "parameters": [
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/creator/commission": {
+      "get": {
+        "description": "This endpoint will return commision and revenue.\n\nEndpoint: /app/creator/commission\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Creator"
+        ],
+        "summary": "getCommissionAndRevenue",
+        "operationId": "getCommissionAndRevenue",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCommissionAndRevenueOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCommissionAndRevenueResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/creator/dashboard": {
+      "post": {
+        "description": "This endpoint will return dashaboard of the influencer.\n\nEndpoint: /app/creator/dashboard\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Creator"
+        ],
+        "summary": "getInfluencerDashboard",
+        "operationId": "getInfluencerDashboard",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerDashboardOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerDashboardResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/creator/debit-request": {
+      "post": {
+        "description": "This endpoint will post the debit request.\n\nEndpoint: /app/creator/debit-request\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "DebitRequest"
+        ],
+        "summary": "debitRequest",
+        "operationId": "debitRequest",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CommissionDebitRequest"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/creator/ledger": {
+      "get": {
+        "description": "This endpoint will return the ledger details of the influencer.\n\nEndpoint: /app/creator/ledger\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Creator"
+        ],
+        "summary": "getInfluencerLedger",
+        "operationId": "getInfluencerLedger",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerLedgerOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerLedgerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/creator/payout-info": {
+      "get": {
+        "description": "This endpoint will return influencer payout information.\n\nEndpoint: /app/creator/payout-info\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Creator"
+        ],
+        "summary": "getInfluencerPayoutInfo",
+        "operationId": "getInfluencerPayoutInfo",
+        "parameters": [
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPayoutInfoResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/customer/brand/follow": {
+      "post": {
+        "description": "This endpoint will follow the brand.\n\nEndpoint: /app/customer/brand/follow\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "followUnfollow"
+        ],
+        "summary": "followBrand",
+        "operationId": "followBrand",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddBrandFollowerOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/customer/brand/unfollow": {
+      "post": {
+        "description": "This endpoint will unfollow the brand.\n\nEndpoint: /app/customer/brand/unfollow\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "followUnfollow"
+        ],
+        "summary": "unFollowBrand",
+        "operationId": "unFollowBrand",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddBrandFollowerOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/customer/influencer/follow": {
+      "post": {
+        "description": "This endpoint will follow the influencer.\n\nEndpoint: /app/customer/influencer/follow\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "followUnfollow"
+        ],
+        "summary": "followInfluencer",
+        "operationId": "followInfluencer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddInfluencerFollowerOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/customer/influencer/unfollow": {
+      "post": {
+        "description": "This endpoint will unfollow the influencer.\n\nEndpoint: /app/customer/influencer/unfollow\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "followUnfollow"
+        ],
+        "summary": "unFollowInfluencer",
+        "operationId": "unFollowInfluencer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddInfluencerFollowerOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/customer/{customerID}": {
+      "post": {
+        "description": "Endpoint: /app/customer/{customerID}\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "getCustomerInfo"
+        ],
+        "summary": "This endpoint will return the address of the user.",
+        "operationId": "getCustomerInfo",
+        "parameters": [
+          {
+            "enum": [
+              "60b50277a97a2d73b211aec7"
+            ],
+            "type": "object",
+            "name": "customerID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/getCustomerInfo"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/app/express-checkout": {
+      "post": {
+        "description": "This endpoint is for express checkout.\n\nEndpoint: /app/express-checkout\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ExpressCheckout"
+        ],
+        "summary": "expressCheckout",
+        "operationId": "expressCheckout",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ExpressCheckoutOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Platform type for example android, web or ios.",
+            "name": "platform",
+            "in": "query",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/OrderInfo"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/express-checkout/check/cod": {
+      "post": {
+        "description": "This endpoint will express checkout RTO.\n\nEndpoint: /app/express-checkout/check/cod\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "CODviaGoKwik"
+        ],
+        "summary": "expressCheckoutRTO",
+        "operationId": "expressCheckoutRTO",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ExpressCheckoutWebOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer": {
+      "put": {
+        "description": "This endpoint will edit the influencer details.\n\nEndpoint: /app/influencer\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppInfluencer"
+        ],
+        "summary": "editInfluencerApp",
+        "operationId": "editInfluencerApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EditInfluencerAppOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/EditInfluencerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Not Authorized",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/basic": {
+      "get": {
+        "description": "This endpoint will return influencer basic information.\n\nEndpoint: /app/influencer/basic\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppInfluencer"
+        ],
+        "summary": "getInfluencersBasic",
+        "operationId": "getInfluencersBasic",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencersByIDBasicOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerBasicESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/username/basic": {
+      "post": {
+        "description": "This endpoint will return influencer basic information by username.\n\nEndpoint: /app/influencer/username/basic\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppInfluencer"
+        ],
+        "summary": "getInfluencersBasicByUsername",
+        "operationId": "getInfluencersBasicByUsername",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencersByUsernameBasicOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerBasicESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/username/{username}": {
+      "get": {
+        "description": "This endpoint will return influencer information by username.\n\nEndpoint: /app/influencer/username/{username}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppInfluencer"
+        ],
+        "summary": "getInfluencerInfoByUsername",
+        "operationId": "getInfluencerInfoByUsername",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerInfoByUsernameOpts"
+            }
+          },
+          {
+            "enum": [
+              "kartikay_sharma"
+            ],
+            "type": "object",
+            "name": "username",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerInfoEsResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/{influencerID}": {
+      "get": {
+        "description": "This endpoint will return influencer information.\n\nEndpoint: /app/influencer/{influencerID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppInfluencer"
+        ],
+        "summary": "getInfluencerInfo",
+        "operationId": "getInfluencerInfo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerInfoByIDOpts"
+            }
+          },
+          {
+            "enum": [
+              "60b50277a97a2d73b211aec7"
+            ],
+            "type": "object",
+            "name": "influencerID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerInfoEsResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/size/get": {
+      "get": {
+        "description": "This endpoint will return size profile.\n\nEndpoint: /app/size/get\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "GetSizeProfile"
+        ],
+        "summary": "getSizeProfile",
+        "operationId": "getSizeProfile",
+        "parameters": [
+          {
+            "enum": [
+              "60acf7bcf928b0fa83a7f89f"
+            ],
+            "type": "object",
+            "name": "id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetSizeProfileResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/user/influencer-request": {
+      "post": {
+        "description": "This endpoint will post the request claim by the influencer.\n\nEndpoint: /app/user/influencer-request\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerRequest"
+        ],
+        "summary": "claimInfluencerRequest",
+        "operationId": "claimInfluencerRequest",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/InfluencerAccountRequestOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/user/influencer-request/status": {
+      "get": {
+        "description": "This endpoint will return the status of the influencer request.\n\nEndpoint: /app/user/influencer-request/status\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerRequest"
+        ],
+        "summary": "checkClaimInfluencerRequestStatus",
+        "operationId": "checkClaimInfluencerRequestStatus",
+        "parameters": [
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/wishlist": {
+      "put": {
+        "description": "This endpoint will add the product to the wishlist.\n\nEndpoint: /app/wishlist\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Wishlist"
+        ],
+        "summary": "addToWishlist",
+        "operationId": "addToWishlist",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddToWishlistOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint will delete the product from the wishlist.\n\nEndpoint: /app/wishlist\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Wishlist"
+        ],
+        "summary": "removeFromWishlist",
+        "operationId": "removeFromWishlist",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/RemoveFromWishlistOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/wishlist/{userID}": {
+      "get": {
+        "description": "This endpoint will return the wishlist product of the user.\n\nEndpoint: /app/wishlist/{userID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Wishlist"
+        ],
+        "summary": "getWishlist",
+        "operationId": "getWishlist",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/brand/check/username": {
+      "get": {
+        "description": "This endpoint will check the brand username exists or not.\n\nEndpoint: /brand/check/username\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "CheckUsername"
+        ],
+        "summary": "checkBrandUsernameExists",
+        "operationId": "checkBrandUsernameExists",
+        "parameters": [
+          {
+            "enum": [
+              "falthead"
+            ],
+            "type": "string",
+            "name": "username",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/brand/user/forgot-password": {
+      "post": {
+        "description": "This endpoint will help the brand to recover forget password.\n\nEndpoint: /brand/user/forgot-password\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "BrandDashAPIs"
+        ],
+        "summary": "brandUserForgotPassword",
+        "operationId": "brandUserForgotPassword",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ForgotPasswordOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/brand/user/login": {
+      "post": {
+        "description": "This endpoint will login the brand user.\n\nEndpoint: /brand/user/login\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "BrandDashAPIs"
+        ],
+        "summary": "brandUserLogin",
+        "operationId": "brandUserLogin",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/BrandUserLoginOpts"
+            }
+          },
+          {
+            "type": "string",
+            "name": "returnToken",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " token"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/brand/user/reset-password": {
+      "post": {
+        "description": "This endpoint will reset the brand password.\n\nEndpoint: /brand/user/reset-password\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "BrandDashAPIs"
+        ],
+        "summary": "brandUserResetPassword",
+        "operationId": "brandUserResetPassword",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ResetPasswordOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/brand/{brandID}": {
+      "get": {
+        "description": "This endpoint will return brand details.\n\nEndpoint: /brand/{brandID}\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Brand"
+        ],
+        "summary": "getBrandByID",
+        "operationId": "getBrandByID",
+        "parameters": [
+          {
+            "enum": [
+              "60b50277a97a2d73b211aec7"
+            ],
+            "type": "object",
+            "name": "brandID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/getBrandByID"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/cart/{userID}": {
+      "delete": {
+        "description": "This endpoint will clear the cart of the user.\n\nEndpoint: /cart/{userID}\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "cart"
+        ],
+        "summary": "clearCart",
+        "operationId": "clearCart",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " Bad Request",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/customer": {
+      "put": {
+        "description": "This endpoint will update the customer information.\n\nEndpoint: /customer\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "updateCustomerInfo",
+        "operationId": "updateCustomerInfo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UpdateCustomerOpts"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/customer/address": {
+      "put": {
+        "description": "This endpoint will add the address of the customer.\n\nEndpoint: /customer/address\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "addAddress",
+        "operationId": "addAddress",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddAddressOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/AddAddressResp"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint will delete the address of the customer.\n\nEndpoint: /customer/address\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "removeAddress",
+        "operationId": "removeAddress",
+        "parameters": [
+          {
+            "name": "address_id",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user_id:60b50277a97a2d73b211aec7"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/address/edit": {
+      "put": {
+        "description": "This endpoint will edit the address.\n\nEndpoint : /customer/address/edit\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "editAddress",
+        "operationId": "editAddress",
+        "parameters": [
+          {
+            "description": "Edit Address",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Edit Address",
+              "type": "object",
+              "$ref": "#/definitions/EditAddressOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/apple/login": {
+      "post": {
+        "description": "This endpoint will login the user via apple.\n\nEndpoint: /customer/apple/login\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "login"
+        ],
+        "summary": "loginViaApple",
+        "operationId": "loginViaApple",
+        "parameters": [
+          {
+            "description": "Login user via apple",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Login user via apple",
+              "type": "object",
+              "$ref": "#/definitions/LoginWithApple"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/email/login": {
+      "post": {
+        "description": "User login via email",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "login"
+        ],
+        "operationId": "loginViaEmail",
+        "parameters": [
+          {
+            "description": "Login Via Email",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Login Via Email",
+              "type": "object",
+              "$ref": "#/definitions/EmailLoginCustomerOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SuccessfulLogin",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/email/signup": {
+      "post": {
+        "description": "User Signup via email\n\nEndpoint: /customer/email/signup\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "signup"
+        ],
+        "summary": "signUpViaEmail",
+        "operationId": "signUpViaEmail",
+        "parameters": [
+          {
+            "description": "Signup Via Email",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Signup Via Email",
+              "type": "object",
+              "$ref": "#/definitions/CreateUserOpts"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/otp/confirm": {
+      "post": {
+        "description": "This endpoint will confirm login via mobile otp.\n\nEndpoint: /customer/otp/confirm\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "login"
+        ],
+        "summary": "confrimloginViaMobileOtp",
+        "operationId": "confrimloginViaMobileOtp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/MobileLoginCustomerUserOpts"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/otp/generate": {
+      "post": {
+        "description": "This endpoint will generate the otp when login via mobile\n\n\nEndpoint: /customer/otp/generate\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "login"
+        ],
+        "summary": "LoginViaMobileOTP",
+        "operationId": "LoginViaMobileOTP",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GenerateMobileLoginOTPOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " payload : true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/customer/social/login": {
+      "post": {
+        "description": "This endpoint will login the user via social\n\nEndpoint: /customer/social/login\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "login"
+        ],
+        "summary": "loginViaSocial",
+        "operationId": "loginViaSocial",
+        "parameters": [
+          {
+            "description": "Login user via social",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Login user via social",
+              "type": "object",
+              "$ref": "#/definitions/LoginWithSocial"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulLogin"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/customer/{userID}/address": {
+      "get": {
+        "description": "This endpoint will return the address of the user.\n\nEndpoint: /customer/{userID}/address\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "GetAddress",
+        "operationId": "GetAddress",
+        "parameters": [
+          {
+            "enum": [
+              "60b50277a97a2d73b211aec8"
+            ],
+            "type": "object",
+            "name": "userID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " Success",
+            "schema": {
+              "$ref": "#/definitions/getAddress"
+            }
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/influencer/check/username": {
+      "get": {
+        "description": "This endpoint will check the influencer username exists or not.\n\nEndpoint: /influencer/check/username\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "CheckUsername"
+        ],
+        "summary": "checkInfluencerUsernameExists",
+        "operationId": "checkInfluencerUsernameExists",
+        "parameters": [
+          {
+            "enum": [
+              "kartikay_sharma"
+            ],
+            "type": "string",
+            "name": "username",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "This endpoint will returns the updated user info stored in the token.\n\nEndpoint: /me\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ME"
+        ],
+        "summary": "me",
+        "operationId": "me",
+        "parameters": [
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/UserClaim"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will returns the updated user info stored in the token.\n\nEndpoint: /me\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ME"
+        ],
+        "summary": "updateMe",
+        "operationId": "updateMe",
+        "parameters": [
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/UserClaim"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/auth/email/check": {
+      "post": {
+        "description": "Endpoint: /user/auth/email/check\n\nThis endpoint will check the user email exists or not.\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "checkEmail"
+        ],
+        "summary": "Check User Email for Auth",
+        "operationId": "checkEmail",
+        "parameters": [
+          {
+            "description": "Check user email",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Check user email",
+              "type": "object",
+              "$ref": "#/definitions/CheckEmailOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " payload : true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/user/auth/email/verify": {
+      "post": {
+        "description": "This endpoint will verify the user email.\n\nEndpoint: /user/auth/email/verify\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Verification"
+        ],
+        "summary": "verifyEmailAuth",
+        "operationId": "verifyEmailAuth",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/VerifyEmailOpts"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If value is set to True, token is omitted from response",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "500": {
+            "description": "Failed to login user",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/auth/logoutt": {
+      "get": {
+        "description": "This endpoint will logout the user.\n\nEndpoint: /user/auth/logoutt\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "logout"
+        ],
+        "summary": "logoutUser",
+        "operationId": "logoutUser",
+        "parameters": [
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/auth/phone/check": {
+      "post": {
+        "description": "Endpoint: /user/auth/phone/check\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "checkPhoneNo"
+        ],
+        "summary": "Check User Phone No for Auth",
+        "operationId": "checkPhoneNo",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CheckPhoneNoOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " payload : true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/user/auth/phone/verify": {
+      "post": {
+        "description": "This endpoint will verify user phone number.\n\nEndpoint: /user/auth/phone/verify\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Verification"
+        ],
+        "summary": "verifyPhoneNoAuth",
+        "operationId": "verifyPhoneNoAuth",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/VerifyPhoneNoOpts"
+            }
+          },
+          {
+            "enum": [
+              true
+            ],
+            "type": "boolean",
+            "name": "isWeb",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " payload : true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "description": "This endpoint will help the user to recover the password.\n\nEndpoint: /user/forgot-password\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Password"
+        ],
+        "summary": "forgotPassword",
+        "operationId": "forgotPassword",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ForgotPasswordOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/influencerid": {
+      "get": {
+        "description": "This endpoint will return user id by influencer id.\n\nEndpoint: /user/influencerid\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "getUserIDByInfluencerID"
+        ],
+        "summary": "getUserIDByInfluencerID",
+        "operationId": "getUserIDByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetUserInfoByIDOpts"
+            }
+          },
+          {
+            "type": "object",
+            "name": "id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/ObjectID"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/reset-password": {
+      "post": {
+        "description": "This endpoint will help the user reset the password.\n\nEndpoint: /user/reset-password\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Password"
+        ],
+        "summary": "resetPassword",
+        "operationId": "resetPassword",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ResetPasswordOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/user/verify-email/resend": {
+      "post": {
+        "description": "This endpoint will resend email verification code\n\nEndpoint: /user/verify-email/resend\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Verification"
+        ],
+        "summary": "resendEmailVerificationCode",
+        "operationId": "resendEmailVerificationCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ResendVerificationEmailOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "true"
+          },
+          "400": {
+            "description": " Error",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/cart/checkout": {
+      "get": {
+        "description": "This endpoint will check the chekcout cart.\n\nEndpoint: /v2/app/cart/checkout\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "CODviaGoKwik"
+        ],
+        "summary": "checkoutCartV2",
+        "operationId": "checkoutCartV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CheckoutOpts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/OrderInfo"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/influencer": {
+      "put": {
+        "description": "This endpoint edit the influencer information.\n\nEndpoint: /v2/app/influencer\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "v2Influnencer"
+        ],
+        "summary": "editInfluencerAppV2",
+        "operationId": "editInfluencerAppV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EditInfluencerAppV2Opts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/EditInfluencerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/user/influencer-request": {
+      "post": {
+        "description": "This endpoint will claim the influencer request.\n\nEndpoint: /v2/app/user/influencer-request\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "v2Influnencer"
+        ],
+        "summary": "claimInfluencerRequestV2",
+        "operationId": "claimInfluencerRequestV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/InfluencerAccountRequestV2Opts"
+            }
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/web/express-checkout": {
+      "post": {
+        "description": "This endpoint is for express checkout for web.\n\nEndpoint: /web/express-checkout\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ExpressCheckout"
+        ],
+        "summary": "expressCheckoutWeb",
+        "operationId": "expressCheckoutWeb",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/ExpressCheckoutWebOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Platform type for example android, web or ios.",
+            "name": "platform",
+            "in": "query",
+            "required": true
+          },
+          {
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/OrderInfo"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddAddressOpts": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "contact_number": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "is_billing_address": {
+          "type": "boolean",
+          "x-go-name": "IsBillingAddress"
+        },
+        "is_default_address": {
+          "type": "boolean",
+          "x-go-name": "IsDefaultAddress"
+        },
+        "is_shipping_address": {
+          "type": "boolean",
+          "x-go-name": "IsShippingAddress"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AddAddressResp": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AddBrandFollowerOpts": {
+      "type": "object",
+      "required": [
+        "id",
+        "customer_id"
+      ],
+      "properties": {
+        "customer_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AddInfluencerFollowerOpts": {
+      "type": "object",
+      "required": [
+        "id",
+        "customer_id"
+      ],
+      "properties": {
+        "customer_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AddToCartOpts": {
+      "type": "object",
+      "required": [
+        "catalog_id",
+        "quantity"
+      ],
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "quantity": {
+          "description": "catalog id\ndescription: catalog id",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Quantity"
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AddToWishlistOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "Address": {
+      "description": "Address address",
+      "type": "object",
+      "properties": {
+        "city": {
+          "description": "city",
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "contact_number": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "display_name": {
+          "description": "display name",
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "description": "district",
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_billing_address": {
+          "description": "is billing address",
+          "type": "boolean",
+          "x-go-name": "IsBillingAddress"
+        },
+        "is_default_address": {
+          "description": "is default address",
+          "type": "boolean",
+          "x-go-name": "IsDefaultAddress"
+        },
+        "is_shipping_address": {
+          "description": "is shipping address",
+          "type": "boolean",
+          "x-go-name": "IsShippingAddress"
+        },
+        "line1": {
+          "description": "line1",
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "description": "line2",
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "plain_address": {
+          "description": "plain address",
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "description": "postal code",
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "AddressOpts": {
+      "type": "object",
+      "properties": {
+        "address_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "contact_number": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_billing_address": {
+          "type": "boolean",
+          "x-go-name": "IsBillingAddress"
+        },
+        "is_default_address": {
+          "type": "boolean",
+          "x-go-name": "IsDefaultAddress"
+        },
+        "is_shipping_address": {
+          "type": "boolean",
+          "x-go-name": "IsShippingAddress"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "AppErr": {
+      "type": "object",
+      "properties": {
+        "Error": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "RequestID": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/server/handler"
+    },
+    "ApplicableON": {
+      "description": "ApplicableON applicable o n",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "description": "i ds",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "IDs"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "ApplyCouponOpts": {
+      "type": "object",
+      "required": [
+        "code"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-go-name": "Code"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "BankInformation": {
+      "type": "object",
+      "properties": {
+        "account_holder_name": {
+          "type": "string",
+          "x-go-name": "AccountHolderName"
+        },
+        "account_number": {
+          "type": "string",
+          "x-go-name": "AccountNumber"
+        },
+        "ifsc_code": {
+          "type": "string",
+          "x-go-name": "IFSCCode"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "BrandClaim": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "BrandInfoResp": {
+      "description": "BrandInfoResp brand info resp",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "description",
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "slug": {
+          "description": "slug",
+          "type": "string",
+          "x-go-name": "Slug"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "BrandUserLoginOpts": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "Cart": {
+      "description": "Cart cart",
+      "type": "object",
+      "properties": {
+        "billing_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "coupon": {
+          "$ref": "#/definitions/Coupon"
+        },
+        "created_at": {
+          "description": "created at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "items": {
+          "description": "items",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Item"
+          },
+          "x-go-name": "Items"
+        },
+        "shipping_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "updated_at": {
+          "description": "updated at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "CatalogInfo": {
+      "description": "CatalogInfo catalog info",
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_name": {
+          "description": "brand name",
+          "type": "string",
+          "x-go-name": "BrandName"
+        },
+        "commission_rate": {
+          "description": "commission rate",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "CommissionRate"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountInfoResp"
+        },
+        "eta": {
+          "$ref": "#/definitions/ETA"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "hsn_code": {
+          "description": "h s n code",
+          "type": "string",
+          "x-go-name": "HSNCode"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "tax": {
+          "$ref": "#/definitions/Tax"
+        },
+        "transfer_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variant_type": {
+          "description": "variant type",
+          "type": "string",
+          "x-go-name": "VariantType"
+        },
+        "variants": {
+          "description": "variants",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Variant"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CheckEmailOpts": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CheckPhoneNoOpts": {
+      "type": "object",
+      "required": [
+        "phone_no"
+      ],
+      "properties": {
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CheckoutOpts": {
+      "type": "object",
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_cod": {
+          "type": "boolean",
+          "x-go-name": "IsCOD"
+        },
+        "platform": {
+          "type": "string",
+          "x-go-name": "Platform"
+        },
+        "request_id": {
+          "type": "string",
+          "x-go-name": "RequestID"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "Claim": {
+      "type": "object",
+      "properties": {
+        "GetJWTToken": {
+          "$ref": "#/definitions/Token"
+        },
+        "IsAdmin": {
+          "type": "boolean"
+        },
+        "IsInternal": {
+          "type": "boolean"
+        },
+        "IsSudo": {
+          "type": "boolean"
+        },
+        "ToJSON": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/server/auth"
+    },
+    "Claims": {
+      "description": "For a type to be a Claims object, it must just have a Valid method that determines\nif the token is invalid for any supported reason",
+      "type": "object",
+      "properties": {
+        "Valid": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/dgrijalva/jwt-go"
+    },
+    "CommissionDebitRequest": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Amount"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "payout_information": {
+          "$ref": "#/definitions/PayoutInformationOpts"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CommonError": {
+      "description": "CommonError common error",
+      "type": "object",
+      "properties": {
+        "message": {
+          "description": "Message of the error\nin: string",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "status": {
+          "description": "Status of the error",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "Country": {
+      "description": "Country represents country contains its iso representation and name of the country",
+      "type": "object",
+      "properties": {
+        "iso_code": {
+          "description": "i s o code",
+          "type": "string",
+          "x-go-name": "ISOCode"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Coupon": {
+      "description": "Coupon coupon",
+      "type": "object",
+      "properties": {
+        "applicable_on": {
+          "$ref": "#/definitions/ApplicableON"
+        },
+        "code": {
+          "description": "code",
+          "type": "string",
+          "x-go-name": "Code"
+        },
+        "description": {
+          "description": "description",
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "max_discount": {
+          "$ref": "#/definitions/Price"
+        },
+        "min_purchase_value": {
+          "$ref": "#/definitions/Price"
+        },
+        "status": {
+          "description": "status",
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "valid_after": {
+          "description": "valid after\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidAfter"
+        },
+        "valid_before": {
+          "description": "valid before\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidBefore"
+        },
+        "value": {
+          "description": "value",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CreateUserOpts": {
+      "type": "object",
+      "required": [
+        "type",
+        "email",
+        "password",
+        "confirm_password"
+      ],
+      "properties": {
+        "confirm_password": {
+          "description": "description: confirm password",
+          "type": "string",
+          "x-go-name": "ConfirmPassword"
+        },
+        "email": {
+          "description": "description: email of user",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "password": {
+          "description": "description: password of user",
+          "type": "string",
+          "minLength": 6,
+          "x-go-name": "Password"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        },
+        "type": {
+          "description": "description: type of user",
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateUserResp": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CurrencyISO": {
+      "description": "CurrencyISO iso representation of currency",
+      "type": "string",
+      "x-go-package": "go-app/model"
+    },
+    "DateTime": {
+      "description": "DateTime is a time but it serializes to ISO8601 format with millis\nIt knows how to read 3 different variations of a RFC3339 date time.\nMost APIs we encounter want either millisecond or second precision times.\nThis just tries to make it worry-free.",
+      "type": "string",
+      "format": "date-time",
+      "x-go-package": "github.com/go-openapi/strfmt"
+    },
+    "DiscountInfo": {
+      "description": "DiscountInfo contains discount data for particular variant",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "max_value": {
+          "description": "max value",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "description": "value",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "DiscountInfoResp": {
+      "description": "DiscountInfoResp discount info resp",
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "created_at": {
+          "description": "created at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_active": {
+          "description": "is active",
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "max_value": {
+          "description": "MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "sale_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "valid_after": {
+          "description": "If discount is part of sale then ValidAfter \u0026 ValidBefore values will be inherited from sale only.",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidAfter"
+        },
+        "valid_before": {
+          "description": "valid before\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidBefore"
+        },
+        "value": {
+          "description": "value",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        },
+        "variants_id": {
+          "description": "variants ID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "VariantsID"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "ETA": {
+      "description": "ETA contains maximum and minimum delivery time of a catalog",
+      "type": "object",
+      "properties": {
+        "max": {
+          "description": "max",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Max"
+        },
+        "min": {
+          "description": "min",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Min"
+        },
+        "unit": {
+          "description": "unit",
+          "type": "string",
+          "x-go-name": "Unit"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "EditAddressOpts": {
+      "type": "object",
+      "required": [
+        "user_id",
+        "address_id",
+        "display_name",
+        "line1",
+        "line2",
+        "district",
+        "city",
+        "state",
+        "postal_code",
+        "country",
+        "plain_address",
+        "is_billing_address",
+        "is_shipping_address",
+        "is_default_address",
+        "contact_number"
+      ],
+      "properties": {
+        "address_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "contact_number": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "is_billing_address": {
+          "type": "boolean",
+          "x-go-name": "IsBillingAddress"
+        },
+        "is_default_address": {
+          "type": "boolean",
+          "x-go-name": "IsDefaultAddress"
+        },
+        "is_shipping_address": {
+          "type": "boolean",
+          "x-go-name": "IsShippingAddress"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditInfluencerAppOpts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "payout_information": {
+          "$ref": "#/definitions/PayoutInformationOpts"
+        },
+        "username": {
+          "description": "Name          string             `json:\"name\"`",
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditInfluencerAppV2Opts": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/Img"
+        },
+        "external_links": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExternalLinks"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "payout_information": {
+          "$ref": "#/definitions/PayoutInformationOpts"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccountOpts"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditInfluencerResp": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/IMG"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "external_links": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExternalLinks"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccount"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EmailLoginCustomerOpts": {
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EmailLoginCustomerResp": {
+      "description": "EmailLoginCustomerResp email login customer resp",
+      "type": "object",
+      "properties": {
+        "token": {
+          "description": "Token after successful login",
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "ExpressCheckoutOpts": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/OrderAddressOpts"
+        },
+        "coupon": {
+          "type": "string",
+          "x-go-name": "Coupon"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ItemExpress"
+          },
+          "x-go-name": "Items"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "source_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "ExpressCheckoutWebOpts": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/OrderAddressOpts"
+        },
+        "coupon": {
+          "type": "string",
+          "x-go-name": "Coupon"
+        },
+        "is_cod": {
+          "type": "boolean",
+          "x-go-name": "IsCOD"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ItemExpress"
+          },
+          "x-go-name": "Items"
+        },
+        "request_id": {
+          "type": "string",
+          "x-go-name": "RequestID"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "source_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "ForgotPasswordOpts": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GenerateMobileLoginOTPOpts": {
+      "type": "object",
+      "required": [
+        "phone_no"
+      ],
+      "properties": {
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetActiveBrandsListESEesp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandBasicESEesp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_followed_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsFollowedByUser"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandInfoEsResp": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/IMG"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "followers_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowersCount"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_followed_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsFollowedByUser"
+        },
+        "lname": {
+          "type": "string",
+          "x-go-name": "LName"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccount"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        },
+        "website": {
+          "type": "string",
+          "x-go-name": "Website"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandResp": {
+      "description": "GetBrandResp get brand resp",
+      "type": "object",
+      "properties": {
+        "bio": {
+          "description": "bio",
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/IMG"
+        },
+        "domain": {
+          "description": "domain",
+          "type": "string",
+          "x-go-name": "Domain"
+        },
+        "followers_count": {
+          "description": "followers count",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowersCount"
+        },
+        "followers_id": {
+          "description": "followers ID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FollowersID"
+        },
+        "following_count": {
+          "description": "following count",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowingCount"
+        },
+        "following_id": {
+          "description": "following ID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FollowingID"
+        },
+        "fulfillment_cc_email": {
+          "description": "fulfillment c c email",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "FulfillmentCCEmail"
+        },
+        "fulfillment_email": {
+          "description": "fulfillment email",
+          "type": "string",
+          "x-go-name": "FulfillmentEmail"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "lname": {
+          "description": "l name",
+          "type": "string",
+          "x-go-name": "LName"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "registered_name": {
+          "description": "registered name",
+          "type": "string",
+          "x-go-name": "RegisteredName"
+        },
+        "size_profiles": {
+          "description": "size profiles",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetSizeProfileForBrandResp"
+          },
+          "x-go-name": "SizeProfiles"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccount"
+        },
+        "username": {
+          "description": "username",
+          "type": "string",
+          "x-go-name": "Username"
+        },
+        "website": {
+          "description": "website",
+          "type": "string",
+          "x-go-name": "Website"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "GetBrandsByIDBasicOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandsByUsernameBasicOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "usernames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Usernames"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandsInfoByIDOpts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandsInfoByUsernameOpts": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetBrandsListOpts": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Size"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCartInfoItemsResp": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "catalog_info": {
+          "$ref": "#/definitions/CatalogInfo"
+        },
+        "discount_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountInfo"
+        },
+        "discounted_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "in_stock": {
+          "type": "boolean",
+          "x-go-name": "InStock"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Quantity"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "transfer_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCartInfoResp": {
+      "type": "object",
+      "properties": {
+        "billing_address": {
+          "$ref": "#/definitions/getAddress"
+        },
+        "coupon": {
+          "$ref": "#/definitions/Coupon"
+        },
+        "coupon_value": {
+          "$ref": "#/definitions/Price"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "grand_total": {
+          "$ref": "#/definitions/Price"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCartInfoItemsResp"
+          },
+          "x-go-name": "Items"
+        },
+        "shipping_address": {
+          "$ref": "#/definitions/getAddress"
+        },
+        "total_discount": {
+          "$ref": "#/definitions/Price"
+        },
+        "total_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCommissionAndRevenueOpts": {
+      "type": "object",
+      "properties": {
+        "end_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EndDate"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StartDate"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCommissionAndRevenueResp": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Balance"
+        },
+        "commission": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Commission"
+        },
+        "revenue": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Revenue"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCustomerProfileInfoResp": {
+      "description": "GetCustomerProfileInfoResp get customer profile info resp",
+      "type": "object",
+      "properties": {
+        "brand_follow_count": {
+          "description": "brand follow count",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BrandFollowCount"
+        },
+        "brand_following": {
+          "description": "brand following",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandFollowing"
+        },
+        "cart_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "dob": {
+          "description": "d o b\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DOB"
+        },
+        "full_name": {
+          "description": "full name",
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "gender": {
+          "description": "gender",
+          "type": "string",
+          "x-go-name": "Gender"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_follow_count": {
+          "description": "influencer follow count",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "InfluencerFollowCount"
+        },
+        "influencer_following": {
+          "description": "influencer following",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerFollowing"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_info": {
+          "$ref": "#/definitions/GetUserInfoResp"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "GetInfluencerBasicESEesp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_followed_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsFollowedByUser"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerContentCountResp": {
+      "type": "object",
+      "properties": {
+        "collections": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Collections"
+        },
+        "pebbles": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Pebbles"
+        },
+        "products": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Products"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerDashboardOpts": {
+      "type": "object",
+      "properties": {
+        "end_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EndDate"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StartDate"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerDashboardResp": {
+      "type": "object",
+      "properties": {
+        "ledger": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetInfluencerLedgerResp"
+          },
+          "x-go-name": "Ledger"
+        },
+        "monthly_data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MonthlyData"
+          },
+          "x-go-name": "MonthlyData"
+        },
+        "overall_data": {
+          "$ref": "#/definitions/OverallData"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerInfoByIDOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerInfoByUsernameOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerInfoEsResp": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "content_count": {
+          "$ref": "#/definitions/GetInfluencerContentCountResp"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/IMG"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "external_links": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ExternalLinks"
+        },
+        "followers_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowersCount"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_followed_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsFollowedByUser"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccount"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerLedgerOpts": {
+      "type": "object",
+      "properties": {
+        "end_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EndDate"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StartDate"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerLedgerResp": {
+      "type": "object",
+      "properties": {
+        "commission": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Commission"
+        },
+        "date": {
+          "type": "string",
+          "x-go-name": "Date"
+        },
+        "ledger": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LedgerResp"
+          },
+          "x-go-name": "Ledger"
+        },
+        "revenue": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Revenue"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencersByIDBasicOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencersByUsernameBasicOpts": {
+      "type": "object",
+      "properties": {
+        "CustomerID": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "usernames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Usernames"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPayoutInfoResp": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Balance"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "payout_information": {
+          "$ref": "#/definitions/PayoutInformation"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSizeProfileForBrandResp": {
+      "description": "GetSizeProfileForBrandResp get size profile for brand resp",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "specs": {
+          "description": "specs",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Specs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSizeProfileResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "specs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "Specs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetUserInfoByIDOpts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetUserInfoResp": {
+      "description": "GetUserInfoResp get user info resp",
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "email": {
+          "description": "email",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "email_verified": {
+          "description": "email verified",
+          "type": "boolean",
+          "x-go-name": "EmailVerified"
+        },
+        "email_verified_at": {
+          "description": "email verified at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "EmailVerifiedAt"
+        },
+        "full_name": {
+          "description": "full name",
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "phone_verified": {
+          "description": "phone verified",
+          "type": "boolean",
+          "x-go-name": "PhoneVerified"
+        },
+        "phone_verified_at": {
+          "description": "phone verified at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "PhoneVerifiedAt"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "role": {
+          "description": "role",
+          "type": "string",
+          "x-go-name": "Role"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "username": {
+          "description": "username",
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GoKwikCreateOrderResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/GoKwikOrderData"
+        },
+        "statusCode": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "StatusCode"
+        },
+        "statusMessage": {
+          "type": "string",
+          "x-go-name": "StatusMessage"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GoKwikOrderData": {
+      "type": "object",
+      "properties": {
+        "gokwik_oid": {
+          "type": "string",
+          "x-go-name": "GokwikOID"
+        },
+        "mid": {
+          "type": "string",
+          "x-go-name": "Mid"
+        },
+        "moid": {
+          "type": "string",
+          "x-go-name": "Moid"
+        },
+        "order_status": {
+          "type": "string",
+          "x-go-name": "OrderStatus"
+        },
+        "order_type": {
+          "type": "string",
+          "x-go-name": "OrderType"
+        },
+        "phone": {
+          "type": "string",
+          "x-go-name": "Phone"
+        },
+        "request_id": {
+          "type": "string",
+          "x-go-name": "RequestID"
+        },
+        "total": {
+          "type": "string",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "IMG": {
+      "description": "IMG contains image url, src, height and id",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "height",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Height"
+        },
+        "src": {
+          "description": "s r c",
+          "type": "string",
+          "x-go-name": "SRC"
+        },
+        "width": {
+          "description": "width",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Width"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Img": {
+      "type": "object",
+      "required": [
+        "src"
+      ],
+      "properties": {
+        "src": {
+          "type": "string",
+          "x-go-name": "SRC"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "InfluencerAccountRequestOpts": {
+      "type": "object",
+      "required": [
+        "user_id",
+        "customer_id",
+        "full_name",
+        "profile_image",
+        "cover_image",
+        "bio"
+      ],
+      "properties": {
+        "Source": {
+          "type": "object"
+        },
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "customer_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "full_name": {
+          "description": "InfluencerID  primitive.ObjectID `json:\"influencer_id\" validate:\"required\"`",
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccountOpts"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        },
+        "website": {
+          "type": "string",
+          "x-go-name": "Website"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "InfluencerAccountRequestV2Opts": {
+      "type": "object",
+      "properties": {
+        "Source": {
+          "type": "object"
+        },
+        "area_of_expertise": {
+          "type": "string",
+          "x-go-name": "AreaOfExpertise"
+        },
+        "cover_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "customer_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "phone": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccountOpts"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "InfluencerInfo": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/server/auth"
+    },
+    "Inventory": {
+      "description": "Inventory contains inventory specific data",
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/InventoryStatus"
+        },
+        "unit_in_stock": {
+          "description": "unit in stock",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnitInStock"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "InventoryStatus": {
+      "description": "InventoryStatus stores catalog status such as out_of_stock, in_stock, inactive",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "description": "created at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "value": {
+          "description": "value",
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Item": {
+      "description": "Item is a unique catalogs data inside the cart",
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "catalog_info": {
+          "$ref": "#/definitions/CatalogInfo"
+        },
+        "discount_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountInfo"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "in_stock": {
+          "description": "in stock",
+          "type": "boolean",
+          "x-go-name": "InStock"
+        },
+        "quantity": {
+          "description": "quantity",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Quantity"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "transfer_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "ItemExpress": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Quantity"
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "LedgerResp": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Balance"
+        },
+        "catalog_info": {
+          "$ref": "#/definitions/CatalogInfo"
+        },
+        "commission_value": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "CommissionValue"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "debit_amount": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "DebitAmount"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "order_no": {
+          "type": "string",
+          "x-go-name": "OrderNo"
+        },
+        "order_value": {
+          "$ref": "#/definitions/Price"
+        },
+        "payout_information": {
+          "$ref": "#/definitions/PayoutInformation"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "LoginWithApple": {
+      "type": "object",
+      "required": [
+        "type",
+        "apple_id"
+      ],
+      "properties": {
+        "apple_id": {
+          "type": "string",
+          "x-go-name": "AppleID"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "LoginWithSocial": {
+      "type": "object",
+      "required": [
+        "type",
+        "email",
+        "full_name",
+        "profile_image"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "MobileLoginCustomerUserOpts": {
+      "type": "object",
+      "required": [
+        "phone_no",
+        "otp"
+      ],
+      "properties": {
+        "otp": {
+          "type": "string",
+          "x-go-name": "OTP"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "MonthlyData": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Count"
+        },
+        "month": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Month"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "ObjectID": {
+      "type": "array",
+      "title": "ObjectID is the BSON ObjectID type.",
+      "items": {
+        "type": "integer",
+        "format": "uint8"
+      },
+      "x-go-package": "go.mongodb.org/mongo-driver/bson/primitive"
+    },
+    "OrderAddressOpts": {
+      "description": "OrderAddressOpts contains field required to add/edit the address of the user's cart",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "OrderInfo": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Amount"
+        },
+        "go_kwik": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GoKwikCreateOrderResp"
+          },
+          "x-go-name": "GoKwikResponse"
+        },
+        "order_id": {
+          "type": "string",
+          "x-go-name": "OrderID"
+        },
+        "razorpay_id": {
+          "type": "string",
+          "x-go-name": "RazorpayID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "OverallData": {
+      "type": "object",
+      "properties": {
+        "revenue": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Revenue"
+        },
+        "total_commission": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalCommission"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "PayoutInformation": {
+      "type": "object",
+      "properties": {
+        "bank_information": {
+          "$ref": "#/definitions/BankInformation"
+        },
+        "pan_card": {
+          "type": "string",
+          "x-go-name": "PanCard"
+        },
+        "upi_id": {
+          "type": "string",
+          "x-go-name": "UPIID"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "PayoutInformationOpts": {
+      "type": "object",
+      "properties": {
+        "bank_information": {
+          "$ref": "#/definitions/BankInformation"
+        },
+        "pan_card": {
+          "type": "string",
+          "x-go-name": "PanCard"
+        },
+        "upi_id": {
+          "type": "string",
+          "x-go-name": "UPIID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "PhoneNoOpts": {
+      "description": "PhoneNoOpts phone no opts",
+      "type": "object",
+      "required": [
+        "prefix",
+        "number"
+      ],
+      "properties": {
+        "number": {
+          "description": "Number of the user\nin: string",
+          "type": "string",
+          "x-go-name": "Number"
+        },
+        "prefix": {
+          "description": "Prefix of the number\nin: string",
+          "type": "string",
+          "x-go-name": "Prefix"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "PhoneNumber": {
+      "description": "PhoneNumber represents a contact number contains prefix (country code) and phone number",
+      "type": "object",
+      "properties": {
+        "number": {
+          "description": "number",
+          "type": "string",
+          "x-go-name": "Number"
+        },
+        "prefix": {
+          "description": "prefix",
+          "type": "string",
+          "x-go-name": "Prefix"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Price": {
+      "description": "Price represents cost of an entity",
+      "type": "object",
+      "properties": {
+        "iso": {
+          "$ref": "#/definitions/CurrencyISO"
+        },
+        "value": {
+          "description": "value",
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "RemoveFromWishlistOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "ResendVerificationEmailOpts": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "ResetPasswordOpts": {
+      "type": "object",
+      "required": [
+        "email",
+        "password",
+        "confirm_password",
+        "otp"
+      ],
+      "properties": {
+        "confirm_password": {
+          "type": "string",
+          "x-go-name": "ConfirmPassword"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "otp": {
+          "type": "string",
+          "x-go-name": "OTP"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "SigningMethod": {
+      "type": "object",
+      "title": "Implement SigningMethod to add new methods for signing or verifying tokens.",
+      "properties": {
+        "Alg": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/dgrijalva/jwt-go"
+    },
+    "SocialAccount": {
+      "description": "SocialAccount contains info about social media pages such as facebook, instagram, etc",
+      "type": "object",
+      "properties": {
+        "facebook": {
+          "$ref": "#/definitions/SocialMedia"
+        },
+        "instagram": {
+          "$ref": "#/definitions/SocialMedia"
+        },
+        "twitter": {
+          "$ref": "#/definitions/SocialMedia"
+        },
+        "youtube": {
+          "$ref": "#/definitions/SocialMedia"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "SocialAccountOpts": {
+      "type": "object",
+      "properties": {
+        "facebook": {
+          "$ref": "#/definitions/SocialMediaOpts"
+        },
+        "instagram": {
+          "$ref": "#/definitions/SocialMediaOpts"
+        },
+        "twitter": {
+          "$ref": "#/definitions/SocialMediaOpts"
+        },
+        "youtube": {
+          "$ref": "#/definitions/SocialMediaOpts"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "SocialMedia": {
+      "description": "Type -\u003e facebook\n\u003e twitter\n\u003e youtube\n\u003e instagram",
+      "type": "object",
+      "title": "SocialMedia contains followers_count for a specific account",
+      "properties": {
+        "followers_count": {
+          "description": "followers count",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowersCount"
+        },
+        "url": {
+          "description": "URL",
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "SocialMediaOpts": {
+      "type": "object",
+      "properties": {
+        "followers_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "FollowersCount"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "Source": {
+      "description": "Source source",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "ID",
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "StandardClaims": {
+      "description": "Structured version of Claims Section, as referenced at\nhttps://tools.ietf.org/html/rfc7519#section-4.1\nSee examples for how to use this with your own claim types",
+      "type": "object",
+      "properties": {
+        "aud": {
+          "type": "string",
+          "x-go-name": "Audience"
+        },
+        "exp": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExpiresAt"
+        },
+        "iat": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "IssuedAt"
+        },
+        "iss": {
+          "type": "string",
+          "x-go-name": "Issuer"
+        },
+        "jti": {
+          "type": "string",
+          "x-go-name": "Id"
+        },
+        "nbf": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NotBefore"
+        },
+        "sub": {
+          "type": "string",
+          "x-go-name": "Subject"
+        }
+      },
+      "x-go-package": "github.com/dgrijalva/jwt-go"
+    },
+    "State": {
+      "description": "State state",
+      "type": "object",
+      "properties": {
+        "iso_code": {
+          "description": "i s o code",
+          "type": "string",
+          "x-go-name": "ISOCode"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/models"
+    },
+    "Status": {
+      "description": "Unlist: status is set by default when a new catalog instance is created.\ncatalog with this status are now shown to the customer as this represents WIP catalog.\nunlist is one time status only once unlist status is changed it cannot be reverted.\n\nallowed status transitions \t-\u003e publish\n\u003e discard\n\nPublish: \tstatus is set thorugh admin/keeper dashboard to allow visibility of a catalog to customer.\npublish status can only be changed to discard\n\nallowed status transitions \t-\u003e discard\n\nDiscard:\tdiscard is an alias to delete a catalog without actually deleting it from the database to avoid NOT FOUND for\nother services while searching for catalog",
+      "type": "object",
+      "title": "Status stores catalog status such as unlisted (default), published, archive",
+      "properties": {
+        "created_at": {
+          "description": "created at\nFormat: date-time",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "name": {
+          "description": "name",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "value": {
+          "description": "value",
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "SuccessfulLogin": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "description": "Token after successful login",
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-name": "EmailLoginCustomerResp",
+      "x-go-package": "go-app/schema"
+    },
+    "Tax": {
+      "description": "Tax tax",
+      "type": "object",
+      "properties": {
+        "rate": {
+          "description": "rate",
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Rate"
+        },
+        "tax_ranges": {
+          "description": "tax ranges",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaxRange"
+          },
+          "x-go-name": "TaxRanges"
+        },
+        "type": {
+          "description": "type",
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "TaxRange": {
+      "description": "TaxRange tax range",
+      "type": "object",
+      "properties": {
+        "max_value": {
+          "description": "max value",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxValue"
+        },
+        "min_value": {
+          "description": "min value",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MinValue"
+        },
+        "rate": {
+          "description": "rate",
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Rate"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Token": {
+      "description": "A JWT Token.  Different fields will be used depending on whether you're\ncreating or parsing/verifying a token.",
+      "type": "object",
+      "properties": {
+        "Claims": {
+          "$ref": "#/definitions/Claims"
+        },
+        "Header": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "Method": {
+          "$ref": "#/definitions/SigningMethod"
+        },
+        "Raw": {
+          "type": "string"
+        },
+        "Signature": {
+          "type": "string"
+        },
+        "Valid": {
+          "type": "boolean"
+        }
+      },
+      "x-go-package": "github.com/dgrijalva/jwt-go"
+    },
+    "TokenAuth": {
+      "description": "TokenAuth token auth",
+      "type": "object",
+      "x-go-package": "go-app/models"
+    },
+    "UpdateCustomerOpts": {
+      "type": "object",
+      "properties": {
+        "dob": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DOB"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "gender": {
+          "type": "string",
+          "x-go-name": "Gender"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "UpdateItemQtyOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Quantity"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "UserClaim": {
+      "type": "object",
+      "properties": {
+        "aud": {
+          "type": "string",
+          "x-go-name": "Audience"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandClaim"
+        },
+        "cart_id": {
+          "type": "string",
+          "x-go-name": "CartID"
+        },
+        "created_via": {
+          "type": "string",
+          "x-go-name": "CreatedVia"
+        },
+        "customer_id": {
+          "type": "string",
+          "x-go-name": "CustomerID"
+        },
+        "dob": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DOB"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "email_verified": {
+          "type": "boolean",
+          "x-go-name": "EmailVerified"
+        },
+        "exp": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ExpiresAt"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "gender": {
+          "type": "string",
+          "x-go-name": "Gender"
+        },
+        "iat": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "IssuedAt"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "influencer_info": {
+          "$ref": "#/definitions/InfluencerInfo"
+        },
+        "iss": {
+          "type": "string",
+          "x-go-name": "Issuer"
+        },
+        "jti": {
+          "type": "string",
+          "x-go-name": "Id"
+        },
+        "keeper_user_id": {
+          "type": "string",
+          "x-go-name": "KeeperUserID"
+        },
+        "nbf": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "NotBefore"
+        },
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "phone_verified": {
+          "type": "boolean",
+          "x-go-name": "PhoneVerified"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "role": {
+          "type": "string",
+          "x-go-name": "Role"
+        },
+        "sub": {
+          "type": "string",
+          "x-go-name": "Subject"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "user_groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserGroup"
+          },
+          "x-go-name": "UserGroups"
+        }
+      },
+      "x-go-package": "go-app/server/auth"
+    },
+    "UserGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Variant": {
+      "description": "Variant contains variants based on one property (size, color)",
+      "type": "object",
+      "properties": {
+        "attribute": {
+          "description": "attribute",
+          "type": "string",
+          "x-go-name": "Attribute"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "inventory_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "inventory_info": {
+          "$ref": "#/definitions/Inventory"
+        },
+        "is_deleted": {
+          "description": "is deleted",
+          "type": "boolean",
+          "x-go-name": "IsDeleted"
+        },
+        "sku": {
+          "description": "s k u",
+          "type": "string",
+          "x-go-name": "SKU"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "VerifyEmailOpts": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "verification_code": {
+          "type": "string",
+          "x-go-name": "VerificationCode"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "VerifyPhoneNoOpts": {
+      "type": "object",
+      "required": [
+        "phone_no",
+        "verification_code"
+      ],
+      "properties": {
+        "phone_no": {
+          "$ref": "#/definitions/PhoneNoOpts"
+        },
+        "verification_code": {
+          "type": "string",
+          "x-go-name": "VerificationCode"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "addToCart": {
+      "type": "object",
+      "properties": {
+        "billing_address": {
+          "$ref": "#/definitions/getAddress"
+        },
+        "coupon": {
+          "$ref": "#/definitions/Coupon"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Item"
+          },
+          "x-go-name": "Items"
+        },
+        "shipping_address": {
+          "$ref": "#/definitions/getAddress"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-name": "Cart",
+      "x-go-package": "go-app/model"
+    },
+    "getAddress": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "contact_number": {
+          "$ref": "#/definitions/PhoneNumber"
+        },
+        "country": {
+          "$ref": "#/definitions/Country"
+        },
+        "display_name": {
+          "type": "string",
+          "x-go-name": "DisplayName"
+        },
+        "district": {
+          "type": "string",
+          "x-go-name": "District"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_billing_address": {
+          "type": "boolean",
+          "x-go-name": "IsBillingAddress"
+        },
+        "is_default_address": {
+          "type": "boolean",
+          "x-go-name": "IsDefaultAddress"
+        },
+        "is_shipping_address": {
+          "type": "boolean",
+          "x-go-name": "IsShippingAddress"
+        },
+        "line1": {
+          "type": "string",
+          "x-go-name": "Line1"
+        },
+        "line2": {
+          "type": "string",
+          "x-go-name": "Line2"
+        },
+        "plain_address": {
+          "type": "string",
+          "x-go-name": "PlainAddress"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "state": {
+          "$ref": "#/definitions/State"
+        }
+      },
+      "x-go-name": "Address",
+      "x-go-package": "go-app/model"
+    },
+    "getBrandByID": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "x-go-name": "Bio"
+        },
+        "cover_img": {
+          "$ref": "#/definitions/IMG"
+        },
+        "domain": {
+          "type": "string",
+          "x-go-name": "Domain"
+        },
+        "followers_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowersCount"
+        },
+        "followers_id": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FollowersID"
+        },
+        "following_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "FollowingCount"
+        },
+        "following_id": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FollowingID"
+        },
+        "fulfillment_cc_email": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "FulfillmentCCEmail"
+        },
+        "fulfillment_email": {
+          "type": "string",
+          "x-go-name": "FulfillmentEmail"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "lname": {
+          "type": "string",
+          "x-go-name": "LName"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "registered_name": {
+          "type": "string",
+          "x-go-name": "RegisteredName"
+        },
+        "size_profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetSizeProfileForBrandResp"
+          },
+          "x-go-name": "SizeProfiles"
+        },
+        "social_account": {
+          "$ref": "#/definitions/SocialAccount"
+        },
+        "username": {
+          "type": "string",
+          "x-go-name": "Username"
+        },
+        "website": {
+          "type": "string",
+          "x-go-name": "Website"
+        }
+      },
+      "x-go-name": "GetBrandResp",
+      "x-go-package": "go-app/schema"
+    },
+    "getCustomerInfo": {
+      "type": "object",
+      "properties": {
+        "brand_follow_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "BrandFollowCount"
+        },
+        "brand_following": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandFollowing"
+        },
+        "cart_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "dob": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DOB"
+        },
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "gender": {
+          "type": "string",
+          "x-go-name": "Gender"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_follow_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "InfluencerFollowCount"
+        },
+        "influencer_following": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerFollowing"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "user_info": {
+          "$ref": "#/definitions/GetUserInfoResp"
+        }
+      },
+      "x-go-name": "GetCustomerProfileInfoResp",
+      "x-go-package": "go-app/schema"
+    }
+  }
+}

@@ -61,6 +61,34 @@ func (a *API) getSizeProfilesForBrand(requestCTX *handler.RequestContext, w http
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  GET /app/size/get GetSizeProfile getSizeProfile
+// getSizeProfile
+//
+// This endpoint will return size profile.
+//
+// Endpoint: /app/size/get
+//
+// Method: GET
+//
+// parameters:
+// + name: id
+//   in: query
+//   schema:
+//   enum: 60acf7bcf928b0fa83a7f89f
+//   type: ObjectID
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description: Invalid User
+//  200: GetSizeProfileResp description: OK
 func (a *API) getSizeProfile(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))

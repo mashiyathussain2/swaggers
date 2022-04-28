@@ -8,15 +8,29 @@ import (
 )
 
 //AddToCartOpts contains field required to add item into Cart
+
+// swagger:model AddToCartOpts
 type AddToCartOpts struct {
-	ID        primitive.ObjectID `json:"id" validate:"required"`
+	// Id of the company
+	// in: int64
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// catalog id
+	// description: catalog id
+	// required: true
+	// swagger:strfmt
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
-	Quantity  uint               `json:"quantity" validate:"required,gt=0"`
-	Source    *model.Source      `json:"source"`
+	// catalog id
+	// description: catalog id
+	// required: true
+	Quantity uint `json:"quantity" validate:"required,gt=0"`
+	// svdsvdsvdh
+	Source *model.Source `json:"source"`
 }
 
 //UpdateItemQtyOpts contains field required to update the quantity of a item already in the user's cart
+
+// swagger:model UpdateItemQtyOpts
 type UpdateItemQtyOpts struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
@@ -25,6 +39,8 @@ type UpdateItemQtyOpts struct {
 }
 
 //AddressOpts contains field required to add/edit the address of the user's cart
+
+// swagger:model AddressOpts
 type AddressOpts struct {
 	ID                primitive.ObjectID `json:"id" validate:"required"`
 	AddressID         primitive.ObjectID `json:"address_id" validate:"required"`
@@ -79,6 +95,7 @@ type OrderResp struct {
 	Payload OrderInfo `json:"payload"`
 }
 
+// swagger:model OrderInfo
 type OrderInfo struct {
 	OrderID        string                  `json:"order_id" bson:"order_id"`
 	RazorpayID     string                  `json:"razorpay_id" bson:"razorpay_id"`
@@ -174,6 +191,7 @@ type GetCartInfoItemsResp struct {
 	InStock         *bool                `json:"in_stock,omitempty" bson:"in_stock,omitempty"`
 }
 
+// swagger:model GetCartInfoResp
 type GetCartInfoResp struct {
 	ID              primitive.ObjectID     `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID          primitive.ObjectID     `json:"user_id,omitempty" bson:"user_id,omitempty"`
@@ -221,7 +239,9 @@ type UpdateCatalogInfo struct {
 	DiscountInfo  *model.DiscountInfoResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 }
 
+// swagger:model ApplyCouponOpts
 type ApplyCouponOpts struct {
+	// required:true
 	Code string `json:"code" validate:"required"`
 }
 
@@ -304,6 +324,7 @@ type GoKwikOrderData struct {
 	OrderType   string `json:"order_type"`
 }
 
+// swagger:model CheckoutOpts
 type CheckoutOpts struct {
 	ID        primitive.ObjectID `json:"id,omitempty" validate:"required"`
 	Source    string             `json:"source,omitempty" validate:"required"`

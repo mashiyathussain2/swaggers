@@ -6,10 +6,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// swagger:model AddToWishlistOpts
 type AddToWishlistOpts struct {
 	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 }
+
+// swagger:model RemoveFromWishlistOpts
 type RemoveFromWishlistOpts struct {
 	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`

@@ -44,6 +44,8 @@ type EditInfluencerOpts struct {
 }
 
 // EditInfluencerResp contains fields to be returned in response to edit influencer
+
+// swagger:model EditInfluencerResp
 type EditInfluencerResp struct {
 	ID            primitive.ObjectID   `json:"id"`
 	Name          string               `json:"name"`
@@ -82,9 +84,12 @@ type GetInfluencerResp struct {
 	FollowingCount uint                 `json:"following_count" bson:"following_count"`
 }
 
+// swagger:model AddInfluencerFollowerOpts
 type AddInfluencerFollowerOpts struct {
+	// required:true
 	InfluencerID primitive.ObjectID `json:"id" validate:"required"`
-	CustomerID   primitive.ObjectID `json:"customer_id" validate:"required"`
+	// required:true
+	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 }
 
 type InfluencerKafkaMessage struct {
@@ -126,14 +131,21 @@ type LinkUserAccountOpts struct {
 	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
 }
 
+// swagger:model InfluencerAccountRequestOpts
 type InfluencerAccountRequestOpts struct {
-	UserID     primitive.ObjectID `json:"user_id" validate:"required"`
+	// required:true
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// required:true
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 	// InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
-	FullName      string             `json:"full_name" validate:"required"`
-	Username      string             `json:"username,omitempty"`
-	ProfileImage  Img                `json:"profile_image" validate:"required"`
-	CoverImage    Img                `json:"cover_image" validate:"required"`
+	// required:true
+	FullName string `json:"full_name" validate:"required"`
+	Username string `json:"username,omitempty"`
+	// required:true
+	ProfileImage Img `json:"profile_image" validate:"required"`
+	// required:true
+	CoverImage Img `json:"cover_image" validate:"required"`
+	// required:true
 	Bio           string             `json:"bio" validate:"required"`
 	Website       string             `json:"website"`
 	SocialAccount *SocialAccountOpts `json:"social_account"`
@@ -186,6 +198,8 @@ type InfluencerAccountRequestResp struct {
 }
 
 // EditInfluencerAppOpts contains fields and validations required to edit existing influencer
+
+// swagger:model EditInfluencerAppOpts
 type EditInfluencerAppOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
 	// Name          string             `json:"name"`
@@ -218,6 +232,7 @@ type ProcessInsertOrderOpts struct {
 	InfluencerID primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
 }
 
+// swagger:model CommissionDebitRequest
 type CommissionDebitRequest struct {
 	ID                primitive.ObjectID    `json:"id" validate:"required"`
 	Amount            uint                  `json:"amount" validate:"required,gte=1000"`
@@ -241,6 +256,7 @@ type GetDebitRequestResponse struct {
 	PayoutInformationOpts PayoutInformationResp `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
 }
 
+// swagger:model GetInfluencerDashboardResp
 type GetInfluencerDashboardResp struct {
 	MonthlyData []MonthlyData             `json:"monthly_data,omitempty" bson:"monthly_data,omitempty"`
 	Ledger      []GetInfluencerLedgerResp `json:"ledger,omitempty" bson:"ledger,omitempty"`
@@ -256,6 +272,7 @@ type OverallData struct {
 	TotalCommission uint `json:"total_commission,omitempty" bson:"total_commission,omitempty"`
 }
 
+// swagger:model GetInfluencerLedgerOpts
 type GetInfluencerLedgerOpts struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
 	Page      int                `json:"page"`
@@ -264,12 +281,14 @@ type GetInfluencerLedgerOpts struct {
 	EndDate   *time.Time         `json:"end_date"`
 }
 
+// swagger:model GetInfluencerDashboardOpts
 type GetInfluencerDashboardOpts struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
 	StartDate *time.Time         `json:"start_date"`
 	EndDate   *time.Time         `json:"end_date"`
 }
 
+// swagger:model GetInfluencerLedgerResp
 type GetInfluencerLedgerResp struct {
 	Date       string       `json:"date,omitempty" bson:"_id,omitempty"`
 	Ledger     []LedgerResp `json:"ledger,omitempty" bson:"ledger,omitempty"`
@@ -290,6 +309,7 @@ type LedgerResp struct {
 	PayoutInformation *model.PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
 }
 
+// swagger:model GetPayoutInfoResp
 type GetPayoutInfoResp struct {
 	ID                primitive.ObjectID       `json:"id,omitempty" bson:"_id,omitempty"`
 	Balance           float64                  `json:"balance,omitempty" bson:"balance,omitempty"`
@@ -302,11 +322,14 @@ type PayoutInformationResp struct {
 	BankInformation *model.BankInformation `json:"bank_information,omitempty" bson:"bank_information,omitempty"`
 }
 
+// swagger:model GetCommissionAndRevenueOpts
 type GetCommissionAndRevenueOpts struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
 	StartDate *time.Time         `json:"start_date" validate:"required" `
 	EndDate   *time.Time         `json:"end_date" validate:"required"`
 }
+
+// swagger:model GetCommissionAndRevenueResp
 type GetCommissionAndRevenueResp struct {
 	Commission uint `json:"commission,omitempty" bson:"commission,omitempty"`
 	Revenue    uint `json:"revenue,omitempty" bson:"revenue,omitempty"`
@@ -314,6 +337,8 @@ type GetCommissionAndRevenueResp struct {
 }
 
 // EditInfluencerAppV2Opts contains fields and validations required to edit existing influencer
+
+// swagger:model EditInfluencerAppV2Opts
 type EditInfluencerAppV2Opts struct {
 	ID                primitive.ObjectID     `json:"id" validate:"required"`
 	Name              string                 `json:"name,omitempty"`
@@ -326,6 +351,7 @@ type EditInfluencerAppV2Opts struct {
 	PayoutInformation *PayoutInformationOpts `json:"payout_information,omitempty"`
 }
 
+// swagger:model InfluencerAccountRequestV2Opts
 type InfluencerAccountRequestV2Opts struct {
 	UserID          primitive.ObjectID `json:"user_id" validate:"required"`
 	CustomerID      primitive.ObjectID `json:"customer_id" validate:"required"`

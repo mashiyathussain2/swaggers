@@ -39,6 +39,8 @@ type InfluencerInfo struct {
 }
 
 // UserClaim contains customer related info for jwt token
+
+// swagger:model UserClaim
 type UserClaim struct {
 	ID             string             `json:"id"`
 	KeeperUserID   string             `json:"keeper_user_id,omitempty"`

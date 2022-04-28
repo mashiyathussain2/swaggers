@@ -8,22 +8,47 @@ import (
 )
 
 // PhoneNoOpts contains fields and validations for mobile no
+
+// swagger:model PhoneNoOpts
 type PhoneNoOpts struct {
+	// Prefix of the number
+	// in: string
+	// required: true
 	Prefix string `json:"prefix" validate:"required,oneof=+91"`
+	// Number of the user
+	// in: string
+	// required: true
 	Number string `json:"number" validate:"required"`
 }
 
 // CreateUserOpts contains fields and validations required to create a new user.
+
+// swagger:model CreateUserOpts
 type CreateUserOpts struct {
-	Type            string       `json:"type" validate:"required,oneof=customer influencer brand"`
-	MobileNo        *PhoneNoOpts `json:"phone_no"`
-	Email           string       `json:"email" validate:"required_without=MobileNo|email"`
-	Password        string       `json:"password" validate:"required,min=6"`
-	ConfirmPassword string       `json:"confirm_password" validate:"required,eqfield=Password"`
+	//  description: type of user
+	//  required: true
+	Type     string       `json:"type" validate:"required,oneof=customer influencer brand"`
+	MobileNo *PhoneNoOpts `json:"phone_no"`
+
+	//  description: email of user
+	//  required: true
+	Email string `json:"email" validate:"required_without=MobileNo|email"`
+
+	//  description: password of user
+	//  required: true
+	//  Min Length: 6
+	Password string `json:"password" validate:"required,min=6"`
+
+	//  description: confirm password
+	//  required: true
+	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
 }
 
 // CreateUserResp contains fields to be required in response to create user
+
+// swagger:model CreateUserResp
 type CreateUserResp struct {
+	// label: primitive
 	ID      primitive.ObjectID `json:"id"`
 	Type    string             `json:"type"`
 	Email   string             `json:"email,omitempty"`
@@ -31,23 +56,35 @@ type CreateUserResp struct {
 }
 
 // VerifyEmailOpts contains fields and validations required to verify an email
+
+// swagger:model VerifyEmailOpts
 type VerifyEmailOpts struct {
 	Email            string `json:"email" validate:"required,email"`
 	VerificationCode string `json:"verification_code" validate:"required"`
 }
 
+// swagger:model CheckEmailOpts
 type CheckEmailOpts struct {
+	// required: true
 	Email string `json:"email" validate:"required,email"`
 }
 
+// swagger:model CheckPhoneNoOpts
 type CheckPhoneNoOpts struct {
+	// Phone no
+	// required: true
 	PhoneNo *PhoneNoOpts `json:"phone_no" validate:"required"`
 }
 
 // VerifyEmailOpts contains fields and validations required to verify an email
+
+// swagger:model VerifyPhoneNoOpts
 type VerifyPhoneNoOpts struct {
-	PhoneNo          *PhoneNoOpts `json:"phone_no" validate:"required"`
-	VerificationCode string       `json:"verification_code" validate:"required"`
+	// Phone no
+	// required: true
+	PhoneNo *PhoneNoOpts `json:"phone_no" validate:"required"`
+	// required: true
+	VerificationCode string `json:"verification_code" validate:"required"`
 }
 
 // GetUserResp returns fields in response to get user
@@ -82,49 +119,78 @@ type GetUserInfoResp struct {
 }
 
 //ForgotPasswordOpts contains fields and validations required to send otp to email to reset password
+
+// swagger:model ForgotPasswordOpts
 type ForgotPasswordOpts struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
 //ResendVerificationEmailOpts contains fields and validations required to send otp to email to reset password
+
+// swagger:model ResendVerificationEmailOpts
 type ResendVerificationEmailOpts struct {
+	// required: true
 	Email string `json:"email" validate:"required,email"`
 }
 
 //ResetPasswordOpts contains fields and validations required to change existing user password
+
+// swagger:model ResetPasswordOpts
 type ResetPasswordOpts struct {
-	Email           string `json:"email" validate:"required,email"`
-	Password        string `json:"password" validate:"required,min=6"`
+	// required:true
+	Email string `json:"email" validate:"required,email"`
+	// required:true
+	Password string `json:"password" validate:"required,min=6"`
+	// required:true
 	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
-	OTP             string `json:"otp" validate:"required"`
+	// required:true
+	OTP string `json:"otp" validate:"required"`
 }
 
 // MobileLoginCustomerUserOpts contains field and validations required to allow mobile login for customer
+
+// swagger:model MobileLoginCustomerUserOpts
 type MobileLoginCustomerUserOpts struct {
+	// Phone no
+	// required: true
 	PhoneNo *PhoneNoOpts `json:"phone_no" validate:"required"`
-	OTP     string       `json:"otp" validate:"required"`
+	// required: true
+	OTP string `json:"otp" validate:"required"`
 }
 
 // GenerateMobileLoginOTPOpts contains fields and validations to generate mobile login otp
+
+// swagger:model GenerateMobileLoginOTPOpts
 type GenerateMobileLoginOTPOpts struct {
+	// required:true
 	PhoneNo *PhoneNoOpts `json:"phone_no" validate:"required"`
 }
 
 // LoginWithSocial contains fields and validations required to allow customer login for social apps
+
+// swagger:model LoginWithSocial
 type LoginWithSocial struct {
-	Type         string `json:"type" validate:"required,oneof=google facebook"`
-	Email        string `json:"email" validate:"required,email"`
-	FullName     string `json:"full_name" validate:"required"`
-	ProfileImage *Img   `json:"profile_image" validate:"required"`
+	// required:true
+	Type string `json:"type" validate:"required,oneof=google facebook"`
+	// required:true
+	Email string `json:"email" validate:"required,email"`
+	// required:true
+	FullName string `json:"full_name" validate:"required"`
+	// required:true
+	ProfileImage *Img `json:"profile_image" validate:"required"`
 }
 
+// swagger:model LoginWithApple
 type LoginWithApple struct {
+	// required:true
 	Type     string `json:"type" validate:"required,oneof=apple"`
 	Email    string `json:"email"`
 	FullName string `json:"full_name"`
-	AppleID  string `json:"apple_id" validate:"required"`
+	// required:true
+	AppleID string `json:"apple_id" validate:"required"`
 }
 
+// swagger:model GetUserInfoByIDOpts
 type GetUserInfoByIDOpts struct {
 	ID primitive.ObjectID `json:"id" validate:"required"`
 }

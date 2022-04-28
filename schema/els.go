@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// swagger:model GetBrandBasicESEesp
 type GetBrandBasicESEesp struct {
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
@@ -15,17 +16,20 @@ type GetBrandBasicESEesp struct {
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
 
+// swagger:model GetBrandsListOpts
 type GetBrandsListOpts struct {
 	Page int `json:"page,omitempty"`
 	Size int `json:"size,omitempty"`
 }
 
+// swagger:model GetActiveBrandsListESEesp
 type GetActiveBrandsListESEesp struct {
 	ID   primitive.ObjectID `json:"id,omitempty"`
 	Name string             `json:"name,omitempty"`
 	Logo *model.IMG         `json:"logo,omitempty"`
 }
 
+// swagger:model GetBrandInfoEsResp
 type GetBrandInfoEsResp struct {
 	ID               primitive.ObjectID   `json:"id,omitempty"`
 	Name             string               `json:"name,omitempty"`
@@ -42,26 +46,31 @@ type GetBrandInfoEsResp struct {
 	IsFollowedByUser bool                 `json:"is_followed_by_user,omitempty"`
 }
 
+// swagger:model GetBrandsByIDBasicOpts
 type GetBrandsByIDBasicOpts struct {
 	IDs        []string `json:"ids"`
 	CustomerID primitive.ObjectID
 }
 
+// swagger:model GetBrandsInfoByIDOpts
 type GetBrandsInfoByIDOpts struct {
 	ID         primitive.ObjectID `json:"id"`
 	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
+//swagger:model GetBrandsByUsernameBasicOpts
 type GetBrandsByUsernameBasicOpts struct {
 	Usernames  []string `json:"usernames"`
 	CustomerID primitive.ObjectID
 }
 
+// swagger:model GetBrandsInfoByUsernameOpts
 type GetBrandsInfoByUsernameOpts struct {
 	Username   string             `json:"username"`
 	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
+// swagger:model GetInfluencerBasicESEesp
 type GetInfluencerBasicESEesp struct {
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
@@ -69,6 +78,8 @@ type GetInfluencerBasicESEesp struct {
 	ProfileImage     *model.IMG         `json:"profile_image,omitempty"`
 	IsFollowedByUser bool               `json:"is_followed_by_user,omitempty"`
 }
+
+// swagger:model GetInfluencerInfoEsResp
 type GetInfluencerInfoEsResp struct {
 	ID               primitive.ObjectID             `json:"id,omitempty"`
 	Name             string                         `json:"name,omitempty"`
@@ -85,21 +96,25 @@ type GetInfluencerInfoEsResp struct {
 	ContentCount     *GetInfluencerContentCountResp `json:"content_count,omitempty"`
 }
 
+// swagger:model GetInfluencersByIDBasicOpts
 type GetInfluencersByIDBasicOpts struct {
 	IDs        []string `json:"ids"`
 	CustomerID primitive.ObjectID
 }
 
+// swagger:model GetInfluencerInfoByIDOpts
 type GetInfluencerInfoByIDOpts struct {
 	ID         primitive.ObjectID `json:"id"`
 	CustomerID primitive.ObjectID
 }
 
+// swagger:model GetInfluencersByUsernameBasicOpts
 type GetInfluencersByUsernameBasicOpts struct {
 	Usernames  []string `json:"usernames"`
 	CustomerID primitive.ObjectID
 }
 
+// swagger:model GetInfluencerInfoByUsernameOpts
 type GetInfluencerInfoByUsernameOpts struct {
 	Username   string `json:"username"`
 	CustomerID primitive.ObjectID

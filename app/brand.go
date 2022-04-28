@@ -65,8 +65,6 @@ func InitBrand(opts *BrandImplOpts) Brand {
 	return &ui
 }
 
-// CreateBrand inserts a new brand document into collection
-// Note: this method only creates brand profile not brand authentication
 func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBrandResp, error) {
 
 	ctx := context.TODO()

@@ -18,6 +18,7 @@ type GetCustomerInfoResp struct {
 	ProfileImage *model.IMG         `json:"profile_image,omitempty" bson:"profile_image,omitempty"`
 }
 
+// swagger:model getCustomerInfo
 type GetCustomerProfileInfoResp struct {
 	ID                    primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID                primitive.ObjectID   `json:"user_id,omitempty" bson:"user_id,omitempty"`
@@ -34,17 +35,26 @@ type GetCustomerProfileInfoResp struct {
 }
 
 // EmailLoginCustomerOpts contains fields and validations required to allow customer to login via email
+
+// swagger:model EmailLoginCustomerOpts
 type EmailLoginCustomerOpts struct {
-	Email    string `json:"email" validate:"required,email"`
+	//  required: true
+	Email string `json:"email" validate:"required,email"`
+	//  required: true
 	Password string `json:"password" validate:"required,min=6"`
 }
 
 // EmailLoginCustomerResp contains fields to be returned in respose to customer email login
+
+// swagger:model SuccessfulLogin
 type EmailLoginCustomerResp struct {
-	Token string `json:"email" validate:"required,email"`
+	// Token after successful login
+	Token string `json:"token"`
 }
 
 // UpdateCustomerOpts contains fields and validations to update existing customer
+
+// swagger:model UpdateCustomerOpts
 type UpdateCustomerOpts struct {
 	ID           primitive.ObjectID `json:"id" validate:"required"`
 	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
@@ -57,6 +67,8 @@ type UpdateCustomerOpts struct {
 }
 
 //AddAddressOpts contains field required to add new address
+
+// swagger:model AddAddressOpts
 type AddAddressOpts struct {
 	UserID            primitive.ObjectID `json:"user_id" validate:"required"`
 	DisplayName       string             `json:"display_name"`
@@ -75,6 +87,8 @@ type AddAddressOpts struct {
 }
 
 //AddAddressResp contains field required to add new address
+
+// swagger:model AddAddressResp
 type AddAddressResp struct {
 	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	DisplayName   string             `json:"display_name,omitempty" bson:"display_name,omitempty"`
@@ -89,22 +103,39 @@ type AddAddressResp struct {
 }
 
 //EditAddressOpts contains field required to add new address
+
+// swagger:model EditAddressOpts
 type EditAddressOpts struct {
-	UserID            primitive.ObjectID `json:"user_id" validate:"required"`
-	AddressID         primitive.ObjectID `json:"address_id" validate:"required"`
-	DisplayName       string             `json:"display_name"`
-	Line1             string             `json:"line1" validate:"required"`
-	Line2             string             `json:"line2"`
-	District          string             `json:"district"`
-	City              string             `json:"city" validate:"required"`
-	State             *model.State       `json:"state" validate:"required"`
-	PostalCode        string             `json:"postal_code" validate:"required"`
-	Country           *model.Country     `json:"country" validate:"required"`
-	PlainAddress      string             `json:"plain_address" `
-	IsBillingAddress  bool               `json:"is_billing_address" validate:"required"`
-	IsShippingAddress bool               `json:"is_shipping_address" validate:"required"`
-	IsDefaultAddress  bool               `json:"is_default_address" validate:"required"`
-	ContactNumber     *model.PhoneNumber `json:"contact_number" validate:"required"`
+	// required: true
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// required: true
+	AddressID primitive.ObjectID `json:"address_id" validate:"required"`
+	// required: true
+	DisplayName string `json:"display_name"`
+	// required: true
+	Line1 string `json:"line1" validate:"required"`
+	// required: true
+	Line2 string `json:"line2"`
+	// required: true
+	District string `json:"district"`
+	// required: true
+	City string `json:"city" validate:"required"`
+	// required: true
+	State *model.State `json:"state" validate:"required"`
+	// required: true
+	PostalCode string `json:"postal_code" validate:"required"`
+	// required: true
+	Country *model.Country `json:"country" validate:"required"`
+	// required: true
+	PlainAddress string `json:"plain_address" `
+	// required: true
+	IsBillingAddress bool `json:"is_billing_address" validate:"required"`
+	// required: true
+	IsShippingAddress bool `json:"is_shipping_address" validate:"required"`
+	// required: true
+	IsDefaultAddress bool `json:"is_default_address" validate:"required"`
+	// required: true
+	ContactNumber *model.PhoneNumber `json:"contact_number" validate:"required"`
 }
 
 // UpdateCustomerOpts contains fields and validations to update existing customer

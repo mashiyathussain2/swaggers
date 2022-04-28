@@ -23,6 +23,8 @@ const (
 )
 
 //Cart contains the users cart details
+
+// swagger:model addToCart
 type Cart struct {
 	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID          primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
@@ -69,6 +71,7 @@ type ApplicableON struct {
 	IDs  []primitive.ObjectID `json:"ids,omitempty" bson:"ids,omitempty"`
 }
 
+// swagger:model Source
 type Source struct {
 	ID   string `json:"id,omitempty" bson:"id,omitempty"`
 	Type string `json:"type,omitempty" bson:"type,omitempty"`

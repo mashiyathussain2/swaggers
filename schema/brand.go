@@ -105,6 +105,8 @@ type GetBrandsByIDOpts struct {
 }
 
 // GetBrandResp returns fields contaning brand info
+
+// swagger:model getBrandByID
 type GetBrandResp struct {
 	ID                 primitive.ObjectID           `json:"id" bson:"_id"`
 	Name               string                       `json:"name,omitempty" bson:"name,omitempty"`
@@ -126,8 +128,11 @@ type GetBrandResp struct {
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
 }
 
+// swagger:model AddBrandFollowerOpts
 type AddBrandFollowerOpts struct {
-	BrandID    primitive.ObjectID `json:"id" validate:"required"`
+	// required: true
+	BrandID primitive.ObjectID `json:"id" validate:"required"`
+	// required: true
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 }
 
@@ -180,6 +185,7 @@ type CreateBrandAdminUserOpts struct {
 	Email   string             `json:"email" validate:"required,email"`
 }
 
+// swagger:model BrandUserLoginOpts
 type BrandUserLoginOpts struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`

@@ -14,10 +14,82 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// swagger:route  GET /me ME me
+// me
+//
+// This endpoint will returns the updated user info stored in the token.
+//
+// Endpoint: /me
+//
+// Method: GET
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description:Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: UserClaim description: OK
 func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	requestCTX.SetAppResponse(requestCTX.UserClaim, http.StatusOK)
 }
 
+// swagger:route  POST /me ME updateMe
+// updateMe
+//
+// This endpoint will returns the updated user info stored in the token.
+//
+// Endpoint: /me
+//
+// Method: POST
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description:Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   description: If value is set to True, token is omitted from response
+//   schema:
+//   type: boolean
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: UserClaim description: OK
 func (a *API) updateMe(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var userID primitive.ObjectID
 	isWeb, _ := strconv.ParseBool(r.URL.Query().Get("isWeb"))
@@ -66,6 +138,33 @@ func (a *API) keeperUpdateMe(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(map[string]interface{}{"token": userSession.Token, "data": claim}, http.StatusOK)
 }
 
+// swagger:route  POST /user/forgot-password Password forgotPassword
+// forgotPassword
+//
+// This endpoint will help the user to recover the password.
+//
+// Endpoint: /user/forgot-password
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ForgotPasswordOpts
+//     "$ref": "#/definitions/ForgotPasswordOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) forgotPassword(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ForgotPasswordOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -84,6 +183,33 @@ func (a *API) forgotPassword(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /user/reset-password Password resetPassword
+// resetPassword
+//
+// This endpoint will help the user reset the password.
+//
+// Endpoint: /user/reset-password
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ResetPasswordOpts
+//     "$ref": "#/definitions/ResetPasswordOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) resetPassword(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ResetPasswordOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -102,6 +228,57 @@ func (a *API) resetPassword(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /user/auth/email/verify Verification verifyEmailAuth
+// verifyEmailAuth
+//
+// This endpoint will verify the user email.
+//
+// Endpoint: /user/auth/email/verify
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: VerifyEmailOpts
+//     "$ref": "#/definitions/VerifyEmailOpts"
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   description: If value is set to True, token is omitted from response
+//   schema:
+//   type: boolean
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  500: AppErr description:Failed to login user
+//  200: description: true
 func (a *API) verifyEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.VerifyEmailOpts
 	resp := make(map[string]interface{})
@@ -147,6 +324,33 @@ func (a *API) verifyEmail(requestCTX *handler.RequestContext, w http.ResponseWri
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /user/auth/email/check checkEmail checkEmail
+// Check User Email for Auth
+//
+// Endpoint: /user/auth/email/check
+//
+// This endpoint will check the user email exists or not.
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   description: Check user email
+//   schema:
+//   type: CheckEmailOpts
+//     "$ref": "#/definitions/CheckEmailOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: description: payload : true
 func (a *API) checkEmail(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CheckEmailOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -165,6 +369,31 @@ func (a *API) checkEmail(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /user/auth/phone/check checkPhoneNo checkPhoneNo
+// Check User Phone No for Auth
+//
+// Endpoint: /user/auth/phone/check
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CheckPhoneNoOpts
+//     "$ref": "#/definitions/CheckPhoneNoOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: description: payload : true
 func (a *API) checkPhoneNo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CheckPhoneNoOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -183,6 +412,39 @@ func (a *API) checkPhoneNo(requestCTX *handler.RequestContext, w http.ResponseWr
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /user/auth/phone/verify Verification verifyPhoneNoAuth
+// verifyPhoneNoAuth
+//
+// This endpoint will verify user phone number.
+//
+// Endpoint: /user/auth/phone/verify
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: VerifyPhoneNoOpts
+//     "$ref": "#/definitions/VerifyPhoneNoOpts"
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   enum: true
+//   type: bool
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: description: payload : true
 func (a *API) verifyPhoneNo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.VerifyPhoneNoOpts
 	resp := make(map[string]interface{})
@@ -232,6 +494,33 @@ func (a *API) verifyPhoneNo(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route  POST /user/verify-email/resend Verification resendEmailVerificationCode
+// resendEmailVerificationCode
+//
+// This endpoint will resend email verification code
+//
+// Endpoint: /user/verify-email/resend
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: ResendVerificationEmailOpts
+//     "$ref": "#/definitions/ResendVerificationEmailOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: description:true
 func (a *API) resendEmailVerificationCode(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.ResendVerificationEmailOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -250,6 +539,33 @@ func (a *API) resendEmailVerificationCode(requestCTX *handler.RequestContext, w 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /customer/otp/generate login LoginViaMobileOTP
+// LoginViaMobileOTP
+//
+// This endpoint will generate the otp when login via mobile
+//
+//
+// Endpoint: /customer/otp/generate
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GenerateMobileLoginOTPOpts
+//     "$ref": "#/definitions/GenerateMobileLoginOTPOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: description: payload : true
 func (a *API) loginViaMobileOTP(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GenerateMobileLoginOTPOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -268,6 +584,41 @@ func (a *API) loginViaMobileOTP(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /customer/social/login login loginViaSocial
+// loginViaSocial
+//
+// This endpoint will login the user via social
+//
+// Endpoint: /customer/social/login
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   description: Login user via social
+//   schema:
+//   type: LoginWithSocial
+//     "$ref": "#/definitions/LoginWithSocial"
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   description: If value is set to True, token is omitted from response
+//   schema:
+//   type: boolean
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: Error
+//  200: SuccessfulLogin description: Success
 func (a *API) loginViaSocial(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.LoginWithSocial
 	var isWeb bool
@@ -302,6 +653,41 @@ func (a *API) loginViaSocial(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
+// swagger:route  POST /customer/apple/login login loginViaApple
+// loginViaApple
+//
+// This endpoint will login the user via apple.
+//
+// Endpoint: /customer/apple/login
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   description: Login user via apple
+//   schema:
+//   type: LoginWithApple
+//     "$ref": "#/definitions/LoginWithApple"
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   description: If value is set to True, token is omitted from response
+//   schema:
+//   type: boolean
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: SuccessfulLogin description: Success
 func (a *API) loginViaApple(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.LoginWithApple
 	var isWeb bool
@@ -336,6 +722,40 @@ func (a *API) loginViaApple(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(token, http.StatusOK)
 }
 
+// swagger:route  POST /customer/otp/confirm login confrimloginViaMobileOtp
+// confrimloginViaMobileOtp
+//
+// This endpoint will confirm login via mobile otp.
+//
+// Endpoint: /customer/otp/confirm
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: MobileLoginCustomerUserOpts
+//     "$ref": "#/definitions/MobileLoginCustomerUserOpts"
+//   required: true
+//
+// parameters:
+// + name: isWeb
+//   in: query
+//   description: If value is set to True, token is omitted from response
+//   schema:
+//   type: boolean
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: CommonError description: Error
+//  200: SuccessfulLogin description: Success
 func (a *API) confirmLoginViaMobileOTP(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.MobileLoginCustomerUserOpts
 	var isWeb bool
@@ -432,6 +852,39 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetRedirectResponse(redirectURL, http.StatusPermanentRedirect)
 }
 
+// swagger:route  GET /user/auth/logoutt logout logoutUser
+// logoutUser
+//
+// This endpoint will logout the user.
+//
+// Endpoint: /user/auth/logoutt
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	if requestCTX.UserClaim != nil {
 		a.SessionAuth.Delete(r)
@@ -446,6 +899,53 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(true, http.StatusAccepted)
 }
 
+// swagger:route  GET /user/influencerid getUserIDByInfluencerID getUserIDByInfluencerID
+// getUserIDByInfluencerID
+//
+// This endpoint will return user id by influencer id.
+//
+// Endpoint: /user/influencerid
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetUserInfoByIDOpts
+//     "$ref": "#/definitions/GetUserInfoByIDOpts"
+//   required: true
+//
+// parameters:
+// + name: id
+//   in: query
+//   schema:
+//   type: ObjectID
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: ObjectID description: OK
 func (a *API) getUserIDByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetUserInfoByIDOpts
 	id, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))

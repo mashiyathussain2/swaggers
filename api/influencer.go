@@ -85,6 +85,48 @@ func (a *API) getInfluencerByName(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/influencer/basic AppInfluencer getInfluencersBasic
+// getInfluencersBasic
+//
+// This endpoint will return influencer basic information.
+//
+// Endpoint: /app/influencer/basic
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencersByIDBasicOpts
+//     "$ref": "#/definitions/GetInfluencersByIDBasicOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerBasicESEesp description: OK
 func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetInfluencersByIDBasicOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -106,6 +148,55 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/influencer/{influencerID} AppInfluencer getInfluencerInfo
+// getInfluencerInfo
+//
+// This endpoint will return influencer information.
+//
+// Endpoint: /app/influencer/{influencerID}
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencerInfoByIDOpts
+//     "$ref": "#/definitions/GetInfluencerInfoByIDOpts"
+//   required: true
+//
+// parameters:
+// + name: influencerID
+//   in: path
+//   schema:
+//   type: ObjectID
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 60b50277a97a2d73b211aec7
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerInfoEsResp description: OK
 func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["influencerID"])
 	if err != nil {
@@ -124,6 +215,47 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /app/user/influencer-request InfluencerRequest claimInfluencerRequest
+// claimInfluencerRequest
+//
+// This endpoint will post the request claim by the influencer.
+//
+// Endpoint: /app/user/influencer-request
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: InfluencerAccountRequestOpts
+//     "$ref": "#/definitions/InfluencerAccountRequestOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.InfluencerAccountRequestOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -152,6 +284,39 @@ func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 
+// swagger:route  GET /app/user/influencer-request/status InfluencerRequest checkClaimInfluencerRequestStatus
+// checkClaimInfluencerRequestStatus
+//
+// This endpoint will return the status of the influencer request.
+//
+// Endpoint: /app/user/influencer-request/status
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) checkClaimInfluencerRequestStatus(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var userID primitive.ObjectID
 	if requestCTX.UserClaim != nil {
@@ -195,6 +360,33 @@ func (a *API) updateClaimInfluencerRequestStatus(requestCTX *handler.RequestCont
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 
+// swagger:route  GET /influencer/check/username CheckUsername checkInfluencerUsernameExists
+// checkInfluencerUsernameExists
+//
+// This endpoint will check the influencer username exists or not.
+//
+// Endpoint: /influencer/check/username
+//
+// Method: GET
+//
+// parameters:
+// + name: username
+//   in: query
+//   schema:
+//   enum: kartikay_sharma
+//   type: string
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) checkInfluencerUsernameExists(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 	if username == "" {
@@ -209,6 +401,47 @@ func (a *API) checkInfluencerUsernameExists(requestCTX *handler.RequestContext, 
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 
+// swagger:route  POST /app/influencer/username/basic AppInfluencer getInfluencersBasicByUsername
+// getInfluencersBasicByUsername
+//
+// This endpoint will return influencer basic information by username.
+//
+// Endpoint: /app/influencer/username/basic
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencersByUsernameBasicOpts
+//     "$ref": "#/definitions/GetInfluencersByUsernameBasicOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerBasicESEesp description: OK
 func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetInfluencersByUsernameBasicOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -230,6 +463,55 @@ func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/influencer/username/{username} AppInfluencer getInfluencerInfoByUsername
+// getInfluencerInfoByUsername
+//
+// This endpoint will return influencer information by username.
+//
+// Endpoint: /app/influencer/username/{username}
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencerInfoByUsernameOpts
+//     "$ref": "#/definitions/GetInfluencerInfoByUsernameOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: username
+//   in: path
+//   schema:
+//   type: username
+//   enum: kartikay_sharma
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerInfoEsResp description: OK
 func (a *API) getInfluencerInfoByUsername(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	username := mux.Vars(r)["username"]
 	if username == "" {
@@ -248,6 +530,47 @@ func (a *API) getInfluencerInfoByUsername(requestCTX *handler.RequestContext, w 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  PUT /app/influencer AppInfluencer editInfluencerApp
+// editInfluencerApp
+//
+// This endpoint will edit the influencer details.
+//
+// Endpoint: /app/influencer
+//
+// Method: PUT
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: EditInfluencerAppOpts
+//     "$ref": "#/definitions/EditInfluencerAppOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Not Authorized
+//  200: EditInfluencerResp description: OK
 func (a *API) editInfluencerApp(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.EditInfluencerAppOpts
 
@@ -273,6 +596,46 @@ func (a *API) editInfluencerApp(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /app/creator/debit-request DebitRequest debitRequest
+// debitRequest
+//
+// This endpoint will post the debit request.
+//
+// Endpoint: /app/creator/debit-request
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CommissionDebitRequest
+//     "$ref": "#/definitions/CommissionDebitRequest"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) debitRequest(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CommissionDebitRequest
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -322,6 +685,35 @@ func (a *API) getDebitRequest(requestCTX *handler.RequestContext, w http.Respons
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /app/creator/dashboard Creator getInfluencerDashboard
+// getInfluencerDashboard
+//
+// This endpoint will return dashaboard of the influencer.
+//
+// Endpoint: /app/creator/dashboard
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencerDashboardOpts
+//     "$ref": "#/definitions/GetInfluencerDashboardOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerDashboardResp description: OK
 func (a *API) getInfluencerDashboard(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetInfluencerDashboardOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -340,6 +732,47 @@ func (a *API) getInfluencerDashboard(requestCTX *handler.RequestContext, w http.
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/creator/ledger Creator getInfluencerLedger
+// getInfluencerLedger
+//
+// This endpoint will return the ledger details of the influencer.
+//
+// Endpoint: /app/creator/ledger
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetInfluencerLedgerOpts
+//     "$ref": "#/definitions/GetInfluencerLedgerOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetInfluencerLedgerResp description: OK
 func (a *API) getInfluencerLedger(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetInfluencerLedgerOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -359,6 +792,38 @@ func (a *API) getInfluencerLedger(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/creator/payout-info Creator getInfluencerPayoutInfo
+// getInfluencerPayoutInfo
+//
+// This endpoint will return influencer payout information.
+//
+// Endpoint: /app/creator/payout-info
+//
+// Method: GET
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPayoutInfoResp description: OK
 func (a *API) getInfluencerPayoutInfo(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).InfluencerInfo.ID)
 	if err != nil {
@@ -373,6 +838,48 @@ func (a *API) getInfluencerPayoutInfo(requestCTX *handler.RequestContext, w http
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  GET /app/creator/commission Creator getCommissionAndRevenue
+// getCommissionAndRevenue
+//
+// This endpoint will return commision and revenue.
+//
+// Endpoint: /app/creator/commission
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCommissionAndRevenueOpts
+//     "$ref": "#/definitions/GetCommissionAndRevenueOpts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCommissionAndRevenueResp description: OK
 func (a *API) getCommissionAndRevenue(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCommissionAndRevenueOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -392,6 +899,48 @@ func (a *API) getCommissionAndRevenue(requestCTX *handler.RequestContext, w http
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  PUT /v2/app/influencer v2Influnencer editInfluencerAppV2
+// editInfluencerAppV2
+//
+// This endpoint edit the influencer information.
+//
+// Endpoint: /v2/app/influencer
+//
+// Method: PUT
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: EditInfluencerAppV2Opts
+//     "$ref": "#/definitions/EditInfluencerAppV2Opts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: EditInfluencerResp description: OK
 func (a *API) editInfluencerAppV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.EditInfluencerAppV2Opts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -420,6 +969,47 @@ func (a *API) editInfluencerAppV2(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route  POST /v2/app/user/influencer-request v2Influnencer claimInfluencerRequestV2
+// claimInfluencerRequestV2
+//
+// This endpoint will claim the influencer request.
+//
+// Endpoint: /v2/app/user/influencer-request
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: InfluencerAccountRequestV2Opts
+//     "$ref": "#/definitions/InfluencerAccountRequestV2Opts"
+//   required: true
+//
+//
+// parameters:
+// + name: cookie
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) claimInfluencerRequestV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.InfluencerAccountRequestV2Opts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
