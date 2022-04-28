@@ -532,7 +532,7 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 	}
 	var orderItemsOpts []schema.OrderItemOpts
 
-	outOfStockString := ""
+	errorString := ""
 
 	for _, c := range cartUnwindBrands {
 		order := schema.OrderItemOpts{
@@ -586,17 +586,19 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 				ci.Logger.Err(errors.New("success false from inventory")).Str("body", string(body)).Msg("got success false response from inventory")
 				return nil, errors.New("got success false response from catalog")
 			}
+			if cv.Payload.Status.Value != model.Publish {
+				errorString = errorString + fmt.Sprintf("item %s is unavailable", item.CatalogInfo.Name)
+				continue
+			}
 			if cv.Payload.InventoryInfo.UnitInStock == 0 || cv.Payload.InventoryInfo.Status.Value == model.OutOfStockStatus {
-				outOfStockString = outOfStockString + fmt.Sprintf("item %s is out of stock", item.CatalogInfo.Name)
+				errorString = errorString + fmt.Sprintf("item %s is out of stock", item.CatalogInfo.Name)
 				continue
 			}
 			if cv.Payload.InventoryInfo.UnitInStock < int(item.Quantity) {
-				outOfStockString = outOfStockString + fmt.Sprintf("only %d unit available for item %s in stock", cv.Payload.InventoryInfo.UnitInStock, item.CatalogInfo.Name) + "\n"
+				errorString = errorString + fmt.Sprintf("only %d unit available for item %s in stock", cv.Payload.InventoryInfo.UnitInStock, item.CatalogInfo.Name) + "\n"
 				continue
 			}
 			item.CatalogInfo.TransferPrice = cv.Payload.TransferPrice
-			// item.CatalogInfo.BasePrice = cv.Payload.BasePrice
-			// item.CatalogInfo.RetailPrice = cv.Payload.RetailPrice
 
 			var dp *model.Price
 
@@ -659,8 +661,8 @@ func (ci *CartImpl) CheckoutCart(id primitive.ObjectID, source, platform, userNa
 	}
 	fmt.Println("grand total, coupon Grand total", grandTotal, couponGrandTotal)
 
-	if len(outOfStockString) > 0 {
-		return nil, errors.Errorf(outOfStockString)
+	if len(errorString) > 0 {
+		return nil, errors.Errorf(errorString)
 	}
 
 	var coupon schema.CouponOrderOpts
