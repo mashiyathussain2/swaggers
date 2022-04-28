@@ -339,3 +339,7 @@ type InfluencerAccountRequestV2Opts struct {
 	AreaOfExpertise string             `json:"area_of_expertise"`
 	Source          interface{}
 }
+
+type InfluencerRequestKafkaMessage struct {
+	UserID primitive.ObjectID `json:"user_id"`
+}
