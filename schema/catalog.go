@@ -501,6 +501,7 @@ type GetCatalogVariantResp struct {
 	DiscountInfo  DiscountInfo       `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 	InventoryInfo *model.Inventory   `json:"inventory_info" bson:"inventory_info"`
+	Status        *model.Status      `json:"status,omitempty" bson:"status,omitempty"`
 }
 
 type DiscountInfo struct {
