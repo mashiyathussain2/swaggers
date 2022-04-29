@@ -135,6 +135,10 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/v2/app/cart/checkout", a.requestWithAuthHandler(a.checkoutCartV2)).Methods("GET")
 	a.Router.APIRoot.Handle("/app/express-checkout/check/cod", a.requestWithAuthHandler(a.expressCheckoutRTO)).Methods("POST")
 
+	//commission invoice
+	//delete later
+	a.Router.APIRoot.Handle("/test/commission-invoice", a.requestHandler(a.generateCommissionInvoice)).Methods("GET")
+
 }
 
 // InitTestRoutes := intializing all the testing and development endpoints
