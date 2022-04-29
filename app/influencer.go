@@ -1792,6 +1792,7 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 		return false, err
 	}
 	email := user.Email
+	sourceEmail := "Hypd Creators Club <creators@hypd.in>"
 	if email == "" {
 		return false, errors.Errorf("no email found for user with id: %s", UserId.Hex())
 	}
@@ -1811,6 +1812,9 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 			ToAddresses: []*string{
 				aws.String(email),
 			},
+			CcAddresses: []*string{
+				aws.String(sourceEmail),
+			},
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{
@@ -1824,7 +1828,7 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 				Data:    aws.String("Form Submitted Successfully | HYPD"),
 			},
 		},
-		Source: aws.String("Hypd Creators Club <creators@hypd.in>"),
+		Source: aws.String(sourceEmail),
 	}
 	_, err = ii.App.SES.SendEmail(input)
 	if err != nil {
