@@ -105,6 +105,7 @@ func (a *API) getInfluencerByName(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -112,6 +113,7 @@ func (a *API) getInfluencerByName(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -176,6 +178,7 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -183,6 +186,7 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -235,6 +239,7 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -242,6 +247,7 @@ func (a *API) getInfluencerInfo(requestCTX *handler.RequestContext, w http.Respo
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -296,6 +302,7 @@ func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -303,6 +310,7 @@ func (a *API) claimInfluencerRequest(requestCTX *handler.RequestContext, w http.
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -421,6 +429,7 @@ func (a *API) checkInfluencerUsernameExists(requestCTX *handler.RequestContext, 
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -428,6 +437,7 @@ func (a *API) checkInfluencerUsernameExists(requestCTX *handler.RequestContext, 
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -491,6 +501,7 @@ func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, 
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -498,6 +509,7 @@ func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, 
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -550,6 +562,7 @@ func (a *API) getInfluencerInfoByUsername(requestCTX *handler.RequestContext, w 
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -557,6 +570,7 @@ func (a *API) getInfluencerInfoByUsername(requestCTX *handler.RequestContext, w 
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -615,6 +629,7 @@ func (a *API) editInfluencerApp(requestCTX *handler.RequestContext, w http.Respo
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -622,6 +637,7 @@ func (a *API) editInfluencerApp(requestCTX *handler.RequestContext, w http.Respo
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -752,6 +768,7 @@ func (a *API) getInfluencerDashboard(requestCTX *handler.RequestContext, w http.
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -759,6 +776,7 @@ func (a *API) getInfluencerDashboard(requestCTX *handler.RequestContext, w http.
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -803,6 +821,7 @@ func (a *API) getInfluencerLedger(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -810,6 +829,7 @@ func (a *API) getInfluencerLedger(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -859,6 +879,7 @@ func (a *API) getInfluencerPayoutInfo(requestCTX *handler.RequestContext, w http
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -866,6 +887,7 @@ func (a *API) getInfluencerPayoutInfo(requestCTX *handler.RequestContext, w http
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -920,6 +942,7 @@ func (a *API) getCommissionAndRevenue(requestCTX *handler.RequestContext, w http
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -927,6 +950,7 @@ func (a *API) getCommissionAndRevenue(requestCTX *handler.RequestContext, w http
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -989,6 +1013,7 @@ func (a *API) editInfluencerAppV2(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -996,6 +1021,7 @@ func (a *API) editInfluencerAppV2(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true

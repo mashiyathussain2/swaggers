@@ -38,6 +38,7 @@ import (
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -45,6 +46,7 @@ import (
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -121,6 +123,7 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -128,6 +131,7 @@ func (a *API) expressCheckout(requestCTX *handler.RequestContext, w http.Respons
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -194,6 +198,7 @@ func (a *API) expressCheckoutWeb(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -201,6 +206,7 @@ func (a *API) expressCheckoutWeb(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true

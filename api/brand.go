@@ -173,6 +173,7 @@ func (a *API) getBrands(requestCTX *handler.RequestContext, w http.ResponseWrite
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -180,6 +181,7 @@ func (a *API) getBrands(requestCTX *handler.RequestContext, w http.ResponseWrite
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -228,7 +230,7 @@ func (a *API) getBrandsBasic(requestCTX *handler.RequestContext, w http.Response
 // + name: brandID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 6065d4503824bf77961c21ae
 //   required: true
@@ -244,6 +246,7 @@ func (a *API) getBrandsBasic(requestCTX *handler.RequestContext, w http.Response
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -251,6 +254,7 @@ func (a *API) getBrandsBasic(requestCTX *handler.RequestContext, w http.Response
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -551,6 +555,7 @@ func (a *API) checkBrandUsernameExists(requestCTX *handler.RequestContext, w htt
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -558,6 +563,7 @@ func (a *API) checkBrandUsernameExists(requestCTX *handler.RequestContext, w htt
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -622,6 +628,7 @@ func (a *API) getBrandsBasicByUsername(requestCTX *handler.RequestContext, w htt
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -629,6 +636,7 @@ func (a *API) getBrandsBasicByUsername(requestCTX *handler.RequestContext, w htt
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true

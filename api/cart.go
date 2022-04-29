@@ -99,6 +99,7 @@ func (a *API) addToCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -156,6 +157,7 @@ func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -208,6 +210,7 @@ func (a *API) getCartInfo(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -294,6 +297,7 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Login required for successful response.
 //   required: true
@@ -301,6 +305,7 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -433,6 +438,7 @@ func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -502,6 +508,7 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -548,6 +555,7 @@ func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWr
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description:Login required for successful response.
 //   required: true
@@ -555,6 +563,7 @@ func (a *API) removeCoupon(requestCTX *handler.RequestContext, w http.ResponseWr
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -606,6 +615,7 @@ func (a *API) checkCODEligiblity(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -613,6 +623,7 @@ func (a *API) checkCODEligiblity(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true

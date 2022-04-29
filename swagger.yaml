@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   AddAddressOpts:
     properties:
@@ -2291,8 +2292,9 @@ definitions:
     type: object
     x-go-package: github.com/dgrijalva/jwt-go
   TokenAuth:
+    description: TokenAuth token auth
     type: object
-    x-go-package: go-app/server/auth
+    x-go-package: go-app/models
   UpdateCustomerOpts:
     properties:
       dob:
@@ -2646,7 +2648,11 @@ definitions:
     type: object
     x-go-name: GetCustomerProfileInfoResp
     x-go-package: go-app/schema
-info: {}
+host: https://entity.getshitdone.in
+info:
+  description: API related to User, Creator, Brand
+  title: 'HYPD Entity API:'
+  version: 1.0.1
 paths:
   /app/brand/{brandID}:
     get:
@@ -2665,7 +2671,7 @@ paths:
         in: path
         name: brandID
         required: true
-        type: object
+        type: string
       - in: body
         name: body
         required: true
@@ -2676,10 +2682,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2720,10 +2728,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2770,10 +2780,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2814,10 +2826,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2932,6 +2946,7 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2992,10 +3007,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3036,6 +3053,7 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3079,6 +3097,7 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3119,6 +3138,7 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3156,6 +3176,7 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3190,10 +3211,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3233,10 +3256,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3313,10 +3338,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3355,10 +3382,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3393,10 +3422,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3636,10 +3667,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3680,10 +3713,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3722,10 +3757,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3772,10 +3809,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3816,10 +3855,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3866,10 +3907,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3910,10 +3953,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3990,10 +4035,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4026,10 +4073,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5217,10 +5266,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5261,10 +5312,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5305,10 +5358,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5352,10 +5407,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5374,4 +5431,9 @@ paths:
       summary: expressCheckoutWeb
       tags:
       - ExpressCheckout
+produces:
+- application/json
+schemes:
+- http
+- https
 swagger: "2.0"

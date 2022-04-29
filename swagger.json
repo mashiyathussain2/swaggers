@@ -1,6 +1,19 @@
 {
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
   "swagger": "2.0",
-  "info": {},
+  "info": {
+    "description": "API related to User, Creator, Brand",
+    "title": "HYPD Entity API:",
+    "version": "1.0.1"
+  },
+  "host": "https://entity.getshitdone.in",
+  "basePath": "/",
   "paths": {
     "/app/brand/basic": {
       "post": {
@@ -27,12 +40,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -86,12 +101,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -154,12 +171,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -207,7 +226,7 @@
             "enum": [
               "6065d4503824bf77961c21ae"
             ],
-            "type": "object",
+            "type": "string",
             "name": "brandID",
             "in": "path",
             "required": true
@@ -222,12 +241,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -377,6 +398,7 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
@@ -427,6 +449,7 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
@@ -480,6 +503,7 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
@@ -562,12 +586,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -630,6 +656,7 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
@@ -681,6 +708,7 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
@@ -723,12 +751,14 @@
         "operationId": "checkCODEligiblity",
         "parameters": [
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -779,12 +809,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -885,12 +917,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -941,12 +975,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -991,12 +1027,14 @@
         "operationId": "getInfluencerPayoutInfo",
         "parameters": [
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1316,12 +1354,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1375,12 +1415,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1431,12 +1473,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1490,12 +1534,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1549,12 +1595,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1617,12 +1665,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1685,12 +1735,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1791,12 +1843,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1838,12 +1892,14 @@
         "operationId": "checkClaimInfluencerRequestStatus",
         "parameters": [
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3394,12 +3450,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3453,12 +3511,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3512,12 +3572,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3575,12 +3637,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -6283,7 +6347,6 @@
       "x-go-package": "go-app/schema"
     },
     "PhoneNoOpts": {
-      "description": "PhoneNoOpts phone no opts",
       "type": "object",
       "required": [
         "prefix",
@@ -6301,7 +6364,7 @@
           "x-go-name": "Prefix"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/schema"
     },
     "PhoneNumber": {
       "description": "PhoneNumber represents a contact number contains prefix (country code) and phone number",
@@ -6471,7 +6534,6 @@
       "x-go-package": "go-app/schema"
     },
     "Source": {
-      "description": "Source source",
       "type": "object",
       "properties": {
         "id": {
@@ -6485,7 +6547,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/model"
     },
     "StandardClaims": {
       "description": "Structured version of Claims Section, as referenced at\nhttps://tools.ietf.org/html/rfc7519#section-4.1\nSee examples for how to use this with your own claim types",
@@ -6526,7 +6588,6 @@
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
     "State": {
-      "description": "State state",
       "type": "object",
       "properties": {
         "iso_code": {
@@ -6540,7 +6601,7 @@
           "x-go-name": "Name"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/model"
     },
     "Status": {
       "description": "Unlist: status is set by default when a new catalog instance is created.\ncatalog with this status are now shown to the customer as this represents WIP catalog.\nunlist is one time status only once unlist status is changed it cannot be reverted.\n\nallowed status transitions \t-\u003e publish\n\u003e discard\n\nPublish: \tstatus is set thorugh admin/keeper dashboard to allow visibility of a catalog to customer.\npublish status can only be changed to discard\n\nallowed status transitions \t-\u003e discard\n\nDiscard:\tdiscard is an alias to delete a catalog without actually deleting it from the database to avoid NOT FOUND for\nother services while searching for catalog",
@@ -6658,9 +6719,8 @@
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
     "TokenAuth": {
-      "description": "TokenAuth token auth",
       "type": "object",
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/server/auth"
     },
     "UpdateCustomerOpts": {
       "type": "object",
