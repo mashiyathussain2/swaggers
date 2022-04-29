@@ -1824,7 +1824,7 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 				Data:    aws.String("Form Submitted Successfully | HYPD"),
 			},
 		},
-		Source: aws.String("creators@hypd.in"),
+		Source: aws.String("Hypd Creators Club <creators@hypd.in>"),
 	}
 	_, err = ii.App.SES.SendEmail(input)
 	if err != nil {
