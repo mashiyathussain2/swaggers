@@ -1778,7 +1778,3 @@ func (ii *InfluencerImpl) commissionDebitPipeline(opts *schema.GetInfluencerLedg
 
 	return mongo.Pipeline{matchStage, sortStage1, addFieldsStage, setStage, groupStage, sortStage, skipStage, limitStage}
 }
-
-func (ii *InfluencerImpl) generateCommissionInvoice(id primitive.ObjectID) {
-
-}

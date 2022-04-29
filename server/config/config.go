@@ -97,14 +97,15 @@ type APPConfig struct {
 	Kaleyra             KaleyraConfig
 	MSGPlatform         MSGPlatformConfig
 
-	UserConfig            ServiceConfig `mapstructure:"user"`
-	CustomerConfig        ServiceConfig `mapstructure:"customer"`
-	BrandConfig           ServiceConfig `mapstructure:"brand"`
-	InfluencerConfig      ServiceConfig `mapstructure:"influencer"`
-	CartConfig            ServiceConfig `mapstructure:"cart"`
-	ExpressCheckoutConfig ServiceConfig `mapstructure:"expressCheckout"`
-	WishlistConfig        ServiceConfig `mapstructure:"wishlist"`
-	SizeProfileConfig     ServiceConfig `mapstructure:"sizeProfile"`
+	UserConfig              ServiceConfig `mapstructure:"user"`
+	CustomerConfig          ServiceConfig `mapstructure:"customer"`
+	BrandConfig             ServiceConfig `mapstructure:"brand"`
+	InfluencerConfig        ServiceConfig `mapstructure:"influencer"`
+	CartConfig              ServiceConfig `mapstructure:"cart"`
+	ExpressCheckoutConfig   ServiceConfig `mapstructure:"expressCheckout"`
+	WishlistConfig          ServiceConfig `mapstructure:"wishlist"`
+	SizeProfileConfig       ServiceConfig `mapstructure:"sizeProfile"`
+	CommissionInvoiceConfig ServiceConfig `mapstructure:"commissionInvoice"`
 
 	CustomerChangeConfig          ListenerConfig `mapstructure:"customerChangeConsumer"`
 	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`

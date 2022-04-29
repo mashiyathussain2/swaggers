@@ -56,4 +56,9 @@ func InitService(a *App) {
 		DB:     a.MongoDB.Client.Database(a.Config.SizeProfileConfig.DBName),
 		Logger: a.Logger,
 	})
+	a.CommissionInvoice = InitCommissionInvoice(&CommissionInvoiceOpts{
+		App:    a,
+		DB:     a.MongoDB.Client.Database(a.Config.CommissionInvoiceConfig.DBName),
+		Logger: a.Logger,
+	})
 }

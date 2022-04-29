@@ -23,19 +23,20 @@ type App struct {
 	Config  *config.APPConfig
 
 	// List of services this app is implementing
-	SNS             SNS
-	SES             SES
-	Elasticsearch   Elasticsearch
-	User            User
-	Customer        Customer
-	Brand           Brand
-	Influencer      Influencer
-	Cart            Cart
-	KeeperUser      KeeperUser
-	ExpressCheckout ExpressCheckout
-	Wishlist        Wishlist
-	SizeProfile     SizeProfile
-	Kaleyra         Kaleyra
+	SNS               SNS
+	SES               SES
+	Elasticsearch     Elasticsearch
+	User              User
+	Customer          Customer
+	Brand             Brand
+	Influencer        Influencer
+	Cart              Cart
+	KeeperUser        KeeperUser
+	ExpressCheckout   ExpressCheckout
+	Wishlist          Wishlist
+	SizeProfile       SizeProfile
+	Kaleyra           Kaleyra
+	CommissionInvoice CommissionInvoice
 
 	// Consumer
 	CustomerChanges         kafka.Consumer
