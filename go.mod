@@ -14,6 +14,7 @@ require (
 	github.com/getsentry/sentry-go v0.10.0
 	github.com/go-openapi/analysis v0.21.3 // indirect
 	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/runtime v0.24.0
 	github.com/go-openapi/spec v0.20.5 // indirect
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/go-openapi/swag v0.21.1

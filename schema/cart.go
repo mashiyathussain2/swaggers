@@ -11,29 +11,30 @@ import (
 
 // swagger:model AddToCartOpts
 type AddToCartOpts struct {
-	// Id of the company
-	// in: int64
+	// swagger:strfmt ObjectID
+	// required: true
 	ID primitive.ObjectID `json:"id" validate:"required"`
-	// catalog id
-	// description: catalog id
-	// required: true
-	// swagger:strfmt
+	// swagger:strfmt ObjectID
+	// required:true
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	// swagger:strfmt Objectid
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
-	// catalog id
-	// description: catalog id
-	// required: true
-	Quantity uint `json:"quantity" validate:"required,gt=0"`
-	// svdsvdsvdh
-	Source *model.Source `json:"source"`
+	Quantity  uint               `json:"quantity" validate:"required,gt=0"`
+	Source    *model.Source      `json:"source"`
 }
 
 //UpdateItemQtyOpts contains field required to update the quantity of a item already in the user's cart
 
 // swagger:model UpdateItemQtyOpts
 type UpdateItemQtyOpts struct {
-	ID        primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt Objectid
+	// required:true
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt Objectid
+	// required:true
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	// swagger:strfmt Objectid
+	// required:true
 	VariantID primitive.ObjectID `json:"variant_id" validate:"required"`
 	Quantity  int                `json:"quantity" validate:"oneof=-1 0 1"`
 }
@@ -42,7 +43,9 @@ type UpdateItemQtyOpts struct {
 
 // swagger:model AddressOpts
 type AddressOpts struct {
-	ID                primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt Objectid
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt Objectid
 	AddressID         primitive.ObjectID `json:"address_id" validate:"required"`
 	DisplayName       string             `json:"display_name"`
 	Line1             string             `json:"line1" validate:"required"`
@@ -193,7 +196,9 @@ type GetCartInfoItemsResp struct {
 
 // swagger:model GetCartInfoResp
 type GetCartInfoResp struct {
-	ID              primitive.ObjectID     `json:"id,omitempty" bson:"_id,omitempty"`
+	// swagger:strfmt Objectid
+	ID primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	// swagger:strfmt Objectid
 	UserID          primitive.ObjectID     `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	ShippingAddress *model.Address         `json:"shipping_address,omitempty" bson:"shipping_address,omitempty"`
 	BillingAddress  *model.Address         `json:"billing_address,omitempty" bson:"billing_address,omitempty"`
@@ -326,6 +331,7 @@ type GoKwikOrderData struct {
 
 // swagger:model CheckoutOpts
 type CheckoutOpts struct {
+	// swagger:strfmt Objectid
 	ID        primitive.ObjectID `json:"id,omitempty" validate:"required"`
 	Source    string             `json:"source,omitempty" validate:"required"`
 	Platform  string             `json:"platform,omitempty" validate:"required,oneof=web android ios"`

@@ -56,7 +56,9 @@ type EmailLoginCustomerResp struct {
 
 // swagger:model UpdateCustomerOpts
 type UpdateCustomerOpts struct {
-	ID           primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt ObjectID
 	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
 	FullName     string             `json:"full_name"`
 	DOB          time.Time          `json:"dob"`
@@ -70,6 +72,7 @@ type UpdateCustomerOpts struct {
 
 // swagger:model AddAddressOpts
 type AddAddressOpts struct {
+	// swagger:strfmt ObjectID
 	UserID            primitive.ObjectID `json:"user_id" validate:"required"`
 	DisplayName       string             `json:"display_name"`
 	Line1             string             `json:"line1" validate:"required"`
@@ -106,8 +109,10 @@ type AddAddressResp struct {
 
 // swagger:model EditAddressOpts
 type EditAddressOpts struct {
+	// swagger:strfmt ObjectID
 	// required: true
 	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
 	// required: true
 	AddressID primitive.ObjectID `json:"address_id" validate:"required"`
 	// required: true

@@ -8,13 +8,17 @@ import (
 
 // swagger:model AddToWishlistOpts
 type AddToWishlistOpts struct {
-	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 }
 
 // swagger:model RemoveFromWishlistOpts
 type RemoveFromWishlistOpts struct {
-	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 }
 

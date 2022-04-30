@@ -15,21 +15,25 @@ type ItemExpress struct {
 
 // swagger:model ExpressCheckoutOpts
 type ExpressCheckoutOpts struct {
-	UserID   primitive.ObjectID `json:"user_id" validate:"required"`
-	Address  *OrderAddressOpts  `json:"address" validate:"required"`
-	Items    []ItemExpress      `json:"items" validate:"required"`
-	Source   string             `json:"source" validate:"required"`
+	// swagger:strfmt ObjectID
+	UserID  primitive.ObjectID `json:"user_id" validate:"required"`
+	Address *OrderAddressOpts  `json:"address" validate:"required"`
+	Items   []ItemExpress      `json:"items" validate:"required"`
+	Source  string             `json:"source" validate:"required"`
+	// swagger:strfmt ObjectID
 	SourceID primitive.ObjectID `json:"source_id" validate:"required"`
 	Coupon   string             `json:"coupon"`
 }
 
 // swagger:model ExpressCheckoutWebOpts
 type ExpressCheckoutWebOpts struct {
-	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
-	Address   *OrderAddressOpts  `json:"address" validate:"required"`
-	Items     []ItemExpress      `json:"items" validate:"required"`
-	Coupon    string             `json:"coupon"`
-	Source    string             `json:"source"`
+	// swagger:strfmt ObjectID
+	UserID  primitive.ObjectID `json:"user_id" validate:"required"`
+	Address *OrderAddressOpts  `json:"address" validate:"required"`
+	Items   []ItemExpress      `json:"items" validate:"required"`
+	Coupon  string             `json:"coupon"`
+	Source  string             `json:"source"`
+	// swagger:strfmt ObjectID
 	SourceID  primitive.ObjectID `json:"source_id"`
 	IsCOD     bool               `json:"is_cod,omitempty"`
 	RequestID string             `json:"request_id,omitempty"`

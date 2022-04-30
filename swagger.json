@@ -12,7 +12,7 @@
     "title": "HYPD Entity API:",
     "version": "1.0.1"
   },
-  "host": "https://entity.getshitdone.in",
+  "host": "entity.getshitdone.in",
   "basePath": "/",
   "paths": {
     "/app/brand/basic": {
@@ -454,6 +454,13 @@
             "name": "cookie",
             "in": "header",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -497,7 +504,7 @@
             "enum": [
               "60b50277a97a2d73b211aec7"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -551,7 +558,7 @@
             "enum": [
               "6065d4503824bf77961c21ae"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -661,6 +668,13 @@
             "name": "cookie",
             "in": "header",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -711,6 +725,13 @@
             "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
             "in": "header",
             "required": true
           }
@@ -1088,12 +1109,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1144,12 +1167,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1200,12 +1225,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1250,12 +1277,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -1950,12 +1979,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -2004,12 +2035,14 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -2060,12 +2093,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -2425,8 +2460,16 @@
             }
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
             "in": "header",
             "required": true
           }
@@ -2822,7 +2865,7 @@
             "enum": [
               "60b50277a97a2d73b211aec8"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -2904,12 +2947,14 @@
         "operationId": "me",
         "parameters": [
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -2952,12 +2997,14 @@
         "operationId": "updateMe",
         "parameters": [
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3065,12 +3112,14 @@
             "required": true
           },
           {
+            "type": "string",
             "description": "Customer login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3118,12 +3167,14 @@
         "operationId": "logoutUser",
         "parameters": [
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3303,18 +3354,20 @@
             }
           },
           {
-            "type": "object",
+            "type": "string",
             "name": "id",
             "in": "query",
             "required": true
           },
           {
+            "type": "string",
             "description": "Login required for successful response.",
             "name": "cookie",
             "in": "header",
             "required": true
           },
           {
+            "type": "string",
             "description": "Token required for successful response.",
             "name": "auth token",
             "in": "header",
@@ -3728,7 +3781,9 @@
           "$ref": "#/definitions/State"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -3778,51 +3833,50 @@
     },
     "AddBrandFollowerOpts": {
       "type": "object",
-      "required": [
-        "id",
-        "customer_id"
-      ],
       "properties": {
         "customer_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
         }
       },
       "x-go-package": "go-app/schema"
     },
     "AddInfluencerFollowerOpts": {
       "type": "object",
-      "required": [
-        "id",
-        "customer_id"
-      ],
       "properties": {
         "customer_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
         }
       },
       "x-go-package": "go-app/schema"
     },
     "AddToCartOpts": {
       "type": "object",
-      "required": [
-        "catalog_id",
-        "quantity"
-      ],
       "properties": {
         "catalog_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogID"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "quantity": {
-          "description": "catalog id\ndescription: catalog id",
           "type": "integer",
           "format": "uint64",
           "x-go-name": "Quantity"
@@ -3831,7 +3885,9 @@
           "$ref": "#/definitions/Source"
         },
         "variant_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "VariantID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -3840,10 +3896,14 @@
       "type": "object",
       "properties": {
         "catalog_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogID"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -3921,7 +3981,9 @@
       "type": "object",
       "properties": {
         "address_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "AddressID"
         },
         "city": {
           "type": "string",
@@ -3942,7 +4004,9 @@
           "x-go-name": "District"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "ID"
         },
         "is_billing_address": {
           "type": "boolean",
@@ -4239,7 +4303,9 @@
           "x-go-name": "FullName"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "ID"
         },
         "is_cod": {
           "type": "boolean",
@@ -4300,7 +4366,9 @@
           "x-go-name": "Amount"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "payout_information": {
           "$ref": "#/definitions/PayoutInformationOpts"
@@ -4437,6 +4505,7 @@
       "x-go-package": "go-app/schema"
     },
     "CreateUserResp": {
+      "description": "CreateUserResp create user resp",
       "type": "object",
       "properties": {
         "email": {
@@ -4456,7 +4525,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/schema"
+      "x-go-package": "go-app/models"
     },
     "CurrencyISO": {
       "description": "CurrencyISO iso representation of currency",
@@ -4587,8 +4656,6 @@
     "EditAddressOpts": {
       "type": "object",
       "required": [
-        "user_id",
-        "address_id",
         "display_name",
         "line1",
         "line2",
@@ -4605,7 +4672,9 @@
       ],
       "properties": {
         "address_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "AddressID"
         },
         "city": {
           "type": "string",
@@ -4657,7 +4726,9 @@
           "$ref": "#/definitions/State"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -4666,7 +4737,9 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "payout_information": {
           "$ref": "#/definitions/PayoutInformationOpts"
@@ -4697,7 +4770,9 @@
           "x-go-name": "ExternalLinks"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "name": {
           "type": "string",
@@ -4818,10 +4893,14 @@
           "x-go-name": "Source"
         },
         "source_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "SourceID"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -4856,10 +4935,14 @@
           "x-go-name": "Source"
         },
         "source_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "SourceID"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -4890,7 +4973,9 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "logo": {
           "$ref": "#/definitions/IMG"
@@ -4906,7 +4991,9 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "is_followed_by_user": {
           "type": "boolean",
@@ -4947,7 +5034,9 @@
           "x-go-name": "FollowersCount"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "is_followed_by_user": {
           "type": "boolean",
@@ -5090,7 +5179,8 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "ids": {
           "type": "array",
@@ -5106,7 +5196,8 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "usernames": {
           "type": "array",
@@ -5122,10 +5213,14 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5134,7 +5229,9 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         },
         "username": {
           "type": "string",
@@ -5231,7 +5328,9 @@
           "$ref": "#/definitions/Price"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "ID"
         },
         "items": {
           "type": "array",
@@ -5255,7 +5354,9 @@
           "x-go-name": "UpdatedAt"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5269,7 +5370,9 @@
           "x-go-name": "EndDate"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "start_date": {
           "type": "string",
@@ -5370,7 +5473,9 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "is_followed_by_user": {
           "type": "boolean",
@@ -5420,7 +5525,9 @@
           "x-go-name": "EndDate"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "start_date": {
           "type": "string",
@@ -5457,10 +5564,13 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5469,7 +5579,8 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "username": {
           "type": "string",
@@ -5509,7 +5620,9 @@
           "x-go-name": "FollowersCount"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "is_followed_by_user": {
           "type": "boolean",
@@ -5546,7 +5659,9 @@
           "x-go-name": "EndDate"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "page": {
           "type": "integer",
@@ -5596,7 +5711,8 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "ids": {
           "type": "array",
@@ -5612,7 +5728,8 @@
       "type": "object",
       "properties": {
         "CustomerID": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID"
         },
         "usernames": {
           "type": "array",
@@ -5633,7 +5750,9 @@
           "x-go-name": "Balance"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "payout_information": {
           "$ref": "#/definitions/PayoutInformation"
@@ -5700,7 +5819,9 @@
       "type": "object",
       "properties": {
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5866,14 +5987,6 @@
     },
     "InfluencerAccountRequestOpts": {
       "type": "object",
-      "required": [
-        "user_id",
-        "customer_id",
-        "full_name",
-        "profile_image",
-        "cover_image",
-        "bio"
-      ],
       "properties": {
         "Source": {
           "type": "object"
@@ -5886,7 +5999,9 @@
           "$ref": "#/definitions/Img"
         },
         "customer_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         },
         "full_name": {
           "description": "InfluencerID  primitive.ObjectID `json:\"influencer_id\" validate:\"required\"`",
@@ -5900,7 +6015,9 @@
           "$ref": "#/definitions/SocialAccountOpts"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         },
         "username": {
           "type": "string",
@@ -5927,7 +6044,9 @@
           "$ref": "#/definitions/Img"
         },
         "customer_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CustomerID"
         },
         "email": {
           "type": "string",
@@ -5947,7 +6066,9 @@
           "$ref": "#/definitions/SocialAccountOpts"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         },
         "username": {
           "type": "string",
@@ -6347,6 +6468,7 @@
       "x-go-package": "go-app/schema"
     },
     "PhoneNoOpts": {
+      "description": "PhoneNoOpts phone no opts",
       "type": "object",
       "required": [
         "prefix",
@@ -6364,7 +6486,7 @@
           "x-go-name": "Prefix"
         }
       },
-      "x-go-package": "go-app/schema"
+      "x-go-package": "go-app/models"
     },
     "PhoneNumber": {
       "description": "PhoneNumber represents a contact number contains prefix (country code) and phone number",
@@ -6403,10 +6525,14 @@
       "type": "object",
       "properties": {
         "catalog_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogID"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6534,6 +6660,7 @@
       "x-go-package": "go-app/schema"
     },
     "Source": {
+      "description": "Source source",
       "type": "object",
       "properties": {
         "id": {
@@ -6547,7 +6674,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/model"
+      "x-go-package": "go-app/models"
     },
     "StandardClaims": {
       "description": "Structured version of Claims Section, as referenced at\nhttps://tools.ietf.org/html/rfc7519#section-4.1\nSee examples for how to use this with your own claim types",
@@ -6743,7 +6870,9 @@
           "x-go-name": "Gender"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
         },
         "phone_no": {
           "$ref": "#/definitions/PhoneNoOpts"
@@ -6752,7 +6881,9 @@
           "$ref": "#/definitions/Img"
         },
         "user_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6761,10 +6892,14 @@
       "type": "object",
       "properties": {
         "catalog_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "CatalogID"
         },
         "id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "ID"
         },
         "quantity": {
           "type": "integer",
@@ -6772,7 +6907,9 @@
           "x-go-name": "Quantity"
         },
         "variant_id": {
-          "$ref": "#/definitions/ObjectID"
+          "type": "string",
+          "format": "Objectid",
+          "x-go-name": "VariantID"
         }
       },
       "x-go-package": "go-app/schema"

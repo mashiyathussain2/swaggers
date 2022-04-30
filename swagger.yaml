@@ -39,7 +39,9 @@ definitions:
       state:
         $ref: '#/definitions/State'
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   AddAddressResp:
@@ -76,53 +78,59 @@ definitions:
   AddBrandFollowerOpts:
     properties:
       customer_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
       id:
-        $ref: '#/definitions/ObjectID'
-    required:
-    - id
-    - customer_id
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
     type: object
     x-go-package: go-app/schema
   AddInfluencerFollowerOpts:
     properties:
       customer_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
       id:
-        $ref: '#/definitions/ObjectID'
-    required:
-    - id
-    - customer_id
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
     type: object
     x-go-package: go-app/schema
   AddToCartOpts:
     properties:
       catalog_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       quantity:
-        description: |-
-          catalog id
-          description: catalog id
         format: uint64
         type: integer
         x-go-name: Quantity
       source:
         $ref: '#/definitions/Source'
       variant_id:
-        $ref: '#/definitions/ObjectID'
-    required:
-    - catalog_id
-    - quantity
+        format: Objectid
+        type: string
+        x-go-name: VariantID
     type: object
     x-go-package: go-app/schema
   AddToWishlistOpts:
     properties:
       catalog_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   Address:
@@ -181,7 +189,9 @@ definitions:
   AddressOpts:
     properties:
       address_id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: AddressID
       city:
         type: string
         x-go-name: City
@@ -196,7 +206,9 @@ definitions:
         type: string
         x-go-name: District
       id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: ID
       is_billing_address:
         type: boolean
         x-go-name: IsBillingAddress
@@ -415,7 +427,9 @@ definitions:
         type: string
         x-go-name: FullName
       id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: ID
       is_cod:
         type: boolean
         x-go-name: IsCOD
@@ -460,7 +474,9 @@ definitions:
         type: integer
         x-go-name: Amount
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       payout_information:
         $ref: '#/definitions/PayoutInformationOpts'
     type: object
@@ -700,7 +716,9 @@ definitions:
   EditAddressOpts:
     properties:
       address_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: AddressID
       city:
         type: string
         x-go-name: City
@@ -738,10 +756,10 @@ definitions:
       state:
         $ref: '#/definitions/State'
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     required:
-    - user_id
-    - address_id
     - display_name
     - line1
     - line2
@@ -760,7 +778,9 @@ definitions:
   EditInfluencerAppOpts:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       payout_information:
         $ref: '#/definitions/PayoutInformationOpts'
       username:
@@ -782,7 +802,9 @@ definitions:
         type: array
         x-go-name: ExternalLinks
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       name:
         type: string
         x-go-name: Name
@@ -869,9 +891,13 @@ definitions:
         type: string
         x-go-name: Source
       source_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: SourceID
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   ExpressCheckoutWebOpts:
@@ -896,9 +922,13 @@ definitions:
         type: string
         x-go-name: Source
       source_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: SourceID
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   ForgotPasswordOpts:
@@ -919,7 +949,9 @@ definitions:
   GetActiveBrandsListESEesp:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       logo:
         $ref: '#/definitions/IMG'
       name:
@@ -930,7 +962,9 @@ definitions:
   GetBrandBasicESEesp:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       is_followed_by_user:
         type: boolean
         x-go-name: IsFollowedByUser
@@ -960,7 +994,9 @@ definitions:
         type: integer
         x-go-name: FollowersCount
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       is_followed_by_user:
         type: boolean
         x-go-name: IsFollowedByUser
@@ -1068,7 +1104,8 @@ definitions:
   GetBrandsByIDBasicOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       ids:
         items:
           type: string
@@ -1079,7 +1116,8 @@ definitions:
   GetBrandsByUsernameBasicOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       usernames:
         items:
           type: string
@@ -1090,15 +1128,21 @@ definitions:
   GetBrandsInfoByIDOpts:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
     type: object
     x-go-package: go-app/schema
   GetBrandsInfoByUsernameOpts:
     properties:
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
       username:
         type: string
         x-go-name: Username
@@ -1166,7 +1210,9 @@ definitions:
       grand_total:
         $ref: '#/definitions/Price'
       id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: ID
       items:
         items:
           $ref: '#/definitions/GetCartInfoItemsResp'
@@ -1183,7 +1229,9 @@ definitions:
         type: string
         x-go-name: UpdatedAt
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   GetCommissionAndRevenueOpts:
@@ -1193,7 +1241,9 @@ definitions:
         type: string
         x-go-name: EndDate
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       start_date:
         format: date-time
         type: string
@@ -1271,7 +1321,9 @@ definitions:
   GetInfluencerBasicESEesp:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       is_followed_by_user:
         type: boolean
         x-go-name: IsFollowedByUser
@@ -1308,7 +1360,9 @@ definitions:
         type: string
         x-go-name: EndDate
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       start_date:
         format: date-time
         type: string
@@ -1334,15 +1388,19 @@ definitions:
   GetInfluencerInfoByIDOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
     type: object
     x-go-package: go-app/schema
   GetInfluencerInfoByUsernameOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       username:
         type: string
         x-go-name: Username
@@ -1371,7 +1429,9 @@ definitions:
         type: integer
         x-go-name: FollowersCount
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       is_followed_by_user:
         type: boolean
         x-go-name: IsFollowedByUser
@@ -1398,7 +1458,9 @@ definitions:
         type: string
         x-go-name: EndDate
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       page:
         format: int64
         type: integer
@@ -1435,7 +1497,8 @@ definitions:
   GetInfluencersByIDBasicOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       ids:
         items:
           type: string
@@ -1446,7 +1509,8 @@ definitions:
   GetInfluencersByUsernameBasicOpts:
     properties:
       CustomerID:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
       usernames:
         items:
           type: string
@@ -1461,7 +1525,9 @@ definitions:
         type: number
         x-go-name: Balance
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       payout_information:
         $ref: '#/definitions/PayoutInformation'
     type: object
@@ -1508,7 +1574,9 @@ definitions:
   GetUserInfoByIDOpts:
     properties:
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
     type: object
     x-go-package: go-app/schema
   GetUserInfoResp:
@@ -1645,7 +1713,9 @@ definitions:
       cover_image:
         $ref: '#/definitions/Img'
       customer_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
       full_name:
         description: InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
         type: string
@@ -1655,20 +1725,15 @@ definitions:
       social_account:
         $ref: '#/definitions/SocialAccountOpts'
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
       username:
         type: string
         x-go-name: Username
       website:
         type: string
         x-go-name: Website
-    required:
-    - user_id
-    - customer_id
-    - full_name
-    - profile_image
-    - cover_image
-    - bio
     type: object
     x-go-package: go-app/schema
   InfluencerAccountRequestV2Opts:
@@ -1681,7 +1746,9 @@ definitions:
       cover_image:
         $ref: '#/definitions/Img'
       customer_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
       email:
         type: string
         x-go-name: Email
@@ -1695,7 +1762,9 @@ definitions:
       social_account:
         $ref: '#/definitions/SocialAccountOpts'
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
       username:
         type: string
         x-go-name: Username
@@ -1990,6 +2059,7 @@ definitions:
     type: object
     x-go-package: go-app/schema
   PhoneNoOpts:
+    description: PhoneNoOpts phone no opts
     properties:
       number:
         description: |-
@@ -2007,7 +2077,7 @@ definitions:
     - prefix
     - number
     type: object
-    x-go-package: go-app/schema
+    x-go-package: go-app/models
   PhoneNumber:
     description: PhoneNumber represents a contact number contains prefix (country
       code) and phone number
@@ -2037,9 +2107,13 @@ definitions:
   RemoveFromWishlistOpts:
     properties:
       catalog_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   ResendVerificationEmailOpts:
@@ -2136,6 +2210,7 @@ definitions:
     type: object
     x-go-package: go-app/schema
   Source:
+    description: Source source
     properties:
       id:
         description: ID
@@ -2146,7 +2221,7 @@ definitions:
         type: string
         x-go-name: Type
     type: object
-    x-go-package: go-app/model
+    x-go-package: go-app/models
   StandardClaims:
     description: |-
       Structured version of Claims Section, as referenced at
@@ -2311,27 +2386,37 @@ definitions:
         type: string
         x-go-name: Gender
       id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: ID
       phone_no:
         $ref: '#/definitions/PhoneNoOpts'
       profile_image:
         $ref: '#/definitions/Img'
       user_id:
-        $ref: '#/definitions/ObjectID'
+        format: ObjectID
+        type: string
+        x-go-name: UserID
     type: object
     x-go-package: go-app/schema
   UpdateItemQtyOpts:
     properties:
       catalog_id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: CatalogID
       id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: ID
       quantity:
         format: int64
         type: integer
         x-go-name: Quantity
       variant_id:
-        $ref: '#/definitions/ObjectID'
+        format: Objectid
+        type: string
+        x-go-name: VariantID
     type: object
     x-go-package: go-app/schema
   UserClaim:
@@ -2648,7 +2733,7 @@ definitions:
     type: object
     x-go-name: GetCustomerProfileInfoResp
     x-go-package: go-app/schema
-host: https://entity.getshitdone.in
+host: entity.getshitdone.in
 info:
   description: API related to User, Creator, Brand
   title: 'HYPD Entity API:'
@@ -2941,7 +3026,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       - description: Customer login required for successful response.
         in: header
         name: cookie
@@ -2982,7 +3067,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       - in: query
         name: source
         required: true
@@ -3054,6 +3139,11 @@ paths:
         name: cookie
         required: true
         type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3096,6 +3186,11 @@ paths:
       - description: Customer login required for successful response.
         in: header
         name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
         required: true
         type: string
       produces:
@@ -3175,6 +3270,11 @@ paths:
       - description: Customer login required for successful response.
         in: header
         name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
         required: true
         type: string
       produces:
@@ -3498,10 +3598,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3540,10 +3642,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3582,10 +3686,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3620,10 +3726,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4117,10 +4225,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4158,10 +4268,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4200,10 +4312,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4476,7 +4590,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -4543,6 +4657,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4851,10 +4971,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -4888,10 +5010,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       - description: If value is set to True, token is omitted from response
         in: query
         name: isWeb
@@ -4974,10 +5098,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5014,10 +5140,12 @@ paths:
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -5153,15 +5281,17 @@ paths:
       - in: query
         name: id
         required: true
-        type: object
+        type: string
       - description: Login required for successful response.
         in: header
         name: cookie
         required: true
+        type: string
       - description: Token required for successful response.
         in: header
         name: auth token
         required: true
+        type: string
       produces:
       - application/json
       responses:

@@ -253,6 +253,7 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -260,6 +261,7 @@ func (a *API) updateCustomerInfo(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -315,6 +317,7 @@ func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.Respon
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -322,6 +325,7 @@ func (a *API) followInfluencer(requestCTX *handler.RequestContext, w http.Respon
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -378,6 +382,7 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -385,6 +390,7 @@ func (a *API) followBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -441,6 +447,7 @@ func (a *API) unFollowInfluencer(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -448,6 +455,7 @@ func (a *API) unFollowInfluencer(requestCTX *handler.RequestContext, w http.Resp
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -503,8 +511,16 @@ func (a *API) unFollowBrand(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
+//   required: true
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
 //   required: true
 //
 // consumes:
@@ -549,7 +565,7 @@ func (a *API) addAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 60b50277a97a2d73b211aec8
 //   required: true

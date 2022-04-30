@@ -104,6 +104,13 @@ func (a *API) addToCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 //   description: Customer login required for successful response.
 //   required: true
 //
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
 // consumes:
 //         - application/json
 //
@@ -150,7 +157,7 @@ func (a *API) updateItemQty(requestCTX *handler.RequestContext, w http.ResponseW
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 60b50277a97a2d73b211aec7
 //   required: true
@@ -261,7 +268,7 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 6065d4503824bf77961c21ae
 //   required: true
@@ -443,6 +450,12 @@ func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 //   description: Customer login required for successful response.
 //   required: true
 //
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
 //
 // consumes:
 //         - application/json
@@ -513,6 +526,12 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 //   description: Customer login required for successful response.
 //   required: true
 //
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
 //
 // consumes:
 //         - application/json

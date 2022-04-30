@@ -192,6 +192,7 @@ type LoginWithApple struct {
 
 // swagger:model GetUserInfoByIDOpts
 type GetUserInfoByIDOpts struct {
+	// swagger:strfmt ObjectID
 	ID primitive.ObjectID `json:"id" validate:"required"`
 }
 

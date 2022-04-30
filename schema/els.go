@@ -9,6 +9,7 @@ import (
 
 // swagger:model GetBrandBasicESEesp
 type GetBrandBasicESEesp struct {
+	// swagger:strfmt ObjectID
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
 	Username         string             `json:"username,omitempty"`
@@ -24,6 +25,7 @@ type GetBrandsListOpts struct {
 
 // swagger:model GetActiveBrandsListESEesp
 type GetActiveBrandsListESEesp struct {
+	// swagger:strfmt ObjectID
 	ID   primitive.ObjectID `json:"id,omitempty"`
 	Name string             `json:"name,omitempty"`
 	Logo *model.IMG         `json:"logo,omitempty"`
@@ -31,6 +33,7 @@ type GetActiveBrandsListESEesp struct {
 
 // swagger:model GetBrandInfoEsResp
 type GetBrandInfoEsResp struct {
+	// swagger:strfmt ObjectID
 	ID               primitive.ObjectID   `json:"id,omitempty"`
 	Name             string               `json:"name,omitempty"`
 	LName            string               `json:"lname,omitempty"`
@@ -48,30 +51,36 @@ type GetBrandInfoEsResp struct {
 
 // swagger:model GetBrandsByIDBasicOpts
 type GetBrandsByIDBasicOpts struct {
-	IDs        []string `json:"ids"`
+	IDs []string `json:"ids"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 
 // swagger:model GetBrandsInfoByIDOpts
 type GetBrandsInfoByIDOpts struct {
-	ID         primitive.ObjectID `json:"id"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
 //swagger:model GetBrandsByUsernameBasicOpts
 type GetBrandsByUsernameBasicOpts struct {
-	Usernames  []string `json:"usernames"`
+	Usernames []string `json:"usernames"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 
 // swagger:model GetBrandsInfoByUsernameOpts
 type GetBrandsInfoByUsernameOpts struct {
-	Username   string             `json:"username"`
+	Username string `json:"username"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID `json:"user_id"`
 }
 
 // swagger:model GetInfluencerBasicESEesp
 type GetInfluencerBasicESEesp struct {
+	// swagger:strfmt ObjectID
 	ID               primitive.ObjectID `json:"id,omitempty"`
 	Name             string             `json:"name,omitempty"`
 	Username         string             `json:"username,omitempty"`
@@ -81,6 +90,7 @@ type GetInfluencerBasicESEesp struct {
 
 // swagger:model GetInfluencerInfoEsResp
 type GetInfluencerInfoEsResp struct {
+	// swagger:strfmt ObjectID
 	ID               primitive.ObjectID             `json:"id,omitempty"`
 	Name             string                         `json:"name,omitempty"`
 	Username         string                         `json:"username,omitempty"`
@@ -98,25 +108,30 @@ type GetInfluencerInfoEsResp struct {
 
 // swagger:model GetInfluencersByIDBasicOpts
 type GetInfluencersByIDBasicOpts struct {
-	IDs        []string `json:"ids"`
+	IDs []string `json:"ids"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 
 // swagger:model GetInfluencerInfoByIDOpts
 type GetInfluencerInfoByIDOpts struct {
-	ID         primitive.ObjectID `json:"id"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 
 // swagger:model GetInfluencersByUsernameBasicOpts
 type GetInfluencersByUsernameBasicOpts struct {
-	Usernames  []string `json:"usernames"`
+	Usernames []string `json:"usernames"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 
 // swagger:model GetInfluencerInfoByUsernameOpts
 type GetInfluencerInfoByUsernameOpts struct {
-	Username   string `json:"username"`
+	Username string `json:"username"`
+	// swagger:strfmt ObjectID
 	CustomerID primitive.ObjectID
 }
 

@@ -25,6 +25,7 @@ import (
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description:Login required for successful response.
 //   required: true
@@ -32,6 +33,7 @@ import (
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -61,6 +63,7 @@ func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *h
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description:Login required for successful response.
 //   required: true
@@ -68,6 +71,7 @@ func (a *API) me(requestCTX *handler.RequestContext, w http.ResponseWriter, r *h
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -257,6 +261,7 @@ func (a *API) resetPassword(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -264,6 +269,7 @@ func (a *API) resetPassword(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -864,6 +870,7 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Login required for successful response.
 //   required: true
@@ -871,6 +878,7 @@ func (a *API) keeperLoginCallback(requestCTX *handler.RequestContext, w http.Res
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -920,11 +928,12 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 // + name: id
 //   in: query
 //   schema:
-//   type: ObjectID
+//   type: string
 //   required: true
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Login required for successful response.
 //   required: true
@@ -932,6 +941,7 @@ func (a *API) logoutUser(requestCTX *handler.RequestContext, w http.ResponseWrit
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true

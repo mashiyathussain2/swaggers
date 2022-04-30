@@ -130,8 +130,10 @@ type GetBrandResp struct {
 
 // swagger:model AddBrandFollowerOpts
 type AddBrandFollowerOpts struct {
+	// swagger:strfmt ObjectID
 	// required: true
 	BrandID primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt ObjectID
 	// required: true
 	CustomerID primitive.ObjectID `json:"customer_id" validate:"required"`
 }

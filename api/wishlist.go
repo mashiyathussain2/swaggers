@@ -32,6 +32,7 @@ import (
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -39,6 +40,7 @@ import (
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -97,6 +99,7 @@ func (a *API) addToWishlist(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -104,6 +107,7 @@ func (a *API) addToWishlist(requestCTX *handler.RequestContext, w http.ResponseW
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
@@ -156,6 +160,7 @@ func (a *API) getWishlist(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: cookie
+//   type: string
 //   in: header
 //   description: Customer login required for successful response.
 //   required: true
@@ -163,6 +168,7 @@ func (a *API) getWishlist(requestCTX *handler.RequestContext, w http.ResponseWri
 //
 // parameters:
 // + name: auth token
+//   type: string
 //   in: header
 //   description:Token required for successful response.
 //   required: true
