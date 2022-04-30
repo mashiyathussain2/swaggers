@@ -98,12 +98,12 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debit_request_id primit
 			"as":           "user_info",
 		},
 	}}
-	unwindStage := bson.D{{
-		Key: "$unwind", Value: bson.M{
-			"path": "$influencer_info",
-		},
-	}}
-	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2, unwindStage})
+	// unwindStage := bson.D{{
+	// 	Key: "$unwind", Value: bson.M{
+	// 		"path": "$influencer_info",
+	// 	},
+	// }}
+	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2})
 	if err != nil {
 		return errors.Wrapf(err, "error getting debit request")
 	}
@@ -123,8 +123,8 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debit_request_id primit
 		InvoiceNo:         invoiceNo,
 		DebitRequestID:    debit_request_id,
 		InfluencerID:      debitReqInfo[0].InfluencerID,
-		InfluencerInfo:    debitReqInfo[0].InfluencerInfo,
-		UserInfo:          debitReqInfo[0].UserInfo,
+		InfluencerInfo:    debitReqInfo[0].InfluencerInfo[0],
+		UserInfo:          debitReqInfo[0].UserInfo[0],
 		Amount:            uint(debitReqInfo[0].Amount),
 		PayoutInformation: debitReqInfo[0].PayoutInformation,
 		RequestDate:       debitReqInfo[0].CreatedAt,

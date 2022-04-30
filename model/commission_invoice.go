@@ -30,8 +30,8 @@ type DebitRequestAllInfo struct {
 	Amount            float64            `json:"amount,omitempty" bson:"amount,omitempty"`
 	Status            string             `json:"status,omitempty" bson:"status,omitempty"`
 	PayoutInformation *PayoutInformation `json:"payout_information,omitempty" bson:"payout_information,omitempty"`
-	InfluencerInfo    Influencer         `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
-	UserInfo          User               `json:"user_info,omitempty" bson:"user_info,omitempty"`
+	InfluencerInfo    []Influencer       `json:"influencer_info,omitempty" bson:"influencer_info,omitempty"`
+	UserInfo          []User             `json:"user_info,omitempty" bson:"user_info,omitempty"`
 	GranteeID         primitive.ObjectID `json:"grantee_id,omitempty" bson:"grantee_id,omitempty"`
 	CreatedAt         time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt         time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
