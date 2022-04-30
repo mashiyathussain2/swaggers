@@ -92,7 +92,7 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debit_request_id primit
 	}}
 	lookupStage2 := bson.D{{
 		Key: "$lookup", Value: bson.M{
-			"from":         "yser",
+			"from":         "user",
 			"localField":   "influencer_id",
 			"foreignField": "influencer_id",
 			"as":           "user_info",
