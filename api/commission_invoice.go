@@ -32,15 +32,7 @@ func (a *API) downloadCommissionInvoice(requestCTX *handler.RequestContext, w ht
 		return
 	}
 	w.Header().Set("Content-Disposition", "attachment; filename="+name+".pdf")
-	w.Header().Set("Content-type", "application/zip")
-	// z := zip.NewWriter(w)
-	// defer z.Close()
-	// for i, pdf := range files {
-	// 	zf, _ := z.Create(names[i])
-	// 	f, _ := os.Open(names[i])
-	// 	defer f.Close()
-	// 	io.Copy(zf, pdf)
-	// }
+	w.Header().Set("Content-type", "application/pdf")
 	io.Copy(w, file)
 	return
 }

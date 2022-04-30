@@ -34,3 +34,9 @@ type DebitRequestAllInfo struct {
 	CreatedAt         time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt         time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
+
+// InvoiceDate returns invoice creation date in IST timezone
+func (i *CommissionInvoice) InvoiceDate() string {
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	return i.RequestDate.In(loc).Local().Format("02-Jan-2006")
+}
