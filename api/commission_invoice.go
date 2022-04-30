@@ -31,7 +31,7 @@ func (a *API) downloadCommissionInvoice(requestCTX *handler.RequestContext, w ht
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-Disposition", "attachment; filename="+name+".pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename="+name)
 	w.Header().Set("Content-type", "application/pdf")
 	io.Copy(w, file)
 	return
