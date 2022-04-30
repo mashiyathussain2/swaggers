@@ -138,6 +138,7 @@ func (a *API) InitRoutes() {
 	//commission invoice
 	//delete later
 	a.Router.APIRoot.Handle("/test/commission-invoice", a.requestHandler(a.generateCommissionInvoice)).Methods("GET")
+	a.Router.APIRoot.Handle("/test/invoice-print", a.requestHandler(a.downloadCommissionInvoice)).Methods("GET")
 
 }
 

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"go-app/model"
@@ -16,7 +17,8 @@ import (
 )
 
 type CommissionInvoice interface {
-	GenerateCommissionInvoice(debit_request_id primitive.ObjectID) error
+	CreateCommissionInvoice(debit_request_id primitive.ObjectID) error
+	GetInvoicePDF(userID primitive.ObjectID, orderNo string) (*bytes.Buffer, string, error)
 }
 
 type CommissionInvoiceImpl struct {
@@ -55,8 +57,23 @@ func (ci *CommissionInvoiceImpl) generateInvoiceNo(influencer_id primitive.Objec
 	return s, nil
 }
 
-//GenerateCommissionInvoice generates invoice based on debit_request collection id
-func (ci *CommissionInvoiceImpl) GenerateCommissionInvoice(debit_request_id primitive.ObjectID) error {
+func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext, debit_request_id primitive.ObjectID) error {
+	// Checking if invoice exists with provided order_no
+	filter := bson.M{
+		"debit_request_id": debit_request_id,
+	}
+	count, err := ci.DB.Collection(model.CommissionInvoiceColl).CountDocuments(sc, filter)
+	if err != nil {
+		return errors.Wrapf(err, "failed to check for invoice with debit_request_id:%s", debit_request_id)
+	}
+	if count != 0 {
+		return errors.Errorf("invoice already generated for debit_request_id: %s", debit_request_id)
+	}
+	return nil
+}
+
+//CreateCommissionInvoice creates invoice based on debit_request collection id
+func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debit_request_id primitive.ObjectID) error {
 
 	ctx := context.TODO()
 	var debitReqInfo []model.DebitRequestAllInfo
@@ -109,4 +126,39 @@ func (ci *CommissionInvoiceImpl) GenerateCommissionInvoice(debit_request_id prim
 		return errors.Wrapf(err, "error generating invoice")
 	}
 	return nil
+}
+
+func (ci *CommissionInvoiceImpl) GetCIbyNo(invoiceNo string) (*model.CommissionInvoice, error) {
+	ctx := context.TODO()
+	var invoice model.CommissionInvoice
+	err := ci.DB.Collection(model.CommissionInvoiceColl).FindOne(ctx, bson.M{"invoice_no": invoiceNo}).Decode(&invoice)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error getting invoice")
+	}
+	return &invoice, nil
+}
+func (ci *CommissionInvoiceImpl) generateCommissionInvoicePDF(invoice *model.CommissionInvoice) (*bytes.Buffer, string, error) {
+	body, err := ParseTemplate(ci.App.Config.PDFConfig.CommissionInvoiceTemplatePath, invoice)
+	if err != nil {
+		ci.Logger.Err(err).Msg("failed to prepare pdf")
+		return nil, "", err
+	}
+	buff, err := GeneratePDF(body)
+	if err != nil {
+		ci.Logger.Err(err).Msg("failed to generate pdf")
+		return nil, "", err
+	}
+	return buff, fmt.Sprintf("%s.pdf", invoice.InvoiceNo), nil
+}
+
+func (ci *CommissionInvoiceImpl) GetInvoicePDF(userID primitive.ObjectID, orderNo string) (*bytes.Buffer, string, error) {
+	invoice, err := ci.GetCIbyNo(orderNo)
+	if err != nil {
+		return nil, "", err
+	}
+	resp, fileName, err := ci.generateCommissionInvoicePDF(invoice)
+	if err != nil {
+		return nil, "", err
+	}
+	return resp, fileName, nil
 }

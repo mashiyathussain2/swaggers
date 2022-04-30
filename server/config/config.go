@@ -96,6 +96,7 @@ type APPConfig struct {
 	GoogleOAuth         GoogleOAuth
 	Kaleyra             KaleyraConfig
 	MSGPlatform         MSGPlatformConfig
+	PDFConfig           PDFConfig `mapstructure:"pdf"`
 
 	UserConfig              ServiceConfig `mapstructure:"user"`
 	CustomerConfig          ServiceConfig `mapstructure:"customer"`
@@ -253,6 +254,10 @@ type KaleyraConfig struct {
 	APIKey     string `mapstructure:"apiKey"`
 	SID        string `mapstructure:"sid"`
 	TemplateID string `mapstructure:"templateID"`
+}
+
+type PDFConfig struct {
+	CommissionInvoiceTemplatePath string `mapstructure:"commissionInvoiceTemplatePath"`
 }
 
 // MSGPlatformConfig contains aws Message service related configuration
