@@ -175,7 +175,6 @@ func (ci *CommissionInvoiceImpl) GetInvoicePDF(invoiceNo string) (*bytes.Buffer,
 	if err != nil {
 		return nil, "", err
 	}
-	ci.SendCommissionInvoice(invoiceNo)
 	return resp, fileName, nil
 }
 
@@ -351,10 +350,9 @@ func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
 	}
 	fmt.Println(1)
 
-	file, fn, err := ci.GetInvoicePDF(invoiceNo)
+	file, fn, err := ci.generateCommissionInvoicePDF(invoice)
 	if err != nil {
-		ci.Logger.Err(err).Msgf("failed to generate pdf to send for invoice no: %s", invoiceNo)
-		return
+		ci.Logger.Err(err).Msgf("failed to generate Commission Invoice PDF: %s", invoiceNo)
 	}
 	fmt.Println(1)
 
