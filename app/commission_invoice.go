@@ -175,6 +175,7 @@ func (ci *CommissionInvoiceImpl) GetInvoicePDF(invoiceNo string) (*bytes.Buffer,
 	if err != nil {
 		return nil, "", err
 	}
+	ci.SendCommissionInvoice(invoiceNo)
 	return resp, fileName, nil
 }
 
