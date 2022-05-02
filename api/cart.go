@@ -299,7 +299,7 @@ func (a *API) setCartAddress(requestCTX *handler.RequestContext, w http.Response
 // + name: request_id
 //   in: query
 //   schema:
-//   type: ObjectID
+//   type: string
 //   required: true
 //
 // parameters:
@@ -386,7 +386,7 @@ func (a *API) checkoutCart(requestCTX *handler.RequestContext, w http.ResponseWr
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 6065d4503824bf77961c21ae
 //   required: true
@@ -429,7 +429,7 @@ func (a *API) clearCart(requestCTX *handler.RequestContext, w http.ResponseWrite
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 61dd5c77c69b0de021ce1810
 //   required: true
@@ -512,7 +512,7 @@ func (a *API) applyCoupon(requestCTX *handler.RequestContext, w http.ResponseWri
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 611ca3d6c2b96106c6c9ee47
 //   required: true

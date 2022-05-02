@@ -171,7 +171,7 @@ func (a *API) getInfluencersBasic(requestCTX *handler.RequestContext, w http.Res
 // + name: influencerID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 60b50277a97a2d73b211aec7
 //   required: true
@@ -495,7 +495,7 @@ func (a *API) getInfluencersBasicByUsername(requestCTX *handler.RequestContext, 
 // + name: username
 //   in: path
 //   schema:
-//   type: username
+//   type: string
 //   enum: kartikay_sharma
 //   required: true
 //

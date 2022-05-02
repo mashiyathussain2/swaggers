@@ -3,7 +3,6 @@
     "application/json"
   ],
   "schemes": [
-    "http",
     "https"
   ],
   "swagger": "2.0",
@@ -13,7 +12,7 @@
     "version": "1.0.1"
   },
   "host": "entity.getshitdone.in",
-  "basePath": "/",
+  "basePath": "/api",
   "paths": {
     "/app/brand/basic": {
       "post": {
@@ -587,7 +586,7 @@
             "required": true
           },
           {
-            "type": "object",
+            "type": "string",
             "name": "request_id",
             "in": "query",
             "required": true
@@ -648,7 +647,7 @@
             "enum": [
               "61dd5c77c69b0de021ce1810"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -716,7 +715,7 @@
             "enum": [
               "611ca3d6c2b96106c6c9ee47"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -1329,7 +1328,7 @@
             "enum": [
               "60b50277a97a2d73b211aec7"
             ],
-            "type": "object",
+            "type": "string",
             "name": "customerID",
             "in": "path",
             "required": true
@@ -1688,7 +1687,7 @@
             "enum": [
               "kartikay_sharma"
             ],
-            "type": "object",
+            "type": "string",
             "name": "username",
             "in": "path",
             "required": true
@@ -1758,7 +1757,7 @@
             "enum": [
               "60b50277a97a2d73b211aec7"
             ],
-            "type": "object",
+            "type": "string",
             "name": "influencerID",
             "in": "path",
             "required": true
@@ -1819,7 +1818,7 @@
             "enum": [
               "60acf7bcf928b0fa83a7f89f"
             ],
-            "type": "object",
+            "type": "string",
             "name": "id",
             "in": "query",
             "required": true
@@ -2087,7 +2086,7 @@
             "enum": [
               "6065d4503824bf77961c21ae"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -2327,7 +2326,7 @@
             "enum": [
               "60b50277a97a2d73b211aec7"
             ],
-            "type": "object",
+            "type": "string",
             "name": "brandID",
             "in": "path",
             "required": true
@@ -2368,7 +2367,7 @@
             "enum": [
               "6065d4503824bf77961c21ae"
             ],
-            "type": "object",
+            "type": "string",
             "name": "userID",
             "in": "path",
             "required": true
@@ -4505,7 +4504,6 @@
       "x-go-package": "go-app/schema"
     },
     "CreateUserResp": {
-      "description": "CreateUserResp create user resp",
       "type": "object",
       "properties": {
         "email": {
@@ -4525,7 +4523,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/schema"
     },
     "CurrencyISO": {
       "description": "CurrencyISO iso representation of currency",
@@ -6468,7 +6466,6 @@
       "x-go-package": "go-app/schema"
     },
     "PhoneNoOpts": {
-      "description": "PhoneNoOpts phone no opts",
       "type": "object",
       "required": [
         "prefix",
@@ -6486,7 +6483,7 @@
           "x-go-name": "Prefix"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/schema"
     },
     "PhoneNumber": {
       "description": "PhoneNumber represents a contact number contains prefix (country code) and phone number",
@@ -6846,8 +6843,9 @@
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
     "TokenAuth": {
+      "description": "TokenAuth token auth",
       "type": "object",
-      "x-go-package": "go-app/server/auth"
+      "x-go-package": "go-app/models"
     },
     "UpdateCustomerOpts": {
       "type": "object",

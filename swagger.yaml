@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api
 definitions:
   AddAddressOpts:
     properties:
@@ -2059,7 +2059,6 @@ definitions:
     type: object
     x-go-package: go-app/schema
   PhoneNoOpts:
-    description: PhoneNoOpts phone no opts
     properties:
       number:
         description: |-
@@ -2077,7 +2076,7 @@ definitions:
     - prefix
     - number
     type: object
-    x-go-package: go-app/models
+    x-go-package: go-app/schema
   PhoneNumber:
     description: PhoneNumber represents a contact number contains prefix (country
       code) and phone number
@@ -2255,7 +2254,6 @@ definitions:
     type: object
     x-go-package: github.com/dgrijalva/jwt-go
   State:
-    description: State state
     properties:
       iso_code:
         description: i s o code
@@ -2266,7 +2264,7 @@ definitions:
         type: string
         x-go-name: Name
     type: object
-    x-go-package: go-app/models
+    x-go-package: go-app/model
   Status:
     description: "Unlist: status is set by default when a new catalog instance is
       created.\ncatalog with this status are now shown to the customer as this represents
@@ -3087,7 +3085,7 @@ paths:
       - in: query
         name: request_id
         required: true
-        type: object
+        type: string
       - description: Login required for successful response.
         in: header
         name: cookie
@@ -3133,7 +3131,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       - description: Customer login required for successful response.
         in: header
         name: cookie
@@ -3176,7 +3174,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       - in: body
         name: body
         required: true
@@ -3561,7 +3559,7 @@ paths:
         in: path
         name: customerID
         required: true
-        type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -3912,7 +3910,7 @@ paths:
         in: path
         name: influencerID
         required: true
-        type: object
+        type: string
       - description: Customer login required for successful response.
         in: header
         name: cookie
@@ -4010,7 +4008,7 @@ paths:
         in: path
         name: username
         required: true
-        type: object
+        type: string
       - description: Customer login required for successful response.
         in: header
         name: cookie
@@ -4102,7 +4100,7 @@ paths:
         in: query
         name: id
         required: true
-        type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -4307,7 +4305,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       - description: Customer login required for successful response.
         in: header
         name: cookie
@@ -4351,7 +4349,7 @@ paths:
         in: path
         name: brandID
         required: true
-        type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -4523,7 +4521,7 @@ paths:
         in: path
         name: userID
         required: true
-        type: object
+        type: string
       produces:
       - application/json
       responses:
@@ -5564,6 +5562,5 @@ paths:
 produces:
 - application/json
 schemes:
-- http
 - https
 swagger: "2.0"

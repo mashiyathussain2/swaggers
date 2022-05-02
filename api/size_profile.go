@@ -75,7 +75,7 @@ func (a *API) getSizeProfilesForBrand(requestCTX *handler.RequestContext, w http
 //   in: query
 //   schema:
 //   enum: 60acf7bcf928b0fa83a7f89f
-//   type: ObjectID
+//   type: string
 //   required: true
 //
 //

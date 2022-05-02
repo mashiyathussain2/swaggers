@@ -1,9 +1,9 @@
 //  HYPD Entity API:
 //  API related to User, Creator, Brand
 //  version: 1.0.1
-//  Schemes: http, https
+//  Schemes: https
 //  Host: entity.getshitdone.in
-//  BasePath: /
+//  BasePath: /api
 //  Produces:
 //    - application/json
 //

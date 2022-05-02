@@ -611,7 +611,7 @@ func (a *API) getAddress(requestCTX *handler.RequestContext, w http.ResponseWrit
 // + name: customerID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 60b50277a97a2d73b211aec7
 //   required: true

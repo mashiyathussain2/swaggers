@@ -91,7 +91,7 @@ func (a *API) addToWishlist(requestCTX *handler.RequestContext, w http.ResponseW
 // + name: userID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 6065d4503824bf77961c21ae
 //   required: true

@@ -100,7 +100,7 @@ func (a *API) editbrand(requestCTX *handler.RequestContext, w http.ResponseWrite
 // + name: brandID
 //   in: path
 //   schema:
-//   type: ObjectID
+//   type: string
 //     "$ref": "#/definitions/ObjectID"
 //   enum: 60b50277a97a2d73b211aec7
 //   required: true
