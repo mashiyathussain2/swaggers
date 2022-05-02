@@ -56,3 +56,7 @@ func (i *CommissionInvoice) InvoiceDate() string {
 	loc, _ := time.LoadLocation("Asia/Kolkata")
 	return i.RequestDate.In(loc).Local().Format("02-Jan-2006")
 }
+
+func (i *CommissionInvoice) IsBankTransfer() bool {
+	return i.PayoutInformation.BankInformation != nil
+}
