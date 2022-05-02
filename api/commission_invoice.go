@@ -1,7 +1,6 @@
 package api
 
 import (
-	"go-app/server/auth"
 	"go-app/server/handler"
 	"io"
 	"net/http"
@@ -25,8 +24,8 @@ func (a *API) generateCommissionInvoice(requestCTX *handler.RequestContext, w ht
 
 func (a *API) downloadCommissionInvoice(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	invoiceNo := r.URL.Query().Get("invoiceNo")
-	userID, _ := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
-	file, name, err := a.App.CommissionInvoice.GetInvoicePDF(userID, invoiceNo)
+	// userID, _ := primitive.ObjectIDFromHex(requestCTX.UserClaim.(*auth.UserClaim).ID)
+	file, name, err := a.App.CommissionInvoice.GetInvoicePDF(invoiceNo)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return

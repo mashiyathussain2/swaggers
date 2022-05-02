@@ -119,6 +119,8 @@ type APPConfig struct {
 
 	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
+
+	FinanceOrderEmail string `mapstructure:"financeOrderEmail"`
 }
 
 // ElasticsearchConfig contains elasticsearch related configurations

@@ -15,6 +15,7 @@ import (
 // SES defines methods defined in aws ses sdk
 type SES interface {
 	SendEmail(*ses.SendEmailInput) (*ses.SendEmailOutput, error)
+	SendRawEmail(*ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error)
 }
 
 // SESImpl implements SES methods
@@ -51,4 +52,9 @@ func NewSESImpl(opts *SESImplOpts) SES {
 // SendEmail calls
 func (sesi *SESImpl) SendEmail(opts *ses.SendEmailInput) (*ses.SendEmailOutput, error) {
 	return sesi.SES.SendEmail(opts)
+}
+
+// SendRawEmail calls
+func (sesi *SESImpl) SendRawEmail(opts *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
+	return sesi.SES.SendRawEmail(opts)
 }
