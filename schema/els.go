@@ -40,7 +40,7 @@ type GetBrandInfoEsResp struct {
 	CreatedAt        time.Time            `json:"created_at,omitempty"`
 	UpdatedAt        time.Time            `json:"updated_at,omitempty"`
 	IsFollowedByUser bool                 `json:"is_followed_by_user,omitempty"`
-	Policies         []model.Policy       `json:"policies,omitempty"`
+	Policies         []model.Policy       `json:"policies"`
 	IsCODAvailable   bool                 `json:"is_cod_available"`
 }
 
