@@ -43,7 +43,6 @@
                 Invoice No - {{.InvoiceNo}}
             </td>
         </tr>
-        <tr></tr>
         <tr class="bold" style="padding: 10px">
             <td colspan="1" class="w-50 " style="padding: 10px">
              Sr. No.
@@ -171,10 +170,10 @@ text-align: right;
 .w-25{
     width:25%;
 }
-table:last-of-type tr:nth-child(even){
+table:nth-last-of-type(2) tr:nth-child(even){
     background-color: #fff;
 }
-table:last-of-type tr:nth-child(odd){
+table:nth-last-of-type(2) tr:nth-child(odd){
     background-color: #EDEDED ;
 }
 .footer{
