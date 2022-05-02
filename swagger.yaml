@@ -1,0 +1,171 @@
+basePath: /
+definitions:
+  CommonError:
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        type: string
+        x-go-name: Message
+      status:
+        description: Status of the error
+        format: int64
+        type: integer
+        x-go-name: Status
+    type: object
+    x-go-package: goswagger/app/models
+  CommonSuccess:
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        type: string
+        x-go-name: Message
+      status:
+        description: |-
+          Status of the error
+          in: int64
+        format: int64
+        type: integer
+        x-go-name: Status
+    type: object
+    x-go-package: goswagger/app/students
+  GetStud:
+    properties:
+      data:
+        $ref: '#/definitions/Student'
+        items:
+          $ref: '#/definitions/Student'
+        type: array
+      message:
+        description: |-
+          Message of the response
+          in: string
+        type: string
+        x-go-name: Message
+      status:
+        description: |-
+          Status of the error
+          in: int64
+        format: int64
+        type: integer
+        x-go-name: Status
+    type: object
+    x-go-name: GetStuds
+    x-go-package: goswagger/app/students
+  Student:
+    properties:
+      id:
+        description: |-
+          Id of the student
+          in: string
+        type: string
+        x-go-name: ID
+      name:
+        description: |-
+          Name of the student
+          in: string
+        type: string
+        x-go-name: Name
+      subject:
+        description: |-
+          Subject of the student
+          in: string
+        type: string
+        x-go-name: Subject
+    required:
+    - subject
+    type: object
+    x-go-package: goswagger/app/models
+host: localhost:8000
+info:
+  title: 'Student Api:'
+  version: 1.0.1
+paths:
+  /students:
+    get:
+      consumes:
+      - application/json
+      description: Get students list
+      operationId: listStudents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student
+          schema:
+            $ref: '#/definitions/Student'
+        "401":
+          description: CommonError
+          schema:
+            $ref: '#/definitions/CommonError'
+      security:
+      - apiKey:
+        - '[]'
+      tags:
+      - students
+    post:
+      consumes:
+      - application/json
+      description: Create a new students
+      operationId: createStudent
+      parameters:
+      - description: 'name: body'
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/Student'
+        x-go-name: Body
+      responses:
+        "200":
+          description: Student
+          schema:
+            $ref: '#/definitions/Student'
+        "400":
+          description: CommonError
+          schema:
+            $ref: '#/definitions/CommonError'
+        "401":
+          description: CommonError
+          schema:
+            $ref: '#/definitions/CommonError'
+      security:
+      - apiKey:
+        - '[]'
+      tags:
+      - students
+  /students/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Find one student
+      operationId: findonestudent
+      responses:
+        "200":
+          description: Student
+          schema:
+            $ref: '#/definitions/Student'
+        "400":
+          description: CommonError
+          schema:
+            $ref: '#/definitions/CommonError'
+        "401":
+          description: CommonError
+          schema:
+            $ref: '#/definitions/CommonError'
+      tags:
+      - students
+produces:
+- application/json
+schemes:
+- http
+- https
+securityDefinitions:
+  apiKey:
+    in: header
+    name: authorization
+    type: apiKey
+swagger: "2.0"
