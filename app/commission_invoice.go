@@ -339,7 +339,7 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 }
 
 func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
-	fmt.Println(1)
+
 	invoice, err := ci.GetCIbyNo(invoiceNo)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to get invoice by invoice no: %s", invoiceNo)
@@ -349,33 +349,28 @@ func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
 		ci.Logger.Err(err).Msgf("invoice not found by invoice no: %s", invoiceNo)
 		return
 	}
-	fmt.Println(1)
 
 	file, fn, err := ci.generateCommissionInvoicePDF(invoice)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to generate Commission Invoice PDF: %s", invoiceNo)
 	}
-	fmt.Println(1)
 
 	attachmentFilename := fn
 	message := ci.commissionInvoiceMailTemplate(invoice)
 	destination := invoice.UserInfo.Email
 	cc := []string{}
-	fmt.Println(1)
 
 	email, err := ci.prepareCommissionInvoiceEmail(message, attachmentFilename, []string{destination}, cc, file.Bytes())
 	if err != nil {
-		ci.Logger.Err(err).Msgf("failed to prepare email to send to brand for invoice id: %s", invoice.ID.Hex())
+		ci.Logger.Err(err).Msgf("failed to prepare email to send to creator for invoice no: %s", invoiceNo)
 		return
 	}
-	fmt.Println(1)
 
 	resp, err := ci.App.SES.SendRawEmail(email)
 	if err != nil {
-		ci.Logger.Err(err).Msgf("failed to send email to brand for invoice id: %s", invoice.ID.Hex())
+		ci.Logger.Err(err).Msgf("failed to send email to creator for invoice no: %s", invoiceNo)
 		return
 	}
-	fmt.Println(1)
 
-	ci.Logger.Debug().Interface("resp", resp).Msgf("sent email to brand for invoice id: %s", invoice.ID.Hex())
+	ci.Logger.Debug().Interface("resp", resp).Msgf("sent email to creator for invoice no: %s", invoiceNo)
 }
