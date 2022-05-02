@@ -890,7 +890,7 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 	}
 
 	filter := bson.M{
-		"catalog_id": id,
+		"items.catalog_id": id,
 	}
 
 	catalogInfo := model.CatalogInfo{
