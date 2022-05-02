@@ -39,6 +39,7 @@ definitions:
         items:
           $ref: '#/definitions/Student'
         type: array
+        x-go-name: Data
       message:
         description: |-
           Message of the response
@@ -82,7 +83,7 @@ definitions:
 host: localhost:8000
 info:
   title: 'Student Api:'
-  version: 1.0.1
+  version: 1.0.
 paths:
   /students:
     get:
