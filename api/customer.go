@@ -13,27 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// swagger:parameters error commonError
-type CommonError struct {
-	// Status of the error
-	Status int `json:"status"`
-	// Message of the error
-	// in: string
-	Message string `json:"message"`
-}
-
-// swagger:parameters error commonError
-type AddErrorBody struct {
-	// - name: body
-	//  in: body
-	//  description: erroror
-	//  schema:
-	//  type: object
-	//     "$ref": "#/definitions/CommonError"
-	//  required: true
-	Body CommonError `json:"body"`
-}
-
 // swagger:route  POST /customer/email/login login loginViaEmail
 // User login via email
 //

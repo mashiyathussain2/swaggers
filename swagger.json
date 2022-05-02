@@ -8,8 +8,7 @@
   "swagger": "2.0",
   "info": {
     "description": "API related to User, Creator, Brand",
-    "title": "HYPD Entity API:",
-    "version": "1.0.1"
+    "title": "HYPD Entity API:"
   },
   "host": "entity.getshitdone.in",
   "basePath": "/api",
@@ -4504,6 +4503,7 @@
       "x-go-package": "go-app/schema"
     },
     "CreateUserResp": {
+      "description": "CreateUserResp create user resp",
       "type": "object",
       "properties": {
         "email": {
@@ -4523,7 +4523,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/schema"
+      "x-go-package": "go-app/models"
     },
     "CurrencyISO": {
       "description": "CurrencyISO iso representation of currency",
@@ -6843,9 +6843,8 @@
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
     "TokenAuth": {
-      "description": "TokenAuth token auth",
       "type": "object",
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/server/auth"
     },
     "UpdateCustomerOpts": {
       "type": "object",

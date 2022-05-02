@@ -2059,6 +2059,7 @@ definitions:
     type: object
     x-go-package: go-app/schema
   PhoneNoOpts:
+    description: PhoneNoOpts phone no opts
     properties:
       number:
         description: |-
@@ -2076,7 +2077,7 @@ definitions:
     - prefix
     - number
     type: object
-    x-go-package: go-app/schema
+    x-go-package: go-app/models
   PhoneNumber:
     description: PhoneNumber represents a contact number contains prefix (country
       code) and phone number
@@ -2209,7 +2210,6 @@ definitions:
     type: object
     x-go-package: go-app/schema
   Source:
-    description: Source source
     properties:
       id:
         description: ID
@@ -2220,7 +2220,7 @@ definitions:
         type: string
         x-go-name: Type
     type: object
-    x-go-package: go-app/models
+    x-go-package: go-app/model
   StandardClaims:
     description: |-
       Structured version of Claims Section, as referenced at
@@ -2254,6 +2254,7 @@ definitions:
     type: object
     x-go-package: github.com/dgrijalva/jwt-go
   State:
+    description: State state
     properties:
       iso_code:
         description: i s o code
@@ -2264,7 +2265,7 @@ definitions:
         type: string
         x-go-name: Name
     type: object
-    x-go-package: go-app/model
+    x-go-package: go-app/models
   Status:
     description: "Unlist: status is set by default when a new catalog instance is
       created.\ncatalog with this status are now shown to the customer as this represents
@@ -2735,7 +2736,6 @@ host: entity.getshitdone.in
 info:
   description: API related to User, Creator, Brand
   title: 'HYPD Entity API:'
-  version: 1.0.1
 paths:
   /app/brand/{brandID}:
     get:
