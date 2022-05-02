@@ -1,0 +1,228 @@
+{
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "Student Api:",
+    "version": "1.0.1"
+  },
+  "host": "localhost:8000",
+  "basePath": "/",
+  "paths": {
+    "/students": {
+      "get": {
+        "security": [
+          {
+            "apiKey": [
+              "[]"
+            ]
+          }
+        ],
+        "description": "Get students list",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "students"
+        ],
+        "operationId": "listStudents",
+        "responses": {
+          "200": {
+            "description": "Student",
+            "schema": {
+              "$ref": "#/definitions/Student"
+            }
+          },
+          "401": {
+            "description": "CommonError",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "apiKey": [
+              "[]"
+            ]
+          }
+        ],
+        "description": "Create a new students",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "students"
+        ],
+        "operationId": "createStudent",
+        "parameters": [
+          {
+            "x-go-name": "Body",
+            "description": "name: body",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Student"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student",
+            "schema": {
+              "$ref": "#/definitions/Student"
+            }
+          },
+          "400": {
+            "description": "CommonError",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          },
+          "401": {
+            "description": "CommonError",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "post": {
+        "description": "Find one student",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "students"
+        ],
+        "operationId": "findonestudent",
+        "responses": {
+          "200": {
+            "description": "Student",
+            "schema": {
+              "$ref": "#/definitions/Student"
+            }
+          },
+          "400": {
+            "description": "CommonError",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          },
+          "401": {
+            "description": "CommonError",
+            "schema": {
+              "$ref": "#/definitions/CommonError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CommonError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "description": "Message of the error\nin: string",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "status": {
+          "description": "Status of the error",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "goswagger/app/models"
+    },
+    "CommonSuccess": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "description": "Message of the error\nin: string",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "status": {
+          "description": "Status of the error\nin: int64",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "goswagger/app/students"
+    },
+    "GetStud": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Student"
+          },
+          "x-go-name": "Data",
+          "$ref": "#/definitions/Student"
+        },
+        "message": {
+          "description": "Message of the response\nin: string",
+          "type": "string",
+          "x-go-name": "Message"
+        },
+        "status": {
+          "description": "Status of the error\nin: int64",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-name": "GetStuds",
+      "x-go-package": "goswagger/app/students"
+    },
+    "Student": {
+      "type": "object",
+      "required": [
+        "subject"
+      ],
+      "properties": {
+        "id": {
+          "description": "Id of the student\nin: string",
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "Name of the student\nin: string",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "subject": {
+          "description": "Subject of the student\nin: string",
+          "type": "string",
+          "x-go-name": "Subject"
+        }
+      },
+      "x-go-package": "goswagger/app/models"
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "name": "authorization",
+      "in": "header"
+    }
+  }
+}
