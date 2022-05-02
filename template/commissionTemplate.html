@@ -63,6 +63,7 @@
         
         <td class="bold"> Please make the necessary payment as a direct credit to the below details.</td>
         <tr><td class="pt-30"></td></tr>  
+        <tr></tr>
         {{$isBankTransfer := .IsBankTransfer}}
         {{ if $isBankTransfer }}
         <tr>
@@ -74,7 +75,7 @@
             <tr><td></td></tr>  
         </tr>
         {{ else }}
-            <td class="bold"> Account Number :  {{.PayoutInformation.UPIID}}</td>
+            <td class="bold"> UPI ID :  {{.PayoutInformation.UPIID}}</td>
             <tr><td></td></tr>
         {{end}}
     </table>
