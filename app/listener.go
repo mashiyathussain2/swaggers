@@ -57,6 +57,12 @@ func InitConsumer(a *App) {
 	})
 	go a.CommissionOrderListener.ConsumeAndCommit(ctx, a.InfluencerProcessor.InfluencerCommissionUpdate)
 
+	a.GenerateCommissionInvoiceListner = kafka.NewSegmentioKafkaConsumer(&kafka.SegmentioConsumerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.GenerateCommissionInvoiceListnerConfig,
+	})
+	go a.CommissionOrderListener.ConsumeAndCommit(ctx, a.InfluencerProcessor.GenerateCommissionInvoice)
+
 }
 
 // CloseConsumer terminates all consumer connections
@@ -68,6 +74,8 @@ func CloseConsumer(a *App) {
 	// a.InfluencerChanges.Close()
 	a.CatalogChanges.Close()
 	a.CouponChanges.Close()
+	a.GenerateCommissionInvoiceListner.Close()
+	a.CommissionOrderListener.Close()
 }
 
 // InitProducer initializes kafka message producers

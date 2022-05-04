@@ -169,22 +169,35 @@ func (ip *InfluencerProcessor) ProcessInfluencerUpdate(msg kafka.Message) {
 	ip.App.InfluencerFullProducer.Publish(m)
 }
 
-func (op *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
+func (ip *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
 	message := msg.(segKafka.Message)
 
 	// linking brand info
 	var item schema.CommisionOrderItem
 
 	if err := json.Unmarshal(message.Value, &item); err != nil {
-		op.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
+		ip.Logger.Err(err).Interface("data", string(message.Value)).Msg("failed to convert json to struct")
 		return
 	}
-	op.Mutex.Lock()
+	ip.Mutex.Lock()
 	fmt.Printf("PROCESSING COMMISSION FOR ITEM: %+v\n", item)
-	err := op.App.Influencer.AddCreditTransaction(&item)
-	op.Mutex.Unlock()
+	err := ip.App.Influencer.AddCreditTransaction(&item)
+	ip.Mutex.Unlock()
 	if err != nil {
-		op.Logger.Err(err).Msg("error adding credit transaction")
+		ip.Logger.Err(err).Msg("error adding credit transaction")
+	}
+}
+
+func (ip *InfluencerProcessor) GenerateCommissionInvoice(msg kafka.Message) {
+	message := msg.(segKafka.Message)
+	var e schema.GenerateCIEvent
+	if err := json.Unmarshal(message.Value, &e); err != nil {
+		ip.Logger.Err(err).RawJSON("data", message.Value).Msgf("failed to read commission generate invoice event, id:%s", e.DebitRequestID.Hex())
+		return
+	}
+	if err := ip.App.CommissionInvoice.CreateCommissionInvoice(e.DebitRequestID); err != nil {
+		ip.Logger.Err(err).RawJSON("data", message.Value).Msgf("failed to generate commission invoice, id:%s", e.DebitRequestID.Hex())
+		return
 	}
 }
 

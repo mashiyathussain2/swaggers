@@ -108,14 +108,15 @@ type APPConfig struct {
 	SizeProfileConfig       ServiceConfig `mapstructure:"sizeProfile"`
 	CommissionInvoiceConfig ServiceConfig `mapstructure:"commissionInvoice"`
 
-	CustomerChangeConfig          ListenerConfig `mapstructure:"customerChangeConsumer"`
-	DiscountChangeConfig          ListenerConfig `mapstructure:"discountChangeConsumer"`
-	CatalogChangeConfig           ListenerConfig `mapstructure:"catalogChangeConsumer"`
-	InventoryChangeConfig         ListenerConfig `mapstructure:"inventoryChangeConsumer"`
-	BrandChangeConfig             ListenerConfig `mapstructure:"brandChangeConsumer"`
-	InfluencerChangeConfig        ListenerConfig `mapstructure:"influencerChangeConsumer"`
-	CouponChangeConfig            ListenerConfig `mapstructure:"couponChangeConsumer"`
-	CommissionOrderListenerConfig ListenerConfig `mapstructure:"commissionOrderListenerConsumer"`
+	CustomerChangeConfig                   ListenerConfig `mapstructure:"customerChangeConsumer"`
+	DiscountChangeConfig                   ListenerConfig `mapstructure:"discountChangeConsumer"`
+	CatalogChangeConfig                    ListenerConfig `mapstructure:"catalogChangeConsumer"`
+	InventoryChangeConfig                  ListenerConfig `mapstructure:"inventoryChangeConsumer"`
+	BrandChangeConfig                      ListenerConfig `mapstructure:"brandChangeConsumer"`
+	InfluencerChangeConfig                 ListenerConfig `mapstructure:"influencerChangeConsumer"`
+	CouponChangeConfig                     ListenerConfig `mapstructure:"couponChangeConsumer"`
+	CommissionOrderListenerConfig          ListenerConfig `mapstructure:"commissionOrderListenerConsumer"`
+	GenerateCommissionInvoiceListnerConfig ListenerConfig `mapstructure:"generateCommissionInvoiceConsumer"`
 
 	BrandFullProduceConfig                  ProducerConfig `mapstructure:"brandFullProducer"`
 	InfluencerFullProducerConfig            ProducerConfig `mapstructure:"influencerFullProducer"`
