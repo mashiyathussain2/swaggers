@@ -29,6 +29,7 @@ type Config struct {
 	KaleyraConfig       KaleyraConfig       `mapstructure:"kaleyra"`
 	MSGPlatformConfig   MSGPlatformConfig   `mapstructure:"message_platform"`
 	GoKwikConfig        GoKwikConfig        `mapstructure:"goKwik"`
+	EmailConfig         EmailConfig         `mapstructure:"emailConfig"`
 	// CommissionOrderListeneronfig ListenerConfig      `mapstructure:"commissionOrderListenerConsumer"`
 }
 
@@ -96,6 +97,7 @@ type APPConfig struct {
 	GoogleOAuth         GoogleOAuth
 	Kaleyra             KaleyraConfig
 	MSGPlatform         MSGPlatformConfig
+	EmailConfig         EmailConfig
 
 	UserConfig            ServiceConfig `mapstructure:"user"`
 	CustomerConfig        ServiceConfig `mapstructure:"customer"`
@@ -255,6 +257,10 @@ type KaleyraConfig struct {
 	TemplateID string `mapstructure:"templateID"`
 }
 
+type EmailConfig struct {
+	CreatorEmail string `mapstructure:"creatorEmail"`
+}
+
 // MSGPlatformConfig contains aws Message service related configuration
 type MSGPlatformConfig struct {
 	Name string `mapstructure:"name"`
@@ -352,6 +358,7 @@ func GetConfigFromFile(fileName string) *Config {
 	config.APPConfig.MSGPlatform = config.MSGPlatformConfig
 	config.APIConfig.GoKwikConfig = config.GoKwikConfig
 	config.APPConfig.GoKwikConfig = config.GoKwikConfig
+	config.APPConfig.EmailConfig = config.EmailConfig
 
 	return config
 }
