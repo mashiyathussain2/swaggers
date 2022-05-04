@@ -339,7 +339,6 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 }
 
 func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
-
 	invoice, err := ci.GetCIbyNo(invoiceNo)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to get invoice by invoice no: %s", invoiceNo)
@@ -349,12 +348,10 @@ func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
 		ci.Logger.Err(err).Msgf("invoice not found by invoice no: %s", invoiceNo)
 		return
 	}
-
 	file, fn, err := ci.generateCommissionInvoicePDF(invoice)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to generate Commission Invoice PDF: %s", invoiceNo)
 	}
-
 	attachmentFilename := fn
 	message := ci.commissionInvoiceMailTemplate(invoice)
 	destination := invoice.UserInfo.Email
@@ -365,12 +362,10 @@ func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
 		ci.Logger.Err(err).Msgf("failed to prepare email to send to creator for invoice no: %s", invoiceNo)
 		return
 	}
-
 	resp, err := ci.App.SES.SendRawEmail(email)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to send email to creator for invoice no: %s", invoiceNo)
 		return
 	}
-
 	ci.Logger.Debug().Interface("resp", resp).Msgf("sent email to creator for invoice no: %s", invoiceNo)
 }

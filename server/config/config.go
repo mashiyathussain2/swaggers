@@ -117,8 +117,9 @@ type APPConfig struct {
 	CouponChangeConfig            ListenerConfig `mapstructure:"couponChangeConsumer"`
 	CommissionOrderListenerConfig ListenerConfig `mapstructure:"commissionOrderListenerConsumer"`
 
-	BrandFullProduceConfig       ProducerConfig `mapstructure:"brandFullProducer"`
-	InfluencerFullProducerConfig ProducerConfig `mapstructure:"influencerFullProducer"`
+	BrandFullProduceConfig                  ProducerConfig `mapstructure:"brandFullProducer"`
+	InfluencerFullProducerConfig            ProducerConfig `mapstructure:"influencerFullProducer"`
+	GenerateCommissionInvoiceProducerConfig ProducerConfig `mapstructure:"generateCommissionInvoiceProducer"`
 
 	FinanceOrderEmail string `mapstructure:"financeOrderEmail"`
 }

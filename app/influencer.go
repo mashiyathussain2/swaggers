@@ -2,9 +2,13 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"go-app/model"
 	"go-app/schema"
+
+	"github.com/segmentio/kafka-go"
+
 	"math"
 	"regexp"
 	"strings"
@@ -1125,6 +1129,19 @@ func (ii *InfluencerImpl) UpdateDebitRequest(opts *schema.UpdateCommissionDebitR
 		if err != nil {
 			return err
 		}
+
+		//producing generate invoice for accepted debit request
+		s := schema.GenerateCIEvent{DebitRequestID: opts.ID}
+		value, err := json.Marshal(s)
+		if err != nil {
+			ii.Logger.Err(err).Interface("s", s).Msgf("failed to generate create invoice event: failed to convert json to bytes: orderID:%s", opts.ID)
+			return errors.Wrapf(err, "failed to create invoice")
+		}
+		m := kafka.Message{
+			Key:   []byte(opts.ID.Hex()),
+			Value: value,
+		}
+		ii.App.GenerateCommissionInvoiceProducer.Publish(m)
 		if err := session.CommitTransaction(sc); err != nil {
 			return errors.Wrapf(err, "failed to commit transaction")
 		}

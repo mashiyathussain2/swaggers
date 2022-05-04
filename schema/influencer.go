@@ -226,7 +226,7 @@ type CommissionDebitRequest struct {
 
 type UpdateCommissionDebitRequest struct {
 	ID        primitive.ObjectID `json:"id" validate:"required"`
-	Status    string             `json:"status" validate:"required"`
+	Status    string             `json:"status" validate:"required, oneof=accepted rejected"`
 	GranteeID primitive.ObjectID `json:"grantee_id" validate:"required"`
 	// PayoutInformation *PayoutInformationOpts `json:"payout_information" validate:"required"`
 }

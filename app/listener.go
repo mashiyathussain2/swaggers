@@ -81,6 +81,10 @@ func InitProducer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.InfluencerFullProducerConfig,
 	})
+	a.GenerateCommissionInvoiceProducer = kafka.NewSegmentioProducer(&kafka.SegmentioProducerOpts{
+		Logger: a.Logger,
+		Config: &a.Config.GenerateCommissionInvoiceProducerConfig,
+	})
 
 }
 
@@ -88,6 +92,7 @@ func InitProducer(a *App) {
 func CloseProducer(a *App) {
 	a.BrandFullProducer.Close()
 	a.InfluencerFullProducer.Close()
+	a.GenerateCommissionInvoiceProducer.Close()
 }
 
 func InitProcessor(a *App) {

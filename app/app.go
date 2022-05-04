@@ -49,8 +49,9 @@ type App struct {
 	CommissionOrderListener kafka.Consumer
 
 	// Producer
-	BrandFullProducer      kafka.Producer
-	InfluencerFullProducer kafka.Producer
+	BrandFullProducer                 kafka.Producer
+	InfluencerFullProducer            kafka.Producer
+	GenerateCommissionInvoiceProducer kafka.Producer
 
 	// Processor
 	UserProcessor       *UserProcessor
