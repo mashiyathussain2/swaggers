@@ -172,6 +172,7 @@ type GetCartInfoItemsResp struct {
 	Quantity        uint                 `json:"quantity,omitempty" bson:"quantity,omitempty"`
 	BrandInfo       *model.BrandInfoResp `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
 	InStock         *bool                `json:"in_stock,omitempty" bson:"in_stock,omitempty"`
+	IsAvailable     bool                 `json:"is_available"`
 }
 
 type GetCartInfoResp struct {
