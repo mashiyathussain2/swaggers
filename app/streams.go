@@ -198,10 +198,12 @@ func (ip *InfluencerProcessor) GenerateCommissionInvoice(msg kafka.Message) {
 	}
 	fmt.Println(1)
 
-	if err := ip.App.CommissionInvoice.CreateCommissionInvoice(e.DebitRequestID); err != nil {
+	invoiceNo, err := ip.App.CommissionInvoice.CreateCommissionInvoice(e.DebitRequestID)
+	if err != nil {
 		ip.Logger.Err(err).RawJSON("data", message.Value).Msgf("failed to generate commission invoice, id:%s", e.DebitRequestID.Hex())
 		return
 	}
+	ip.App.CommissionInvoice.SendCommissionInvoice(invoiceNo)
 	fmt.Println(1)
 
 }

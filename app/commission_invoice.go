@@ -23,8 +23,9 @@ import (
 )
 
 type CommissionInvoice interface {
-	CreateCommissionInvoice(debit_request_id primitive.ObjectID) error
+	CreateCommissionInvoice(debit_request_id primitive.ObjectID) (string, error)
 	GetInvoicePDF(orderNo string) (*bytes.Buffer, string, error)
+	SendCommissionInvoice(invoiceNo string)
 }
 
 type CommissionInvoiceImpl struct {
@@ -79,7 +80,7 @@ func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext
 }
 
 //CreateCommissionInvoice creates invoice based on debit_request collection id
-func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) error {
+func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) (string, error) {
 
 	ctx := context.TODO()
 	var debitReqInfo []model.DebitRequestAllInfo
@@ -111,19 +112,19 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 	// }}
 	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2})
 	if err != nil {
-		return errors.Wrapf(err, "error getting debit request")
+		return "", errors.Wrapf(err, "error getting debit request")
 	}
 	if err := cur.All(ctx, &debitReqInfo); err != nil {
-		return errors.Wrap(err, "error decoding debit request")
+		return "", errors.Wrap(err, "error decoding debit request")
 	}
 	if len(debitReqInfo) != 1 {
-		return errors.New("error debit request incorrect")
+		return "", errors.New("error debit request incorrect")
 	}
 
 	// get unique invoice no based on influencerid
 	invoiceNo, err := ci.generateInvoiceNo(debitReqInfo[0].InfluencerID)
 	if err != nil {
-		return errors.Wrapf(err, "error generating invoice no")
+		return "", errors.Wrapf(err, "error generating invoice no")
 	}
 	invoice := model.CommissionInvoice{
 		InvoiceNo:         invoiceNo,
@@ -138,9 +139,9 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 	}
 	_, err = ci.DB.Collection(model.CommissionInvoiceColl).InsertOne(ctx, invoice)
 	if err != nil {
-		return errors.Wrapf(err, "error generating invoice")
+		return "", errors.Wrapf(err, "error generating invoice")
 	}
-	return nil
+	return "", nil
 }
 
 func (ci *CommissionInvoiceImpl) GetCIbyNo(invoiceNo string) (*model.CommissionInvoice, error) {
@@ -175,7 +176,7 @@ func (ci *CommissionInvoiceImpl) GetInvoicePDF(invoiceNo string) (*bytes.Buffer,
 	if err != nil {
 		return nil, "", err
 	}
-	ci.SendCommissionInvoice(invoiceNo)
+	// ci.SendCommissionInvoice(invoiceNo)
 	return resp, fileName, nil
 }
 

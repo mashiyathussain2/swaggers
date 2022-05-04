@@ -14,7 +14,7 @@ func (a *API) generateCommissionInvoice(requestCTX *handler.RequestContext, w ht
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
 	}
-	err = a.App.CommissionInvoice.CreateCommissionInvoice(id)
+	_, err = a.App.CommissionInvoice.CreateCommissionInvoice(id)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
