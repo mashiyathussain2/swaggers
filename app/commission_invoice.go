@@ -23,9 +23,9 @@ import (
 )
 
 type CommissionInvoice interface {
-	CreateCommissionInvoice(debit_request_id primitive.ObjectID) (string, error)
+	CreateCommissionInvoice(debit_request_id primitive.ObjectID) error
 	GetInvoicePDF(orderNo string) (*bytes.Buffer, string, error)
-	SendCommissionInvoice(invoiceNo string)
+	SendCommissionInvoice(invoiceNo string) error
 }
 
 type CommissionInvoiceImpl struct {
@@ -80,7 +80,7 @@ func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext
 }
 
 //CreateCommissionInvoice creates invoice based on debit_request collection id
-func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) (string, error) {
+func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) error {
 
 	ctx := context.TODO()
 	var debitReqInfo []model.DebitRequestAllInfo
@@ -112,19 +112,19 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 	// }}
 	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2})
 	if err != nil {
-		return "", errors.Wrapf(err, "error getting debit request")
+		return errors.Wrapf(err, "error getting debit request")
 	}
 	if err := cur.All(ctx, &debitReqInfo); err != nil {
-		return "", errors.Wrap(err, "error decoding debit request")
+		return errors.Wrap(err, "error decoding debit request")
 	}
 	if len(debitReqInfo) != 1 {
-		return "", errors.New("error debit request incorrect")
+		return errors.New("error debit request incorrect")
 	}
 
 	// get unique invoice no based on influencerid
 	invoiceNo, err := ci.generateInvoiceNo(debitReqInfo[0].InfluencerID)
 	if err != nil {
-		return "", errors.Wrapf(err, "error generating invoice no")
+		return errors.Wrapf(err, "error generating invoice no")
 	}
 	invoice := model.CommissionInvoice{
 		InvoiceNo:         invoiceNo,
@@ -139,9 +139,13 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 	}
 	_, err = ci.DB.Collection(model.CommissionInvoiceColl).InsertOne(ctx, invoice)
 	if err != nil {
-		return "", errors.Wrapf(err, "error generating invoice")
+		return errors.Wrapf(err, "error generating invoice")
 	}
-	return "", nil
+	err = ci.SendCommissionInvoice(invoiceNo)
+	if err != nil {
+		return errors.Wrapf(err, "error sending invoice")
+	}
+	return nil
 }
 
 func (ci *CommissionInvoiceImpl) GetCIbyNo(invoiceNo string) (*model.CommissionInvoice, error) {
@@ -339,19 +343,20 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 	return input, nil
 }
 
-func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
+func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) error {
 	invoice, err := ci.GetCIbyNo(invoiceNo)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to get invoice by invoice no: %s", invoiceNo)
-		return
+		return err
 	}
 	if invoice == nil {
 		ci.Logger.Err(err).Msgf("invoice not found by invoice no: %s", invoiceNo)
-		return
+		return err
 	}
 	file, fn, err := ci.generateCommissionInvoicePDF(invoice)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to generate Commission Invoice PDF: %s", invoiceNo)
+		return err
 	}
 	attachmentFilename := fn
 	message := ci.commissionInvoiceMailTemplate(invoice)
@@ -361,12 +366,13 @@ func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) {
 	email, err := ci.prepareCommissionInvoiceEmail(message, attachmentFilename, []string{destination}, cc, file.Bytes())
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to prepare email to send to creator for invoice no: %s", invoiceNo)
-		return
+		return err
 	}
 	resp, err := ci.App.SES.SendRawEmail(email)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to send email to creator for invoice no: %s", invoiceNo)
-		return
+		return err
 	}
 	ci.Logger.Debug().Interface("resp", resp).Msgf("sent email to creator for invoice no: %s", invoiceNo)
+	return nil
 }
