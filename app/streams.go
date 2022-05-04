@@ -189,16 +189,21 @@ func (ip *InfluencerProcessor) InfluencerCommissionUpdate(msg kafka.Message) {
 }
 
 func (ip *InfluencerProcessor) GenerateCommissionInvoice(msg kafka.Message) {
+	fmt.Println(1)
 	message := msg.(segKafka.Message)
 	var e schema.GenerateCIEvent
 	if err := json.Unmarshal(message.Value, &e); err != nil {
 		ip.Logger.Err(err).RawJSON("data", message.Value).Msgf("failed to read commission generate invoice event, id:%s", e.DebitRequestID.Hex())
 		return
 	}
+	fmt.Println(1)
+
 	if err := ip.App.CommissionInvoice.CreateCommissionInvoice(e.DebitRequestID); err != nil {
 		ip.Logger.Err(err).RawJSON("data", message.Value).Msgf("failed to generate commission invoice, id:%s", e.DebitRequestID.Hex())
 		return
 	}
+	fmt.Println(1)
+
 }
 
 type UserProcessor struct {
