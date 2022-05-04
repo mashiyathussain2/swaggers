@@ -85,13 +85,20 @@ type GetMediaResp struct {
 }
 
 // CreateImageMediaOpts contains fields and validations required to create image media
+
+// swagger:model CreateImageMediaOpts
 type CreateImageMediaOpts struct {
-	FileName  string `json:"file_name" validate:"required"`
+	// required:true
+	FileName string `json:"file_name" validate:"required"`
+	// required:true
 	Base64SRC string `json:"base64_src" validate:"required"`
 }
 
 // CreateImageMediaResp contains fields to be returned for image upload
+
+// swagger:model CreateImageMediaResp
 type CreateImageMediaResp struct {
+	// swagger:strfmt ObjectID
 	ID            primitive.ObjectID `json:"id"`
 	FileName      string             `json:"file_name"`
 	FileType      string             `json:"file_type"`
@@ -102,6 +109,8 @@ type CreateImageMediaResp struct {
 }
 
 // CreateImageMediaV2Opts contains fields and validations required to create image media
+
+// swagger:model CreateImageMediaV2Opts
 type CreateImageMediaV2Opts struct {
 	FileName string         `json:"file_name" validate:"required"`
 	File     multipart.File `json:"file" validate:"required"`

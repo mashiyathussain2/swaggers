@@ -20,6 +20,8 @@ const (
 )
 
 // AppErr := app error struct
+
+// swagger:model AppErr
 type AppErr struct {
 	Error     []error
 	RequestID *string

@@ -1,0 +1,262 @@
+basePath: /api
+definitions:
+  AppErr:
+    properties:
+      Error:
+        items:
+          type: string
+        type: array
+      RequestID:
+        type: string
+    type: object
+    x-go-package: go-app/server/handler
+  Closer:
+    description: |-
+      The behavior of Close after the first call is undefined.
+      Specific implementations may document their own behavior.
+    properties:
+      Close:
+        type: string
+    title: Closer is the interface that wraps the basic Close method.
+    type: object
+    x-go-package: io
+  CreateImageMediaOpts:
+    properties:
+      base64_src:
+        type: string
+        x-go-name: Base64SRC
+      file_name:
+        type: string
+        x-go-name: FileName
+    required:
+    - file_name
+    - base64_src
+    type: object
+    x-go-package: go-app/schema
+  CreateImageMediaResp:
+    properties:
+      cloudfront_url:
+        type: string
+        x-go-name: CloudfrontURL
+      dimensions:
+        $ref: '#/definitions/Dimensions'
+      file_name:
+        type: string
+        x-go-name: FileName
+      file_type:
+        type: string
+        x-go-name: FileType
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      src_bucket_url:
+        type: string
+        x-go-name: SRCBucketURL
+      url:
+        type: string
+        x-go-name: URL
+    type: object
+    x-go-package: go-app/schema
+  CreateImageMediaV2Opts:
+    properties:
+      file:
+        $ref: '#/definitions/File'
+      file_name:
+        type: string
+        x-go-name: FileName
+    type: object
+    x-go-package: go-app/schema
+  Dimensions:
+    description: Dimensions contains height and width of video in pixels
+    properties:
+      height:
+        format: uint64
+        type: integer
+        x-go-name: Height
+      width:
+        format: uint64
+        type: integer
+        x-go-name: Width
+    type: object
+    x-go-package: go-app/model
+  File:
+    allOf:
+    - properties:
+        Close:
+          type: string
+      type: object
+    - type: object
+    - type: object
+    - type: object
+    description: |-
+      Its contents may be either stored in memory or on disk.
+      If stored on disk, the File's underlying concrete type will be an *os.File.
+    title: File is an interface to access the file part of a multipart message.
+    type: object
+    x-go-package: mime/multipart
+  ObjectID:
+    items:
+      format: uint8
+      type: integer
+    title: ObjectID is the BSON ObjectID type.
+    type: array
+    x-go-package: go.mongodb.org/mongo-driver/bson/primitive
+  Reader:
+    description: |-
+      Read reads up to len(p) bytes into p. It returns the number of bytes
+      read (0 <= n <= len(p)) and any error encountered. Even if Read
+      returns n < len(p), it may use all of p as scratch space during the call.
+      If some data is available but not len(p) bytes, Read conventionally
+      returns what is available instead of waiting for more.
+
+      When Read encounters an error or end-of-file condition after
+      successfully reading n > 0 bytes, it returns the number of
+      bytes read. It may return the (non-nil) error from the same call
+      or return the error (and n == 0) from a subsequent call.
+      An instance of this general case is that a Reader returning
+      a non-zero number of bytes at the end of the input stream may
+      return either err == EOF or err == nil. The next Read should
+      return 0, EOF.
+
+      Callers should always process the n > 0 bytes returned before
+      considering the error err. Doing so correctly handles I/O errors
+      that happen after reading some bytes and also both of the
+      allowed EOF behaviors.
+
+      Implementations of Read are discouraged from returning a
+      zero byte count with a nil error, except when len(p) == 0.
+      Callers should treat a return of 0 and nil as indicating that
+      nothing happened; in particular it does not indicate EOF.
+
+      Implementations must not retain p.
+    title: Reader is the interface that wraps the basic Read method.
+    type: object
+    x-go-package: io
+  ReaderAt:
+    description: |-
+      ReadAt reads len(p) bytes into p starting at offset off in the
+      underlying input source. It returns the number of bytes
+      read (0 <= n <= len(p)) and any error encountered.
+
+      When ReadAt returns n < len(p), it returns a non-nil error
+      explaining why more bytes were not returned. In this respect,
+      ReadAt is stricter than Read.
+
+      Even if ReadAt returns n < len(p), it may use all of p as scratch
+      space during the call. If some data is available but not len(p) bytes,
+      ReadAt blocks until either all the data is available or an error occurs.
+      In this respect ReadAt is different from Read.
+
+      If the n = len(p) bytes returned by ReadAt are at the end of the
+      input source, ReadAt may return either err == EOF or err == nil.
+
+      If ReadAt is reading from an input source with a seek offset,
+      ReadAt should not affect nor be affected by the underlying
+      seek offset.
+
+      Clients of ReadAt can execute parallel ReadAt calls on the
+      same input source.
+
+      Implementations must not retain p.
+    title: ReaderAt is the interface that wraps the basic ReadAt method.
+    type: object
+    x-go-package: io
+  Seeker:
+    description: |-
+      Seek sets the offset for the next Read or Write to offset,
+      interpreted according to whence:
+      SeekStart means relative to the start of the file,
+      SeekCurrent means relative to the current offset, and
+      SeekEnd means relative to the end.
+      Seek returns the new offset relative to the start of the
+      file and an error, if any.
+
+      Seeking to an offset before the start of the file is an error.
+      Seeking to any positive offset is legal, but the behavior of subsequent
+      I/O operations on the underlying object is implementation-dependent.
+    title: Seeker is the interface that wraps the basic Seek method.
+    type: object
+    x-go-package: io
+host: stardust.in
+info:
+  description: API related to
+  title: 'Stardust API:'
+paths:
+  /image/upload:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint post image.
+
+        Endpoint: /image/upload
+
+        Method: POST
+      operationId: uploadImage
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateImageMediaOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/CreateImageMediaResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: uploadImage
+      tags:
+      - UploadImage
+  /v2/image/upload:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint post image.
+
+        Endpoint: /v2/image/upload
+
+        Method: POST
+      operationId: uploadImageV2
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateImageMediaV2Opts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/CreateImageMediaResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: uploadImageV2
+      tags:
+      - UploadImage
+produces:
+- application/json
+schemes:
+- https
+swagger: "2.0"
