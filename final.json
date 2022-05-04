@@ -7,10 +7,10 @@
   ],
   "swagger": "2.0",
   "info": {
-    "description": "API related to User, Creator, Brand",
-    "title": "HYPD Entity API:"
+    "description": "API related to",
+    "title": "Stardust API:"
   },
-  "host": "entity.getshitdone.in",
+  "host": "stardust.in",
   "basePath": "/api",
   "paths": {
     "/app/brand/basic": {
@@ -2885,6 +2885,53 @@
         }
       }
     },
+    "/image/upload": {
+      "post": {
+        "description": "This endpoint post image.\n\nEndpoint: /image/upload\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "UploadImage"
+        ],
+        "summary": "uploadImage",
+        "operationId": "uploadImage",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateImageMediaOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateImageMediaResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/influencer/check/username": {
       "get": {
         "description": "This endpoint will check the influencer username exists or not.\n\nEndpoint: /influencer/check/username\n\nMethod: GET",
@@ -3656,6 +3703,53 @@
         }
       }
     },
+    "/v2/image/upload": {
+      "post": {
+        "description": "This endpoint post image.\n\nEndpoint: /v2/image/upload\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "UploadImage"
+        ],
+        "summary": "uploadImageV2",
+        "operationId": "uploadImageV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateImageMediaV2Opts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateImageMediaResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/web/express-checkout": {
       "post": {
         "description": "This endpoint is for express checkout for web.\n\nEndpoint: /web/express-checkout\n\nMethod: POST",
@@ -4355,6 +4449,17 @@
       },
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
+    "Closer": {
+      "description": "The behavior of Close after the first call is undefined.\nSpecific implementations may document their own behavior.",
+      "type": "object",
+      "title": "Closer is the interface that wraps the basic Close method.",
+      "properties": {
+        "Close": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "io"
+    },
     "CommissionDebitRequest": {
       "type": "object",
       "properties": {
@@ -4466,6 +4571,71 @@
       },
       "x-go-package": "go-app/model"
     },
+    "CreateImageMediaOpts": {
+      "type": "object",
+      "required": [
+        "file_name",
+        "base64_src"
+      ],
+      "properties": {
+        "base64_src": {
+          "type": "string",
+          "x-go-name": "Base64SRC"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateImageMediaResp": {
+      "type": "object",
+      "properties": {
+        "cloudfront_url": {
+          "type": "string",
+          "x-go-name": "CloudfrontURL"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/Dimensions"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "file_type": {
+          "type": "string",
+          "x-go-name": "FileType"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "src_bucket_url": {
+          "type": "string",
+          "x-go-name": "SRCBucketURL"
+        },
+        "url": {
+          "type": "string",
+          "x-go-name": "URL"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateImageMediaV2Opts": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "$ref": "#/definitions/File"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "CreateUserOpts": {
       "type": "object",
       "required": [
@@ -4535,6 +4705,23 @@
       "type": "string",
       "format": "date-time",
       "x-go-package": "github.com/go-openapi/strfmt"
+    },
+    "Dimensions": {
+      "description": "Dimensions contains height and width of video in pixels",
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Height"
+        },
+        "width": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Width"
+        }
+      },
+      "x-go-package": "go-app/model"
     },
     "DiscountInfo": {
       "description": "DiscountInfo contains discount data for particular variant",
@@ -4944,6 +5131,31 @@
         }
       },
       "x-go-package": "go-app/schema"
+    },
+    "File": {
+      "description": "Its contents may be either stored in memory or on disk.\nIf stored on disk, the File's underlying concrete type will be an *os.File.",
+      "type": "object",
+      "title": "File is an interface to access the file part of a multipart message.",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Close": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "x-go-package": "mime/multipart"
     },
     "ForgotPasswordOpts": {
       "type": "object",
@@ -6518,6 +6730,18 @@
       },
       "x-go-package": "go-app/model"
     },
+    "Reader": {
+      "description": "Read reads up to len(p) bytes into p. It returns the number of bytes\nread (0 \u003c= n \u003c= len(p)) and any error encountered. Even if Read\nreturns n \u003c len(p), it may use all of p as scratch space during the call.\nIf some data is available but not len(p) bytes, Read conventionally\nreturns what is available instead of waiting for more.\n\nWhen Read encounters an error or end-of-file condition after\nsuccessfully reading n \u003e 0 bytes, it returns the number of\nbytes read. It may return the (non-nil) error from the same call\nor return the error (and n == 0) from a subsequent call.\nAn instance of this general case is that a Reader returning\na non-zero number of bytes at the end of the input stream may\nreturn either err == EOF or err == nil. The next Read should\nreturn 0, EOF.\n\nCallers should always process the n \u003e 0 bytes returned before\nconsidering the error err. Doing so correctly handles I/O errors\nthat happen after reading some bytes and also both of the\nallowed EOF behaviors.\n\nImplementations of Read are discouraged from returning a\nzero byte count with a nil error, except when len(p) == 0.\nCallers should treat a return of 0 and nil as indicating that\nnothing happened; in particular it does not indicate EOF.\n\nImplementations must not retain p.",
+      "type": "object",
+      "title": "Reader is the interface that wraps the basic Read method.",
+      "x-go-package": "io"
+    },
+    "ReaderAt": {
+      "description": "ReadAt reads len(p) bytes into p starting at offset off in the\nunderlying input source. It returns the number of bytes\nread (0 \u003c= n \u003c= len(p)) and any error encountered.\n\nWhen ReadAt returns n \u003c len(p), it returns a non-nil error\nexplaining why more bytes were not returned. In this respect,\nReadAt is stricter than Read.\n\nEven if ReadAt returns n \u003c len(p), it may use all of p as scratch\nspace during the call. If some data is available but not len(p) bytes,\nReadAt blocks until either all the data is available or an error occurs.\nIn this respect ReadAt is different from Read.\n\nIf the n = len(p) bytes returned by ReadAt are at the end of the\ninput source, ReadAt may return either err == EOF or err == nil.\n\nIf ReadAt is reading from an input source with a seek offset,\nReadAt should not affect nor be affected by the underlying\nseek offset.\n\nClients of ReadAt can execute parallel ReadAt calls on the\nsame input source.\n\nImplementations must not retain p.",
+      "type": "object",
+      "title": "ReaderAt is the interface that wraps the basic ReadAt method.",
+      "x-go-package": "io"
+    },
     "RemoveFromWishlistOpts": {
       "type": "object",
       "properties": {
@@ -6574,6 +6798,12 @@
         }
       },
       "x-go-package": "go-app/schema"
+    },
+    "Seeker": {
+      "description": "Seek sets the offset for the next Read or Write to offset,\ninterpreted according to whence:\nSeekStart means relative to the start of the file,\nSeekCurrent means relative to the current offset, and\nSeekEnd means relative to the end.\nSeek returns the new offset relative to the start of the\nfile and an error, if any.\n\nSeeking to an offset before the start of the file is an error.\nSeeking to any positive offset is legal, but the behavior of subsequent\nI/O operations on the underlying object is implementation-dependent.",
+      "type": "object",
+      "title": "Seeker is the interface that wraps the basic Seek method.",
+      "x-go-package": "io"
     },
     "SigningMethod": {
       "type": "object",
