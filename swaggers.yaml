@@ -180,8 +180,8 @@ definitions:
     x-go-package: io
 host: stardust.in
 info:
-  description: API related to
   title: 'Stardust API:'
+  version: "1.0"
 paths:
   /image/upload:
     post:

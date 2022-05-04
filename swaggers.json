@@ -7,8 +7,8 @@
   ],
   "swagger": "2.0",
   "info": {
-    "description": "API related to",
-    "title": "Stardust API:"
+    "title": "Stardust API:",
+    "version": "1.0"
   },
   "host": "stardust.in",
   "basePath": "/api",
