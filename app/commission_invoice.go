@@ -315,7 +315,7 @@ func (ci *CommissionInvoiceImpl) GetPreInvoicePDF(debitRequestID primitive.Objec
 func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.CommissionInvoice) string {
 	t := fmt.Sprintf(`
 	Hey %s <br>
-
+	--
 	Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days . <br>
 	<br>
 	PFA the invoice for the same. <br>
@@ -333,12 +333,12 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 
 	// preparing email main header
 	h := make(textproto.MIMEHeader)
-	h.Set("From", ci.App.Config.FinanceOrderEmail)
+	h.Set("From", ci.App.Config.HypdFinanceEmail)
 	for _, i := range destination {
 		h.Add("To", i)
 	}
 
-	cc = append(cc, ci.App.Config.FinanceOrderEmail)
+	cc = append(cc, ci.App.Config.HypdFinanceEmail)
 
 	for _, i := range cc {
 		h.Add("Cc", i)
@@ -406,7 +406,7 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 	}
 	input := &ses.SendRawEmailInput{
 		Destinations: dest,
-		Source:       aws.String(ci.App.Config.FinanceOrderEmail),
+		Source:       aws.String(ci.App.Config.HypdFinanceEmail),
 		RawMessage:   &raw,
 	}
 

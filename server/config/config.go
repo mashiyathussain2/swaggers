@@ -122,7 +122,7 @@ type APPConfig struct {
 	InfluencerFullProducerConfig            ProducerConfig `mapstructure:"influencerFullProducer"`
 	GenerateCommissionInvoiceProducerConfig ProducerConfig `mapstructure:"generateCommissionInvoiceProducer"`
 
-	FinanceOrderEmail string `mapstructure:"financeOrderEmail"`
+	HypdFinanceEmail string `mapstructure:"hypdFinanceEmail"`
 }
 
 // ElasticsearchConfig contains elasticsearch related configurations
