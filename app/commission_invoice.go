@@ -25,7 +25,7 @@ import (
 type CommissionInvoice interface {
 	CreateCommissionInvoice(debit_request_id primitive.ObjectID) error
 	GetInvoicePDF(orderNo string) (*bytes.Buffer, string, error)
-	SendCommissionInvoice(invoiceNo string) error
+	SendCommissionInvoice(sc mongo.SessionContext, invoiceNo string) error
 }
 
 type CommissionInvoiceImpl struct {
@@ -50,10 +50,10 @@ func InitCommissionInvoice(opts *CommissionInvoiceOpts) CommissionInvoice {
 }
 
 // generateInvoiceNo generates invoice no for influencer
-func (ci *CommissionInvoiceImpl) generateInvoiceNo(influencer_id primitive.ObjectID) (string, error) {
+func (ci *CommissionInvoiceImpl) generateInvoiceNo(sc mongo.SessionContext, influencer_id primitive.ObjectID) (string, error) {
 
 	filter := bson.M{"influencer_id": influencer_id}
-	cnt, err := ci.DB.Collection(model.CommissionInvoiceColl).CountDocuments(context.TODO(), filter)
+	cnt, err := ci.DB.Collection(model.CommissionInvoiceColl).CountDocuments(sc, filter)
 	if err != nil {
 		return "", errors.Wrapf(err, "error counting commission invoices")
 	}
@@ -64,17 +64,17 @@ func (ci *CommissionInvoiceImpl) generateInvoiceNo(influencer_id primitive.Objec
 	return s, nil
 }
 
-func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext, debit_request_id primitive.ObjectID) error {
+func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext, debitRequestID primitive.ObjectID) error {
 	// Checking if invoice exists with provided order_no
 	filter := bson.M{
-		"debit_request_id": debit_request_id,
+		"debit_request_id": debitRequestID,
 	}
 	count, err := ci.DB.Collection(model.CommissionInvoiceColl).CountDocuments(sc, filter)
 	if err != nil {
-		return errors.Wrapf(err, "failed to check for invoice with debit_request_id:%s", debit_request_id)
+		return errors.Wrapf(err, "failed to check for invoice with debit_request_id:%s", debitRequestID)
 	}
 	if count != 0 {
-		return errors.Errorf("invoice already generated for debit_request_id: %s", debit_request_id)
+		return errors.Errorf("invoice already generated for debit_request_id: %s", debitRequestID)
 	}
 	return nil
 }
@@ -83,6 +83,7 @@ func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext
 func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) error {
 
 	ctx := context.TODO()
+
 	var debitReqInfo []model.DebitRequestAllInfo
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
@@ -121,36 +122,73 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 		return errors.New("error debit request incorrect")
 	}
 
-	// get unique invoice no based on influencerid
-	invoiceNo, err := ci.generateInvoiceNo(debitReqInfo[0].InfluencerID)
+	// creating session for atomic updates
+	session, err := ci.DB.Client().StartSession()
 	if err != nil {
-		return errors.Wrapf(err, "error generating invoice no")
+		return errors.Wrap(err, "failed to start session")
 	}
-	invoice := model.CommissionInvoice{
-		InvoiceNo:         invoiceNo,
-		DebitRequestID:    debitRequestID,
-		InfluencerID:      debitReqInfo[0].InfluencerID,
-		InfluencerInfo:    debitReqInfo[0].InfluencerInfo[0],
-		UserInfo:          debitReqInfo[0].UserInfo[0],
-		Amount:            uint(debitReqInfo[0].Amount),
-		PayoutInformation: debitReqInfo[0].PayoutInformation,
-		RequestDate:       debitReqInfo[0].CreatedAt,
-		CreatedAt:         time.Now(),
+	// Closing session at the end for function execution
+	defer session.EndSession(ctx)
+
+	// staring a new transaction
+	if err := session.StartTransaction(); err != nil {
+		return errors.Wrap(err, "failed to start transaction")
 	}
-	_, err = ci.DB.Collection(model.CommissionInvoiceColl).InsertOne(ctx, invoice)
-	if err != nil {
-		return errors.Wrapf(err, "error generating invoice")
+
+	if err = mongo.WithSession(context.TODO(), session, func(sc mongo.SessionContext) error {
+
+		//validating request:
+		err := ci.validateGenerateInvoice(sc, debitRequestID)
+		if err != nil {
+			return errors.Wrapf(err, "error validating invoice generation")
+		}
+		// get unique invoice no based on influencerid
+		invoiceNo, err := ci.generateInvoiceNo(sc, debitReqInfo[0].InfluencerID)
+		if err != nil {
+			return errors.Wrapf(err, "error generating invoice no")
+		}
+		invoice := model.CommissionInvoice{
+			InvoiceNo:         invoiceNo,
+			DebitRequestID:    debitRequestID,
+			InfluencerID:      debitReqInfo[0].InfluencerID,
+			InfluencerInfo:    debitReqInfo[0].InfluencerInfo[0],
+			UserInfo:          debitReqInfo[0].UserInfo[0],
+			Amount:            uint(debitReqInfo[0].Amount),
+			PayoutInformation: debitReqInfo[0].PayoutInformation,
+			RequestDate:       debitReqInfo[0].CreatedAt,
+			CreatedAt:         time.Now(),
+		}
+		_, err = ci.DB.Collection(model.CommissionInvoiceColl).InsertOne(sc, invoice)
+		if err != nil {
+			return errors.Wrapf(err, "error generating invoice")
+		}
+
+		err = ci.SendCommissionInvoice(sc, invoiceNo)
+		if err != nil {
+			return errors.Wrapf(err, "error sending invoice")
+		}
+		if err := session.CommitTransaction(sc); err != nil {
+			return errors.Wrapf(err, "failed to commit transaction")
+		}
+
+		return nil
+	}); err != nil {
+		ci.Logger.Err(err).Msgf("failed to generate invoice for debit_request_id: %s", debitRequestID.Hex())
+		return err
 	}
-	err = ci.SendCommissionInvoice(invoiceNo)
-	if err != nil {
-		return errors.Wrapf(err, "error sending invoice")
-	}
+
 	return nil
 }
 
-func (ci *CommissionInvoiceImpl) GetCIbyNo(invoiceNo string) (*model.CommissionInvoice, error) {
-	ctx := context.TODO()
+func (ci *CommissionInvoiceImpl) GetCIbyNo(sc mongo.SessionContext, invoiceNo string) (*model.CommissionInvoice, error) {
 	var invoice model.CommissionInvoice
+	if sc != nil {
+		err := ci.DB.Collection(model.CommissionInvoiceColl).FindOne(sc, bson.M{"invoice_no": invoiceNo}).Decode(&invoice)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error getting invoice")
+		}
+	}
+	ctx := context.TODO()
 	err := ci.DB.Collection(model.CommissionInvoiceColl).FindOne(ctx, bson.M{"invoice_no": invoiceNo}).Decode(&invoice)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error getting invoice")
@@ -172,7 +210,7 @@ func (ci *CommissionInvoiceImpl) generateCommissionInvoicePDF(invoice *model.Com
 }
 
 func (ci *CommissionInvoiceImpl) GetInvoicePDF(invoiceNo string) (*bytes.Buffer, string, error) {
-	invoice, err := ci.GetCIbyNo(invoiceNo)
+	invoice, err := ci.GetCIbyNo(nil, invoiceNo)
 	if err != nil {
 		return nil, "", err
 	}
@@ -221,7 +259,7 @@ func (ci *CommissionInvoiceImpl) GetPreInvoicePDF(debitRequestID primitive.Objec
 	}
 
 	// get unique invoice no based on influencerid
-	invoiceNo, err := ci.generateInvoiceNo(debitReqInfo[0].InfluencerID)
+	invoiceNo, err := ci.generateInvoiceNo(nil, debitReqInfo[0].InfluencerID)
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "error generating invoice no")
 	}
@@ -247,7 +285,7 @@ func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.Co
 	t := fmt.Sprintf(`
 	Hey %s <br>
 
-	Your commission request for Amount ₹%d, is accepted and will be transferred with 2 business days . <br>
+	Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days . <br>
 	
 	PFA the invoice for the same. <br>
 	
@@ -343,8 +381,8 @@ func (ci *CommissionInvoiceImpl) prepareCommissionInvoiceEmail(message, attachme
 	return input, nil
 }
 
-func (ci *CommissionInvoiceImpl) SendCommissionInvoice(invoiceNo string) error {
-	invoice, err := ci.GetCIbyNo(invoiceNo)
+func (ci *CommissionInvoiceImpl) SendCommissionInvoice(sc mongo.SessionContext, invoiceNo string) error {
+	invoice, err := ci.GetCIbyNo(sc, invoiceNo)
 	if err != nil {
 		ci.Logger.Err(err).Msgf("failed to get invoice by invoice no: %s", invoiceNo)
 		return err
