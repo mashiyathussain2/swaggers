@@ -220,7 +220,7 @@ type ProcessInsertOrderOpts struct {
 
 type CommissionDebitRequest struct {
 	ID                primitive.ObjectID    `json:"id" validate:"required"`
-	Amount            uint                  `json:"amount" validate:"required,gte=1000"`
+	Amount            uint                  `json:"amount" validate:"required,gte=100"`
 	PayoutInformation PayoutInformationOpts `json:"payout_information" validate:"required"`
 }
 
