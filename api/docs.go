@@ -2,7 +2,7 @@
 //  Version:1.0
 //  API related to
 //  Schemes: https
-//  Host: stardust.in
+//  Host: cms.getshitdone.in
 //  BasePath: /api
 //  Produces:
 //    - application/json

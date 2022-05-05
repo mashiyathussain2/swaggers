@@ -40,7 +40,7 @@ func (a *API) InitRoutes() {
 	a.Router.APIRoot.Handle("/content/comment", a.requestWithAuthHandler(a.createContentComment)).Methods("POST")
 
 	a.Router.APIRoot.Handle("/pebble", a.requestHandler(a.getPebbleV2)).Methods("GET")
-	a.Router.APIRoot.Handle("/v2/pebble", a.requestHandler(a.getPebbleV2)).Methods("GET")
+	a.Router.APIRoot.Handle("/v2/pebble", a.requestHandler(a.getPebbleV2)).Methods("GET") // see it later
 	a.Router.APIRoot.Handle("/pebble/id", a.requestHandler(a.getPebbleByID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/brand", a.requestHandler(a.getPebblesByBrandID)).Methods("GET")
 	a.Router.APIRoot.Handle("/pebble/influencer", a.requestHandler(a.getPebblesByInfluencerID)).Methods("GET")

@@ -58,31 +58,45 @@ type GetCategoriesBasicResp struct {
 }
 
 // GetMainCategoriesMapResp contains fields to be returned for category map with key as id and this schema as value
+
+// swagger:model GetMainCategoriesMapResp
 type GetMainCategoriesMapResp struct {
-	ID            primitive.ObjectID   `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string               `json:"name,omitempty" bson:"name,omitempty"`
-	ParentID      primitive.ObjectID   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	// swagger:strfmt ObjectID
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name,omitempty" bson:"name,omitempty"`
+	// swagger:strfmt ObjectID
+	ParentID primitive.ObjectID `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	// swagger:strfmt ObjectID
 	AncestorID    []primitive.ObjectID `json:"ancestors_id,omitempty" bson:"ancestors_id,omitempty"`
 	Thumbnail     *model.IMG           `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
 	FeaturedImage *model.IMG           `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 }
 
 // GetParentCategoriesResp contains fields to be returned for all parent categories
+
+// swagger:model GetParentCategoriesResp
 type GetParentCategoriesResp struct {
+	// swagger:strfmt ObjectID
 	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name      string             `json:"name,omitempty" bson:"name,omitempty"`
 	Thumbnail *model.IMG         `json:"thumbnail,omitempty" bson:"thumbnail,omitempty"`
 }
 
 // GetMainCategoriesByParentIDResp contains fields to be returned for all children categories matching parent id
+
+// swagger:model GetMainCategoriesByParentIDResp
 type GetMainCategoriesByParentIDResp struct {
+	// swagger:strfmt ObjectID
 	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
 	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
 }
 
 // GetSubCategoriesByParentIDResp contains fields to be returned for all children categories matching parent id
+
+// swagger:model GetSubCategoriesByParentIDResp
 type GetSubCategoriesByParentIDResp struct {
+	// swagger:strfmt ObjectID
 	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name string             `json:"name,omitempty" bson:"name,omitempty"`
 }

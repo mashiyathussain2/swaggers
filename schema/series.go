@@ -42,7 +42,9 @@ type GetPebbleSeriesFilter struct {
 	Page uint `json:"page,omitempty" queryparam:"page"`
 }
 
+// swagger:model GetPebbleSeriesESResp
 type GetPebbleSeriesESResp struct {
+	// swagger:strfmt ObjectID
 	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name       string             `json:"name,omitempty" bson:"name,omitempty" `
 	Thumbnail  model.IMG          `json:"thumbnail,omitempty" bson:"thumbnail,omitempty" `
@@ -128,12 +130,14 @@ type ContentForSeries struct {
 	UpdatedAt   time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
+// swagger:model GetSeriesByIDs
 type GetSeriesByIDs struct {
 	UserID string   `json:"user_id,omitempty" queryparam:"user_id"`
 	ID     []string `json:"id,omitempty" queryparam:"id"`
 	Page   int      `json:"page,omitempty" queryparam:"page"`
 }
 
+// swagger:model GetPebbleByCategoryIDOpts
 type GetPebbleByCategoryIDOpts struct {
 	UserID     string `json:"user_id,omitempty" queryparam:"user_id"`
 	Page       uint   `qs:"page"`

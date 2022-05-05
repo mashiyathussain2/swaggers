@@ -38,12 +38,15 @@ type PebbleCollectionKafkaUpdateOpts struct {
 	UpdatedAt           time.Time                   `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
+// swagger:model GetCollectionFilter
 type GetCollectionFilter struct {
 	Genders []string `json:"genders,omitempty" queryparam:"genders"`
 	Page    int      `json:"page,omitempty" queryparam:"page"`
 }
 
+// swagger:model GetPebbleCollectionESResp
 type GetPebbleCollectionESResp struct {
+	// swagger:strfmt ObjectID
 	ID                  primitive.ObjectID          `json:"id,omitempty" bson:"_id,omitempty"`
 	Name                string                      `json:"name,omitempty" bson:"name,omitempty"`
 	Type                string                      `json:"type,omitempty" bson:"type,omitempty"`

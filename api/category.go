@@ -56,6 +56,26 @@ func (a *API) getCategory(requestCTX *handler.RequestContext, w http.ResponseWri
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/category/main AppCategory getMainCategoryMap
+// getMainCategoryMap
+//
+// This endpoint return main category map.
+//
+// Endpoint: /app/category/main
+//
+// Method: GET
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetMainCategoriesMapResp description: OK
 func (a *API) getMainCategoryMap(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	res, err := a.App.Category.GetMainCategoriesMap()
 	if err != nil {
@@ -65,6 +85,26 @@ func (a *API) getMainCategoryMap(requestCTX *handler.RequestContext, w http.Resp
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/category/lvl1 AppCategory getParentCategory
+// getParentCategory
+//
+// This endpoint return the parent category.
+//
+// Endpoint: /app/category/lvl1
+//
+// Method: GET
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetParentCategoriesResp description: OK
 func (a *API) getParentCategory(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	res, err := a.App.Category.GetMainParentCategories()
 	if err != nil {
@@ -74,6 +114,35 @@ func (a *API) getParentCategory(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/category/{categoryID}/lvl2 AppCategory getMainCategoryByParentID
+// getMainCategoryByParentID
+//
+// This endpoint return main category by parent ID.
+//
+// Endpoint: /app/category/{categoryID}/lvl2
+//
+// Method: GET
+//
+// parameters:
+// + name: categoryID
+//   in: path
+//   schema:
+//   type: string
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetMainCategoriesByParentIDResp description: OK
 func (a *API) getMainCategoryByParentID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	parentID, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
 	if err != nil {
@@ -88,6 +157,35 @@ func (a *API) getMainCategoryByParentID(requestCTX *handler.RequestContext, w ht
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/category/{categoryID}/lvl3 AppCategory getSubCatergoryByParentID
+// getSubCatergoryByParentID
+//
+// This endpoint return sub category by parent ID.
+//
+// Endpoint: /app/category/{categoryID}/lvl3
+//
+// Method: GET
+//
+// parameters:
+// + name: categoryID
+//   in: path
+//   schema:
+//   type: string
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetSubCategoriesByParentIDResp description: OK
 func (a *API) getSubCatergoryByParentID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	parentID, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
 	if err != nil {

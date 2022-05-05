@@ -197,6 +197,49 @@ func (a *API) editCatalogContent(requestCTX *handler.RequestContext, w http.Resp
 	return
 }
 
+// swagger:route POST /content/comment content createContentComment
+// createContentComment
+//
+// This endpoint will post the comment on the content.
+//
+// Endpoint: /content/comment
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CreateCommentOpts
+//     "$ref": "#/definitions/CreateCommentOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: CreateCommentResp description: OK
 func (a *API) createContentComment(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreateCommentOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -220,6 +263,49 @@ func (a *API) createContentComment(requestCTX *handler.RequestContext, w http.Re
 	return
 }
 
+// swagger:route POST /content/like content createLike
+// createLike
+//
+// This endpoint will create like on content.
+//
+// Endpoint: /content/like
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CreateLikeOpts
+//     "$ref": "#/definitions/CreateLikeOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: OK
 func (a *API) createLike(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreateLikeOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -243,6 +329,49 @@ func (a *API) createLike(requestCTX *handler.RequestContext, w http.ResponseWrit
 	return
 }
 
+// swagger:route POST /content/view content createView
+// createView
+//
+// This endpoint will create view on content.
+//
+// Endpoint: /content/view
+//
+// Method: POST
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CreateViewOpts
+//     "$ref": "#/definitions/CreateViewOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: OK
 func (a *API) createView(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreateViewOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -284,6 +413,49 @@ func (a *API) getPebble(requestCTX *handler.RequestContext, w http.ResponseWrite
 	return
 }
 
+// swagger:route GET /pebble Pebble getPebbleV2
+// getPebbleV2
+//
+// This endpoint return the pebbles.
+//
+// Endpoint: /pebble
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleFilter
+//     "$ref": "#/definitions/GetPebbleFilter"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebbleV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -302,6 +474,49 @@ func (a *API) getPebbleV2(requestCTX *handler.RequestContext, w http.ResponseWri
 	return
 }
 
+// swagger:route GET /pebble/id Pebble getPebbleByID
+// getPebbleByID
+//
+// This endpoint return the pebbles by id.
+//
+// Endpoint: /pebble/id
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByIDFilter
+//     "$ref": "#/definitions/GetPebbleByIDFilter"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebbleByID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByIDFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -358,6 +573,49 @@ func (a *API) changeContentStatus(requestCTX *handler.RequestContext, w http.Res
 	return
 }
 
+// swagger:route GET /pebble/brand Pebble getPebblesByBrandID
+// getPebblesByBrandID
+//
+// This endpoint return the pebbles of brand by ID.
+//
+// Endpoint: /pebble/brand
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByBrandID
+//     "$ref": "#/definitions/GetPebbleByBrandID"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebblesByBrandID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByBrandID
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -376,6 +634,49 @@ func (a *API) getPebblesByBrandID(requestCTX *handler.RequestContext, w http.Res
 	return
 }
 
+// swagger:route GET /pebble/influencer Pebble getPebblesByInfluencerID
+// getPebblesByInfluencerID
+//
+// This endpoint return the pebbles by influencer ID.
+//
+// Endpoint: /pebble/influencer
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByInfluencerID
+//     "$ref": "#/definitions/GetPebbleByInfluencerID"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebblesByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByInfluencerID
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -394,6 +695,49 @@ func (a *API) getPebblesByInfluencerID(requestCTX *handler.RequestContext, w htt
 	return
 }
 
+// swagger:route GET /catalog/influencer Pebble getCatalogsByInfluencerID
+// getCatalogsByInfluencerID
+//
+// This endpoint return the catalogs by influencer ID.
+//
+// Endpoint: /catalog/influencer
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogsByInfluencerID
+//     "$ref": "#/definitions/GetCatalogsByInfluencerID"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: ObjectID
 func (a *API) getCatalogsByInfluencerID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogsByInfluencerID
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -412,6 +756,49 @@ func (a *API) getCatalogsByInfluencerID(requestCTX *handler.RequestContext, w ht
 	return
 }
 
+// swagger:route GET /pebble/hashtag Pebble getPebblesByHashtag
+// getPebblesByHashtag
+//
+// This endpoint return the pebbles by respective hashtags.
+//
+// Endpoint: /pebble/hashtag
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByHashtag
+//     "$ref": "#/definitions/GetPebbleByHashtag"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebblesByHashtag(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByHashtag
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -430,6 +817,49 @@ func (a *API) getPebblesByHashtag(requestCTX *handler.RequestContext, w http.Res
 	return
 }
 
+// swagger:route GET /pebble/category Pebble getPebbleByCategoryID
+// getPebbleByCategoryID
+//
+// This endpoint return the pebble by category IDs.
+//
+// Endpoint: /pebble/category
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByCategoryIDOpts
+//     "$ref": "#/definitions/GetPebbleByCategoryIDOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebbleByCategoryID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByCategoryIDOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -464,6 +894,33 @@ func (a *API) searchPebbleByCaption(requestCTX *handler.RequestContext, w http.R
 	return
 }
 
+// swagger:route POST /app/influencer/pebble Pebble createPebbleApp
+// createPebbleApp
+//
+// This endpoint create pebble in app.
+//
+// Endpoint: /app/influencer/pebble
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CreatePebbleAppOpts
+//     "$ref": "#/definitions/CreatePebbleAppOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: CreatePebbleResp description: OK
 func (a *API) createPebbleApp(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreatePebbleAppOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -489,6 +946,33 @@ func (a *API) createPebbleApp(requestCTX *handler.RequestContext, w http.Respons
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 }
 
+// swagger:route POST /v2/app/influencer/pebble Pebble createPebbleAppV2
+// createPebbleAppV2
+//
+// This endpoint create pebble app.
+//
+// Endpoint: /v2/app/influencer/pebble
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: CreatePebbleAppV2Opts
+//     "$ref": "#/definitions/CreatePebbleAppV2Opts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: CreatePebbleResp description: OK
 func (a *API) createPebbleAppV2(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.CreatePebbleAppV2Opts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -514,6 +998,33 @@ func (a *API) createPebbleAppV2(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(res, http.StatusCreated)
 }
 
+// swagger:route PUT /app/influencer/pebble Pebble editPebbleApp
+// editPebbleApp
+//
+// This endpoint create pebble app.
+//
+// Endpoint: /app/influencer/pebble
+//
+// Method: PUT
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: EditPebbleAppOpts
+//     "$ref": "#/definitions/EditPebbleAppOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: EditPebbleAppResp description: OK
 func (a *API) editPebbleApp(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.EditPebbleAppOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -538,6 +1049,48 @@ func (a *API) editPebbleApp(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/influencer/pebble Pebble getPebblesForCreator
+// getPebblesForCreator
+//
+// This endpoint return pebbles for the creator.
+//
+// Endpoint: /app/influencer/pebble
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleByInfluencerID
+//     "$ref": "#/definitions/GetPebbleByInfluencerID"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleESResp description: OK
 func (a *API) getPebblesForCreator(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleByInfluencerID
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {

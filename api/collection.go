@@ -27,6 +27,35 @@ func (a *API) createCollection(requestCTX *handler.RequestContext, w http.Respon
 	return
 }
 
+// swagger:route GET /pebble/collection Pebble getCollections
+// getCollections
+//
+// This endpoint return the collection.
+//
+// Endpoint: /pebble/collection
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCollectionFilter
+//     "$ref": "#/definitions/GetCollectionFilter"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleCollectionESResp description: OK
 func (a *API) getCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCollectionFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {

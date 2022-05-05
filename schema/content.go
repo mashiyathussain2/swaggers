@@ -27,7 +27,10 @@ type CreatePebbleOpts struct {
 }
 
 //CreatePebbleResp returns token required for uploading the content to S3 in the background
+
+// swagger:model CreatePebbleResp
 type CreatePebbleResp struct {
+	// swagger:strfmt ObjectID
 	ID    primitive.ObjectID `json:"id"`
 	Token string             `json:"token"`
 }
@@ -155,36 +158,49 @@ type EditCatalogContentResp struct {
 	Label    *EditLabelOpts     `json:"label,omitempty"`
 }
 
+// swagger:model CreateCommentOpts
 type CreateCommentOpts struct {
-	ResourceType string             `json:"resource_type" validate:"required,oneof=live pebble"`
-	ResourceID   primitive.ObjectID `json:"resource_id" validate:"required"`
-	Description  string             `json:"description" validate:"required"`
-	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
-	CreatedAt    time.Time          `json:"created_at"`
+	ResourceType string `json:"resource_type" validate:"required,oneof=live pebble"`
+	// swagger:strfmt ObjectID
+	ResourceID  primitive.ObjectID `json:"resource_id" validate:"required"`
+	Description string             `json:"description" validate:"required"`
+	// swagger:strfmt ObjectID
+	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
+	CreatedAt time.Time          `json:"created_at"`
 }
 
+// swagger:model CreateCommentResp
 type CreateCommentResp struct {
+	// swagger:strfmt ObjectID
 	ID           primitive.ObjectID `json:"id"`
 	ResourceType string             `json:"resource_type"`
-	ResourceID   primitive.ObjectID `json:"resource_id"`
-	Description  string             `json:"description"`
-	UserID       primitive.ObjectID `json:"user_id"`
-	CreatedAt    time.Time          `json:"created_at"`
+	// swagger:strfmt ObjectID
+	ResourceID  primitive.ObjectID `json:"resource_id"`
+	Description string             `json:"description"`
+	// swagger:strfmt ObjectID
+	UserID    primitive.ObjectID `json:"user_id"`
+	CreatedAt time.Time          `json:"created_at"`
 }
 
+// swagger:model CreateViewOpts
 type CreateViewOpts struct {
-	ResourceType string             `json:"resource_type" validate:"required,oneof=live pebble"`
-	ResourceID   primitive.ObjectID `json:"resource_id" validate:"required"`
-	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
-	Duration     time.Duration      `json:"duration" validate:"required"`
+	ResourceType string `json:"resource_type" validate:"required,oneof=live pebble"`
+	// swagger:strfmt ObejctID
+	ResourceID primitive.ObjectID `json:"resource_id" validate:"required"`
+	// swagger:strfmt ObejctID
+	UserID   primitive.ObjectID `json:"user_id" validate:"required"`
+	Duration time.Duration      `json:"duration" validate:"required"`
 	// Timestamp of instance when user started watching video
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// swagger:model CreateLikeOpts
 type CreateLikeOpts struct {
-	ResourceType string             `json:"resource_type" validate:"required,oneof=live pebble"`
-	ResourceID   primitive.ObjectID `json:"resource_id" validate:"required"`
-	UserID       primitive.ObjectID `json:"user_id" validate:"required"`
+	ResourceType string `json:"resource_type" validate:"required,oneof=live pebble"`
+	// swagger: strfmt ObjectID
+	ResourceID primitive.ObjectID `json:"resource_id" validate:"required"`
+	// swagger: strfmt ObjectID
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
 }
 
 type ContentUpdateOpts struct {
@@ -251,6 +267,7 @@ type UpdateContentCatalogInfoOpts struct {
 	RetailPrice   *model.Price       `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 }
 
+// swagger:model GetPebbleFilter
 type GetPebbleFilter struct {
 	UserID    string   `json:"user_id,omitempty" queryparam:"user_id"`
 	Genders   []string `json:"genders,omitempty" queryparam:"genders"`
@@ -259,6 +276,7 @@ type GetPebbleFilter struct {
 	IsSeries  bool
 }
 
+// swagger:model GetPebbleByIDFilter
 type GetPebbleByIDFilter struct {
 	UserID string `queryparam:"user_id"`
 	ID     string `queryparam:"id"`
@@ -273,27 +291,33 @@ type GetPebbleMediaESResp struct {
 	ThumbnailURLS []string           `json:"thumbnail_url,omitempty"`
 }
 
+// swagger:model GetPebbleESResp
 type GetPebbleESResp struct {
-	ID             primitive.ObjectID     `json:"id,omitempty"`
-	Type           string                 `json:"type,omitempty"`
-	MediaType      string                 `json:"media_type,omitempty"`
-	MediaID        primitive.ObjectID     `json:"media_id,omitempty"`
-	MediaInfo      *GetPebbleMediaESResp  `json:"media_info,omitempty"`
+	// swagger:strfmt ObjectID
+	ID        primitive.ObjectID `json:"id,omitempty"`
+	Type      string             `json:"type,omitempty"`
+	MediaType string             `json:"media_type,omitempty"`
+	// swagger:strfmt ObjectID
+	MediaID   primitive.ObjectID    `json:"media_id,omitempty"`
+	MediaInfo *GetPebbleMediaESResp `json:"media_info,omitempty"`
+	// swagger:strfmt ObjectID
 	InfluencerIDs  []primitive.ObjectID   `json:"influencer_ids,omitempty"`
 	InfluencerInfo []model.InfluencerInfo `json:"influencer_info,omitempty"`
-	BrandIDs       []primitive.ObjectID   `json:"brand_ids,omitempty"`
-	BrandInfo      []model.BrandInfo      `json:"brand_info,omitempty"`
-	LikeCount      int                    `json:"like_count,omitempty"`
-	CommentCount   int                    `json:"comment_count,omitempty"`
-	ViewCount      int                    `json:"view_count,omitempty"`
-	Paths          []model.Path           `json:"category_path,omitempty" bson:"category_path,omitempty"`
-	Caption        string                 `json:"caption,omitempty"`
-	Hashtags       []string               `json:"hashtags,omitempty"`
-	CatalogIDs     []primitive.ObjectID   `json:"catalog_ids,omitempty"`
-	CatalogInfo    []model.CatalogInfo    `json:"catalog_info,omitempty"`
-	CreatedAt      time.Time              `json:"created_at,omitempty"`
-	IsActive       bool                   `json:"is_active"`
-	IsLikedByUser  bool                   `json:"is_liked_by_user,omitempty"`
+	// swagger:strfmt ObjectID
+	BrandIDs     []primitive.ObjectID `json:"brand_ids,omitempty"`
+	BrandInfo    []model.BrandInfo    `json:"brand_info,omitempty"`
+	LikeCount    int                  `json:"like_count,omitempty"`
+	CommentCount int                  `json:"comment_count,omitempty"`
+	ViewCount    int                  `json:"view_count,omitempty"`
+	Paths        []model.Path         `json:"category_path,omitempty" bson:"category_path,omitempty"`
+	Caption      string               `json:"caption,omitempty"`
+	Hashtags     []string             `json:"hashtags,omitempty"`
+	// swagger:strfmt ObjectID
+	CatalogIDs    []primitive.ObjectID `json:"catalog_ids,omitempty"`
+	CatalogInfo   []model.CatalogInfo  `json:"catalog_info,omitempty"`
+	CreatedAt     time.Time            `json:"created_at,omitempty"`
+	IsActive      bool                 `json:"is_active"`
+	IsLikedByUser bool                 `json:"is_liked_by_user,omitempty"`
 }
 
 type LikeESResp struct {
@@ -376,12 +400,14 @@ type ChangeContentStatusOpts struct {
 	IsActive *bool              `json:"is_active" validate:"required"`
 }
 
+// swagger:model GetPebbleByBrandID
 type GetPebbleByBrandID struct {
 	UserID  string `json:"user_id,omitempty" queryparam:"user_id"`
 	BrandID string `queryparam:"brand_id"`
 	Page    int    `queryparam:"page"`
 }
 
+// swagger:model GetPebbleByInfluencerID
 type GetPebbleByInfluencerID struct {
 	UserID       string `json:"user_id,omitempty" queryparam:"user_id"`
 	InfluencerID string `queryparam:"influencer_id"`
@@ -389,12 +415,14 @@ type GetPebbleByInfluencerID struct {
 	IsActive     bool
 }
 
+// swagger:model GetCatalogsByInfluencerID
 type GetCatalogsByInfluencerID struct {
 	UserID       string `json:"user_id,omitempty" queryparam:"user_id"`
 	InfluencerID string `queryparam:"influencer_id"`
 	Page         int    `queryparam:"page"`
 }
 
+// swagger:model GetPebbleByHashtag
 type GetPebbleByHashtag struct {
 	UserID  string `json:"user_id,omitempty" queryparam:"user_id"`
 	Hashtag string `json:"hashtag,omitempty" queryparam:"hashtag"`
@@ -422,20 +450,29 @@ type CreatorEditLabelOpts struct {
 }
 
 // CreatePebbleAppOpts contains and validates args required to create a pebble
+
+// swagger:model CreatePebbleAppOpts
 type CreatePebbleAppOpts struct {
-	FileName      string               `json:"file_name" validate:"required"`
-	Caption       string               `json:"caption" validate:"required"`
-	CreatorID     primitive.ObjectID   `json:"creator_id" validate:"required"`
+	FileName string `json:"file_name" validate:"required"`
+	Caption  string `json:"caption" validate:"required"`
+	// swagger:strfmt ObjectID
+	CreatorID primitive.ObjectID `json:"creator_id" validate:"required"`
+	// swagger:strfmt ObjectID
 	InfluencerIDs []primitive.ObjectID `json:"influencer_ids" validate:"required,min=1"`
-	BrandIDs      []primitive.ObjectID `json:"brand_ids"`
-	CatalogIDs    []primitive.ObjectID `json:"catalog_ids"`
+	// swagger:strfmt ObjectID
+	BrandIDs []primitive.ObjectID `json:"brand_ids"`
+	// swagger:strfmt ObjectID
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
 	// Label         *CreatorLabelOpts    `json:"label" validate:"required"`
+	// swagger:strfmt ObjectID
 	CategoryID []primitive.ObjectID `json:"category_id" validate:"required,gt=0"`
 }
 
+// swagger:model CreatePebbleAppV2Opts
 type CreatePebbleAppV2Opts struct {
 	FileName string `json:"file_name" validate:"required"`
 	// Caption       string               `json:"caption" validate:"required"`
+	// swagger:strfmt ObjectID
 	CreatorID primitive.ObjectID `json:"creator_id" validate:"required"`
 	// InfluencerIDs []primitive.ObjectID `json:"influencer_ids" validate:"required,min=1"`
 	// BrandIDs   []primitive.ObjectID `json:"brand_ids"`
@@ -445,15 +482,23 @@ type CreatePebbleAppV2Opts struct {
 }
 
 // EditPebbleAppOpts contains and validates args required to update an existing pebble content
+
+// swagger:model EditPebbleAppOpts
 type EditPebbleAppOpts struct {
-	ID            primitive.ObjectID    `json:"id,omitempty" validate:"required"`
-	CreatorID     primitive.ObjectID    `json:"creator_id" validate:"required"`
-	Caption       string                `json:"caption"`
-	InfluencerIDs []primitive.ObjectID  `json:"influencer_ids"`
-	BrandIDs      *[]primitive.ObjectID `json:"brand_ids"`
-	CatalogIDs    *[]primitive.ObjectID `json:"catalog_ids"`
+	// swagger: strfmt ObjectID
+	ID primitive.ObjectID `json:"id,omitempty" validate:"required"`
+	// swagger: strfmt ObjectID
+	CreatorID primitive.ObjectID `json:"creator_id" validate:"required"`
+	Caption   string             `json:"caption"`
+	// swagger: strfmt ObjectID
+	InfluencerIDs []primitive.ObjectID `json:"influencer_ids"`
+	// swagger: strfmt ObjectID
+	BrandIDs *[]primitive.ObjectID `json:"brand_ids"`
+	// swagger: strfmt ObjectID
+	CatalogIDs *[]primitive.ObjectID `json:"catalog_ids"`
 	// Label         *CreatorEditLabelOpts `json:"label"`
-	IsActive   *bool                `json:"is_active"`
+	IsActive *bool `json:"is_active"`
+	// swagger: strfmt ObjectID
 	CategoryID []primitive.ObjectID `json:"category_id"`
 }
 
@@ -465,6 +510,8 @@ type GetPebblesCreatorFilter struct {
 }
 
 // EditPebbleAppResp contains fields to be returned in EditPebble operation
+
+// swagger:model EditPebbleAppResp
 type EditPebbleAppResp struct {
 	ID            primitive.ObjectID    `json:"id"  validate:"required"`
 	Caption       string                `json:"caption,omitempty"`

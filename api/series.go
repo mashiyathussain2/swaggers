@@ -47,6 +47,49 @@ func (a *API) editPebbleSeries(requestCTX *handler.RequestContext, w http.Respon
 	return
 }
 
+// swagger:route GET /pebble/series Pebble getPebbleSeries
+// getPebbleSeries
+//
+// This endpoint return pebbles series.
+//
+// Endpoint: /pebble/series
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetPebbleFilter
+//     "$ref": "#/definitions/GetPebbleFilter"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Customer login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleSeriesESResp description: OK
 func (a *API) getPebbleSeries(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetPebbleFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -65,6 +108,49 @@ func (a *API) getPebbleSeries(requestCTX *handler.RequestContext, w http.Respons
 	return
 }
 
+// swagger:route GET /pebble/series/id Pebble getPebbleSeriesByIDs
+// getPebbleSeriesByIDs
+//
+// This endpoint return the pebble series by IDs.
+//
+// Endpoint: /pebble/series/id
+//
+// Method: GET
+//
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetSeriesByIDs
+//     "$ref": "#/definitions/GetSeriesByIDs"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description: Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetPebbleSeriesESResp description: OK
 func (a *API) getPebbleSeriesByIDs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetSeriesByIDs
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
