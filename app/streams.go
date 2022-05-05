@@ -203,6 +203,7 @@ func (ip *InfluencerProcessor) GenerateCommissionInvoice(msg kafka.Message) {
 		return
 	}
 
+	ip.App.GenerateCommissionInvoiceListner.Commit(context.TODO(), msg)
 	fmt.Println(1)
 
 }

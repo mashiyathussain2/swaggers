@@ -61,7 +61,7 @@ func InitConsumer(a *App) {
 		Logger: a.Logger,
 		Config: &a.Config.GenerateCommissionInvoiceListnerConfig,
 	})
-	go a.GenerateCommissionInvoiceListner.ConsumeAndCommit(ctx, a.InfluencerProcessor.GenerateCommissionInvoice)
+	go a.GenerateCommissionInvoiceListner.Consume(ctx, a.InfluencerProcessor.GenerateCommissionInvoice)
 
 }
 
