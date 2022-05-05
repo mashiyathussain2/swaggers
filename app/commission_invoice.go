@@ -106,12 +106,27 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 			"as":           "user_info",
 		},
 	}}
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"user_id": bson.M{
+				"$first": "$user_info._id",
+			},
+		},
+	}}
+	lookupStage3 := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "customer",
+			"localField":   "user_id",
+			"foreignField": "user_id",
+			"as":           "customer_info",
+		},
+	}}
 	// unwindStage := bson.D{{
 	// 	Key: "$unwind", Value: bson.M{
 	// 		"path": "$influencer_info",
 	// 	},
 	// }}
-	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2})
+	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2, addFieldsStage, lookupStage3})
 	if err != nil {
 		return errors.Wrapf(err, "error getting debit request")
 	}
@@ -152,6 +167,7 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 			DebitRequestID:    debitRequestID,
 			InfluencerID:      debitReqInfo[0].InfluencerID,
 			InfluencerInfo:    debitReqInfo[0].InfluencerInfo[0],
+			CustomerInfo:      debitReqInfo[0].CustomerInfo[0],
 			UserInfo:          debitReqInfo[0].UserInfo[0],
 			Amount:            uint(debitReqInfo[0].Amount),
 			PayoutInformation: debitReqInfo[0].PayoutInformation,
@@ -247,7 +263,22 @@ func (ci *CommissionInvoiceImpl) GetPreInvoicePDF(debitRequestID primitive.Objec
 			"as":           "user_info",
 		},
 	}}
-	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2})
+	addFieldsStage := bson.D{{
+		Key: "$addFields", Value: bson.M{
+			"user_id": bson.M{
+				"$first": "$user_info._id",
+			},
+		},
+	}}
+	lookupStage3 := bson.D{{
+		Key: "$lookup", Value: bson.M{
+			"from":         "customer",
+			"localField":   "user_id",
+			"foreignField": "user_id",
+			"as":           "customer_info",
+		},
+	}}
+	cur, err := ci.DB.Collection(model.DebitRequestColl).Aggregate(ctx, mongo.Pipeline{matchStage, lookupStage, lookupStage2, addFieldsStage, lookupStage3})
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "error getting debit request")
 	}
@@ -292,7 +323,7 @@ func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.Co
 	<br>
 	Regards, <br>
 	Team Hypd <br>
-	`, invoice.InfluencerInfo.Name, invoice.Amount)
+	`, invoice.CustomerInfo.FullName, invoice.Amount)
 	return t
 }
 
