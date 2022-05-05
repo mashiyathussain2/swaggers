@@ -218,6 +218,7 @@ type ProcessInsertOrderOpts struct {
 	InfluencerID primitive.ObjectID `json:"influencer_id,omitempty" bson:"influencer_id,omitempty"`
 }
 
+//TODO change amount back gte to 1000
 type CommissionDebitRequest struct {
 	ID                primitive.ObjectID    `json:"id" validate:"required"`
 	Amount            uint                  `json:"amount" validate:"required,gte=100"`
