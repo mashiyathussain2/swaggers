@@ -83,7 +83,7 @@ func (ci *CommissionInvoiceImpl) validateGenerateInvoice(sc mongo.SessionContext
 func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitive.ObjectID) error {
 
 	ctx := context.TODO()
-
+	var invoice model.CommissionInvoice
 	var debitReqInfo []model.DebitRequestAllInfo
 	matchStage := bson.D{{
 		Key: "$match", Value: bson.M{
@@ -147,7 +147,7 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 		if err != nil {
 			return errors.Wrapf(err, "error generating invoice no")
 		}
-		invoice := model.CommissionInvoice{
+		invoice = model.CommissionInvoice{
 			InvoiceNo:         invoiceNo,
 			DebitRequestID:    debitRequestID,
 			InfluencerID:      debitReqInfo[0].InfluencerID,
@@ -163,10 +163,6 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 			return errors.Wrapf(err, "error generating invoice")
 		}
 
-		err = ci.SendCommissionInvoice(sc, invoiceNo)
-		if err != nil {
-			return errors.Wrapf(err, "error sending invoice")
-		}
 		if err := session.CommitTransaction(sc); err != nil {
 			return errors.Wrapf(err, "failed to commit transaction")
 		}
@@ -175,6 +171,10 @@ func (ci *CommissionInvoiceImpl) CreateCommissionInvoice(debitRequestID primitiv
 	}); err != nil {
 		ci.Logger.Err(err).Msgf("failed to generate invoice for debit_request_id: %s", debitRequestID.Hex())
 		return err
+	}
+	err = ci.SendCommissionInvoice(nil, invoice.InvoiceNo)
+	if err != nil {
+		return errors.Wrapf(err, "error sending invoice")
 	}
 
 	return nil
