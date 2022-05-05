@@ -315,6 +315,7 @@ func (ci *CommissionInvoiceImpl) GetPreInvoicePDF(debitRequestID primitive.Objec
 func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.CommissionInvoice) string {
 	t := fmt.Sprintf(`
 	Hey %s <br>
+	<p  style="color:black;">
 	-- <br>
 	Congratulations! Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days ⚡⚡. <br>
 	<br>
@@ -324,6 +325,7 @@ func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.Co
 	<br>
 	Regards, <br>
 	Team Hypd <br>
+	</p>
 	`, invoice.CustomerInfo.FullName, invoice.Amount)
 	return t
 }
