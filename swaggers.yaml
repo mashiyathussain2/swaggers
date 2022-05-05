@@ -1220,8 +1220,8 @@ definitions:
     x-go-package: go-app/model
 host: cms.getshitdone.in
 info:
+  description: API related to
   title: 'Stardust API:'
-  version: "1.0"
 paths:
   /app/category/{categoryID}/lvl2:
     get:
