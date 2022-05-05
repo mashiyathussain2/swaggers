@@ -286,9 +286,10 @@ func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.Co
 	Hey %s <br>
 
 	Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days . <br>
-	
+	<br>
 	PFA the invoice for the same. <br>
-	
+	<br>
+	<br>
 	Regards, <br>
 	Team Hypd <br>
 	`, invoice.InfluencerInfo.Name, invoice.Amount)
