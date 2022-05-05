@@ -316,9 +316,10 @@ func (ci *CommissionInvoiceImpl) commissionInvoiceMailTemplate(invoice *model.Co
 	t := fmt.Sprintf(`
 	Hey %s <br>
 	-- <br>
-	Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days . <br>
+	Congratulations! Your commission request for Amount ₹%d, is accepted and will be transferred within 2 business days ⚡⚡. <br>
 	<br>
 	PFA the invoice for the same. <br>
+	Keep sharing your links , and keep earning more! 💰💰<br>
 	<br>
 	<br>
 	Regards, <br>
