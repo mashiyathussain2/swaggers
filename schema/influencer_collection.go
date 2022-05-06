@@ -8,28 +8,37 @@ import (
 )
 
 //CreateInfluencerCollectionOpts specifies the data for InfluncerCollection to be inputted
+
+// swagger:model CreateInfluencerCollectionOpts
 type CreateInfluencerCollectionOpts struct {
-	Name         string               `json:"name" validate:"required"`
-	InfluencerID primitive.ObjectID   `json:"influencer_id" validate:"required"`
-	Image        *Img                 `json:"image" validate:"required"`
-	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" validate:"required"`
-	Order        uint                 `json:"order"`
-	IsDraft      bool                 `json:"is_draft"`
+	Name string `json:"name" validate:"required"`
+	// swagger:strfmt ObjectID
+	InfluencerID primitive.ObjectID `json:"influencer_id" validate:"required"`
+	Image        *Img               `json:"image" validate:"required"`
+	// swagger:strfmt ObjectID
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids" validate:"required"`
+	Order      uint                 `json:"order"`
+	IsDraft    bool                 `json:"is_draft"`
 	// FeaturedCatalogIDs []primitive.ObjectID `json:"feat_cat_ids" validate:"required"`
 }
 
 // InfluencerCollectionResp serialize the create collection api response
+
+// swagger:model InfluencerCollectionResp
 type InfluencerCollectionResp struct {
-	ID           primitive.ObjectID   `json:"id" bson:"_id"`
-	InfluencerID primitive.ObjectID   `json:"influencer_id" bson:"influencer_id"`
-	Name         string               `json:"name" bson:"name"`
-	Slug         string               `json:"slug" bson:"slug"`
-	Image        *model.IMG           `json:"image" bson:"image"`
-	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
-	Status       string               `json:"status" bson:"status"`
-	Order        int                  `json:"order" bson:"order"`
-	CreatedAt    time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt    time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id" bson:"_id"`
+	// swagger:strfmt ObjectID
+	InfluencerID primitive.ObjectID `json:"influencer_id" bson:"influencer_id"`
+	Name         string             `json:"name" bson:"name"`
+	Slug         string             `json:"slug" bson:"slug"`
+	Image        *model.IMG         `json:"image" bson:"image"`
+	// swagger:strfmt ObjectID
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
+	Status     string               `json:"status" bson:"status"`
+	Order      int                  `json:"order" bson:"order"`
+	CreatedAt  time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt  time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 // EditInfluencerCollectionOpts serialize the edit collection api arguments
@@ -42,6 +51,7 @@ type EditInfluencerCollectionOpts struct {
 	Status     string               `json:"status"`
 }
 
+// swagger:model GetInfluencerCollectionsOpts
 type GetInfluencerCollectionsOpts struct {
 	InfluencerID string `qs:"id" json:"id"`
 	Status       string `qs:"status" json:"status"`
@@ -83,26 +93,36 @@ type InfluencerInfo struct {
 }
 
 // EditInfluencerCollectionAppOpts serialize the edit collection api arguments
+
+// swagger:model EditInfluencerCollectionAppOpts
 type EditInfluencerCollectionAppOpts struct {
-	ID           primitive.ObjectID   `json:"id" validate:"required"`
-	InfluencerID primitive.ObjectID   `json:"influencer_id" validate:"required"`
-	Name         string               `json:"name"`
-	Image        *Img                 `json:"image"`
-	CatalogIDs   []primitive.ObjectID `json:"catalog_ids"`
-	Order        int                  `json:"order"`
-	Status       string               `json:"status"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id" validate:"required"`
+	// swagger:strfmt ObjectID
+	InfluencerID primitive.ObjectID `json:"influencer_id" validate:"required"`
+	Name         string             `json:"name"`
+	Image        *Img               `json:"image"`
+	// swagger:strfmt ObjectID
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids"`
+	Order      int                  `json:"order"`
+	Status     string               `json:"status"`
 }
 
 // GetInfluencerCollectionRespApp serialize the get collection api response
+
+// swagger:model GetInfluencerCollectionRespApp
 type GetInfluencerCollectionRespApp struct {
-	ID           primitive.ObjectID   `json:"id" bson:"_id"`
-	InfluencerID primitive.ObjectID   `json:"influencer_id" bson:"influencer_id"`
-	Name         string               `json:"name" bson:"name"`
-	Slug         string               `json:"slug" bson:"slug"`
-	Image        *model.IMG           `json:"image" bson:"image"`
-	CatalogIDs   []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
-	Status       string               `json:"status" bson:"status"`
-	Order        int                  `json:"order" bson:"order"`
-	CreatedAt    time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt    time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id" bson:"_id"`
+	// swagger:strfmt ObjectID
+	InfluencerID primitive.ObjectID `json:"influencer_id" bson:"influencer_id"`
+	Name         string             `json:"name" bson:"name"`
+	Slug         string             `json:"slug" bson:"slug"`
+	Image        *model.IMG         `json:"image" bson:"image"`
+	// swagger:strfmt ObjectID
+	CatalogIDs []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
+	Status     string               `json:"status" bson:"status"`
+	Order      int                  `json:"order" bson:"order"`
+	CreatedAt  time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt  time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

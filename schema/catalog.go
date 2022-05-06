@@ -420,11 +420,15 @@ type DiscountBasicResp struct {
 	MaxValue uint `json:"max_value,omitempty"`
 }
 
+// swagger:model GetCatalogBasicResp
 type GetCatalogBasicResp struct {
-	ID            primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
-	BrandID       primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
-	BrandInfo     *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	// swagger:strfmt ObjectID
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name,omitempty" bson:"name,omitempty"`
+	// swagger:strfmt ObjectID
+	BrandID   primitive.ObjectID `json:"brand_id,omitempty" bson:"brand_id,omitempty"`
+	BrandInfo *BrandInfoResp     `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	// swagger:strfmt ObjectID
 	DiscountID    primitive.ObjectID `json:"discount_id,omitempty" bson:"discount_id,omitempty"`
 	DiscountInfo  *DiscountBasicResp `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
 	FeaturedImage *model.IMG         `json:"featured_image,omitempty" bson:"featured_image,omitempty"`
@@ -437,6 +441,7 @@ type GetCatalogByCategoryIDFilterResp struct {
 	Count int    `json:"doc_count"`
 }
 
+// swagger:model GetCatalogByCategoryIDResp
 type GetCatalogByCategoryIDResp struct {
 	Data        []GetCatalogBasicResp              `json:"data,omitempty"`
 	BrandFilter []GetCatalogByCategoryIDFilterResp `json:"brand_filter,omitempty"`
@@ -454,11 +459,15 @@ type GetCatalogPebbleResp struct {
 	RetailPrice   model.Price        `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
 }
 
+// swagger:model GetCatalogInfoResp
 type GetCatalogInfoResp struct {
-	ID               primitive.ObjectID       `json:"id,omitempty"`
-	Name             string                   `json:"name,omitempty"`
-	BrandID          primitive.ObjectID       `json:"brand_id,omitempty"`
-	BrandInfo        *BrandInfoResp           `json:"brand_info,omitempty"`
+	// swagger:strfmt ObjectID
+	ID   primitive.ObjectID `json:"id,omitempty"`
+	Name string             `json:"name,omitempty"`
+	// swagger:strfmt ObjectID
+	BrandID   primitive.ObjectID `json:"brand_id,omitempty"`
+	BrandInfo *BrandInfoResp     `json:"brand_info,omitempty"`
+	// swagger:strfmt ObjectID
 	DiscountID       primitive.ObjectID       `json:"discount_id,omitempty"`
 	DiscountInfo     *DiscountBasicResp       `json:"discount_info,omitempty"`
 	FeaturedImage    *model.IMG               `json:"featured_image,omitempty"`
@@ -477,10 +486,12 @@ type GetCatalogInfoResp struct {
 	TotalRatingCount uint                     `json:"total_rating_count,omitempty"`
 }
 
+// swagger:model GetCatalogByIDFilter
 type GetCatalogByIDFilter struct {
 	IDs []string `qs:"id" json:"id"`
 }
 
+// swagger:model GetSimilarProducts
 type GetSimilarProducts struct {
 	Query string `qs:"query" json:"query"`
 }
@@ -562,17 +573,23 @@ type BulkUploadCatalogResp struct {
 	Count int                        `json:"count"`
 	Data  []BulkUploadCatalogRowResp `json:"data"`
 }
+
+// swagger:model GetCollectionCatalogByIDs
 type GetCollectionCatalogByIDs struct {
 	IDs     []string `qs:"id" json:"id"`
 	FeatIDs []string `qs:"fid" json:"fid"`
 }
 
+// swagger:model GetCatalogCountOpts
 type GetCatalogCountOpts struct {
+	// swagger:strfmt ObjectID
 	BrandID  primitive.ObjectID `json:"brand_id"`
 	IsActive bool               `json:"is_active"`
 }
 
+// swagger:model GetCatalogOpts
 type GetCatalogOpts struct {
+	// swagger:strfmt ObjectID
 	BrandID  primitive.ObjectID `json:"brand_id"`
 	IsActive bool               `json:"is_active"`
 	Page     int                `json:"page"`
@@ -588,7 +605,9 @@ type GetUnicommerceVariantResp struct {
 	Live      bool               `json:"live" bson:"live"`
 }
 
+// swagger:model GetUnicommerceProductsResp
 type GetUnicommerceProductsResp struct {
+	// swagger:strfmt ObjectID
 	ID          primitive.ObjectID          `json:"id" bson:"id"`
 	ParentTitle string                      `json:"parentTitle" bson:"parentTitle"`
 	Brand       string                      `json:"brand" bson:"brand"`

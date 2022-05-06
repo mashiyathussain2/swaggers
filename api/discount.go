@@ -136,6 +136,48 @@ func (a *API) getDiscountInfoBySaleID(requestCTX *handler.RequestContext, w http
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/sale AppSale getAppActiveSale
+// getAppActiveSale
+//
+// This endpoint return the active sales.
+//
+// Endpoint: /app/sale
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetAppActiveSaleOpts
+//     "$ref": "#/definitions/GetAppActiveSaleOpts"
+//   required: true
+//
+// parameters:
+// + name: cookie
+//   type: string
+//   in: header
+//   description:Login required for successful response.
+//   required: true
+//
+//
+// parameters:
+// + name: auth token
+//   type: string
+//   in: header
+//   description:Token required for successful response.
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetSalesResp description: OK
 func (a *API) getAppActiveSale(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetAppActiveSaleOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -156,6 +198,33 @@ func (a *API) getAppActiveSale(requestCTX *handler.RequestContext, w http.Respon
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/sale/items AppSale getSaleCatalogs
+// getSaleCatalogs
+//
+// This endpoint return sales catalogs.
+//
+// Endpoint: /app/sale/items
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogBySaleIDOpts
+//     "$ref": "#/definitions/GetCatalogBySaleIDOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogBasicResp description: OK
 func (a *API) getSaleCatalogs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogBySaleIDOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {

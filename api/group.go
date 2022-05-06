@@ -71,6 +71,34 @@ func (a *API) getGroups(requestCTX *handler.RequestContext, w http.ResponseWrite
 	}
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
+
+// swagger:route GET /app/groups/catalog AppCatalog getGroupsByCatalogID
+// getGroupsByCatalogID
+//
+// This endpoint return groups of catalog by ID.
+//
+// Endpoint: /app/groups/catalog
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetGroupsByCatalogIDOpts
+//     "$ref": "#/definitions/GetGroupsByCatalogIDOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetGroupsByCatalogIDResp description: OK
 func (a *API) getGroupsByCatalogID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	page := GetPageValue(r)

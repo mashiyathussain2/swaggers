@@ -6,10 +6,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// swagger:model CreateReviewStoryOpts
 type CreateReviewStoryOpts struct {
-	FileName  string             `json:"file_name" validate:"required"`
-	UserID    primitive.ObjectID `json:"user_id" validate:"required"`
-	BrandID   primitive.ObjectID `json:"brand_id"`
+	FileName string `json:"file_name" validate:"required"`
+	// swagger:strfmt ObjectID
+	UserID primitive.ObjectID `json:"user_id" validate:"required"`
+	// swagger:strfmt ObjectID
+	BrandID primitive.ObjectID `json:"brand_id"`
+	// swagger:strfmt ObjectID
 	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
 	Rating    *uint              `json:"rating" validate:"required,gte=0,lte=5"`
 }
@@ -25,7 +29,9 @@ type GetReviewStoryUploadURLBodyResp struct {
 	Error   []ErrorCMS                   `json:"error"`
 }
 
+// swagger:model CreateReviewStoryResp
 type CreateReviewStoryResp struct {
+	// swagger:strfmt ObjectID
 	ID        primitive.ObjectID `json:"id"`
 	UploadURL string             `json:"upload_url"`
 }

@@ -30,8 +30,11 @@ type UpdateInventoryResp struct {
 
 //UpdateInventoryOpts serializes the input for update inventory internal api with catalog and variant id
 
+// swagger:model UpdateInventoryCVOpts
 type UpdateInventoryCVOpts struct {
-	CatalogID primitive.ObjectID        `json:"catalog_id" validate:"required"`
+	// swagger:strfmt ObjectID
+	CatalogID primitive.ObjectID `json:"catalog_id" validate:"required"`
+	// swagger:strfmt ObjectID
 	VariantID primitive.ObjectID        `json:"variant_id" validate:"required"`
 	Operation *UpdateInventoryOperation `json:"operation" validate:"required"`
 }

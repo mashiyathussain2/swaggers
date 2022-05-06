@@ -189,6 +189,7 @@ type SetFeaturedCatalogs struct {
 	FeatCatIDs []primitive.ObjectID `json:"featured_catalog_ids" validate:"required"`
 }
 
+// swagger:model GetCatalogsBySubCollectionResp
 type GetCatalogsBySubCollectionResp struct {
 	Title          string                           `json:"title,omitempty" bson:"title,omitempty"`
 	SubCollections []GetCatalogsBySubCollectionInfo `json:"sub_collections,omitempty" bson:"sub_collections,omitempty"`

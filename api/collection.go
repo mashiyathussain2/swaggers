@@ -164,6 +164,33 @@ func (a *API) getCollections(requestCTX *handler.RequestContext, w http.Response
 
 }
 
+// swagger:route GET /app/collections AppCollectionCatalogV2 getActiveCollections
+// getActiveCollections
+//
+// This endpoint will return the collections.
+//
+// Endpoint: /app/collections
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetActiveCollectionsOpts
+//     "$ref": "#/definitions/GetActiveCollectionsOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCollectionESResp description: true
 func (a *API) getActiveCollections(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetActiveCollectionsOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -236,6 +263,32 @@ func (a *API) setFeaturedCatalogs(requestCTX *handler.RequestContext, w http.Res
 	requestCTX.SetAppResponse(true, http.StatusOK)
 }
 
+// swagger:route GET /app/subcollection AppCollectionCatalogV2 GetCatalogBySubCollectionID
+// GetCatalogBySubCollectionID
+//
+// This endpoint return catalog by sub collection ID.
+//
+// Endpoint: /app/subcollection
+//
+// Method: GET
+//
+// parameters:
+// + name: id
+//   in: query
+//   schema:
+//   type: string
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogsBySubCollectionResp description: OK
 func (a *API) GetCatalogBySubCollectionID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	collID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 	fmt.Println(collID)

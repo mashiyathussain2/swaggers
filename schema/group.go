@@ -49,7 +49,10 @@ type GetGroupsOpts struct {
 }
 
 //GetGroupsByCatalogIDOpts contains fields to retrieve Groups
+
+// swagger:model GetGroupsByCatalogIDOpts
 type GetGroupsByCatalogIDOpts struct {
+	// swagger:strfmt ObjectID
 	ID   primitive.ObjectID `json:"id,omitempty" validate:"required"`
 	Page int                `json:"page" validate:"gte=0"`
 }
@@ -74,7 +77,10 @@ type UpdateGroupStatusOpts struct {
 }
 
 //GetGroupsByCatalogIDResp contains the response for GetGroups
+
+// swagger:model GetGroupsByCatalogIDResp
 type GetGroupsByCatalogIDResp struct {
+	// swagger:strfmt ObjectID
 	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Basis       string             `json:"basis" bson:"basis,omitempty" `
 	CatalogInfo []model.Catalog    `json:"catalog_info" bson:"catalog_info,omitempty" `

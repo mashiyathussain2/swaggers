@@ -97,6 +97,33 @@ func (a *API) checkInventoryExists(requestCTX *handler.RequestContext, w http.Re
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route POST /inventory Inventory updateInventoryInternal
+// updateInventoryInternal
+//
+// This endpoint update the internal inventory.
+//
+// Endpoint: /inventory
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: UpdateInventoryCVOpts
+//     "$ref": "#/definitions/UpdateInventoryCVOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: true
 func (a *API) updateInventoryInternal(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 
 	var s []schema.UpdateInventoryCVOpts

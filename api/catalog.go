@@ -276,6 +276,33 @@ func (a *API) getAllCatalogInfo(requestCTX *handler.RequestContext, w http.Respo
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route GET /app/catalog/basic AppCollectionCatalogV2 getCatalogBasicByIds
+// getCatalogBasicByIds
+//
+// This endpoint will return catalog basic by IDs.
+//
+// Endpoint: /app/catalog/basic
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogByIDFilter
+//     "$ref": "#/definitions/GetCatalogByIDFilter"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogBasicResp description: OK
 func (a *API) getCatalogBasicByIds(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogByIDFilter
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -290,6 +317,33 @@ func (a *API) getCatalogBasicByIds(requestCTX *handler.RequestContext, w http.Re
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route GET /app/catalog/similar AppCollectionCatalogV2 getSimilarProducts
+// getSimilarProducts
+//
+// This endpoint will return similar products.
+//
+// Endpoint: /app/catalog/similar
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetSimilarProducts
+//     "$ref": "#/definitions/GetSimilarProducts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogBasicResp description: OK
 func (a *API) getSimilarProducts(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetSimilarProducts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -305,6 +359,34 @@ func (a *API) getSimilarProducts(requestCTX *handler.RequestContext, w http.Resp
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route GET /app/catalog/{catalogID} AppCollectionCatalogV2 getCatalogInfoById
+// getCatalogInfoById
+//
+// This endpoint return the catalog information by catalog ID.
+//
+// Endpoint: /app/catalog/{catalogID}
+//
+// Method: GET
+//
+// parameters:
+// + name: categoryID
+//   in: path
+//   schema:
+//   type: string
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogInfoResp description: OK
 func (a *API) getCatalogInfoById(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["catalogID"])
 	if err != nil {
@@ -319,6 +401,34 @@ func (a *API) getCatalogInfoById(requestCTX *handler.RequestContext, w http.Resp
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route GET /app/catalog/category/{categoryID} AppCollectionCatalogV2 getCatalogByCategoryID
+// getCatalogByCategoryID
+//
+// This endpoint return catalog by category ID.
+//
+// Endpoint: /app/catalog/category/{categoryID}
+//
+// Method: GET
+//
+// parameters:
+// + name: categoryID
+//   in: path
+//   schema:
+//   type: string
+//     "$ref": "#/definitions/ObjectID"
+//   enum: 6065d4503824bf77961c21ae
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogByCategoryIDResp description: OK
 func (a *API) getCatalogByCategoryID(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	id, err := primitive.ObjectIDFromHex(mux.Vars(r)["categoryID"])
 	if err != nil {
@@ -389,6 +499,34 @@ func (a *API) getPebbleCatalogInfo(requestCTX *handler.RequestContext, w http.Re
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route GET /app/search LegacySearch search
+// search
+//
+// This endpoint will search the catalog.
+//
+// Endpoint: /app/search
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: SearchResp description: OK
 func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -403,6 +541,34 @@ func (a *API) search(requestCTX *handler.RequestContext, w http.ResponseWriter, 
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/shop LegacySearch searchShop
+// searchShop
+//
+// This endpoint will search the shop.
+//
+// Endpoint: /app/search/shop
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: ShopSearchResp description: OK
 func (a *API) searchShop(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -417,6 +583,34 @@ func (a *API) searchShop(requestCTX *handler.RequestContext, w http.ResponseWrit
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/catalog LegacySearch searchCatalog
+// searchCatalog
+//
+// This endpoint will search the catalog.
+//
+// Endpoint: /app/search/catalog
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: SearchResp description: OK
 func (a *API) searchCatalog(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -431,6 +625,34 @@ func (a *API) searchCatalog(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/discover LegacySearch searchDiscover
+// searchDiscover
+//
+// This endpoint will search the discover.
+//
+// Endpoint: /app/search/discover
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: DiscoverSearchResp description: OK
 func (a *API) searchDiscover(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -445,6 +667,34 @@ func (a *API) searchDiscover(requestCTX *handler.RequestContext, w http.Response
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/brand LegacySearch searchBrand
+// searchBrand
+//
+// This endpoint will search the brand.
+//
+// Endpoint: /app/search/brand
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: BrandSearchResp description: OK
 func (a *API) searchBrand(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -459,6 +709,34 @@ func (a *API) searchBrand(requestCTX *handler.RequestContext, w http.ResponseWri
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/brand LegacySearch searchInfluencer
+// searchInfluencer
+//
+// This endpoint will search the influencer.
+//
+// Endpoint: /app/search/brand
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: InfluencerSearchResp description: OK
 func (a *API) searchInfluencer(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -473,6 +751,34 @@ func (a *API) searchInfluencer(requestCTX *handler.RequestContext, w http.Respon
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/series LegacySearch searchSeries
+// searchSeries
+//
+// This endpoint will search the series.
+//
+// Endpoint: /app/search/series
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: SeriesSearchResp description: OK
 func (a *API) searchSeries(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -487,6 +793,34 @@ func (a *API) searchSeries(requestCTX *handler.RequestContext, w http.ResponseWr
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/search/hashtag LegacySearch searchHashtag
+// searchHashtag
+//
+// This endpoint will search the hashtags.
+//
+// Endpoint: /app/search/hashtag
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: SearchOpts
+//     "$ref": "#/definitions/SearchOpts"
+//   required: true
+//
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: HashtagSearchResp description: OK
 func (a *API) searchHashtag(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.SearchOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -501,6 +835,33 @@ func (a *API) searchHashtag(requestCTX *handler.RequestContext, w http.ResponseW
 	requestCTX.SetAppResponse(res, http.StatusOK)
 }
 
+// swagger:route GET /app/brand/catalog AppCatalog getCatalogInfoByBrandId
+// getCatalogInfoByBrandId
+//
+// This endpoint return the catalog information by brand ID.
+//
+// Endpoint: /app/brand/catalog
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogByBrandIDOpts
+//     "$ref": "#/definitions/GetCatalogByBrandIDOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogBasicResp description: true
 func (a *API) getCatalogInfoByBrandId(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogByBrandIDOpts
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -535,6 +896,34 @@ func (a *API) bulkAddCatalogJSON(requestCTX *handler.RequestContext, w http.Resp
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
+
+// swagger:route GET /v2/app/catalog/basic AppCollectionCatalogV2 getCollectionCatalogByIDs
+// getCollectionCatalogByIDs
+//
+// This endpoint return the collection of catalog by IDs.
+//
+// Endpoint: /v2/app/catalog/basic
+//
+// Method: GET
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCollectionCatalogByIDs
+//     "$ref": "#/definitions/GetCollectionCatalogByIDs"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetCatalogBasicResp description: OK
 func (a *API) getCollectionCatalogByIDs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCollectionCatalogByIDs
 	if err := qs.Unmarshal(&s, r.URL.Query().Encode()); err != nil {
@@ -631,6 +1020,33 @@ Unicommerce Related Internal Endpoints
 
 */
 
+// swagger:route POST /unicommerce/catalog/count UnicommerceAPIs getCatalogCount
+// getCatalogCount
+//
+// This endpoint post the catalog count.
+//
+// Endpoint: /unicommerce/catalog/count
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogCountOpts
+//     "$ref": "#/definitions/GetCatalogCountOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: description: OK
 func (a *API) getCatalogCount(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogCountOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {
@@ -649,6 +1065,33 @@ func (a *API) getCatalogCount(requestCTX *handler.RequestContext, w http.Respons
 	requestCTX.SetAppResponse(resp, http.StatusOK)
 }
 
+// swagger:route POST /unicommerce/catalog UnicommerceAPIs getCatalogs
+// getCatalogs
+//
+// This endpoint return the catalogs.
+//
+// Endpoint: /unicommerce/catalog
+//
+// Method: POST
+//
+// parameters:
+// + name: body
+//   in: body
+//   schema:
+//   type: GetCatalogOpts
+//     "$ref": "#/definitions/GetCatalogOpts"
+//   required: true
+//
+// consumes:
+//         - application/json
+//
+// produces:
+//         - application/json
+//
+// responses:
+//  400: AppErr description: BadRequest
+//  403: AppErr description:Invalid User
+//  200: GetUnicommerceProductsResp description: OK
 func (a *API) getCatalogs(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
 	var s schema.GetCatalogOpts
 	if err := a.DecodeJSONBody(r, &s); err != nil {

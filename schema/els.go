@@ -44,7 +44,9 @@ type GetSubCollectionESResp struct {
 	FeaturedCatalogIDs []primitive.ObjectID           `json:"featured_catalog_ids,omitempty"`
 }
 
+// swagger:model GetCollectionESResp
 type GetCollectionESResp struct {
+	// swagger:strfmt ObjectID
 	ID             primitive.ObjectID       `json:"id,omitempty"`
 	Name           string                   `json:"name"`
 	Type           string                   `json:"type,omitempty"`
@@ -55,6 +57,7 @@ type GetCollectionESResp struct {
 	Order          int                      `json:"order,omitempty"`
 }
 
+// swagger:model GetCatalogBySaleIDOpts
 type GetCatalogBySaleIDOpts struct {
 	Page   uint   `qs:"page"`
 	SaleID string `qs:"sale_id"`
@@ -67,19 +70,24 @@ type GetCatalogByCategoryIDOpts struct {
 	Sort       int      `qs:"sort"`
 }
 
+// swagger:model SearchOpts
 type SearchOpts struct {
 	Query   string `qs:"query"`
 	Page    int    `qs:"page"`
 	BrandID string `qs:"brand_id"`
 }
 
+// swagger:model BrandSearchResp
 type BrandSearchResp struct {
+	// swagger:strfmt ObjectID
 	ID   primitive.ObjectID `json:"id"`
 	Name string             `json:"name"`
 	Logo *model.IMG         `json:"logo"`
 }
 
+// swagger:model InfluencerSearchResp
 type InfluencerSearchResp struct {
+	// swagger:strfmt ObjectID
 	ID           primitive.ObjectID `json:"id"`
 	Name         string             `json:"name"`
 	ProfileImage *model.IMG         `json:"profile_image"`
@@ -104,12 +112,15 @@ type ContentSearchResp struct {
 	MediaInfo interface{}        `json:"media_info"`
 }
 
+// swagger:model SeriesSearchResp
 type SeriesSearchResp struct {
+	// swagger:strfmt ObjectID
 	ID        primitive.ObjectID `json:"id"`
 	Name      string             `json:"name"`
 	Thumbnail *Img               `json:"thumbnail"`
 }
 
+// swagger:model SearchResp
 type SearchResp struct {
 	Brand      []BrandSearchResp      `json:"brand"`
 	Influencer []InfluencerSearchResp `json:"influencer"`
@@ -117,15 +128,18 @@ type SearchResp struct {
 	Catalog    []CatalogSearchResp    `json:"catalog"`
 }
 
+// swagger:model ShopSearchResp
 type ShopSearchResp struct {
 	// Brand   []BrandSearchResp   `json:"brand"`
 	Catalog []CatalogSearchResp `json:"catalog"`
 }
 
+// swagger:model HashtagSearchResp
 type HashtagSearchResp struct {
 	Text string `json:"text"`
 }
 
+// swagger:model DiscoverSearchResp
 type DiscoverSearchResp struct {
 	Brand      []BrandSearchResp      `json:"brand"`
 	Influencer []InfluencerSearchResp `json:"influencer"`
@@ -133,12 +147,14 @@ type DiscoverSearchResp struct {
 	Hashtag    []HashtagSearchResp    `json:"hashtags"`
 }
 
+// swagger:model GetActiveCollectionsOpts
 type GetActiveCollectionsOpts struct {
 	Gender string `qs:"gender"`
 	Page   int    `qs:"page"`
 	Size   int    `qs:"size"`
 }
 
+// swagger:model GetReviewsByCatalogIDFilter
 type GetReviewsByCatalogIDFilter struct {
 	Page      uint   `qs:"page"`
 	CatalogID string `qs:"catalogId"`
@@ -156,7 +172,9 @@ type GetReviewStoryInfoResp struct {
 	MediaInfo *GetReviewMediaInfo `json:"media_info,omitempty"`
 }
 
+// swagger:model GetReviewsByCatalogIDResp
 type GetReviewsByCatalogIDResp struct {
+	// swagger:strfmt ObjectID
 	ID        primitive.ObjectID      `json:"id,omitempty"`
 	Rating    *uint                   `json:"rating,omitempty"`
 	CreatedAt time.Time               `json:"created_at,omitempty"`
@@ -164,18 +182,24 @@ type GetReviewsByCatalogIDResp struct {
 	StoryInfo *GetReviewStoryInfoResp `json:"story_info,omitempty"`
 	UserInfo  *ReviewUserInfo         `json:"user_info,omitempty"`
 }
+
+// swagger:model GetCatalogByBrandIDOpts
 type GetCatalogByBrandIDOpts struct {
 	Page    uint   `qs:"page"`
 	BrandID string `qs:"brand_id"`
 }
 
+// swagger:model GetInfluencerCollectionESResp
 type GetInfluencerCollectionESResp struct {
-	ID           primitive.ObjectID `json:"id,omitempty"`
+	// swagger:strfmt ObjectID
+	ID primitive.ObjectID `json:"id,omitempty"`
+	// swagger:strfmt ObjectID
 	InfluencerID primitive.ObjectID `json:"influencer_id"`
 	// InfluencerInfo *InfluencerInfo       `json:"influencer_info"`
-	Name       string               `json:"name"`
-	Slug       string               `json:"slug" bson:"slug"`
-	Image      *Img                 `json:"image" bson:"image"`
+	Name  string `json:"name"`
+	Slug  string `json:"slug" bson:"slug"`
+	Image *Img   `json:"image" bson:"image"`
+	// swagger:strfmt ObjectID
 	CatalogIDs []primitive.ObjectID `json:"catalog_ids" bson:"catalog_ids"`
 	// CatalogInfo    []GetCatalogBasicResp `json:"catalog_info"`
 	Status    string    `json:"status" bson:"status"`
@@ -184,6 +208,7 @@ type GetInfluencerCollectionESResp struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
+// swagger:model GetActiveInfluencerCollectionsOpts
 type GetActiveInfluencerCollectionsOpts struct {
 	InfluencerID string `qs:"influencer_id"`
 	Page         int    `qs:"page"`

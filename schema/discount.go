@@ -168,11 +168,14 @@ type GetSalesOpts struct {
 	Page uint `json:"page"`
 }
 
+// swagger:model GetAppActiveSaleOpts
 type GetAppActiveSaleOpts struct {
 	Genders []string `qs:"genders,omitempty"`
 }
 
+// swagger:model GetSalesResp
 type GetSalesResp struct {
+	// swagger:strfmt ObjectID
 	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name    string             `json:"name,omitempty" bson:"name,omitempty"`
 	Slug    string             `json:"slug,omitempty" bson:"slug,omitempty"`
