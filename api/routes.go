@@ -133,6 +133,7 @@ func (a *API) InitRoutes() {
 	//BULK UPLOAD
 	// a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogCSV)).Methods("POST")
 	a.Router.APIRoot.Handle("/keeper/bulk/catalogs/insert", a.requestHandler(a.bulkAddCatalogJSON)).Methods("POST")
+	a.Router.APIRoot.Handle("/keeper/bulk/catalogs/price", a.requestWithSudoHandler(a.bulkUpdatePrice)).Methods("PUT")
 
 	//COMMISSION
 
