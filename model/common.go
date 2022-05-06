@@ -2,6 +2,10 @@ package model
 
 import (
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -27,15 +31,12 @@ func (i *IMG) LoadFromURL() error {
 		return err
 	}
 	defer resp.Body.Close()
-
 	m, _, err := image.Decode(resp.Body)
 	if err != nil {
 		return errors.Wrapf(err, "failed to decode img src: %s", i.SRC)
 	}
-
 	i.Height = m.Bounds().Dy()
 	i.Width = m.Bounds().Dx()
-
 	return nil
 }
 
