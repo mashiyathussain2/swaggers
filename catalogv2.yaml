@@ -1,5 +1,17 @@
 basePath: /api
 definitions:
+  AddInfluencerProductsOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+    type: object
+    x-go-package: go-app/schema
   AppErr:
     properties:
       Error:
@@ -852,6 +864,40 @@ definitions:
         x-go-name: Status
     type: object
     x-go-package: go-app/schema
+  GetInfluencerProductESResp:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerProducts:
+    properties:
+      id:
+        type: string
+        x-go-name: InfluencerID
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
   GetMainCategoriesByParentIDResp:
     properties:
       featured_image:
@@ -1198,6 +1244,18 @@ definitions:
         x-go-name: Value
     type: object
     x-go-package: go-app/model
+  RemoveInfluencerProductsOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+    type: object
+    x-go-package: go-app/schema
   ReviewUserInfo:
     properties:
       full_name:
@@ -1961,6 +2019,138 @@ paths:
       summary: getActiveInfluencerCollections
       tags:
       - InfluencerCollectionApp
+  /app/influencer/products:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will remove influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: DELETE
+      operationId: removeInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveInfluencerProductsOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: removeInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: GET
+      operationId: getInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerProducts'
+          type: object
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerProductESResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will add influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: POST
+      operationId: addInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddInfluencerProductsOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: addInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
   /app/review:
     post:
       consumes:

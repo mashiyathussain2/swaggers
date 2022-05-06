@@ -741,6 +741,179 @@
         }
       }
     },
+    "/app/influencer/products": {
+      "get": {
+        "description": "This endpoint will return influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "getInfluencerProducts",
+        "operationId": "getInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerProducts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerProductESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will add influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "addInfluencerProducts",
+        "operationId": "addInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddInfluencerProductsOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint will remove influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "removeInfluencerProducts",
+        "operationId": "removeInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/RemoveInfluencerProductsOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/app/review": {
       "post": {
         "description": "This endpoint will post the app review.\n\nEndpoint: /app/review\n\nMethod: POST",
@@ -1514,6 +1687,22 @@
     }
   },
   "definitions": {
+    "AddInfluencerProductsOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "AppErr": {
       "type": "object",
       "properties": {
@@ -2671,6 +2860,51 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "GetInfluencerProductESResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerProducts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "x-go-name": "InfluencerID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "GetMainCategoriesByParentIDResp": {
       "type": "object",
       "properties": {
@@ -3140,6 +3374,22 @@
         }
       },
       "x-go-package": "go-app/model"
+    },
+    "RemoveInfluencerProductsOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "ReviewUserInfo": {
       "type": "object",
