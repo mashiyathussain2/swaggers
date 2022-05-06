@@ -29,6 +29,8 @@ type Brand struct {
 	SocialAccount      *SocialAccount       `json:"social_account,omitempty" bson:"social_account,omitempty"`
 	FollowersID        []primitive.ObjectID `json:"followers_id,omitempty" bson:"followers_id,omitempty"`
 	FollowingID        []primitive.ObjectID `json:"following_id,omitempty" bson:"following_id,omitempty"`
+	Policies           []Policy             `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                 `json:"is_cod_available" bson:"is_cod_available"`
 	CreatedAt          time.Time            `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	SizeProfiles       []primitive.ObjectID `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
@@ -57,4 +59,10 @@ type SocialAccount struct {
 type BrandClaim struct {
 	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name string             `json:"name,omitempty" bson:"name,omitempty"`
+}
+
+// Policy contains brand policies in key:value format
+type Policy struct {
+	Name  string `json:"name,omitempty" bson:"name,omitempty"`
+	Value string `json:"value,omitempty" bson:"value,omitempty"`
 }

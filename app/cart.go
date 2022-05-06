@@ -340,6 +340,10 @@ func (ci *CartImpl) GetCartInfo(id primitive.ObjectID) (*schema.GetCartInfoResp,
 		rp = rp + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		// gt = gt + uint(cartItem.RetailPrice.Value)*cartItem.Quantity
 		td = td + uint(cartItem.BasePrice.Value-cartItem.RetailPrice.Value)*cartItem.Quantity
+		cart.Items[i].IsAvailable = true
+		if cartItem.CatalogInfo.Status.Value == model.Unlist {
+			cart.Items[i].IsAvailable = false
+		}
 		if cartItem.CatalogInfo.DiscountInfo != nil {
 			applied := false
 			for _, v := range cartItem.CatalogInfo.DiscountInfo.VariantsID {
@@ -890,7 +894,7 @@ func (ci *CartImpl) UpdateCatalogInfo(id primitive.ObjectID) {
 	}
 
 	filter := bson.M{
-		"catalog_id": id,
+		"items.catalog_id": id,
 	}
 
 	catalogInfo := model.CatalogInfo{

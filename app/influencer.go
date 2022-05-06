@@ -1791,8 +1791,9 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 		ii.App.Logger.Err(err).Msgf("failed to get user by user id: %s", UserId.Hex())
 		return false, err
 	}
-	email := user.Email
-	if email == "" {
+	targetEmail := user.Email
+	sourceEmail := ii.App.Config.EmailConfig.CreatorEmail
+	if targetEmail == "" {
 		return false, errors.Errorf("no email found for user with id: %s", UserId.Hex())
 	}
 	htmlBody := fmt.Sprintln(`
@@ -1809,7 +1810,10 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
 			ToAddresses: []*string{
-				aws.String(email),
+				aws.String(targetEmail),
+			},
+			CcAddresses: []*string{
+				aws.String(sourceEmail),
 			},
 		},
 		Message: &ses.Message{
@@ -1824,11 +1828,11 @@ func (ii *InfluencerImpl) SendWelcomeEmail(UserId primitive.ObjectID) (bool, err
 				Data:    aws.String("Form Submitted Successfully | HYPD"),
 			},
 		},
-		Source: aws.String("creators@hypd.in"),
+		Source: aws.String(sourceEmail),
 	}
 	_, err = ii.App.SES.SendEmail(input)
 	if err != nil {
-		ii.Logger.Err(err).Msgf("failed to send welcome email to:%s", email)
+		ii.Logger.Err(err).Msgf("failed to send welcome email to:%s", targetEmail)
 	}
 	return true, nil
 }

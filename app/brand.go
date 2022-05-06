@@ -149,7 +149,11 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 		if len(opts.SizeProfiles) > 0 {
 			b.SizeProfiles = opts.SizeProfiles
 		}
-
+		// setting brand policies
+		for _, policy := range opts.Policies {
+			b.Policies = append(b.Policies, model.Policy{Name: policy.Name, Value: policy.Value})
+		}
+		b.IsCODAvailable = opts.IsCODAvailable
 		res, err = bi.DB.Collection(model.BrandColl).InsertOne(sc, b)
 		if err != nil {
 			session.AbortTransaction(sc)
@@ -194,6 +198,8 @@ func (bi *BrandImpl) CreateBrand(opts *schema.CreateBrandOpts) (*schema.CreateBr
 		Bio:                b.Bio,
 		CreatedAt:          b.CreatedAt,
 		SizeProfiles:       sp,
+		Policies:           b.Policies,
+		IsCODAvailable:     b.IsCODAvailable,
 	}
 	return &resp, nil
 }
@@ -286,6 +292,21 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 			update = append(update, bson.E{Key: "size_profiles", Value: opts.SizeProfiles})
 			bi.App.SizeProfile.AddBrandToSizeProfile(&schema.AddBrandToSizeProfileOpts{IDs: opts.SizeProfiles, BrandID: opts.ID})
 		}
+
+		// setting brand policies
+		if len(opts.Policies) > 0 {
+			policies := []model.Policy{}
+			for _, policy := range opts.Policies {
+				policies = append(policies, model.Policy{Name: policy.Name, Value: policy.Value})
+
+			}
+			update = append(update, bson.E{Key: "policies", Value: policies})
+		}
+
+		if opts.IsCODAvailable != nil {
+			update = append(update, bson.E{Key: "is_cod_available", Value: opts.IsCODAvailable})
+		}
+
 		update = append(update, bson.E{Key: "updated_at", Value: time.Now().UTC()})
 
 		filterQuery := bson.M{"_id": opts.ID}
@@ -327,6 +348,8 @@ func (bi *BrandImpl) EditBrand(opts *schema.EditBrandOpts) (*schema.EditBrandRes
 		SocialAccount:      brand.SocialAccount,
 		Bio:                brand.Bio,
 		SizeProfiles:       sp,
+		Policies:           brand.Policies,
+		IsCODAvailable:     brand.IsCODAvailable,
 		CreatedAt:          brand.CreatedAt,
 		UpdatedAt:          brand.UpdatedAt,
 	}

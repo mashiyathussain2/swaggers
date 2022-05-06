@@ -43,6 +43,8 @@ type CreateBrandOpts struct {
 	CoverImg           *Img                    `json:"cover_img" validate:"required"`
 	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
 	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
+	Policies           []policyOpts            `json:"policies"`
+	IsCODAvailable     bool                    `json:"is_cod_available"`
 }
 
 // CreateBrandResp contains fields to be returned in response to create brand api
@@ -61,6 +63,8 @@ type CreateBrandResp struct {
 	SocialAccount      *model.SocialAccount         `json:"social_account"`
 	CreatedAt          time.Time                    `json:"created_at"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
+	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 // EditBrandOpts contains and validations required to update a new brand
@@ -78,6 +82,8 @@ type EditBrandOpts struct {
 	Bio                string                  `json:"bio"`
 	SocialAccount      *SocialAccountBrandOpts `json:"social_account"`
 	SizeProfiles       []primitive.ObjectID    `json:"size_profiles"`
+	Policies           []policyOpts            `json:"policies"`
+	IsCODAvailable     *bool                   `json:"is_cod_available"`
 }
 
 // EditBrandResp contains fields to be returned in edit brand operation
@@ -97,6 +103,8 @@ type EditBrandResp struct {
 	CreatedAt          time.Time                    `json:"created_at,omitempty"`
 	UpdatedAt          time.Time                    `json:"updated_at,omitempty"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
+	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 // GetBrandsByIDOpts contains fields and validations for get multiple brands by ids
@@ -124,6 +132,8 @@ type GetBrandResp struct {
 	FollowersCount     uint                         `json:"followers_count,omitempty" bson:"followers_count,omitempty"`
 	FollowingCount     uint                         `json:"following_count,omitempty" bson:"following_count,omitempty"`
 	SizeProfiles       []GetSizeProfileForBrandResp `json:"size_profiles,omitempty" bson:"size_profiles,omitempty"`
+	Policies           []model.Policy               `json:"policies,omitempty" bson:"policies,omitempty"`
+	IsCODAvailable     bool                         `json:"is_cod_available" bson:"is_cod_available"`
 }
 
 type AddBrandFollowerOpts struct {
@@ -149,6 +159,8 @@ type BrandKafkaMessage struct {
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty"`
 	FollowersID        []primitive.ObjectID `json:"followers_id"`
 	FollowingID        []primitive.ObjectID `json:"following_id"`
+	Policies           []model.Policy       `json:"policies,omitempty"`
+	IsCODAvailable     bool                 `json:"is_cod_available" bson:"is_cod_available"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
@@ -171,6 +183,8 @@ type BrandFullKafkaMessageOpts struct {
 	SocialAccount      *model.SocialAccount `json:"social_account,omitempty"`
 	FollowersID        []primitive.ObjectID `json:"followers_id"`
 	FollowingID        []primitive.ObjectID `json:"following_id"`
+	Policies           []model.Policy       `json:"policies,omitempty"`
+	IsCODAvailable     bool                 `json:"is_cod_available" bson:"is_cod_available"`
 	CreatedAt          time.Time            `json:"created_at,omitempty"`
 	UpdatedAt          time.Time            `json:"updated_at,omitempty"`
 }
@@ -183,4 +197,9 @@ type CreateBrandAdminUserOpts struct {
 type BrandUserLoginOpts struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`
+}
+
+type policyOpts struct {
+	Name  string `json:"name" validate:"required"`
+	Value string `json:"value" validate:"required"`
 }
