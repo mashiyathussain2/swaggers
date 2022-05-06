@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"go-app/schema"
+	"go-app/server/auth"
 	"go-app/server/handler"
 	"net/http"
 
@@ -555,7 +556,16 @@ func (a *API) getCatalogsByBrandID(requestCTX *handler.RequestContext, w http.Re
 		requestCTX.SetErr(goerror.New(fmt.Sprintf("invalid id:%s in url", r.URL.Query().Get("brandID")), &goerror.BadRequest), http.StatusBadRequest)
 		return
 	}
-	resp, err := a.App.KeeperCatalog.GetCatalogInfoByBrandID(id)
+	roles := requestCTX.UserClaim.(*auth.UserClaim).UserGroups
+	isAdmin := false
+	fmt.Println("roles", roles)
+	for _, r := range roles {
+		if r.Name == "Admin" || r.Name == "admin" || r.Name == "brand_team_admin" || r.Name == "Brand Team Admin" {
+			isAdmin = true
+			break
+		}
+	}
+	resp, err := a.App.KeeperCatalog.GetCatalogInfoByBrandID(id, isAdmin)
 	if err != nil {
 		requestCTX.SetErr(err, http.StatusBadRequest)
 		return
@@ -665,4 +675,33 @@ func (a *API) getCatalogs(requestCTX *handler.RequestContext, w http.ResponseWri
 		return
 	}
 	requestCTX.SetAppResponse(resp, http.StatusOK)
+}
+
+func (a *API) bulkUpdatePrice(requestCTX *handler.RequestContext, w http.ResponseWriter, r *http.Request) {
+	var s []schema.BulkUpdatePriceOpts
+	if err := a.DecodeJSONBody(r, &s); err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	roles := requestCTX.UserClaim.(*auth.UserClaim).UserGroups
+	isAdmin := false
+	fmt.Println("roles", roles)
+	for _, r := range roles {
+		if r.Name == "Admin" || r.Name == "admin" || r.Name == "brand_team_admin" || r.Name == "Brand Team Admin" {
+			isAdmin = true
+			break
+		}
+	}
+	for _, opt := range s {
+		if errs := a.Validator.Validate(&opt); errs != nil {
+			requestCTX.SetErrs(errs, http.StatusBadRequest)
+			return
+		}
+	}
+	err := a.App.KeeperCatalog.BulkUpdatePrice(s, isAdmin)
+	if err != nil {
+		requestCTX.SetErr(err, http.StatusBadRequest)
+		return
+	}
+	requestCTX.SetAppResponse(true, http.StatusOK)
 }

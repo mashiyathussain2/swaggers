@@ -340,17 +340,18 @@ type GetAllCatalogInfoResp struct {
 	ETA    *model.ETA    `json:"eta,omitempty" bson:"eta,omitempty"`
 	Status *model.Status `json:"status,omitempty" bson:"status,omitempty"`
 
-	CreatedAt        time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt        time.Time                `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	GroupInfo        []model.Group            `json:"group_info,omitempty" bson:"group_info,omitempty"`
-	DiscountInfo     *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
-	ContentInfo      []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
-	BrandInfo        *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
-	Tax              *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
-	SizeProfile      *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
-	AvgRating        float32                  `json:"avg_rating,omitempty" bson:"avg_rating,omitempty"`
-	TotalRatingCount uint                     `json:"total_rating_count,omitempty" bson:"total_rating_count,omitempty"`
-	CommissionRate   uint                     `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
+	CreatedAt           time.Time                `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt           time.Time                `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	GroupInfo           []model.Group            `json:"group_info,omitempty" bson:"group_info,omitempty"`
+	DiscountInfo        *DiscountInfoResp        `json:"discount_info,omitempty" bson:"discount_info,omitempty"`
+	ContentInfo         []CatalogContentInfoResp `json:"content_info,omitempty" bson:"content_info,omitempty"`
+	BrandInfo           *BrandInfoResp           `json:"brand_info,omitempty" bson:"brand_info,omitempty"`
+	Tax                 *model.Tax               `json:"tax,omitempty" bson:"tax,omitempty"`
+	SizeProfile         *model.SizeProfile       `json:"size_profile,omitempty" bson:"size_profile,omitempty"`
+	AvgRating           float32                  `json:"avg_rating,omitempty" bson:"avg_rating,omitempty"`
+	TotalRatingCount    uint                     `json:"total_rating_count,omitempty" bson:"total_rating_count,omitempty"`
+	CommissionRate      uint                     `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
+	BrandCommissionRate uint                     `json:"brand_commission_rate,omitempty" bson:"brand_commission_rate,omitempty"`
 }
 
 type CatalogKafkaMessage struct {
@@ -595,9 +596,12 @@ type GetUnicommerceProductsResp struct {
 	Variants    []GetUnicommerceVariantResp `json:"variants" bson:"variants"`
 }
 type GetCatalogInfoByBrandIDResp struct {
-	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name           string             `json:"name,omitempty" bson:"name,omitempty"`
-	CommissionRate uint               `json:"commission_rate,omitempty" bson:"commission_rate,omitempty"`
+	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name                string             `json:"name,omitempty" bson:"name,omitempty"`
+	BasePrice           uint               `json:"base_price,omitempty" bson:"base_price,omitempty"`
+	RetailPrice         uint               `json:"retail_price,omitempty" bson:"retail_price,omitempty"`
+	CommissionRate      uint               `json:"commission_rate" bson:"commission_rate"`
+	BrandCommissionRate uint               `json:"brand_commission_rate" bson:"brand_commission_rate"`
 }
 
 type BulkUpdateCommissionOpts struct {
@@ -608,4 +612,12 @@ type BulkUpdateCommissionOpts struct {
 type AddCommissionRateBasedonBrandIDOpts struct {
 	ID             primitive.ObjectID `json:"id" validate:"required"`
 	CommissionRate uint               `json:"commission_rate" validate:"required"`
+}
+
+type BulkUpdatePriceOpts struct {
+	ID                  primitive.ObjectID `json:"id" validate:"required"`
+	BasePrice           uint32             `json:"base_price" validate:"gt=0,gtefield=RetailPrice"`
+	RetailPrice         uint32             `json:"retail_price" validate:"gt=0"`
+	CommissionRate      uint               `json:"commission_rate"`
+	BrandCommissionRate uint               `json:"brand_commission_rate,omitempty"`
 }
