@@ -1,5 +1,7 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 // GetRandomCreateCatalogResp returns random response based on passed opts
 // func GetRandomCreateCatalogResp(opts *schema.CreateCatalogOpts) *Catalog {
 // 	res := Catalog{
@@ -22,3 +24,8 @@ package model
 // 	}
 // 	return &res
 // }
+
+type UserGroup struct {
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name,omitempty" bson:"name,omitempty"`
+}

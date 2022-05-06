@@ -61,10 +61,12 @@ type KeeperCatalog interface {
 
 	GetCatalogCount(*schema.GetCatalogCountOpts) (int64, error)
 	GetCatalogs(opts *schema.GetCatalogOpts) ([]schema.GetUnicommerceProductsResp, error)
-	GetCatalogInfoByBrandID(id primitive.ObjectID) ([]schema.GetCatalogInfoByBrandIDResp, error)
+	GetCatalogInfoByBrandID(id primitive.ObjectID, isAdmin bool) ([]schema.GetCatalogInfoByBrandIDResp, error)
 	BulkUpdateCommission(opts []schema.BulkUpdateCommissionOpts) error
 	AddCommissionRateBasedonBrandID(opts *schema.AddCommissionRateBasedonBrandIDOpts) error
 	GetCommissionRateUsingBrandID(id primitive.ObjectID) (uint, error)
+
+	BulkUpdatePrice(opts []schema.BulkUpdatePriceOpts, isAdmin bool) error
 }
 
 // UserCatalog service allows `app` or user api to perform operations on catalog.
@@ -1847,10 +1849,14 @@ func (kc *KeeperCatalogImpl) BulkAddCatalogsJSON(opts []schema.BulkUploadCatalog
 	return &data, nil
 }
 
-func (kc *KeeperCatalogImpl) GetCatalogInfoByBrandID(id primitive.ObjectID) ([]schema.GetCatalogInfoByBrandIDResp, error) {
+func (kc *KeeperCatalogImpl) GetCatalogInfoByBrandID(id primitive.ObjectID, isAdmin bool) ([]schema.GetCatalogInfoByBrandIDResp, error) {
 	ctx := context.TODO()
 	var res []schema.GetCatalogInfoByBrandIDResp
-	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{"brand_id": id})
+	findOpts := options.Find().SetProjection(bson.M{"name": "$name", "base_price": "$base_price.value", "retail_price": "$retail_price.value"})
+	if isAdmin {
+		findOpts = options.Find().SetProjection(bson.M{"name": "$name", "base_price": "$base_price.value", "retail_price": "$retail_price.value", "commission_rate": "$commission_rate", "brand_commission_rate": "$brand_commission_rate"})
+	}
+	cur, err := kc.DB.Collection(model.CatalogColl).Find(ctx, bson.M{"brand_id": id}, findOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query for catalog")
 	}
@@ -2055,4 +2061,37 @@ func (kc *KeeperCatalogImpl) GetCatalogs(opts *schema.GetCatalogOpts) ([]schema.
 		return nil, errors.Wrap(err, "failed to get unicommerce catalogs")
 	}
 	return resp, nil
+}
+
+func (kc *KeeperCatalogImpl) BulkUpdatePrice(opts []schema.BulkUpdatePriceOpts, isAdmin bool) error {
+	currentTime := time.Now().UTC()
+	var operations []mongo.WriteModel
+	for _, cat := range opts {
+		operation := mongo.NewUpdateOneModel()
+		operation.SetFilter(bson.M{"_id": cat.ID})
+		op := bson.M{}
+		op["base_price"] = model.SetINRPrice(float32(cat.BasePrice))
+		op["retail_price"] = model.SetINRPrice(float32(cat.RetailPrice))
+		op["updated_at"] = currentTime
+
+		if isAdmin {
+			op["commission_rate"] = cat.CommissionRate
+			op["brand_commission_rate"] = cat.BrandCommissionRate
+		}
+		operation.SetUpdate(bson.M{
+			"$set": op,
+		})
+		operations = append(operations, operation)
+	}
+	if len(operations) == 0 {
+		kc.Logger.Info().Msg("no operations for catalog price update")
+		return nil
+	}
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	_, err := kc.DB.Collection(model.CatalogColl).BulkWrite(context.TODO(), operations, &bulkOption)
+	if err != nil {
+		kc.Logger.Err(err).Msgf("failed to update catalog price info inside catalogs")
+	}
+	return nil
 }
