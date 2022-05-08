@@ -17,7 +17,6 @@
 //           - content
 //           - UploadImage
 //           - live
-//         x-traitTag: true
 //
 //  Produces:
 //    - application/json
