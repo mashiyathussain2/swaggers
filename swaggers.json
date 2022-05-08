@@ -3428,8 +3428,7 @@
         "content",
         "UploadImage",
         "live"
-      ],
-      "x-traitTag": true
+      ]
     }
   ]
 }
