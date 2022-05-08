@@ -2619,3 +2619,14 @@ produces:
 schemes:
 - https
 swagger: "2.0"
+x-tagGroups:
+- description: This is the stardust api.
+  name: Stardust
+  tags:
+  - AppCategory
+  - LiveStream
+  - Pebble
+  - content
+  - UploadImage
+  - live
+  x-traitTag: true
