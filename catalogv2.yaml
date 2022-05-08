@@ -1458,7 +1458,28 @@ definitions:
     x-go-package: go-app/schema
 host: catalogv2.getshitdone.in
 info:
+  contact:
+    email: mashiyat.hussain@hypd.in
+    name: tech
+  description: |-
+    # Responses
+    __Possible Response Status Codes__
+     Status Code | Description |
+    -----------|-------|
+     200 | OK |
+     400 | Bad Request |
+     401 | Unauthorized |
+     500 | Server Error |
+     403 | Invalid User |
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  termsOfService: https://www.hypd.store/terms-and-conditions
   title: 'CatalogV2 API:'
+  x-logo:
+    altText: HYPD STORE
+    backgroundColor: '#FFFFFF'
+    url: https://www.hypd.store/img/social-logo.png
 paths:
   /app/brand/catalog:
     get:
@@ -2746,3 +2767,18 @@ produces:
 schemes:
 - https
 swagger: "2.0"
+x-tagGroups:
+- description: This is the catalogv2 api.
+  name: CatalogV2
+  tags:
+  - AppCatalog
+  - AppCollectionCatalogV2
+  - AppCategoryCatalog
+  - InfluencerCollectionKEEPER
+  - InfluencerCollectionApp
+  - AppReview
+  - AppSale
+  - Inventory
+  - LegacySearch
+  - UnicommerceAPIs
+  x-traitTag: true

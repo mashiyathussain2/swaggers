@@ -7,7 +7,22 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "CatalogV2 API:"
+    "description": "# Responses\n__Possible Response Status Codes__\n Status Code | Description |\n-----------|-------|\n 200 | OK |\n 400 | Bad Request |\n 401 | Unauthorized |\n 500 | Server Error |\n 403 | Invalid User |",
+    "title": "CatalogV2 API:",
+    "termsOfService": "https://www.hypd.store/terms-and-conditions",
+    "contact": {
+      "name": "tech",
+      "email": "mashiyat.hussain@hypd.in"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "x-logo": {
+      "altText": "HYPD STORE",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://www.hypd.store/img/social-logo.png"
+    }
   },
   "host": "catalogv2.getshitdone.in",
   "basePath": "/api",
@@ -3656,5 +3671,24 @@
       },
       "x-go-package": "go-app/schema"
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "description": "This is the catalogv2 api.",
+      "name": "CatalogV2",
+      "tags": [
+        "AppCatalog",
+        "AppCollectionCatalogV2",
+        "AppCategoryCatalog",
+        "InfluencerCollectionKEEPER",
+        "InfluencerCollectionApp",
+        "AppReview",
+        "AppSale",
+        "Inventory",
+        "LegacySearch",
+        "UnicommerceAPIs"
+      ],
+      "x-traitTag": true
+    }
+  ]
 }

@@ -152,6 +152,7 @@ func (a *API) removeInfluencerProducts(requestCTX *handler.RequestContext, w htt
 //
 // Method: GET
 //
+//
 // parameters:
 // + name: body
 //   in: body
