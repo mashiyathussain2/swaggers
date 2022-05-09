@@ -7,7 +7,7 @@
   ],
   "swagger": "2.0",
   "info": {
-    "description": "# Responses\n__Possible Response Status Codes__\n Status Code | Description |\n-----------|-------|\n 200 | OK |\n 400 | Bad Request |\n 401 | Unauthorized |\n 500 | Server Error |\n 403 | Invalid User |",
+    "description": "\n# Error\nThe API uses standard HTTP status codes to indicate the success or failure of the API call.\nThe body of the response will be JSON in the following format:\n\n```json\n{\n\"error\": [\n{\n\"message\": \"string\",\n\"type\": \"NoType\"\n}\n],\n\"success\": false,\n\"request_id\": \"string\"\n}\n```\n\n# Responses\n__Possible Response Status Codes__\n Status Code | Description |\n-----------|-------|\n 200 | OK |\n 400 | Bad Request |\n 401 | Unauthorized |\n 500 | Server Error |\n 403 | Invalid User |",
     "title": "CatalogV2 API:",
     "termsOfService": "https://www.hypd.store/terms-and-conditions",
     "contact": {

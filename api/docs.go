@@ -1,5 +1,23 @@
 //  CatalogV2 API:
 //
+//
+// # Error
+// The API uses standard HTTP status codes to indicate the success or failure of the API call.
+// The body of the response will be JSON in the following format:
+//
+// ```json
+//  {
+//	"error": [
+//		 {
+//			"message": "string",
+//			"type": "NoType"
+//		}
+//	],
+//	"success": false,
+//	"request_id": "string"
+// }
+//  ```
+//
 // # Responses
 //  __Possible Response Status Codes__
 // | Status Code | Description |
