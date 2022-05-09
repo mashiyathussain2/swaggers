@@ -6657,7 +6657,6 @@
       "x-go-package": "go-app/schema"
     },
     "Source": {
-      "description": "Source source",
       "type": "object",
       "properties": {
         "id": {
@@ -6671,7 +6670,7 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/model"
     },
     "StandardClaims": {
       "description": "Structured version of Claims Section, as referenced at\nhttps://tools.ietf.org/html/rfc7519#section-4.1\nSee examples for how to use this with your own claim types",
@@ -7341,5 +7340,41 @@
       "x-go-name": "GetCustomerProfileInfoResp",
       "x-go-package": "go-app/schema"
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "description": "This is the entity api.",
+      "name": "Entity",
+      "tags": [
+        "Brand",
+        "cart",
+        "coupon",
+        "Check",
+        "CODviaGoKwik",
+        "Creator",
+        "DebitRequest",
+        "followUnfollow",
+        "getCustomerInfo",
+        "ExpressCheckout",
+        "AppInfluencer",
+        "GetSizeProfile",
+        "InfluencerRequest",
+        "Wishlist",
+        "CheckUsername",
+        "BrandDashAPIs",
+        "customer",
+        "login",
+        "signup",
+        "ME",
+        "checkEmail",
+        "Verification",
+        "logout",
+        "checkPhoneNo",
+        "Password",
+        "getUserIDByInfluencerID",
+        "v2Influnencer"
+      ],
+      "x-traitTag": true
+    }
+  ]
 }

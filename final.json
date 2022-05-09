@@ -7,10 +7,24 @@
   ],
   "swagger": "2.0",
   "info": {
-    "description": "API related to",
-    "title": "Stardust API:"
+    "description": "\n# Error\nThe API uses standard HTTP status codes to indicate the success or failure of the API call.\nThe body of the response will be JSON in the following format:\n\n```json\n{\n\"error\": [\n{\n\"message\": \"string\",\n\"type\": \"NoType\"\n}\n],\n\"success\": false,\n\"request_id\": \"string\"\n}\n```\n\n# Responses\n__Possible Response Status Codes__\n Status Code | Description |\n-----------|-------|\n 200 | OK |\n 400 | Bad Request |\n 401 | Unauthorized |\n 500 | Server Error |\n 403 | Invalid User |",
+    "title": "HYPD API:",
+    "termsOfService": "https://www.hypd.store/terms-and-conditions",
+    "contact": {
+      "name": "tech",
+      "email": "mashiyat.hussain@hypd.in"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "x-logo": {
+      "altText": "HYPD STORE",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://www.hypd.store/img/social-logo.png"
+    }
   },
-  "host": "stardust.in",
+  "host": "catalogv2.getshitdone.in",
   "basePath": "/api",
   "paths": {
     "/app/brand/basic": {
@@ -57,6 +71,53 @@
             "description": " OK",
             "schema": {
               "$ref": "#/definitions/GetBrandBasicESEesp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/brand/catalog": {
+      "get": {
+        "description": "This endpoint return the catalog information by brand ID.\n\nEndpoint: /app/brand/catalog\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCatalog"
+        ],
+        "summary": "getCatalogInfoByBrandId",
+        "operationId": "getCatalogInfoByBrandId",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogByBrandIDOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogBasicResp"
             }
           },
           "400": {
@@ -753,6 +814,360 @@
         }
       }
     },
+    "/app/catalog/basic": {
+      "get": {
+        "description": "This endpoint will return catalog basic by IDs.\n\nEndpoint: /app/catalog/basic\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getCatalogBasicByIds",
+        "operationId": "getCatalogBasicByIds",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogByIDFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogBasicResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/catalog/category/{categoryID}": {
+      "get": {
+        "description": "This endpoint return catalog by category ID.\n\nEndpoint: /app/catalog/category/{categoryID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getCatalogByCategoryID",
+        "operationId": "getCatalogByCategoryID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogByCategoryIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/catalog/similar": {
+      "get": {
+        "description": "This endpoint will return similar products.\n\nEndpoint: /app/catalog/similar\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getSimilarProducts",
+        "operationId": "getSimilarProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetSimilarProducts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogBasicResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/catalog/{catalogID}": {
+      "get": {
+        "description": "This endpoint return the catalog information by catalog ID.\n\nEndpoint: /app/catalog/{catalogID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getCatalogInfoById",
+        "operationId": "getCatalogInfoById",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogInfoResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/lvl1": {
+      "get": {
+        "description": "This endpoint return the parent app category.\n\nEndpoint: /app/category/lvl1\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategoryCatalog"
+        ],
+        "summary": "getParentCategory",
+        "operationId": "getParentCategory",
+        "responses": {
+          "200": {
+            "description": " true",
+            "schema": {
+              "$ref": "#/definitions/GetParentCategoriesResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/main": {
+      "get": {
+        "description": "This endpoint return main category map.\n\nEndpoint: /app/category/main\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategory"
+        ],
+        "summary": "getMainCategoryMap",
+        "operationId": "getMainCategoryMap",
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetMainCategoriesMapResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/{categoryID}/lvl2": {
+      "get": {
+        "description": "This endpoint return main catalog by parent ID.\n\nEndpoint: /app/category/{categoryID}/lvl2\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategoryCatalog"
+        ],
+        "summary": "getMainCategoryByParentID",
+        "operationId": "getMainCategoryByParentID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetMainCategoriesByParentIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/{categoryID}/lvl3": {
+      "get": {
+        "description": "This endpoint return sub category by parent ID.\n\nEndpoint: /app/category/{categoryID}/lvl3\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategoryCatalog"
+        ],
+        "summary": "getSubCatergoryByParentID",
+        "operationId": "getSubCatergoryByParentID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetSubCategoriesByParentIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/app/check/cod": {
       "get": {
         "description": "This endpoint will check the COD eligiblity.\n\nEndpoint: /app/check/cod\n\nMethod: GET",
@@ -787,6 +1202,53 @@
         "responses": {
           "200": {
             "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/collections": {
+      "get": {
+        "description": "This endpoint will return the collections.\n\nEndpoint: /app/collections\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getActiveCollections",
+        "operationId": "getActiveCollections",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetActiveCollectionsOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true",
+            "schema": {
+              "$ref": "#/definitions/GetCollectionESResp"
+            }
           },
           "400": {
             "description": " BadRequest",
@@ -1475,6 +1937,53 @@
         }
       }
     },
+    "/app/groups/catalog": {
+      "get": {
+        "description": "This endpoint return groups of catalog by ID.\n\nEndpoint: /app/groups/catalog\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCatalog"
+        ],
+        "summary": "getGroupsByCatalogID",
+        "operationId": "getGroupsByCatalogID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetGroupsByCatalogIDOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetGroupsByCatalogIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/app/influencer": {
       "put": {
         "description": "This endpoint will edit the influencer details.\n\nEndpoint: /app/influencer\n\nMethod: PUT",
@@ -1581,6 +2090,720 @@
             "schema": {
               "$ref": "#/definitions/GetInfluencerBasicESEesp"
             }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/collection": {
+      "get": {
+        "description": "This endpoint will return the active influencer collection by ID.\n\nEndpoint: /app/influencer/collection\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionApp"
+        ],
+        "summary": "getActiveInfluencerCollectionByID",
+        "operationId": "getActiveInfluencerCollectionByID",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerCollectionESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "This endpoint will edit the influencer collection app.\n\nEndpoint: /app/influencer/collection\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionApp"
+        ],
+        "summary": "editInfluencerCollectionApp",
+        "operationId": "editInfluencerCollectionApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EditInfluencerCollectionAppOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/InfluencerCollectionResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will create influencer collection.\n\nEndpoint: /app/influencer/collection\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionApp"
+        ],
+        "summary": "createInfluencerCollectionApp",
+        "operationId": "createInfluencerCollectionApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateInfluencerCollectionOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/InfluencerCollectionResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/collections": {
+      "get": {
+        "description": "This endpoint will return the influencer collections.\n\nEndpoint: /app/influencer/collections\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionApp"
+        ],
+        "summary": "appGetInfluencerCollections",
+        "operationId": "appGetInfluencerCollections",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerCollectionsOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerCollectionRespApp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/collections/active": {
+      "get": {
+        "description": "This endpoint will return active influencer collections.\n\nEndpoint: /app/influencer/collections/active\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionApp"
+        ],
+        "summary": "getActiveInfluencerCollections",
+        "operationId": "getActiveInfluencerCollections",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetActiveInfluencerCollectionsOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerCollectionESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/live": {
+      "get": {
+        "description": "This endpoint will return app live streams by influencerID.\n\nEndpoint: /app/influencer/live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "getAppLiveStreamsByInfluencerID",
+        "operationId": "getAppLiveStreamsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will create live stream.\n\nEndpoint: /app/influencer/live\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "createLiveStreamByApp",
+        "operationId": "createLiveStreamByApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLiveStreamOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/pebble": {
+      "get": {
+        "description": "This endpoint return pebbles for the creator.\n\nEndpoint: /app/influencer/pebble\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesForCreator",
+        "operationId": "getPebblesForCreator",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "This endpoint create pebble app.\n\nEndpoint: /app/influencer/pebble\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "editPebbleApp",
+        "operationId": "editPebbleApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EditPebbleAppOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/EditPebbleAppResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint create pebble in app.\n\nEndpoint: /app/influencer/pebble\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "createPebbleApp",
+        "operationId": "createPebbleApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreatePebbleAppOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreatePebbleResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/products": {
+      "get": {
+        "description": "This endpoint will return influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "getInfluencerProducts",
+        "operationId": "getInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetInfluencerProducts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetInfluencerProductESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will add influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "addInfluencerProducts",
+        "operationId": "addInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AddInfluencerProductsOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "This endpoint will remove influencer products.\n\nEndpoint: /app/influencer/products\n\nMethod: DELETE",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "InfluencerCollectionKEEPER"
+        ],
+        "summary": "removeInfluencerProducts",
+        "operationId": "removeInfluencerProducts",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/RemoveInfluencerProductsOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
           },
           "400": {
             "description": " BadRequest",
@@ -1798,6 +3021,695 @@
         }
       }
     },
+    "/app/live/{liveID}/catalog": {
+      "post": {
+        "description": "This endpoint push catalog.\n\nEndpoint: /app/live/{liveID}/catalog\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "pushCatalog",
+        "operationId": "pushCatalog",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PushCatalogOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/live/{liveID}/start": {
+      "get": {
+        "description": "This endpoint will start live stream.\n\nEndpoint: /app/live/{liveID}/start\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "startLiveStream",
+        "operationId": "startLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/StartLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/live/{liveID}/stop": {
+      "get": {
+        "description": "This endpoint will stop the live stream.\n\nEndpoint: /app/live/{liveID}/stop\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "stopLiveStream",
+        "operationId": "stopLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/review": {
+      "post": {
+        "description": "This endpoint will post the app review.\n\nEndpoint: /app/review\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppReview"
+        ],
+        "summary": "createReview",
+        "operationId": "createReview",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateReviewStoryOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateReviewStoryResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/review/catalog": {
+      "get": {
+        "description": "This endpoint will return the review by catalog ID.\n\nEndpoint: /app/review/catalog\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppReview"
+        ],
+        "summary": "getReviewsByCatalogID",
+        "operationId": "getReviewsByCatalogID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetReviewsByCatalogIDFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetReviewsByCatalogIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/sale": {
+      "get": {
+        "description": "This endpoint return the active sales.\n\nEndpoint: /app/sale\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppSale"
+        ],
+        "summary": "getAppActiveSale",
+        "operationId": "getAppActiveSale",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppActiveSaleOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetSalesResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/sale/items": {
+      "get": {
+        "description": "This endpoint return sales catalogs.\n\nEndpoint: /app/sale/items\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppSale"
+        ],
+        "summary": "getSaleCatalogs",
+        "operationId": "getSaleCatalogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogBySaleIDOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogBasicResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search": {
+      "get": {
+        "description": "This endpoint will search the catalog.\n\nEndpoint: /app/search\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "search",
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/SearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/brand": {
+      "get": {
+        "description": "This endpoint will search the influencer.\n\nEndpoint: /app/search/brand\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchInfluencer",
+        "operationId": "searchInfluencer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/InfluencerSearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/catalog": {
+      "get": {
+        "description": "This endpoint will search the catalog.\n\nEndpoint: /app/search/catalog\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchCatalog",
+        "operationId": "searchCatalog",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/SearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/discover": {
+      "get": {
+        "description": "This endpoint will search the discover.\n\nEndpoint: /app/search/discover\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchDiscover",
+        "operationId": "searchDiscover",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/DiscoverSearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/hashtag": {
+      "get": {
+        "description": "This endpoint will search the hashtags.\n\nEndpoint: /app/search/hashtag\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchHashtag",
+        "operationId": "searchHashtag",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/HashtagSearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/series": {
+      "get": {
+        "description": "This endpoint will search the series.\n\nEndpoint: /app/search/series\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchSeries",
+        "operationId": "searchSeries",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/SeriesSearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/search/shop": {
+      "get": {
+        "description": "This endpoint will search the shop.\n\nEndpoint: /app/search/shop\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LegacySearch"
+        ],
+        "summary": "searchShop",
+        "operationId": "searchShop",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SearchOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/ShopSearchResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/app/size/get": {
       "get": {
         "description": "This endpoint will return size profile.\n\nEndpoint: /app/size/get\n\nMethod: GET",
@@ -1838,6 +3750,50 @@
           },
           "403": {
             "description": " Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/subcollection": {
+      "get": {
+        "description": "This endpoint return catalog by sub collection ID.\n\nEndpoint: /app/subcollection\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "GetCatalogBySubCollectionID",
+        "operationId": "GetCatalogBySubCollectionID",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogsBySubCollectionResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
             "schema": {
               "$ref": "#/definitions/AppErr"
             }
@@ -2378,6 +4334,241 @@
           },
           "400": {
             "description": " Bad Request",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/catalog/influencer": {
+      "get": {
+        "description": "This endpoint return the catalogs by influencer ID.\n\nEndpoint: /catalog/influencer\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getCatalogsByInfluencerID",
+        "operationId": "getCatalogsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogsByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " ObjectID"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/comment": {
+      "post": {
+        "description": "This endpoint will post the comment on the content.\n\nEndpoint: /content/comment\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createContentComment",
+        "operationId": "createContentComment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateCommentOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateCommentResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/like": {
+      "post": {
+        "description": "This endpoint will create like on content.\n\nEndpoint: /content/like\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createLike",
+        "operationId": "createLike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLikeOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/view": {
+      "post": {
+        "description": "This endpoint will create view on content.\n\nEndpoint: /content/view\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createView",
+        "operationId": "createView",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateViewOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
             "schema": {
               "$ref": "#/definitions/AppErr"
             }
@@ -2976,6 +5167,325 @@
         }
       }
     },
+    "/inventory": {
+      "post": {
+        "description": "This endpoint update the internal inventory.\n\nEndpoint: /inventory\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "updateInventoryInternal",
+        "operationId": "updateInventoryInternal",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UpdateInventoryCVOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live": {
+      "get": {
+        "description": "This endpoint get the app live streams.\n\nEndpoint: /live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "getAppLiveStreams",
+        "operationId": "getAppLiveStreams",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}": {
+      "get": {
+        "description": "This endpoint get the app live streams by ID.\n\nEndpoint: /live/{liveID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "getAppLiveStreamByID",
+        "operationId": "getAppLiveStreamByID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/comment": {
+      "post": {
+        "description": "This endpoint will post the comment on live stream.\n\nEndpoint: /live/{liveID}/comment\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "pushComment",
+        "operationId": "pushComment",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLiveCommentOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/join": {
+      "get": {
+        "description": "This endpoint will join live stream.\n\nEndpoint: /live/{liveID}/join\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "joinLiveStream",
+        "operationId": "joinLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/JoinLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/joined": {
+      "post": {
+        "description": "This endpoint will joined the stream.\n\nEndpoint: /live/{liveID}/joined\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "joinedLiveStream",
+        "operationId": "joinedLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PushJoinOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/me": {
       "get": {
         "description": "This endpoint will returns the updated user info stored in the token.\n\nEndpoint: /me\n\nMethod: GET",
@@ -3069,6 +5579,632 @@
             "schema": {
               "$ref": "#/definitions/UserClaim"
             }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble": {
+      "get": {
+        "description": "This endpoint return the pebbles.\n\nEndpoint: /pebble\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleV2",
+        "operationId": "getPebbleV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/brand": {
+      "get": {
+        "description": "This endpoint return the pebbles of brand by ID.\n\nEndpoint: /pebble/brand\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByBrandID",
+        "operationId": "getPebblesByBrandID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByBrandID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/category": {
+      "get": {
+        "description": "This endpoint return the pebble by category IDs.\n\nEndpoint: /pebble/category\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleByCategoryID",
+        "operationId": "getPebbleByCategoryID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByCategoryIDOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/collection": {
+      "get": {
+        "description": "This endpoint return the collection.\n\nEndpoint: /pebble/collection\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getCollections",
+        "operationId": "getCollections",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCollectionFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleCollectionESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/hashtag": {
+      "get": {
+        "description": "This endpoint return the pebbles by respective hashtags.\n\nEndpoint: /pebble/hashtag\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByHashtag",
+        "operationId": "getPebblesByHashtag",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByHashtag"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/id": {
+      "get": {
+        "description": "This endpoint return the pebbles by id.\n\nEndpoint: /pebble/id\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleByID",
+        "operationId": "getPebbleByID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByIDFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/influencer": {
+      "get": {
+        "description": "This endpoint return the pebbles by influencer ID.\n\nEndpoint: /pebble/influencer\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByInfluencerID",
+        "operationId": "getPebblesByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/series": {
+      "get": {
+        "description": "This endpoint return pebbles series.\n\nEndpoint: /pebble/series\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleSeries",
+        "operationId": "getPebbleSeries",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleSeriesESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/series/id": {
+      "get": {
+        "description": "This endpoint return the pebble series by IDs.\n\nEndpoint: /pebble/series/id\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleSeriesByIDs",
+        "operationId": "getPebbleSeriesByIDs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetSeriesByIDs"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleSeriesESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/unicommerce/catalog": {
+      "post": {
+        "description": "This endpoint return the catalogs.\n\nEndpoint: /unicommerce/catalog\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "UnicommerceAPIs"
+        ],
+        "summary": "getCatalogs",
+        "operationId": "getCatalogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetUnicommerceProductsResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/unicommerce/catalog/count": {
+      "post": {
+        "description": "This endpoint post the catalog count.\n\nEndpoint: /unicommerce/catalog/count\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "UnicommerceAPIs"
+        ],
+        "summary": "getCatalogCount",
+        "operationId": "getCatalogCount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogCountOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
           },
           "400": {
             "description": " BadRequest",
@@ -3584,6 +6720,53 @@
         }
       }
     },
+    "/v2/app/catalog/basic": {
+      "get": {
+        "description": "This endpoint return the collection of catalog by IDs.\n\nEndpoint: /v2/app/catalog/basic\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCollectionCatalogV2"
+        ],
+        "summary": "getCollectionCatalogByIDs",
+        "operationId": "getCollectionCatalogByIDs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCollectionCatalogByIDs"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetCatalogBasicResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/v2/app/influencer": {
       "put": {
         "description": "This endpoint edit the influencer information.\n\nEndpoint: /v2/app/influencer\n\nMethod: PUT",
@@ -3628,6 +6811,114 @@
             "description": " OK",
             "schema": {
               "$ref": "#/definitions/EditInfluencerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/influencer/live": {
+      "get": {
+        "description": "This endpoint return app live stream by influencer ID.\n\nEndpoint: /v2/app/influencer/live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "v2GetAppLiveStreamsByInfluencerID",
+        "operationId": "v2GetAppLiveStreamsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetLiveByInfluencerID"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/influencer/pebble": {
+      "post": {
+        "description": "This endpoint create pebble app.\n\nEndpoint: /v2/app/influencer/pebble\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "createPebbleAppV2",
+        "operationId": "createPebbleAppV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreatePebbleAppV2Opts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreatePebbleResp"
             }
           },
           "400": {
@@ -3955,6 +7246,22 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "AddInfluencerProductsOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "AddToCartOpts": {
       "type": "object",
       "properties": {
@@ -4182,6 +7489,21 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "Attribute": {
+      "description": "Attribute define key value pair that defines catalog properties",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
     "BankInformation": {
       "type": "object",
       "properties": {
@@ -4213,12 +7535,26 @@
       },
       "x-go-package": "go-app/model"
     },
+    "BrandInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
     "BrandInfoResp": {
-      "description": "BrandInfoResp brand info resp",
       "type": "object",
       "properties": {
         "description": {
-          "description": "description",
           "type": "string",
           "x-go-name": "Description"
         },
@@ -4229,17 +7565,33 @@
           "$ref": "#/definitions/IMG"
         },
         "name": {
-          "description": "name",
           "type": "string",
           "x-go-name": "Name"
         },
         "slug": {
-          "description": "slug",
           "type": "string",
           "x-go-name": "Slug"
         }
       },
-      "x-go-package": "go-app/model"
+      "x-go-package": "go-app/schema"
+    },
+    "BrandSearchResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "BrandUserLoginOpts": {
       "type": "object",
@@ -4297,26 +7649,49 @@
       },
       "x-go-package": "go-app/models"
     },
-    "CatalogInfo": {
-      "description": "CatalogInfo catalog info",
+    "Catalog": {
+      "description": "Catalog contains catalog specific data such as name, description, linked content, brand info, keywords, specifications, variant info etc",
       "type": "object",
       "properties": {
+        "avg_rating": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "AvgRating"
+        },
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
         "brand_id": {
           "$ref": "#/definitions/ObjectID"
         },
-        "brand_name": {
-          "description": "brand name",
-          "type": "string",
-          "x-go-name": "BrandName"
+        "catalog_content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogContent"
+        },
+        "category_path": {
+          "description": "Path stores entire path of category as a string of hyphen seperated ids Eg. /84700/80009/1282094266/1200003270\nUsing this we can store multiple category path inside a single catalog\ncategory_path: [/84700/80009/1282094266, /84701/80008/1282094267]\nmen/footwear/casual, women/footwear/casual\n\nfiltering category can be done using regex such as {$regex: \"^84700/$\"} {$regex: \"^84700/80009/$\"}",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Paths"
         },
         "commission_rate": {
-          "description": "commission rate",
           "type": "integer",
           "format": "uint64",
           "x-go-name": "CommissionRate"
         },
-        "discount_info": {
-          "$ref": "#/definitions/DiscountInfoResp"
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
         },
         "eta": {
           "$ref": "#/definitions/ETA"
@@ -4324,35 +7699,84 @@
         "featured_image": {
           "$ref": "#/definitions/IMG"
         },
+        "filter_attrs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          },
+          "x-go-name": "FilterAttribute"
+        },
         "hsn_code": {
-          "description": "h s n code",
           "type": "string",
           "x-go-name": "HSNCode"
         },
         "id": {
           "$ref": "#/definitions/ObjectID"
         },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Keywords"
+        },
+        "lname": {
+          "type": "string",
+          "x-go-name": "LName"
+        },
         "name": {
-          "description": "name",
           "type": "string",
           "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "size_profile": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "slug": {
+          "description": "slug is used in setting up catalog thumbnail image name and\nwhen sharing a catalog sharing link is generated through slug",
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "specs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Specification"
+          },
+          "x-go-name": "Specifications"
         },
         "status": {
           "$ref": "#/definitions/Status"
         },
+        "status_history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Status"
+          },
+          "x-go-name": "StatusHistory"
+        },
         "tax": {
           "$ref": "#/definitions/Tax"
+        },
+        "total_rating_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalRatingCount"
         },
         "transfer_price": {
           "$ref": "#/definitions/Price"
         },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
         "variant_type": {
-          "description": "variant type",
           "type": "string",
           "x-go-name": "VariantType"
         },
         "variants": {
-          "description": "variants",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Variant"
@@ -4361,6 +7785,148 @@
         }
       },
       "x-go-package": "go-app/model"
+    },
+    "CatalogContentInfoResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "is_processed": {
+          "type": "boolean",
+          "x-go-name": "IsProcessed"
+        },
+        "media_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "media_info": {
+          "type": "object",
+          "x-go-name": "MediaInfo"
+        },
+        "media_type": {
+          "type": "string",
+          "x-go-name": "MediaType"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CatalogDiscountInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "max_value": {
+          "description": "MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CatalogInfo": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfo"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/CatalogDiscountInfo"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variant_type": {
+          "type": "string",
+          "x-go-name": "VariantType"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VariantInfo"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CatalogSearchResp": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountBasicResp"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/ObjectID"
+              }
+            }
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "CheckEmailOpts": {
       "type": "object",
@@ -4497,6 +8063,23 @@
       },
       "x-go-package": "go-app/models"
     },
+    "ContentSearchResp": {
+      "type": "object",
+      "properties": {
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "media_info": {
+          "type": "object",
+          "x-go-name": "MediaInfo"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "Country": {
       "description": "Country represents country contains its iso representation and name of the country",
       "type": "object",
@@ -4571,6 +8154,69 @@
       },
       "x-go-package": "go-app/model"
     },
+    "CreateCommentOpts": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateCommentResp": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "CreateImageMediaOpts": {
       "type": "object",
       "required": [
@@ -4636,6 +8282,286 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "CreateInfluencerCollectionOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "image": {
+          "$ref": "#/definitions/Img"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "is_draft": {
+          "type": "boolean",
+          "x-go-name": "IsDraft"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Order"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLikeOpts": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveCommentOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "live_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "LiveID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveStreamOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/Img"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleAppOpts": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "category_id": {
+          "description": "Label         *CreatorLabelOpts    `json:\"label\" validate:\"required\"`",
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CategoryID"
+        },
+        "creator_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CreatorID"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleAppV2Opts": {
+      "type": "object",
+      "properties": {
+        "creator_id": {
+          "description": "Caption       string               `json:\"caption\" validate:\"required\"`",
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CreatorID"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateReviewStoryOpts": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
+        },
+        "catalog_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogID"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Rating"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateReviewStoryResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "upload_url": {
+          "type": "string",
+          "x-go-name": "UploadURL"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "CreateUserOpts": {
       "type": "object",
       "required": [
@@ -4695,6 +8621,35 @@
       },
       "x-go-package": "go-app/models"
     },
+    "CreateViewOpts": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "description": "Timestamp of instance when user started watching video",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "duration": {
+          "$ref": "#/definitions/Duration"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObejctID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObejctID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "CurrencyISO": {
       "description": "CurrencyISO iso representation of currency",
       "type": "string",
@@ -4722,6 +8677,37 @@
         }
       },
       "x-go-package": "go-app/model"
+    },
+    "DiscountBasicResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "max_value": {
+          "description": "MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "sale_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "DiscountInfo": {
       "description": "DiscountInfo contains discount data for particular variant",
@@ -4814,24 +8800,61 @@
       },
       "x-go-package": "go-app/model"
     },
+    "DiscoverSearchResp": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandSearchResp"
+          },
+          "x-go-name": "Brand"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HashtagSearchResp"
+          },
+          "x-go-name": "Hashtag"
+        },
+        "influencer": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerSearchResp"
+          },
+          "x-go-name": "Influencer"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeriesSearchResp"
+          },
+          "x-go-name": "Series"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "Duration": {
+      "description": "A Duration represents the elapsed time between two instants\nas an int64 nanosecond count. The representation limits the\nlargest representable duration to approximately 290 years.",
+      "type": "integer",
+      "format": "int64",
+      "x-go-package": "time"
+    },
     "ETA": {
       "description": "ETA contains maximum and minimum delivery time of a catalog",
       "type": "object",
       "properties": {
         "max": {
-          "description": "max",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Max"
         },
         "min": {
-          "description": "min",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Min"
         },
         "unit": {
-          "description": "unit",
           "type": "string",
           "x-go-name": "Unit"
         }
@@ -4979,6 +9002,43 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "EditInfluencerCollectionAppOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "$ref": "#/definitions/Img"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "EditInfluencerResp": {
       "type": "object",
       "properties": {
@@ -5022,6 +9082,112 @@
         "username": {
           "type": "string",
           "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditPebbleAppOpts": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "category_id": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CategoryID"
+        },
+        "creator_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "is_active": {
+          "description": "Label         *CreatorEditLabelOpts `json:\"label\"`",
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditPebbleAppResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "category_path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Path"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "HashTags"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "is_active": {
+          "description": "Label         *CreatorEditLabelOpts `json:\"label,omitempty\"`",
+          "type": "boolean",
+          "x-go-name": "IsActive"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5193,6 +9359,165 @@
         "name": {
           "type": "string",
           "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetActiveCollectionsOpts": {
+      "type": "object",
+      "properties": {
+        "Gender": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Size": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetActiveInfluencerCollectionsOpts": {
+      "type": "object",
+      "properties": {
+        "InfluencerID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Size": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppActiveSaleOpts": {
+      "type": "object",
+      "properties": {
+        "Genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppLiveStreamInfluencerResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "ivs": {
+          "$ref": "#/definitions/IVS"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "$ref": "#/definitions/StreamStatus"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ArrayObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ArrayObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_name": {
+          "type": "string",
+          "x-go-name": "InfluencerName"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "$ref": "#/definitions/StreamStatus"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppLiveStreamsFilter": {
+      "type": "object",
+      "properties": {
+        "Page": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5571,6 +9896,488 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "GetCatalogBasicResp": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "discount_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "DiscountID"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountBasicResp"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogByBrandIDOpts": {
+      "type": "object",
+      "properties": {
+        "BrandID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogByCategoryIDFilterResp": {
+      "type": "object",
+      "properties": {
+        "doc_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Count"
+        },
+        "key": {
+          "type": "string",
+          "x-go-name": "Key"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogByCategoryIDResp": {
+      "type": "object",
+      "properties": {
+        "brand_filter": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCatalogByCategoryIDFilterResp"
+          },
+          "x-go-name": "BrandFilter"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCatalogBasicResp"
+          },
+          "x-go-name": "Data"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogByIDFilter": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogBySaleIDOpts": {
+      "type": "object",
+      "properties": {
+        "Page": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "SaleID": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogCountOpts": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogInfoResp": {
+      "type": "object",
+      "properties": {
+        "avg_rating": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "AvgRating"
+        },
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "content_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogContentInfoResp"
+          },
+          "x-go-name": "ContentInfo"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "discount_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "DiscountID"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/DiscountBasicResp"
+        },
+        "eta": {
+          "$ref": "#/definitions/ETA"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "filter_attr": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          },
+          "x-go-name": "FilterAttribute"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "size_profile": {
+          "type": "string",
+          "x-go-name": "SizeProfile"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "specs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Specification"
+          },
+          "x-go-name": "Specifications"
+        },
+        "total_rating_count": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "TotalRatingCount"
+        },
+        "variant_type": {
+          "type": "string",
+          "x-go-name": "VariantType"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VariantInfo"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogOpts": {
+      "type": "object",
+      "properties": {
+        "brand_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Size"
+        },
+        "sku": {
+          "type": "string",
+          "x-go-name": "SKU"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogsByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "InfluencerID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogsBySubCollectionInfo": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "featured_catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FeaturedCatalogIDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogsBySubCollectionResp": {
+      "type": "object",
+      "properties": {
+        "sub_collections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCatalogsBySubCollectionInfo"
+          },
+          "x-go-name": "SubCollections"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionCatalogByIDs": {
+      "type": "object",
+      "properties": {
+        "fid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "FeatIDs"
+        },
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "IDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionCatalogInfoResp": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfoResp"
+        },
+        "discount_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/GetCollectionDiscountInfoResp"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "variant_type": {
+          "type": "string",
+          "x-go-name": "VariantType"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCollectionVariantResp"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionDiscountInfoResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "max_value": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionESResp": {
+      "type": "object",
+      "properties": {
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "sub_collections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetSubCollectionESResp"
+          },
+          "x-go-name": "SubCollections"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionFilter": {
+      "type": "object",
+      "properties": {
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionVariantResp": {
+      "type": "object",
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "x-go-name": "Attribute"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_deleted": {
+          "type": "boolean",
+          "x-go-name": "IsDeleted"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "GetCommissionAndRevenueOpts": {
       "type": "object",
       "properties": {
@@ -5679,6 +10486,44 @@
       },
       "x-go-package": "go-app/models"
     },
+    "GetGroupsByCatalogIDOpts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetGroupsByCatalogIDResp": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "type": "string",
+          "x-go-name": "Basis"
+        },
+        "catalog_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Catalog"
+          },
+          "x-go-name": "CatalogInfo"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "GetInfluencerBasicESEesp": {
       "type": "object",
       "properties": {
@@ -5701,6 +10546,129 @@
         "username": {
           "type": "string",
           "x-go-name": "Username"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerCollectionESResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "$ref": "#/definitions/Img"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "name": {
+          "description": "InfluencerInfo *InfluencerInfo       `json:\"influencer_info\"`",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "description": "CatalogInfo    []GetCatalogBasicResp `json:\"catalog_info\"`",
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerCollectionRespApp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerCollectionsOpts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "x-go-name": "InfluencerID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
         }
       },
       "x-go-package": "go-app/schema"
@@ -5917,6 +10885,51 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "GetInfluencerProductESResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetInfluencerProducts": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "x-go-name": "InfluencerID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "GetInfluencersByIDBasicOpts": {
       "type": "object",
       "properties": {
@@ -5951,6 +10964,93 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "GetLiveByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+          },
+          "x-go-name": "Completed"
+        },
+        "upcoming": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+          },
+          "x-go-name": "Upcoming"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetMainCategoriesByParentIDResp": {
+      "type": "object",
+      "properties": {
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetMainCategoriesMapResp": {
+      "type": "object",
+      "properties": {
+        "ancestors_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "AncestorID"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "parent_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ParentID"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetParentCategoriesResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "GetPayoutInfoResp": {
       "type": "object",
       "properties": {
@@ -5966,6 +11066,560 @@
         },
         "payout_information": {
           "$ref": "#/definitions/PayoutInformation"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByBrandID": {
+      "type": "object",
+      "properties": {
+        "BrandID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByCategoryIDOpts": {
+      "type": "object",
+      "properties": {
+        "CategoryID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "Sort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByHashtag": {
+      "type": "object",
+      "properties": {
+        "hashtag": {
+          "type": "string",
+          "x-go-name": "Hashtag"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByIDFilter": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "UserID": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "InfluencerID": {
+          "type": "string"
+        },
+        "IsActive": {
+          "type": "boolean"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleCollectionESResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "brand_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandInfo"
+          },
+          "x-go-name": "BrandInfo"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Hashtags"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerInfo"
+          },
+          "x-go-name": "InfluencerInfo"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "series_subcollection": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeriesSubCollection"
+          },
+          "x-go-name": "SeriesSubCollection"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleESResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandIDs"
+        },
+        "brand_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandInfo"
+          },
+          "x-go-name": "BrandInfo"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "catalog_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogInfo"
+          },
+          "x-go-name": "CatalogInfo"
+        },
+        "category_path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Paths"
+        },
+        "comment_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CommentCount"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Hashtags"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerInfo"
+          },
+          "x-go-name": "InfluencerInfo"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "is_liked_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsLikedByUser"
+        },
+        "like_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "LikeCount"
+        },
+        "media_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "MediaID"
+        },
+        "media_info": {
+          "$ref": "#/definitions/GetPebbleMediaESResp"
+        },
+        "media_type": {
+          "type": "string",
+          "x-go-name": "MediaType"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "view_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ViewCount"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleFilter": {
+      "type": "object",
+      "properties": {
+        "IsSeries": {
+          "type": "boolean"
+        },
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Interests"
+        },
+        "page": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleMediaESResp": {
+      "type": "object",
+      "properties": {
+        "dimensions": {
+          "$ref": "#/definitions/Dimensions"
+        },
+        "duration": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Duration"
+        },
+        "hls_playback_url": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_portrait": {
+          "type": "boolean",
+          "x-go-name": "IsPortrait"
+        },
+        "thumbnail_url": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ThumbnailURLS"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleSeriesESResp": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "pebble_ids": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "x-go-name": "PebbleIds"
+        },
+        "pebble_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetPebbleESResp"
+          },
+          "x-go-name": "PebbleInfo"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetReviewMediaInfo": {
+      "type": "object",
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "x-go-name": "Dimensions"
+        },
+        "duration": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Duration"
+        },
+        "hls_playback_url": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetReviewStoryInfoResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "media_info": {
+          "$ref": "#/definitions/GetReviewMediaInfo"
+        },
+        "media_type": {
+          "type": "string",
+          "x-go-name": "MediaType"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetReviewsByCatalogIDFilter": {
+      "type": "object",
+      "properties": {
+        "CatalogID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetReviewsByCatalogIDResp": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Rating"
+        },
+        "story_info": {
+          "$ref": "#/definitions/GetReviewStoryInfoResp"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "user_info": {
+          "$ref": "#/definitions/ReviewUserInfo"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSalesResp": {
+      "type": "object",
+      "properties": {
+        "banner": {
+          "$ref": "#/definitions/IMG"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "valid_after": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidAfter"
+        },
+        "valid_before": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ValidBefore"
+        },
+        "web_banner": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSeriesByIDs": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSimilarProducts": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "x-go-name": "Query"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6021,6 +11675,109 @@
             }
           },
           "x-go-name": "Specs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSubCategoriesByParentIDResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSubCollectionESResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "catalog_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetCollectionCatalogInfoResp"
+          },
+          "x-go-name": "CatalogInfo"
+        },
+        "featured_catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "FeaturedCatalogIDs"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetUnicommerceProductsResp": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "type": "string",
+          "x-go-name": "Brand"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "parentTitle": {
+          "type": "string",
+          "x-go-name": "ParentTitle"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetUnicommerceVariantResp"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetUnicommerceVariantResp": {
+      "type": "object",
+      "properties": {
+        "live": {
+          "type": "boolean",
+          "x-go-name": "Live"
+        },
+        "size": {
+          "type": "string",
+          "x-go-name": "Size"
+        },
+        "sku": {
+          "type": "string",
+          "x-go-name": "SKU"
+        },
+        "title": {
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "variantId": {
+          "$ref": "#/definitions/ObjectID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6158,23 +11915,30 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "HashtagSearchResp": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "x-go-name": "Text"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "IMG": {
       "description": "IMG contains image url, src, height and id",
       "type": "object",
       "properties": {
         "height": {
-          "description": "height",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Height"
         },
         "src": {
-          "description": "s r c",
           "type": "string",
           "x-go-name": "SRC"
         },
         "width": {
-          "description": "width",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Width"
@@ -6182,11 +11946,78 @@
       },
       "x-go-package": "go-app/model"
     },
-    "Img": {
+    "IVS": {
+      "description": "IVS contains aws IVS specific configuration",
       "type": "object",
-      "required": [
-        "src"
-      ],
+      "properties": {
+        "channel": {
+          "$ref": "#/definitions/IVSChannel"
+        },
+        "ingestion": {
+          "$ref": "#/definitions/IVSIngest"
+        },
+        "playback": {
+          "$ref": "#/definitions/IVSPlayback"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSChannel": {
+      "description": "IVSChannel contains channel specific configuration",
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "latency_mode": {
+          "type": "string",
+          "x-go-name": "LatencyMode"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "playback_authorization": {
+          "type": "boolean",
+          "x-go-name": "PlaybackAuthorization"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSIngest": {
+      "description": "IVSIngest contains channel video ingestion specific configuration",
+      "type": "object",
+      "properties": {
+        "server_url": {
+          "type": "string",
+          "x-go-name": "IngestURL"
+        },
+        "stream_key": {
+          "type": "string",
+          "x-go-name": "StreamKey"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSPlayback": {
+      "description": "IVSPlayback contains IVS playback specific configuration",
+      "type": "object",
+      "properties": {
+        "playback_url": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Img": {
+      "description": "Img contains image src url",
+      "type": "object",
       "properties": {
         "src": {
           "type": "string",
@@ -6287,11 +12118,79 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "InfluencerCollectionResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Order"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "InfluencerInfo": {
       "type": "object",
       "properties": {
-        "_id": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
           "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "InfluencerSearchResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
           "x-go-name": "ID"
         },
         "name": {
@@ -6300,26 +12199,44 @@
         },
         "profile_image": {
           "$ref": "#/definitions/IMG"
-        },
-        "username": {
-          "type": "string",
-          "x-go-name": "Username"
         }
       },
-      "x-go-package": "go-app/server/auth"
+      "x-go-package": "go-app/schema"
     },
     "Inventory": {
       "description": "Inventory contains inventory specific data",
       "type": "object",
       "properties": {
+        "catalog_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "sku": {
+          "type": "string",
+          "x-go-name": "SKU"
+        },
         "status": {
           "$ref": "#/definitions/InventoryStatus"
         },
         "unit_in_stock": {
-          "description": "unit in stock",
           "type": "integer",
           "format": "int64",
           "x-go-name": "UnitInStock"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        },
+        "variant_id": {
+          "$ref": "#/definitions/ObjectID"
         }
       },
       "x-go-package": "go-app/model"
@@ -6329,13 +12246,11 @@
       "type": "object",
       "properties": {
         "created_at": {
-          "description": "created at\nFormat: date-time",
           "type": "string",
           "format": "date-time",
           "x-go-name": "CreatedAt"
         },
         "value": {
-          "description": "value",
           "type": "string",
           "x-go-name": "Value"
         }
@@ -6412,6 +12327,20 @@
         },
         "variant_id": {
           "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "JoinLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "playbackURL": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6722,13 +12651,46 @@
           "$ref": "#/definitions/CurrencyISO"
         },
         "value": {
-          "description": "value",
           "type": "number",
           "format": "float",
           "x-go-name": "Value"
         }
       },
       "x-go-package": "go-app/model"
+    },
+    "PushCatalogOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "PushJoinOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "Reader": {
       "description": "Read reads up to len(p) bytes into p. It returns the number of bytes\nread (0 \u003c= n \u003c= len(p)) and any error encountered. Even if Read\nreturns n \u003c len(p), it may use all of p as scratch space during the call.\nIf some data is available but not len(p) bytes, Read conventionally\nreturns what is available instead of waiting for more.\n\nWhen Read encounters an error or end-of-file condition after\nsuccessfully reading n \u003e 0 bytes, it returns the number of\nbytes read. It may return the (non-nil) error from the same call\nor return the error (and n == 0) from a subsequent call.\nAn instance of this general case is that a Reader returning\na non-zero number of bytes at the end of the input stream may\nreturn either err == EOF or err == nil. The next Read should\nreturn 0, EOF.\n\nCallers should always process the n \u003e 0 bytes returned before\nconsidering the error err. Doing so correctly handles I/O errors\nthat happen after reading some bytes and also both of the\nallowed EOF behaviors.\n\nImplementations of Read are discouraged from returning a\nzero byte count with a nil error, except when len(p) == 0.\nCallers should treat a return of 0 and nil as indicating that\nnothing happened; in particular it does not indicate EOF.\n\nImplementations must not retain p.",
@@ -6754,6 +12716,22 @@
           "type": "string",
           "format": "ObjectID",
           "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "RemoveInfluencerProductsOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "influencer_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerID"
         }
       },
       "x-go-package": "go-app/schema"
@@ -6799,11 +12777,128 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "ReviewUserInfo": {
+      "type": "object",
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "x-go-name": "FullName"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "SearchOpts": {
+      "type": "object",
+      "properties": {
+        "BrandID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Query": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "SearchResp": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandSearchResp"
+          },
+          "x-go-name": "Brand"
+        },
+        "catalog": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogSearchResp"
+          },
+          "x-go-name": "Catalog"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentSearchResp"
+          },
+          "x-go-name": "Content"
+        },
+        "influencer": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerSearchResp"
+          },
+          "x-go-name": "Influencer"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "Seeker": {
       "description": "Seek sets the offset for the next Read or Write to offset,\ninterpreted according to whence:\nSeekStart means relative to the start of the file,\nSeekCurrent means relative to the current offset, and\nSeekEnd means relative to the end.\nSeek returns the new offset relative to the start of the\nfile and an error, if any.\n\nSeeking to an offset before the start of the file is an error.\nSeeking to any positive offset is legal, but the behavior of subsequent\nI/O operations on the underlying object is implementation-dependent.",
       "type": "object",
       "title": "Seeker is the interface that wraps the basic Seek method.",
       "x-go-package": "io"
+    },
+    "SeriesSearchResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/Img"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "SeriesSubCollection": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "series_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SeriesIDs"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "ShopSearchResp": {
+      "type": "object",
+      "properties": {
+        "catalog": {
+          "description": "Brand   []BrandSearchResp   `json:\"brand\"`",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogSearchResp"
+          },
+          "x-go-name": "Catalog"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "SigningMethod": {
       "type": "object",
@@ -6887,7 +12982,6 @@
       "x-go-package": "go-app/schema"
     },
     "Source": {
-      "description": "Source source",
       "type": "object",
       "properties": {
         "id": {
@@ -6901,7 +12995,22 @@
           "x-go-name": "Type"
         }
       },
-      "x-go-package": "go-app/models"
+      "x-go-package": "go-app/model"
+    },
+    "Specification": {
+      "description": "Specification contains catalog specification in key:value format",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
     },
     "StandardClaims": {
       "description": "Structured version of Claims Section, as referenced at\nhttps://tools.ietf.org/html/rfc7519#section-4.1\nSee examples for how to use this with your own claim types",
@@ -6941,6 +13050,20 @@
       },
       "x-go-package": "github.com/dgrijalva/jwt-go"
     },
+    "StartLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "ingest_url": {
+          "type": "string",
+          "x-go-name": "IngestURL"
+        },
+        "stream_key": {
+          "type": "string",
+          "x-go-name": "StreamKey"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "State": {
       "type": "object",
       "properties": {
@@ -6963,20 +13086,33 @@
       "title": "Status stores catalog status such as unlisted (default), published, archive",
       "properties": {
         "created_at": {
-          "description": "created at\nFormat: date-time",
           "type": "string",
           "format": "date-time",
           "x-go-name": "CreatedAt"
         },
         "name": {
-          "description": "name",
           "type": "string",
           "x-go-name": "Name"
         },
         "value": {
-          "description": "value",
           "type": "string",
           "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "StreamStatus": {
+      "description": "StreamStatus represents status of the stream",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "go-app/model"
@@ -6994,17 +13130,14 @@
       "x-go-package": "go-app/schema"
     },
     "Tax": {
-      "description": "Tax tax",
       "type": "object",
       "properties": {
         "rate": {
-          "description": "rate",
           "type": "number",
           "format": "float",
           "x-go-name": "Rate"
         },
         "tax_ranges": {
-          "description": "tax ranges",
           "type": "array",
           "items": {
             "$ref": "#/definitions/TaxRange"
@@ -7012,7 +13145,6 @@
           "x-go-name": "TaxRanges"
         },
         "type": {
-          "description": "type",
           "type": "string",
           "x-go-name": "Type"
         }
@@ -7020,23 +13152,19 @@
       "x-go-package": "go-app/model"
     },
     "TaxRange": {
-      "description": "TaxRange tax range",
       "type": "object",
       "properties": {
         "max_value": {
-          "description": "max value",
           "type": "integer",
           "format": "int64",
           "x-go-name": "MaxValue"
         },
         "min_value": {
-          "description": "min value",
           "type": "integer",
           "format": "int64",
           "x-go-name": "MinValue"
         },
         "rate": {
-          "description": "rate",
           "type": "number",
           "format": "float",
           "x-go-name": "Rate"
@@ -7111,6 +13239,41 @@
           "type": "string",
           "format": "ObjectID",
           "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "UpdateInventoryCVOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogID"
+        },
+        "operation": {
+          "$ref": "#/definitions/UpdateInventoryOperation"
+        },
+        "variant_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "VariantID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "UpdateInventoryOperation": {
+      "description": "UpdateInventoryOperation defines struct for operation on Inventory",
+      "type": "object",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "x-go-name": "Operator"
+        },
+        "unit": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Unit"
         }
       },
       "x-go-package": "go-app/schema"
@@ -7268,7 +13431,31 @@
       "type": "object",
       "properties": {
         "attribute": {
-          "description": "attribute",
+          "type": "string",
+          "x-go-name": "Attribute"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "inventory_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_deleted": {
+          "type": "boolean",
+          "x-go-name": "IsDeleted"
+        },
+        "sku": {
+          "type": "string",
+          "x-go-name": "SKU"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "VariantInfo": {
+      "description": "VariantInfo contains all variant data (size, color)",
+      "type": "object",
+      "properties": {
+        "attribute": {
           "type": "string",
           "x-go-name": "Attribute"
         },
@@ -7282,17 +13469,15 @@
           "$ref": "#/definitions/Inventory"
         },
         "is_deleted": {
-          "description": "is deleted",
           "type": "boolean",
           "x-go-name": "IsDeleted"
         },
         "sku": {
-          "description": "s k u",
           "type": "string",
           "x-go-name": "SKU"
         }
       },
-      "x-go-package": "go-app/model"
+      "x-go-package": "go-app/schema"
     },
     "VerifyEmailOpts": {
       "type": "object",
@@ -7571,5 +13756,70 @@
       "x-go-name": "GetCustomerProfileInfoResp",
       "x-go-package": "go-app/schema"
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "description": "This is the catalogv2 api.",
+      "name": "CatalogV2",
+      "tags": [
+        "AppCatalog",
+        "AppCollectionCatalogV2",
+        "AppCategoryCatalog",
+        "InfluencerCollectionKEEPER",
+        "InfluencerCollectionApp",
+        "AppReview",
+        "AppSale",
+        "Inventory",
+        "LegacySearch",
+        "UnicommerceAPIs"
+      ],
+      "x-traitTag": true
+    },
+      {
+        "description": "This is the stardust api.",
+        "name": "Stardust",
+        "tags": [
+          "AppCategory",
+          "LiveStream",
+          "Pebble",
+          "content",
+          "UploadImage",
+          "live"
+        ]
+      },
+      {
+        "description": "This is the entity api.",
+        "name": "Entity",
+        "tags": [
+          "Brand",
+          "cart",
+          "coupon",
+          "Check",
+          "CODviaGoKwik",
+          "Creator",
+          "DebitRequest",
+          "followUnfollow",
+          "getCustomerInfo",
+          "ExpressCheckout",
+          "AppInfluencer",
+          "GetSizeProfile",
+          "InfluencerRequest",
+          "Wishlist",
+          "CheckUsername",
+          "BrandDashAPIs",
+          "customer",
+          "login",
+          "signup",
+          "ME",
+          "checkEmail",
+          "Verification",
+          "logout",
+          "checkPhoneNo",
+          "Password",
+          "getUserIDByInfluencerID",
+          "v2Influnencer"
+        ],
+        "x-traitTag": true
+      }
+    ]
 }

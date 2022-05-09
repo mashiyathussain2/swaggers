@@ -10,9 +10,825 @@
     "description": "API related to",
     "title": "Stardust API:"
   },
-  "host": "stardust.in",
+  "host": "cms.getshitdone.in",
   "basePath": "/api",
   "paths": {
+    "/app/category/lvl1": {
+      "get": {
+        "description": "This endpoint return the parent category.\n\nEndpoint: /app/category/lvl1\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategory"
+        ],
+        "summary": "getParentCategory",
+        "operationId": "getParentCategory",
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetParentCategoriesResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/main": {
+      "get": {
+        "description": "This endpoint return main category map.\n\nEndpoint: /app/category/main\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategory"
+        ],
+        "summary": "getMainCategoryMap",
+        "operationId": "getMainCategoryMap",
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetMainCategoriesMapResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/{categoryID}/lvl2": {
+      "get": {
+        "description": "This endpoint return main category by parent ID.\n\nEndpoint: /app/category/{categoryID}/lvl2\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategory"
+        ],
+        "summary": "getMainCategoryByParentID",
+        "operationId": "getMainCategoryByParentID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetMainCategoriesByParentIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/category/{categoryID}/lvl3": {
+      "get": {
+        "description": "This endpoint return sub category by parent ID.\n\nEndpoint: /app/category/{categoryID}/lvl3\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "AppCategory"
+        ],
+        "summary": "getSubCatergoryByParentID",
+        "operationId": "getSubCatergoryByParentID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "categoryID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetSubCategoriesByParentIDResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/live": {
+      "get": {
+        "description": "This endpoint will return app live streams by influencerID.\n\nEndpoint: /app/influencer/live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "getAppLiveStreamsByInfluencerID",
+        "operationId": "getAppLiveStreamsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint will create live stream.\n\nEndpoint: /app/influencer/live\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "createLiveStreamByApp",
+        "operationId": "createLiveStreamByApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLiveStreamOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/influencer/pebble": {
+      "get": {
+        "description": "This endpoint return pebbles for the creator.\n\nEndpoint: /app/influencer/pebble\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesForCreator",
+        "operationId": "getPebblesForCreator",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "This endpoint create pebble app.\n\nEndpoint: /app/influencer/pebble\n\nMethod: PUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "editPebbleApp",
+        "operationId": "editPebbleApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/EditPebbleAppOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/EditPebbleAppResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "This endpoint create pebble in app.\n\nEndpoint: /app/influencer/pebble\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "createPebbleApp",
+        "operationId": "createPebbleApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreatePebbleAppOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreatePebbleResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/live/{liveID}/catalog": {
+      "post": {
+        "description": "This endpoint push catalog.\n\nEndpoint: /app/live/{liveID}/catalog\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "pushCatalog",
+        "operationId": "pushCatalog",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PushCatalogOpts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " true"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/live/{liveID}/start": {
+      "get": {
+        "description": "This endpoint will start live stream.\n\nEndpoint: /app/live/{liveID}/start\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "startLiveStream",
+        "operationId": "startLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/StartLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/app/live/{liveID}/stop": {
+      "get": {
+        "description": "This endpoint will stop the live stream.\n\nEndpoint: /app/live/{liveID}/stop\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "stopLiveStream",
+        "operationId": "stopLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/catalog/influencer": {
+      "get": {
+        "description": "This endpoint return the catalogs by influencer ID.\n\nEndpoint: /catalog/influencer\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getCatalogsByInfluencerID",
+        "operationId": "getCatalogsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCatalogsByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " ObjectID"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/comment": {
+      "post": {
+        "description": "This endpoint will post the comment on the content.\n\nEndpoint: /content/comment\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createContentComment",
+        "operationId": "createContentComment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateCommentOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreateCommentResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/like": {
+      "post": {
+        "description": "This endpoint will create like on content.\n\nEndpoint: /content/like\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createLike",
+        "operationId": "createLike",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLikeOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/content/view": {
+      "post": {
+        "description": "This endpoint will create view on content.\n\nEndpoint: /content/view\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "content"
+        ],
+        "summary": "createView",
+        "operationId": "createView",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateViewOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
     "/image/upload": {
       "post": {
         "description": "This endpoint post image.\n\nEndpoint: /image/upload\n\nMethod: POST",
@@ -43,6 +859,924 @@
             "description": " OK",
             "schema": {
               "$ref": "#/definitions/CreateImageMediaResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live": {
+      "get": {
+        "description": "This endpoint get the app live streams.\n\nEndpoint: /live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "getAppLiveStreams",
+        "operationId": "getAppLiveStreams",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}": {
+      "get": {
+        "description": "This endpoint get the app live streams by ID.\n\nEndpoint: /live/{liveID}\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "getAppLiveStreamByID",
+        "operationId": "getAppLiveStreamByID",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetAppLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/comment": {
+      "post": {
+        "description": "This endpoint will post the comment on live stream.\n\nEndpoint: /live/{liveID}/comment\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "pushComment",
+        "operationId": "pushComment",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreateLiveCommentOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/join": {
+      "get": {
+        "description": "This endpoint will join live stream.\n\nEndpoint: /live/{liveID}/join\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "joinLiveStream",
+        "operationId": "joinLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/JoinLiveStreamResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/live/{liveID}/joined": {
+      "post": {
+        "description": "This endpoint will joined the stream.\n\nEndpoint: /live/{liveID}/joined\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "live"
+        ],
+        "summary": "joinedLiveStream",
+        "operationId": "joinedLiveStream",
+        "parameters": [
+          {
+            "enum": [
+              "6065d4503824bf77961c21ae"
+            ],
+            "type": "string",
+            "name": "liveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/PushJoinOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK"
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble": {
+      "get": {
+        "description": "This endpoint return the pebbles.\n\nEndpoint: /pebble\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleV2",
+        "operationId": "getPebbleV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/brand": {
+      "get": {
+        "description": "This endpoint return the pebbles of brand by ID.\n\nEndpoint: /pebble/brand\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByBrandID",
+        "operationId": "getPebblesByBrandID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByBrandID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/category": {
+      "get": {
+        "description": "This endpoint return the pebble by category IDs.\n\nEndpoint: /pebble/category\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleByCategoryID",
+        "operationId": "getPebbleByCategoryID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByCategoryIDOpts"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/collection": {
+      "get": {
+        "description": "This endpoint return the collection.\n\nEndpoint: /pebble/collection\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getCollections",
+        "operationId": "getCollections",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetCollectionFilter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleCollectionESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/hashtag": {
+      "get": {
+        "description": "This endpoint return the pebbles by respective hashtags.\n\nEndpoint: /pebble/hashtag\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByHashtag",
+        "operationId": "getPebblesByHashtag",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByHashtag"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/id": {
+      "get": {
+        "description": "This endpoint return the pebbles by id.\n\nEndpoint: /pebble/id\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleByID",
+        "operationId": "getPebbleByID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByIDFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/influencer": {
+      "get": {
+        "description": "This endpoint return the pebbles by influencer ID.\n\nEndpoint: /pebble/influencer\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebblesByInfluencerID",
+        "operationId": "getPebblesByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleByInfluencerID"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/series": {
+      "get": {
+        "description": "This endpoint return pebbles series.\n\nEndpoint: /pebble/series\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleSeries",
+        "operationId": "getPebbleSeries",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetPebbleFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Customer login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleSeriesESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/pebble/series/id": {
+      "get": {
+        "description": "This endpoint return the pebble series by IDs.\n\nEndpoint: /pebble/series/id\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "getPebbleSeriesByIDs",
+        "operationId": "getPebbleSeriesByIDs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetSeriesByIDs"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetPebbleSeriesESResp"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/influencer/live": {
+      "get": {
+        "description": "This endpoint return app live stream by influencer ID.\n\nEndpoint: /v2/app/influencer/live\n\nMethod: GET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "LiveStream"
+        ],
+        "summary": "v2GetAppLiveStreamsByInfluencerID",
+        "operationId": "v2GetAppLiveStreamsByInfluencerID",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/GetAppLiveStreamsFilter"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Login required for successful response.",
+            "name": "cookie",
+            "in": "header",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Token required for successful response.",
+            "name": "auth token",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/GetLiveByInfluencerID"
+            }
+          },
+          "400": {
+            "description": " BadRequest",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          },
+          "403": {
+            "description": "Invalid User",
+            "schema": {
+              "$ref": "#/definitions/AppErr"
+            }
+          }
+        }
+      }
+    },
+    "/v2/app/influencer/pebble": {
+      "post": {
+        "description": "This endpoint create pebble app.\n\nEndpoint: /v2/app/influencer/pebble\n\nMethod: POST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Pebble"
+        ],
+        "summary": "createPebbleAppV2",
+        "operationId": "createPebbleAppV2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CreatePebbleAppV2Opts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " OK",
+            "schema": {
+              "$ref": "#/definitions/CreatePebbleResp"
             }
           },
           "400": {
@@ -124,6 +1858,92 @@
       },
       "x-go-package": "go-app/server/handler"
     },
+    "BrandInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "logo": {
+          "$ref": "#/definitions/IMG"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CatalogDiscountInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "max_value": {
+          "description": "MaxValue will only be applicable in case of PercentOffType type where you want to restrict discount value to a limit.",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "MaxValue"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "value": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "CatalogInfo": {
+      "type": "object",
+      "properties": {
+        "base_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "brand_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "brand_info": {
+          "$ref": "#/definitions/BrandInfo"
+        },
+        "discount_info": {
+          "$ref": "#/definitions/CatalogDiscountInfo"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "retail_price": {
+          "$ref": "#/definitions/Price"
+        },
+        "variant_type": {
+          "type": "string",
+          "x-go-name": "VariantType"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VariantInfo"
+          },
+          "x-go-name": "Variants"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
     "Closer": {
       "description": "The behavior of Close after the first call is undefined.\nSpecific implementations may document their own behavior.",
       "type": "object",
@@ -134,6 +1954,69 @@
         }
       },
       "x-go-package": "io"
+    },
+    "CreateCommentOpts": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateCommentResp": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "CreateImageMediaOpts": {
       "type": "object",
@@ -200,6 +2083,243 @@
       },
       "x-go-package": "go-app/schema"
     },
+    "CreateLikeOpts": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "$ref": "#/definitions/ObjectID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveCommentOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "description": {
+          "type": "string",
+          "x-go-name": "Description"
+        },
+        "live_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "LiveID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveStreamOpts": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/Img"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/Img"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleAppOpts": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "category_id": {
+          "description": "Label         *CreatorLabelOpts    `json:\"label\" validate:\"required\"`",
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CategoryID"
+        },
+        "creator_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CreatorID"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleAppV2Opts": {
+      "type": "object",
+      "properties": {
+        "creator_id": {
+          "description": "Caption       string               `json:\"caption\" validate:\"required\"`",
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CreatorID"
+        },
+        "file_name": {
+          "type": "string",
+          "x-go-name": "FileName"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreatePebbleResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CreateViewOpts": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "description": "Timestamp of instance when user started watching video",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "duration": {
+          "$ref": "#/definitions/Duration"
+        },
+        "resource_id": {
+          "type": "string",
+          "format": "ObejctID",
+          "x-go-name": "ResourceID"
+        },
+        "resource_type": {
+          "type": "string",
+          "x-go-name": "ResourceType"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "ObejctID",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "CurrencyISO": {
+      "description": "CurrencyISO iso representation of currency",
+      "type": "string",
+      "x-go-package": "go-app/model"
+    },
     "Dimensions": {
       "description": "Dimensions contains height and width of video in pixels",
       "type": "object",
@@ -216,6 +2336,118 @@
         }
       },
       "x-go-package": "go-app/model"
+    },
+    "Duration": {
+      "description": "A Duration represents the elapsed time between two instants\nas an int64 nanosecond count. The representation limits the\nlargest representable duration to approximately 290 years.",
+      "type": "integer",
+      "format": "int64",
+      "x-go-package": "time"
+    },
+    "EditPebbleAppOpts": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "category_id": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CategoryID"
+        },
+        "creator_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_ids": {
+          "description": "swagger: strfmt ObjectID",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "is_active": {
+          "description": "Label         *CreatorEditLabelOpts `json:\"label\"`",
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "EditPebbleAppResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "CatalogIDs"
+        },
+        "category_path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Path"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "HashTags"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "influencer_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectID"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "is_active": {
+          "description": "Label         *CreatorEditLabelOpts `json:\"label,omitempty\"`",
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "File": {
       "description": "Its contents may be either stored in memory or on disk.\nIf stored on disk, the File's underlying concrete type will be an *os.File.",
@@ -242,6 +2474,799 @@
       ],
       "x-go-package": "mime/multipart"
     },
+    "GetAppLiveStreamInfluencerResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "ivs": {
+          "$ref": "#/definitions/IVS"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "$ref": "#/definitions/StreamStatus"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "catalog_ids": {
+          "type": "string",
+          "format": "ArrayObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ArrayObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_name": {
+          "type": "string",
+          "x-go-name": "InfluencerName"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "scheduled_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "ScheduledAt"
+        },
+        "slug": {
+          "type": "string",
+          "x-go-name": "Slug"
+        },
+        "status": {
+          "$ref": "#/definitions/StreamStatus"
+        },
+        "stream_end_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetAppLiveStreamsFilter": {
+      "type": "object",
+      "properties": {
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCatalogsByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "InfluencerID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetCollectionFilter": {
+      "type": "object",
+      "properties": {
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetLiveByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+          },
+          "x-go-name": "Completed"
+        },
+        "upcoming": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetAppLiveStreamInfluencerResp"
+          },
+          "x-go-name": "Upcoming"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetMainCategoriesByParentIDResp": {
+      "type": "object",
+      "properties": {
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetMainCategoriesMapResp": {
+      "type": "object",
+      "properties": {
+        "ancestors_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "AncestorID"
+        },
+        "featured_image": {
+          "$ref": "#/definitions/IMG"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "parent_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ParentID"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetParentCategoriesResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByBrandID": {
+      "type": "object",
+      "properties": {
+        "BrandID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByCategoryIDOpts": {
+      "type": "object",
+      "properties": {
+        "CategoryID": {
+          "type": "string"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "Sort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByHashtag": {
+      "type": "object",
+      "properties": {
+        "hashtag": {
+          "type": "string",
+          "x-go-name": "Hashtag"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByIDFilter": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "UserID": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleByInfluencerID": {
+      "type": "object",
+      "properties": {
+        "InfluencerID": {
+          "type": "string"
+        },
+        "IsActive": {
+          "type": "boolean"
+        },
+        "Page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleCollectionESResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "BrandIDs"
+        },
+        "brand_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandInfo"
+          },
+          "x-go-name": "BrandInfo"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Hashtags"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerInfo"
+          },
+          "x-go-name": "InfluencerInfo"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "series_subcollection": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SeriesSubCollection"
+          },
+          "x-go-name": "SeriesSubCollection"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleESResp": {
+      "type": "object",
+      "properties": {
+        "brand_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "BrandIDs"
+        },
+        "brand_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BrandInfo"
+          },
+          "x-go-name": "BrandInfo"
+        },
+        "caption": {
+          "type": "string",
+          "x-go-name": "Caption"
+        },
+        "catalog_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "CatalogIDs"
+        },
+        "catalog_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CatalogInfo"
+          },
+          "x-go-name": "CatalogInfo"
+        },
+        "category_path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Paths"
+        },
+        "comment_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CommentCount"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Hashtags"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "influencer_ids": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "InfluencerIDs"
+        },
+        "influencer_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfluencerInfo"
+          },
+          "x-go-name": "InfluencerInfo"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "is_liked_by_user": {
+          "type": "boolean",
+          "x-go-name": "IsLikedByUser"
+        },
+        "like_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "LikeCount"
+        },
+        "media_id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "MediaID"
+        },
+        "media_info": {
+          "$ref": "#/definitions/GetPebbleMediaESResp"
+        },
+        "media_type": {
+          "type": "string",
+          "x-go-name": "MediaType"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "view_count": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ViewCount"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleFilter": {
+      "type": "object",
+      "properties": {
+        "IsSeries": {
+          "type": "boolean"
+        },
+        "genders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Genders"
+        },
+        "interests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Interests"
+        },
+        "page": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleMediaESResp": {
+      "type": "object",
+      "properties": {
+        "dimensions": {
+          "$ref": "#/definitions/Dimensions"
+        },
+        "duration": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Duration"
+        },
+        "hls_playback_url": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_portrait": {
+          "type": "boolean",
+          "x-go-name": "IsPortrait"
+        },
+        "thumbnail_url": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ThumbnailURLS"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetPebbleSeriesESResp": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "is_active": {
+          "type": "boolean",
+          "x-go-name": "IsActive"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "pebble_ids": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "x-go-name": "PebbleIds"
+        },
+        "pebble_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetPebbleESResp"
+          },
+          "x-go-name": "PebbleInfo"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSeriesByIDs": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "ID"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Page"
+        },
+        "user_id": {
+          "type": "string",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "GetSubCategoriesByParentIDResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "IMG": {
+      "description": "IMG contains image url, src, height and id",
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Height"
+        },
+        "src": {
+          "type": "string",
+          "x-go-name": "SRC"
+        },
+        "width": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Width"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVS": {
+      "description": "IVS contains aws IVS specific configuration",
+      "type": "object",
+      "properties": {
+        "channel": {
+          "$ref": "#/definitions/IVSChannel"
+        },
+        "ingestion": {
+          "$ref": "#/definitions/IVSIngest"
+        },
+        "playback": {
+          "$ref": "#/definitions/IVSPlayback"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSChannel": {
+      "description": "IVSChannel contains channel specific configuration",
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "latency_mode": {
+          "type": "string",
+          "x-go-name": "LatencyMode"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "playback_authorization": {
+          "type": "boolean",
+          "x-go-name": "PlaybackAuthorization"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSIngest": {
+      "description": "IVSIngest contains channel video ingestion specific configuration",
+      "type": "object",
+      "properties": {
+        "server_url": {
+          "type": "string",
+          "x-go-name": "IngestURL"
+        },
+        "stream_key": {
+          "type": "string",
+          "x-go-name": "StreamKey"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "IVSPlayback": {
+      "description": "IVSPlayback contains IVS playback specific configuration",
+      "type": "object",
+      "properties": {
+        "playback_url": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "Img": {
+      "description": "Img contains image src url",
+      "type": "object",
+      "properties": {
+        "src": {
+          "type": "string",
+          "x-go-name": "SRC"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "InfluencerInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "profile_image": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "JoinLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "playbackURL": {
+          "type": "string",
+          "x-go-name": "PlaybackURL"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
     "ObjectID": {
       "type": "array",
       "title": "ObjectID is the BSON ObjectID type.",
@@ -250,6 +3275,55 @@
         "format": "uint8"
       },
       "x-go-package": "go.mongodb.org/mongo-driver/bson/primitive"
+    },
+    "Price": {
+      "description": "Price represents cost of an entity",
+      "type": "object",
+      "properties": {
+        "iso": {
+          "$ref": "#/definitions/CurrencyISO"
+        },
+        "value": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "PushCatalogOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "PushJoinOpts": {
+      "type": "object",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "x-go-name": "ARN"
+        },
+        "id": {
+          "type": "string",
+          "format": "ObjectID",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/schema"
     },
     "Reader": {
       "description": "Read reads up to len(p) bytes into p. It returns the number of bytes\nread (0 \u003c= n \u003c= len(p)) and any error encountered. Even if Read\nreturns n \u003c len(p), it may use all of p as scratch space during the call.\nIf some data is available but not len(p) bytes, Read conventionally\nreturns what is available instead of waiting for more.\n\nWhen Read encounters an error or end-of-file condition after\nsuccessfully reading n \u003e 0 bytes, it returns the number of\nbytes read. It may return the (non-nil) error from the same call\nor return the error (and n == 0) from a subsequent call.\nAn instance of this general case is that a Reader returning\na non-zero number of bytes at the end of the input stream may\nreturn either err == EOF or err == nil. The next Read should\nreturn 0, EOF.\n\nCallers should always process the n \u003e 0 bytes returned before\nconsidering the error err. Doing so correctly handles I/O errors\nthat happen after reading some bytes and also both of the\nallowed EOF behaviors.\n\nImplementations of Read are discouraged from returning a\nzero byte count with a nil error, except when len(p) == 0.\nCallers should treat a return of 0 and nil as indicating that\nnothing happened; in particular it does not indicate EOF.\n\nImplementations must not retain p.",
@@ -268,6 +3342,93 @@
       "type": "object",
       "title": "Seeker is the interface that wraps the basic Seek method.",
       "x-go-package": "io"
+    },
+    "SeriesSubCollection": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "series_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SeriesIDs"
+        },
+        "thumbnail": {
+          "$ref": "#/definitions/IMG"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "StartLiveStreamResp": {
+      "type": "object",
+      "properties": {
+        "ingest_url": {
+          "type": "string",
+          "x-go-name": "IngestURL"
+        },
+        "stream_key": {
+          "type": "string",
+          "x-go-name": "StreamKey"
+        }
+      },
+      "x-go-package": "go-app/schema"
+    },
+    "StreamStatus": {
+      "description": "StreamStatus represents status of the stream",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-app/model"
+    },
+    "VariantInfo": {
+      "type": "object",
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "x-go-name": "Attribute"
+        },
+        "id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "inventory_id": {
+          "$ref": "#/definitions/ObjectID"
+        },
+        "is_deleted": {
+          "type": "boolean",
+          "x-go-name": "IsDeleted"
+        },
+        "sku": {
+          "type": "string",
+          "x-go-name": "SKU"
+        }
+      },
+      "x-go-package": "go-app/model"
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "description": "This is the stardust api.",
+      "name": "Stardust",
+      "tags": [
+        "AppCategory",
+        "LiveStream",
+        "Pebble",
+        "content",
+        "UploadImage",
+        "live"
+      ]
+    }
+  ]
 }

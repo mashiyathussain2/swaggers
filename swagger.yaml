@@ -1,0 +1,5566 @@
+basePath: /api
+definitions:
+  AddAddressOpts:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      contact_number:
+        $ref: '#/definitions/PhoneNumber'
+      country:
+        $ref: '#/definitions/Country'
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      is_billing_address:
+        type: boolean
+        x-go-name: IsBillingAddress
+      is_default_address:
+        type: boolean
+        x-go-name: IsDefaultAddress
+      is_shipping_address:
+        type: boolean
+        x-go-name: IsShippingAddress
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  AddAddressResp:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      id:
+        $ref: '#/definitions/ObjectID'
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      phone_no:
+        $ref: '#/definitions/PhoneNumber'
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+    type: object
+    x-go-package: go-app/schema
+  AddBrandFollowerOpts:
+    properties:
+      customer_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+    type: object
+    x-go-package: go-app/schema
+  AddInfluencerFollowerOpts:
+    properties:
+      customer_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+    type: object
+    x-go-package: go-app/schema
+  AddToCartOpts:
+    properties:
+      catalog_id:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      quantity:
+        format: uint64
+        type: integer
+        x-go-name: Quantity
+      source:
+        $ref: '#/definitions/Source'
+      variant_id:
+        format: Objectid
+        type: string
+        x-go-name: VariantID
+    type: object
+    x-go-package: go-app/schema
+  AddToWishlistOpts:
+    properties:
+      catalog_id:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  Address:
+    description: Address address
+    properties:
+      city:
+        description: city
+        type: string
+        x-go-name: City
+      contact_number:
+        $ref: '#/definitions/PhoneNumber'
+      country:
+        $ref: '#/definitions/Country'
+      display_name:
+        description: display name
+        type: string
+        x-go-name: DisplayName
+      district:
+        description: district
+        type: string
+        x-go-name: District
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_billing_address:
+        description: is billing address
+        type: boolean
+        x-go-name: IsBillingAddress
+      is_default_address:
+        description: is default address
+        type: boolean
+        x-go-name: IsDefaultAddress
+      is_shipping_address:
+        description: is shipping address
+        type: boolean
+        x-go-name: IsShippingAddress
+      line1:
+        description: line1
+        type: string
+        x-go-name: Line1
+      line2:
+        description: line2
+        type: string
+        x-go-name: Line2
+      plain_address:
+        description: plain address
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        description: postal code
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+    type: object
+    x-go-package: go-app/models
+  AddressOpts:
+    properties:
+      address_id:
+        format: Objectid
+        type: string
+        x-go-name: AddressID
+      city:
+        type: string
+        x-go-name: City
+      contact_number:
+        $ref: '#/definitions/PhoneNumber'
+      country:
+        $ref: '#/definitions/Country'
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      id:
+        format: Objectid
+        type: string
+        x-go-name: ID
+      is_billing_address:
+        type: boolean
+        x-go-name: IsBillingAddress
+      is_default_address:
+        type: boolean
+        x-go-name: IsDefaultAddress
+      is_shipping_address:
+        type: boolean
+        x-go-name: IsShippingAddress
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+    type: object
+    x-go-package: go-app/schema
+  AppErr:
+    properties:
+      Error:
+        items:
+          type: string
+        type: array
+      RequestID:
+        type: string
+    type: object
+    x-go-package: go-app/server/handler
+  ApplicableON:
+    description: ApplicableON applicable o n
+    properties:
+      ids:
+        description: i ds
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: IDs
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/model
+  ApplyCouponOpts:
+    properties:
+      code:
+        type: string
+        x-go-name: Code
+    required:
+    - code
+    type: object
+    x-go-package: go-app/schema
+  BankInformation:
+    properties:
+      account_holder_name:
+        type: string
+        x-go-name: AccountHolderName
+      account_number:
+        type: string
+        x-go-name: AccountNumber
+      ifsc_code:
+        type: string
+        x-go-name: IFSCCode
+    type: object
+    x-go-package: go-app/model
+  BrandClaim:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/model
+  BrandInfoResp:
+    description: BrandInfoResp brand info resp
+    properties:
+      description:
+        description: description
+        type: string
+        x-go-name: Description
+      id:
+        $ref: '#/definitions/ObjectID'
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+      slug:
+        description: slug
+        type: string
+        x-go-name: Slug
+    type: object
+    x-go-package: go-app/model
+  BrandUserLoginOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      password:
+        type: string
+        x-go-name: Password
+    type: object
+    x-go-package: go-app/schema
+  Cart:
+    description: Cart cart
+    properties:
+      billing_address:
+        $ref: '#/definitions/Address'
+      coupon:
+        $ref: '#/definitions/Coupon'
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        $ref: '#/definitions/ObjectID'
+      items:
+        description: items
+        items:
+          $ref: '#/definitions/Item'
+        type: array
+        x-go-name: Items
+      shipping_address:
+        $ref: '#/definitions/Address'
+      updated_at:
+        description: |-
+          updated at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      user_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/models
+  CatalogInfo:
+    description: CatalogInfo catalog info
+    properties:
+      brand_id:
+        $ref: '#/definitions/ObjectID'
+      brand_name:
+        description: brand name
+        type: string
+        x-go-name: BrandName
+      commission_rate:
+        description: commission rate
+        format: uint64
+        type: integer
+        x-go-name: CommissionRate
+      discount_info:
+        $ref: '#/definitions/DiscountInfoResp'
+      eta:
+        $ref: '#/definitions/ETA'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      hsn_code:
+        description: h s n code
+        type: string
+        x-go-name: HSNCode
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+      status:
+        $ref: '#/definitions/Status'
+      tax:
+        $ref: '#/definitions/Tax'
+      transfer_price:
+        $ref: '#/definitions/Price'
+      variant_type:
+        description: variant type
+        type: string
+        x-go-name: VariantType
+      variants:
+        description: variants
+        items:
+          $ref: '#/definitions/Variant'
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/model
+  CheckEmailOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    required:
+    - email
+    type: object
+    x-go-package: go-app/schema
+  CheckPhoneNoOpts:
+    properties:
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+    required:
+    - phone_no
+    type: object
+    x-go-package: go-app/schema
+  CheckoutOpts:
+    properties:
+      full_name:
+        type: string
+        x-go-name: FullName
+      id:
+        format: Objectid
+        type: string
+        x-go-name: ID
+      is_cod:
+        type: boolean
+        x-go-name: IsCOD
+      platform:
+        type: string
+        x-go-name: Platform
+      request_id:
+        type: string
+        x-go-name: RequestID
+      source:
+        type: string
+        x-go-name: Source
+    type: object
+    x-go-package: go-app/schema
+  Claim:
+    properties:
+      GetJWTToken:
+        $ref: '#/definitions/Token'
+      IsAdmin:
+        type: boolean
+      IsInternal:
+        type: boolean
+      IsSudo:
+        type: boolean
+      ToJSON:
+        type: string
+    type: object
+    x-go-package: go-app/server/auth
+  Claims:
+    description: |-
+      For a type to be a Claims object, it must just have a Valid method that determines
+      if the token is invalid for any supported reason
+    properties:
+      Valid:
+        type: string
+    type: object
+    x-go-package: github.com/dgrijalva/jwt-go
+  CommissionDebitRequest:
+    properties:
+      amount:
+        format: uint64
+        type: integer
+        x-go-name: Amount
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      payout_information:
+        $ref: '#/definitions/PayoutInformationOpts'
+    type: object
+    x-go-package: go-app/schema
+  CommonError:
+    description: CommonError common error
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        type: string
+        x-go-name: Message
+      status:
+        description: Status of the error
+        format: int64
+        type: integer
+        x-go-name: Status
+    type: object
+    x-go-package: go-app/models
+  Country:
+    description: Country represents country contains its iso representation and name
+      of the country
+    properties:
+      iso_code:
+        description: i s o code
+        type: string
+        x-go-name: ISOCode
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/model
+  Coupon:
+    description: Coupon coupon
+    properties:
+      applicable_on:
+        $ref: '#/definitions/ApplicableON'
+      code:
+        description: code
+        type: string
+        x-go-name: Code
+      description:
+        description: description
+        type: string
+        x-go-name: Description
+      id:
+        $ref: '#/definitions/ObjectID'
+      max_discount:
+        $ref: '#/definitions/Price'
+      min_purchase_value:
+        $ref: '#/definitions/Price'
+      status:
+        description: status
+        type: string
+        x-go-name: Status
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+      valid_after:
+        description: |-
+          valid after
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: ValidAfter
+      valid_before:
+        description: |-
+          valid before
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: ValidBefore
+      value:
+        description: value
+        format: int64
+        type: integer
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  CreateUserOpts:
+    properties:
+      confirm_password:
+        description: 'description: confirm password'
+        type: string
+        x-go-name: ConfirmPassword
+      email:
+        description: 'description: email of user'
+        type: string
+        x-go-name: Email
+      password:
+        description: 'description: password of user'
+        minLength: 6
+        type: string
+        x-go-name: Password
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+      type:
+        description: 'description: type of user'
+        type: string
+        x-go-name: Type
+    required:
+    - type
+    - email
+    - password
+    - confirm_password
+    type: object
+    x-go-package: go-app/schema
+  CreateUserResp:
+    description: CreateUserResp create user resp
+    properties:
+      email:
+        description: email
+        type: string
+        x-go-name: Email
+      id:
+        $ref: '#/definitions/ObjectID'
+      phone_no:
+        $ref: '#/definitions/PhoneNumber'
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/models
+  CurrencyISO:
+    description: CurrencyISO iso representation of currency
+    type: string
+    x-go-package: go-app/model
+  DateTime:
+    description: |-
+      DateTime is a time but it serializes to ISO8601 format with millis
+      It knows how to read 3 different variations of a RFC3339 date time.
+      Most APIs we encounter want either millisecond or second precision times.
+      This just tries to make it worry-free.
+    format: date-time
+    type: string
+    x-go-package: github.com/go-openapi/strfmt
+  DiscountInfo:
+    description: DiscountInfo contains discount data for particular variant
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      max_value:
+        description: max value
+        format: uint64
+        type: integer
+        x-go-name: MaxValue
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+      value:
+        description: value
+        format: uint64
+        type: integer
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  DiscountInfoResp:
+    description: DiscountInfoResp discount info resp
+    properties:
+      catalog_id:
+        $ref: '#/definitions/ObjectID'
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_active:
+        description: is active
+        type: boolean
+        x-go-name: IsActive
+      max_value:
+        description: MaxValue will only be applicable in case of PercentOffType type
+          where you want to restrict discount value to a limit.
+        format: uint64
+        type: integer
+        x-go-name: MaxValue
+      sale_id:
+        $ref: '#/definitions/ObjectID'
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+      valid_after:
+        description: If discount is part of sale then ValidAfter & ValidBefore values
+          will be inherited from sale only.
+        format: date-time
+        type: string
+        x-go-name: ValidAfter
+      valid_before:
+        description: |-
+          valid before
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: ValidBefore
+      value:
+        description: value
+        format: uint64
+        type: integer
+        x-go-name: Value
+      variants_id:
+        description: variants ID
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: VariantsID
+    type: object
+    x-go-package: go-app/model
+  ETA:
+    description: ETA contains maximum and minimum delivery time of a catalog
+    properties:
+      max:
+        description: max
+        format: int64
+        type: integer
+        x-go-name: Max
+      min:
+        description: min
+        format: int64
+        type: integer
+        x-go-name: Min
+      unit:
+        description: unit
+        type: string
+        x-go-name: Unit
+    type: object
+    x-go-package: go-app/model
+  EditAddressOpts:
+    properties:
+      address_id:
+        format: ObjectID
+        type: string
+        x-go-name: AddressID
+      city:
+        type: string
+        x-go-name: City
+      contact_number:
+        $ref: '#/definitions/PhoneNumber'
+      country:
+        $ref: '#/definitions/Country'
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      is_billing_address:
+        type: boolean
+        x-go-name: IsBillingAddress
+      is_default_address:
+        type: boolean
+        x-go-name: IsDefaultAddress
+      is_shipping_address:
+        type: boolean
+        x-go-name: IsShippingAddress
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    required:
+    - display_name
+    - line1
+    - line2
+    - district
+    - city
+    - state
+    - postal_code
+    - country
+    - plain_address
+    - is_billing_address
+    - is_shipping_address
+    - is_default_address
+    - contact_number
+    type: object
+    x-go-package: go-app/schema
+  EditInfluencerAppOpts:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      payout_information:
+        $ref: '#/definitions/PayoutInformationOpts'
+      username:
+        description: Name          string             `json:"name"`
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  EditInfluencerAppV2Opts:
+    properties:
+      bio:
+        type: string
+        x-go-name: Bio
+      cover_img:
+        $ref: '#/definitions/Img'
+      external_links:
+        items:
+          type: string
+        type: array
+        x-go-name: ExternalLinks
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      payout_information:
+        $ref: '#/definitions/PayoutInformationOpts'
+      profile_image:
+        $ref: '#/definitions/Img'
+      social_account:
+        $ref: '#/definitions/SocialAccountOpts'
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  EditInfluencerResp:
+    properties:
+      bio:
+        type: string
+        x-go-name: Bio
+      cover_img:
+        $ref: '#/definitions/IMG'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      external_links:
+        items:
+          type: string
+        type: array
+        x-go-name: ExternalLinks
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        type: string
+        x-go-name: Name
+      profile_image:
+        $ref: '#/definitions/IMG'
+      social_account:
+        $ref: '#/definitions/SocialAccount'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  EmailLoginCustomerOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      password:
+        type: string
+        x-go-name: Password
+    required:
+    - email
+    - password
+    type: object
+    x-go-package: go-app/schema
+  EmailLoginCustomerResp:
+    description: EmailLoginCustomerResp email login customer resp
+    properties:
+      token:
+        description: Token after successful login
+        type: string
+        x-go-name: Token
+    type: object
+    x-go-package: go-app/models
+  ExpressCheckoutOpts:
+    properties:
+      address:
+        $ref: '#/definitions/OrderAddressOpts'
+      coupon:
+        type: string
+        x-go-name: Coupon
+      items:
+        items:
+          $ref: '#/definitions/ItemExpress'
+        type: array
+        x-go-name: Items
+      source:
+        type: string
+        x-go-name: Source
+      source_id:
+        format: ObjectID
+        type: string
+        x-go-name: SourceID
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  ExpressCheckoutWebOpts:
+    properties:
+      address:
+        $ref: '#/definitions/OrderAddressOpts'
+      coupon:
+        type: string
+        x-go-name: Coupon
+      is_cod:
+        type: boolean
+        x-go-name: IsCOD
+      items:
+        items:
+          $ref: '#/definitions/ItemExpress'
+        type: array
+        x-go-name: Items
+      request_id:
+        type: string
+        x-go-name: RequestID
+      source:
+        type: string
+        x-go-name: Source
+      source_id:
+        format: ObjectID
+        type: string
+        x-go-name: SourceID
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  ForgotPasswordOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    type: object
+    x-go-package: go-app/schema
+  GenerateMobileLoginOTPOpts:
+    properties:
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+    required:
+    - phone_no
+    type: object
+    x-go-package: go-app/schema
+  GetActiveBrandsListESEesp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/schema
+  GetBrandBasicESEesp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      is_followed_by_user:
+        type: boolean
+        x-go-name: IsFollowedByUser
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GetBrandInfoEsResp:
+    properties:
+      bio:
+        type: string
+        x-go-name: Bio
+      cover_img:
+        $ref: '#/definitions/IMG'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      followers_count:
+        format: uint64
+        type: integer
+        x-go-name: FollowersCount
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      is_followed_by_user:
+        type: boolean
+        x-go-name: IsFollowedByUser
+      lname:
+        type: string
+        x-go-name: LName
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+      social_account:
+        $ref: '#/definitions/SocialAccount'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      username:
+        type: string
+        x-go-name: Username
+      website:
+        type: string
+        x-go-name: Website
+    type: object
+    x-go-package: go-app/schema
+  GetBrandResp:
+    description: GetBrandResp get brand resp
+    properties:
+      bio:
+        description: bio
+        type: string
+        x-go-name: Bio
+      cover_img:
+        $ref: '#/definitions/IMG'
+      domain:
+        description: domain
+        type: string
+        x-go-name: Domain
+      followers_count:
+        description: followers count
+        format: uint64
+        type: integer
+        x-go-name: FollowersCount
+      followers_id:
+        description: followers ID
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FollowersID
+      following_count:
+        description: following count
+        format: uint64
+        type: integer
+        x-go-name: FollowingCount
+      following_id:
+        description: following ID
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FollowingID
+      fulfillment_cc_email:
+        description: fulfillment c c email
+        items:
+          type: string
+        type: array
+        x-go-name: FulfillmentCCEmail
+      fulfillment_email:
+        description: fulfillment email
+        type: string
+        x-go-name: FulfillmentEmail
+      id:
+        $ref: '#/definitions/ObjectID'
+      lname:
+        description: l name
+        type: string
+        x-go-name: LName
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+      registered_name:
+        description: registered name
+        type: string
+        x-go-name: RegisteredName
+      size_profiles:
+        description: size profiles
+        items:
+          $ref: '#/definitions/GetSizeProfileForBrandResp'
+        type: array
+        x-go-name: SizeProfiles
+      social_account:
+        $ref: '#/definitions/SocialAccount'
+      username:
+        description: username
+        type: string
+        x-go-name: Username
+      website:
+        description: website
+        type: string
+        x-go-name: Website
+    type: object
+    x-go-package: go-app/models
+  GetBrandsByIDBasicOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      ids:
+        items:
+          type: string
+        type: array
+        x-go-name: IDs
+    type: object
+    x-go-package: go-app/schema
+  GetBrandsByUsernameBasicOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      usernames:
+        items:
+          type: string
+        type: array
+        x-go-name: Usernames
+    type: object
+    x-go-package: go-app/schema
+  GetBrandsInfoByIDOpts:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+    type: object
+    x-go-package: go-app/schema
+  GetBrandsInfoByUsernameOpts:
+    properties:
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GetBrandsListOpts:
+    properties:
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      size:
+        format: int64
+        type: integer
+        x-go-name: Size
+    type: object
+    x-go-package: go-app/schema
+  GetCartInfoItemsResp:
+    properties:
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        $ref: '#/definitions/ObjectID'
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      catalog_id:
+        $ref: '#/definitions/ObjectID'
+      catalog_info:
+        $ref: '#/definitions/CatalogInfo'
+      discount_id:
+        $ref: '#/definitions/ObjectID'
+      discount_info:
+        $ref: '#/definitions/DiscountInfo'
+      discounted_price:
+        $ref: '#/definitions/Price'
+      id:
+        $ref: '#/definitions/ObjectID'
+      in_stock:
+        type: boolean
+        x-go-name: InStock
+      quantity:
+        format: uint64
+        type: integer
+        x-go-name: Quantity
+      retail_price:
+        $ref: '#/definitions/Price'
+      transfer_price:
+        $ref: '#/definitions/Price'
+      variant_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/schema
+  GetCartInfoResp:
+    properties:
+      billing_address:
+        $ref: '#/definitions/getAddress'
+      coupon:
+        $ref: '#/definitions/Coupon'
+      coupon_value:
+        $ref: '#/definitions/Price'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      grand_total:
+        $ref: '#/definitions/Price'
+      id:
+        format: Objectid
+        type: string
+        x-go-name: ID
+      items:
+        items:
+          $ref: '#/definitions/GetCartInfoItemsResp'
+        type: array
+        x-go-name: Items
+      shipping_address:
+        $ref: '#/definitions/getAddress'
+      total_discount:
+        $ref: '#/definitions/Price'
+      total_price:
+        $ref: '#/definitions/Price'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      user_id:
+        format: Objectid
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  GetCommissionAndRevenueOpts:
+    properties:
+      end_date:
+        format: date-time
+        type: string
+        x-go-name: EndDate
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      start_date:
+        format: date-time
+        type: string
+        x-go-name: StartDate
+    type: object
+    x-go-package: go-app/schema
+  GetCommissionAndRevenueResp:
+    properties:
+      balance:
+        format: uint64
+        type: integer
+        x-go-name: Balance
+      commission:
+        format: uint64
+        type: integer
+        x-go-name: Commission
+      revenue:
+        format: uint64
+        type: integer
+        x-go-name: Revenue
+    type: object
+    x-go-package: go-app/schema
+  GetCustomerProfileInfoResp:
+    description: GetCustomerProfileInfoResp get customer profile info resp
+    properties:
+      brand_follow_count:
+        description: brand follow count
+        format: uint64
+        type: integer
+        x-go-name: BrandFollowCount
+      brand_following:
+        description: brand following
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: BrandFollowing
+      cart_id:
+        $ref: '#/definitions/ObjectID'
+      dob:
+        description: |-
+          d o b
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: DOB
+      full_name:
+        description: full name
+        type: string
+        x-go-name: FullName
+      gender:
+        description: gender
+        type: string
+        x-go-name: Gender
+      id:
+        $ref: '#/definitions/ObjectID'
+      influencer_follow_count:
+        description: influencer follow count
+        format: uint64
+        type: integer
+        x-go-name: InfluencerFollowCount
+      influencer_following:
+        description: influencer following
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: InfluencerFollowing
+      profile_image:
+        $ref: '#/definitions/IMG'
+      user_id:
+        $ref: '#/definitions/ObjectID'
+      user_info:
+        $ref: '#/definitions/GetUserInfoResp'
+    type: object
+    x-go-package: go-app/models
+  GetInfluencerBasicESEesp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      is_followed_by_user:
+        type: boolean
+        x-go-name: IsFollowedByUser
+      name:
+        type: string
+        x-go-name: Name
+      profile_image:
+        $ref: '#/definitions/IMG'
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerContentCountResp:
+    properties:
+      collections:
+        format: int64
+        type: integer
+        x-go-name: Collections
+      pebbles:
+        format: int64
+        type: integer
+        x-go-name: Pebbles
+      products:
+        format: double
+        type: number
+        x-go-name: Products
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerDashboardOpts:
+    properties:
+      end_date:
+        format: date-time
+        type: string
+        x-go-name: EndDate
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      start_date:
+        format: date-time
+        type: string
+        x-go-name: StartDate
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerDashboardResp:
+    properties:
+      ledger:
+        items:
+          $ref: '#/definitions/GetInfluencerLedgerResp'
+        type: array
+        x-go-name: Ledger
+      monthly_data:
+        items:
+          $ref: '#/definitions/MonthlyData'
+        type: array
+        x-go-name: MonthlyData
+      overall_data:
+        $ref: '#/definitions/OverallData'
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerInfoByIDOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerInfoByUsernameOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerInfoEsResp:
+    properties:
+      bio:
+        type: string
+        x-go-name: Bio
+      content_count:
+        $ref: '#/definitions/GetInfluencerContentCountResp'
+      cover_img:
+        $ref: '#/definitions/IMG'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      external_links:
+        items:
+          type: string
+        type: array
+        x-go-name: ExternalLinks
+      followers_count:
+        format: uint64
+        type: integer
+        x-go-name: FollowersCount
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      is_followed_by_user:
+        type: boolean
+        x-go-name: IsFollowedByUser
+      name:
+        type: string
+        x-go-name: Name
+      profile_image:
+        $ref: '#/definitions/IMG'
+      social_account:
+        $ref: '#/definitions/SocialAccount'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerLedgerOpts:
+    properties:
+      end_date:
+        format: date-time
+        type: string
+        x-go-name: EndDate
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      start_date:
+        format: date-time
+        type: string
+        x-go-name: StartDate
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerLedgerResp:
+    properties:
+      commission:
+        format: uint64
+        type: integer
+        x-go-name: Commission
+      date:
+        type: string
+        x-go-name: Date
+      ledger:
+        items:
+          $ref: '#/definitions/LedgerResp'
+        type: array
+        x-go-name: Ledger
+      revenue:
+        format: uint64
+        type: integer
+        x-go-name: Revenue
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencersByIDBasicOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      ids:
+        items:
+          type: string
+        type: array
+        x-go-name: IDs
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencersByUsernameBasicOpts:
+    properties:
+      CustomerID:
+        format: ObjectID
+        type: string
+      usernames:
+        items:
+          type: string
+        type: array
+        x-go-name: Usernames
+    type: object
+    x-go-package: go-app/schema
+  GetPayoutInfoResp:
+    properties:
+      balance:
+        format: double
+        type: number
+        x-go-name: Balance
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      payout_information:
+        $ref: '#/definitions/PayoutInformation'
+    type: object
+    x-go-package: go-app/schema
+  GetSizeProfileForBrandResp:
+    description: GetSizeProfileForBrandResp get size profile for brand resp
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      image:
+        $ref: '#/definitions/IMG'
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+      specs:
+        description: specs
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+        x-go-name: Specs
+    type: object
+    x-go-package: go-app/schema
+  GetSizeProfileResp:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      image:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+      specs:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+        x-go-name: Specs
+    type: object
+    x-go-package: go-app/schema
+  GetUserInfoByIDOpts:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+    type: object
+    x-go-package: go-app/schema
+  GetUserInfoResp:
+    description: GetUserInfoResp get user info resp
+    properties:
+      customer_id:
+        $ref: '#/definitions/ObjectID'
+      email:
+        description: email
+        type: string
+        x-go-name: Email
+      email_verified:
+        description: email verified
+        type: boolean
+        x-go-name: EmailVerified
+      email_verified_at:
+        description: |-
+          email verified at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: EmailVerifiedAt
+      full_name:
+        description: full name
+        type: string
+        x-go-name: FullName
+      id:
+        $ref: '#/definitions/ObjectID'
+      phone_no:
+        $ref: '#/definitions/PhoneNumber'
+      phone_verified:
+        description: phone verified
+        type: boolean
+        x-go-name: PhoneVerified
+      phone_verified_at:
+        description: |-
+          phone verified at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: PhoneVerifiedAt
+      profile_image:
+        $ref: '#/definitions/IMG'
+      role:
+        description: role
+        type: string
+        x-go-name: Role
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+      username:
+        description: username
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  GoKwikCreateOrderResp:
+    properties:
+      data:
+        $ref: '#/definitions/GoKwikOrderData'
+      statusCode:
+        format: uint64
+        type: integer
+        x-go-name: StatusCode
+      statusMessage:
+        type: string
+        x-go-name: StatusMessage
+    type: object
+    x-go-package: go-app/schema
+  GoKwikOrderData:
+    properties:
+      gokwik_oid:
+        type: string
+        x-go-name: GokwikOID
+      mid:
+        type: string
+        x-go-name: Mid
+      moid:
+        type: string
+        x-go-name: Moid
+      order_status:
+        type: string
+        x-go-name: OrderStatus
+      order_type:
+        type: string
+        x-go-name: OrderType
+      phone:
+        type: string
+        x-go-name: Phone
+      request_id:
+        type: string
+        x-go-name: RequestID
+      total:
+        type: string
+        x-go-name: Total
+    type: object
+    x-go-package: go-app/schema
+  IMG:
+    description: IMG contains image url, src, height and id
+    properties:
+      height:
+        description: height
+        format: int64
+        type: integer
+        x-go-name: Height
+      src:
+        description: s r c
+        type: string
+        x-go-name: SRC
+      width:
+        description: width
+        format: int64
+        type: integer
+        x-go-name: Width
+    type: object
+    x-go-package: go-app/model
+  Img:
+    properties:
+      src:
+        type: string
+        x-go-name: SRC
+    required:
+    - src
+    type: object
+    x-go-package: go-app/schema
+  InfluencerAccountRequestOpts:
+    properties:
+      Source:
+        type: object
+      bio:
+        type: string
+        x-go-name: Bio
+      cover_image:
+        $ref: '#/definitions/Img'
+      customer_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+      full_name:
+        description: InfluencerID  primitive.ObjectID `json:"influencer_id" validate:"required"`
+        type: string
+        x-go-name: FullName
+      profile_image:
+        $ref: '#/definitions/Img'
+      social_account:
+        $ref: '#/definitions/SocialAccountOpts'
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+      username:
+        type: string
+        x-go-name: Username
+      website:
+        type: string
+        x-go-name: Website
+    type: object
+    x-go-package: go-app/schema
+  InfluencerAccountRequestV2Opts:
+    properties:
+      Source:
+        type: object
+      area_of_expertise:
+        type: string
+        x-go-name: AreaOfExpertise
+      cover_image:
+        $ref: '#/definitions/Img'
+      customer_id:
+        format: ObjectID
+        type: string
+        x-go-name: CustomerID
+      email:
+        type: string
+        x-go-name: Email
+      full_name:
+        type: string
+        x-go-name: FullName
+      phone:
+        $ref: '#/definitions/PhoneNoOpts'
+      profile_image:
+        $ref: '#/definitions/Img'
+      social_account:
+        $ref: '#/definitions/SocialAccountOpts'
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/schema
+  InfluencerInfo:
+    properties:
+      _id:
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      profile_image:
+        $ref: '#/definitions/IMG'
+      username:
+        type: string
+        x-go-name: Username
+    type: object
+    x-go-package: go-app/server/auth
+  Inventory:
+    description: Inventory contains inventory specific data
+    properties:
+      status:
+        $ref: '#/definitions/InventoryStatus'
+      unit_in_stock:
+        description: unit in stock
+        format: int64
+        type: integer
+        x-go-name: UnitInStock
+    type: object
+    x-go-package: go-app/model
+  InventoryStatus:
+    description: InventoryStatus stores catalog status such as out_of_stock, in_stock,
+      inactive
+    properties:
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      value:
+        description: value
+        type: string
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  Item:
+    description: Item is a unique catalogs data inside the cart
+    properties:
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        $ref: '#/definitions/ObjectID'
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      catalog_id:
+        $ref: '#/definitions/ObjectID'
+      catalog_info:
+        $ref: '#/definitions/CatalogInfo'
+      discount_id:
+        $ref: '#/definitions/ObjectID'
+      discount_info:
+        $ref: '#/definitions/DiscountInfo'
+      id:
+        $ref: '#/definitions/ObjectID'
+      in_stock:
+        description: in stock
+        type: boolean
+        x-go-name: InStock
+      quantity:
+        description: quantity
+        format: uint64
+        type: integer
+        x-go-name: Quantity
+      retail_price:
+        $ref: '#/definitions/Price'
+      source:
+        $ref: '#/definitions/Source'
+      transfer_price:
+        $ref: '#/definitions/Price'
+      variant_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/model
+  ItemExpress:
+    properties:
+      catalog_id:
+        $ref: '#/definitions/ObjectID'
+      quantity:
+        format: int64
+        type: integer
+        x-go-name: Quantity
+      source:
+        $ref: '#/definitions/Source'
+      variant_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/schema
+  LedgerResp:
+    properties:
+      balance:
+        format: double
+        type: number
+        x-go-name: Balance
+      catalog_info:
+        $ref: '#/definitions/CatalogInfo'
+      commission_value:
+        format: double
+        type: number
+        x-go-name: CommissionValue
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      debit_amount:
+        format: double
+        type: number
+        x-go-name: DebitAmount
+      id:
+        $ref: '#/definitions/ObjectID'
+      order_no:
+        type: string
+        x-go-name: OrderNo
+      order_value:
+        $ref: '#/definitions/Price'
+      payout_information:
+        $ref: '#/definitions/PayoutInformation'
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
+  LoginWithApple:
+    properties:
+      apple_id:
+        type: string
+        x-go-name: AppleID
+      email:
+        type: string
+        x-go-name: Email
+      full_name:
+        type: string
+        x-go-name: FullName
+      type:
+        type: string
+        x-go-name: Type
+    required:
+    - type
+    - apple_id
+    type: object
+    x-go-package: go-app/schema
+  LoginWithSocial:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      full_name:
+        type: string
+        x-go-name: FullName
+      profile_image:
+        $ref: '#/definitions/Img'
+      type:
+        type: string
+        x-go-name: Type
+    required:
+    - type
+    - email
+    - full_name
+    - profile_image
+    type: object
+    x-go-package: go-app/schema
+  MobileLoginCustomerUserOpts:
+    properties:
+      otp:
+        type: string
+        x-go-name: OTP
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+    required:
+    - phone_no
+    - otp
+    type: object
+    x-go-package: go-app/schema
+  MonthlyData:
+    properties:
+      count:
+        format: uint64
+        type: integer
+        x-go-name: Count
+      month:
+        format: uint64
+        type: integer
+        x-go-name: Month
+    type: object
+    x-go-package: go-app/schema
+  ObjectID:
+    items:
+      format: uint8
+      type: integer
+    title: ObjectID is the BSON ObjectID type.
+    type: array
+    x-go-package: go.mongodb.org/mongo-driver/bson/primitive
+  OrderAddressOpts:
+    description: OrderAddressOpts contains field required to add/edit the address
+      of the user's cart
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      id:
+        $ref: '#/definitions/ObjectID'
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      phone_no:
+        $ref: '#/definitions/PhoneNumber'
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+    type: object
+    x-go-package: go-app/schema
+  OrderInfo:
+    properties:
+      amount:
+        format: float
+        type: number
+        x-go-name: Amount
+      go_kwik:
+        items:
+          $ref: '#/definitions/GoKwikCreateOrderResp'
+        type: array
+        x-go-name: GoKwikResponse
+      order_id:
+        type: string
+        x-go-name: OrderID
+      razorpay_id:
+        type: string
+        x-go-name: RazorpayID
+    type: object
+    x-go-package: go-app/schema
+  OverallData:
+    properties:
+      revenue:
+        format: uint64
+        type: integer
+        x-go-name: Revenue
+      total_commission:
+        format: uint64
+        type: integer
+        x-go-name: TotalCommission
+    type: object
+    x-go-package: go-app/schema
+  PayoutInformation:
+    properties:
+      bank_information:
+        $ref: '#/definitions/BankInformation'
+      pan_card:
+        type: string
+        x-go-name: PanCard
+      upi_id:
+        type: string
+        x-go-name: UPIID
+    type: object
+    x-go-package: go-app/model
+  PayoutInformationOpts:
+    properties:
+      bank_information:
+        $ref: '#/definitions/BankInformation'
+      pan_card:
+        type: string
+        x-go-name: PanCard
+      upi_id:
+        type: string
+        x-go-name: UPIID
+    type: object
+    x-go-package: go-app/schema
+  PhoneNoOpts:
+    description: PhoneNoOpts phone no opts
+    properties:
+      number:
+        description: |-
+          Number of the user
+          in: string
+        type: string
+        x-go-name: Number
+      prefix:
+        description: |-
+          Prefix of the number
+          in: string
+        type: string
+        x-go-name: Prefix
+    required:
+    - prefix
+    - number
+    type: object
+    x-go-package: go-app/models
+  PhoneNumber:
+    description: PhoneNumber represents a contact number contains prefix (country
+      code) and phone number
+    properties:
+      number:
+        description: number
+        type: string
+        x-go-name: Number
+      prefix:
+        description: prefix
+        type: string
+        x-go-name: Prefix
+    type: object
+    x-go-package: go-app/model
+  Price:
+    description: Price represents cost of an entity
+    properties:
+      iso:
+        $ref: '#/definitions/CurrencyISO'
+      value:
+        description: value
+        format: float
+        type: number
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  RemoveFromWishlistOpts:
+    properties:
+      catalog_id:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  ResendVerificationEmailOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+    required:
+    - email
+    type: object
+    x-go-package: go-app/schema
+  ResetPasswordOpts:
+    properties:
+      confirm_password:
+        type: string
+        x-go-name: ConfirmPassword
+      email:
+        type: string
+        x-go-name: Email
+      otp:
+        type: string
+        x-go-name: OTP
+      password:
+        type: string
+        x-go-name: Password
+    required:
+    - email
+    - password
+    - confirm_password
+    - otp
+    type: object
+    x-go-package: go-app/schema
+  SigningMethod:
+    properties:
+      Alg:
+        type: string
+    title: Implement SigningMethod to add new methods for signing or verifying tokens.
+    type: object
+    x-go-package: github.com/dgrijalva/jwt-go
+  SocialAccount:
+    description: SocialAccount contains info about social media pages such as facebook,
+      instagram, etc
+    properties:
+      facebook:
+        $ref: '#/definitions/SocialMedia'
+      instagram:
+        $ref: '#/definitions/SocialMedia'
+      twitter:
+        $ref: '#/definitions/SocialMedia'
+      youtube:
+        $ref: '#/definitions/SocialMedia'
+    type: object
+    x-go-package: go-app/model
+  SocialAccountOpts:
+    properties:
+      facebook:
+        $ref: '#/definitions/SocialMediaOpts'
+      instagram:
+        $ref: '#/definitions/SocialMediaOpts'
+      twitter:
+        $ref: '#/definitions/SocialMediaOpts'
+      youtube:
+        $ref: '#/definitions/SocialMediaOpts'
+    type: object
+    x-go-package: go-app/schema
+  SocialMedia:
+    description: |-
+      Type -> facebook
+      > twitter
+      > youtube
+      > instagram
+    properties:
+      followers_count:
+        description: followers count
+        format: uint64
+        type: integer
+        x-go-name: FollowersCount
+      url:
+        description: URL
+        type: string
+        x-go-name: URL
+    title: SocialMedia contains followers_count for a specific account
+    type: object
+    x-go-package: go-app/model
+  SocialMediaOpts:
+    properties:
+      followers_count:
+        format: int64
+        type: integer
+        x-go-name: FollowersCount
+      url:
+        type: string
+        x-go-name: URL
+    type: object
+    x-go-package: go-app/schema
+  Source:
+    properties:
+      id:
+        description: ID
+        type: string
+        x-go-name: ID
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/model
+  StandardClaims:
+    description: |-
+      Structured version of Claims Section, as referenced at
+      https://tools.ietf.org/html/rfc7519#section-4.1
+      See examples for how to use this with your own claim types
+    properties:
+      aud:
+        type: string
+        x-go-name: Audience
+      exp:
+        format: int64
+        type: integer
+        x-go-name: ExpiresAt
+      iat:
+        format: int64
+        type: integer
+        x-go-name: IssuedAt
+      iss:
+        type: string
+        x-go-name: Issuer
+      jti:
+        type: string
+        x-go-name: Id
+      nbf:
+        format: int64
+        type: integer
+        x-go-name: NotBefore
+      sub:
+        type: string
+        x-go-name: Subject
+    type: object
+    x-go-package: github.com/dgrijalva/jwt-go
+  State:
+    description: State state
+    properties:
+      iso_code:
+        description: i s o code
+        type: string
+        x-go-name: ISOCode
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/models
+  Status:
+    description: "Unlist: status is set by default when a new catalog instance is
+      created.\ncatalog with this status are now shown to the customer as this represents
+      WIP catalog.\nunlist is one time status only once unlist status is changed it
+      cannot be reverted.\n\nallowed status transitions \t-> publish\n> discard\n\nPublish:
+      \tstatus is set thorugh admin/keeper dashboard to allow visibility of a catalog
+      to customer.\npublish status can only be changed to discard\n\nallowed status
+      transitions \t-> discard\n\nDiscard:\tdiscard is an alias to delete a catalog
+      without actually deleting it from the database to avoid NOT FOUND for\nother
+      services while searching for catalog"
+    properties:
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      name:
+        description: name
+        type: string
+        x-go-name: Name
+      value:
+        description: value
+        type: string
+        x-go-name: Value
+    title: Status stores catalog status such as unlisted (default), published, archive
+    type: object
+    x-go-package: go-app/model
+  SuccessfulLogin:
+    properties:
+      token:
+        description: Token after successful login
+        type: string
+        x-go-name: Token
+    type: object
+    x-go-name: EmailLoginCustomerResp
+    x-go-package: go-app/schema
+  Tax:
+    description: Tax tax
+    properties:
+      rate:
+        description: rate
+        format: float
+        type: number
+        x-go-name: Rate
+      tax_ranges:
+        description: tax ranges
+        items:
+          $ref: '#/definitions/TaxRange'
+        type: array
+        x-go-name: TaxRanges
+      type:
+        description: type
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/model
+  TaxRange:
+    description: TaxRange tax range
+    properties:
+      max_value:
+        description: max value
+        format: int64
+        type: integer
+        x-go-name: MaxValue
+      min_value:
+        description: min value
+        format: int64
+        type: integer
+        x-go-name: MinValue
+      rate:
+        description: rate
+        format: float
+        type: number
+        x-go-name: Rate
+    type: object
+    x-go-package: go-app/model
+  Token:
+    description: |-
+      A JWT Token.  Different fields will be used depending on whether you're
+      creating or parsing/verifying a token.
+    properties:
+      Claims:
+        $ref: '#/definitions/Claims'
+      Header:
+        additionalProperties:
+          type: object
+        type: object
+      Method:
+        $ref: '#/definitions/SigningMethod'
+      Raw:
+        type: string
+      Signature:
+        type: string
+      Valid:
+        type: boolean
+    type: object
+    x-go-package: github.com/dgrijalva/jwt-go
+  TokenAuth:
+    description: TokenAuth token auth
+    type: object
+    x-go-package: go-app/models
+  UpdateCustomerOpts:
+    properties:
+      dob:
+        format: date-time
+        type: string
+        x-go-name: DOB
+      email:
+        type: string
+        x-go-name: Email
+      full_name:
+        type: string
+        x-go-name: FullName
+      gender:
+        type: string
+        x-go-name: Gender
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+      profile_image:
+        $ref: '#/definitions/Img'
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  UpdateItemQtyOpts:
+    properties:
+      catalog_id:
+        format: Objectid
+        type: string
+        x-go-name: CatalogID
+      id:
+        format: Objectid
+        type: string
+        x-go-name: ID
+      quantity:
+        format: int64
+        type: integer
+        x-go-name: Quantity
+      variant_id:
+        format: Objectid
+        type: string
+        x-go-name: VariantID
+    type: object
+    x-go-package: go-app/schema
+  UserClaim:
+    properties:
+      aud:
+        type: string
+        x-go-name: Audience
+      brand_info:
+        $ref: '#/definitions/BrandClaim'
+      cart_id:
+        type: string
+        x-go-name: CartID
+      created_via:
+        type: string
+        x-go-name: CreatedVia
+      customer_id:
+        type: string
+        x-go-name: CustomerID
+      dob:
+        format: date-time
+        type: string
+        x-go-name: DOB
+      email:
+        type: string
+        x-go-name: Email
+      email_verified:
+        type: boolean
+        x-go-name: EmailVerified
+      exp:
+        format: int64
+        type: integer
+        x-go-name: ExpiresAt
+      full_name:
+        type: string
+        x-go-name: FullName
+      gender:
+        type: string
+        x-go-name: Gender
+      iat:
+        format: int64
+        type: integer
+        x-go-name: IssuedAt
+      id:
+        type: string
+        x-go-name: ID
+      influencer_info:
+        $ref: '#/definitions/InfluencerInfo'
+      iss:
+        type: string
+        x-go-name: Issuer
+      jti:
+        type: string
+        x-go-name: Id
+      keeper_user_id:
+        type: string
+        x-go-name: KeeperUserID
+      nbf:
+        format: int64
+        type: integer
+        x-go-name: NotBefore
+      phone_no:
+        $ref: '#/definitions/PhoneNumber'
+      phone_verified:
+        type: boolean
+        x-go-name: PhoneVerified
+      profile_image:
+        $ref: '#/definitions/IMG'
+      role:
+        type: string
+        x-go-name: Role
+      sub:
+        type: string
+        x-go-name: Subject
+      type:
+        type: string
+        x-go-name: Type
+      user_groups:
+        items:
+          $ref: '#/definitions/UserGroup'
+        type: array
+        x-go-name: UserGroups
+    type: object
+    x-go-package: go-app/server/auth
+  UserGroup:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/model
+  Variant:
+    description: Variant contains variants based on one property (size, color)
+    properties:
+      attribute:
+        description: attribute
+        type: string
+        x-go-name: Attribute
+      id:
+        $ref: '#/definitions/ObjectID'
+      inventory_id:
+        $ref: '#/definitions/ObjectID'
+      inventory_info:
+        $ref: '#/definitions/Inventory'
+      is_deleted:
+        description: is deleted
+        type: boolean
+        x-go-name: IsDeleted
+      sku:
+        description: s k u
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: go-app/model
+  VerifyEmailOpts:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      verification_code:
+        type: string
+        x-go-name: VerificationCode
+    type: object
+    x-go-package: go-app/schema
+  VerifyPhoneNoOpts:
+    properties:
+      phone_no:
+        $ref: '#/definitions/PhoneNoOpts'
+      verification_code:
+        type: string
+        x-go-name: VerificationCode
+    required:
+    - phone_no
+    - verification_code
+    type: object
+    x-go-package: go-app/schema
+  addToCart:
+    properties:
+      billing_address:
+        $ref: '#/definitions/getAddress'
+      coupon:
+        $ref: '#/definitions/Coupon'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        $ref: '#/definitions/ObjectID'
+      items:
+        items:
+          $ref: '#/definitions/Item'
+        type: array
+        x-go-name: Items
+      shipping_address:
+        $ref: '#/definitions/getAddress'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      user_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-name: Cart
+    x-go-package: go-app/model
+  getAddress:
+    properties:
+      city:
+        type: string
+        x-go-name: City
+      contact_number:
+        $ref: '#/definitions/PhoneNumber'
+      country:
+        $ref: '#/definitions/Country'
+      display_name:
+        type: string
+        x-go-name: DisplayName
+      district:
+        type: string
+        x-go-name: District
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_billing_address:
+        type: boolean
+        x-go-name: IsBillingAddress
+      is_default_address:
+        type: boolean
+        x-go-name: IsDefaultAddress
+      is_shipping_address:
+        type: boolean
+        x-go-name: IsShippingAddress
+      line1:
+        type: string
+        x-go-name: Line1
+      line2:
+        type: string
+        x-go-name: Line2
+      plain_address:
+        type: string
+        x-go-name: PlainAddress
+      postal_code:
+        type: string
+        x-go-name: PostalCode
+      state:
+        $ref: '#/definitions/State'
+    type: object
+    x-go-name: Address
+    x-go-package: go-app/model
+  getBrandByID:
+    properties:
+      bio:
+        type: string
+        x-go-name: Bio
+      cover_img:
+        $ref: '#/definitions/IMG'
+      domain:
+        type: string
+        x-go-name: Domain
+      followers_count:
+        format: uint64
+        type: integer
+        x-go-name: FollowersCount
+      followers_id:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FollowersID
+      following_count:
+        format: uint64
+        type: integer
+        x-go-name: FollowingCount
+      following_id:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FollowingID
+      fulfillment_cc_email:
+        items:
+          type: string
+        type: array
+        x-go-name: FulfillmentCCEmail
+      fulfillment_email:
+        type: string
+        x-go-name: FulfillmentEmail
+      id:
+        $ref: '#/definitions/ObjectID'
+      lname:
+        type: string
+        x-go-name: LName
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+      registered_name:
+        type: string
+        x-go-name: RegisteredName
+      size_profiles:
+        items:
+          $ref: '#/definitions/GetSizeProfileForBrandResp'
+        type: array
+        x-go-name: SizeProfiles
+      social_account:
+        $ref: '#/definitions/SocialAccount'
+      username:
+        type: string
+        x-go-name: Username
+      website:
+        type: string
+        x-go-name: Website
+    type: object
+    x-go-name: GetBrandResp
+    x-go-package: go-app/schema
+  getCustomerInfo:
+    properties:
+      brand_follow_count:
+        format: uint64
+        type: integer
+        x-go-name: BrandFollowCount
+      brand_following:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: BrandFollowing
+      cart_id:
+        $ref: '#/definitions/ObjectID'
+      dob:
+        format: date-time
+        type: string
+        x-go-name: DOB
+      full_name:
+        type: string
+        x-go-name: FullName
+      gender:
+        type: string
+        x-go-name: Gender
+      id:
+        $ref: '#/definitions/ObjectID'
+      influencer_follow_count:
+        format: uint64
+        type: integer
+        x-go-name: InfluencerFollowCount
+      influencer_following:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: InfluencerFollowing
+      profile_image:
+        $ref: '#/definitions/IMG'
+      user_id:
+        $ref: '#/definitions/ObjectID'
+      user_info:
+        $ref: '#/definitions/GetUserInfoResp'
+    type: object
+    x-go-name: GetCustomerProfileInfoResp
+    x-go-package: go-app/schema
+host: entity.getshitdone.in
+info:
+  description: API related to User, Creator, Brand
+  title: 'HYPD Entity API:'
+paths:
+  /app/brand/{brandID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return information of one brand.
+
+        Endpoint: /app/brand/{brandID}
+
+        Method: GET
+      operationId: getBrandInfo
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: brandID
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetBrandsInfoByIDOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetBrandInfoEsResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getBrandInfo
+      tags:
+      - Brand
+  /app/brand/basic:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return brand basic information.
+
+        Endpoint: /app/brand/basic
+
+        Method: POST
+      operationId: getBrandsBasic
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetBrandsByIDBasicOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetBrandBasicESEesp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getBrandsBasic
+      tags:
+      - Brand
+  /app/brand/username/{username}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return brand information by the username of the brand.
+
+        Endpoint: /app/brand/username/{username}
+
+        Method: GET
+      operationId: getBrandInfoByUsername
+      parameters:
+      - enum:
+        - vasu_pal_1
+        in: path
+        name: username
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetBrandsInfoByUsernameOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetBrandInfoEsResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getBrandInfoByUsername
+      tags:
+      - Brand
+  /app/brand/username/basic:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return brand basic detail by username.
+
+        Endpoint: /app/brand/username/basic
+
+        Method: POST
+      operationId: getBrandsBasicByUsername
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetBrandsByUsernameBasicOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetBrandBasicESEesp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getBrandsBasicByUsername
+      tags:
+      - Brand
+  /app/brands:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return active brand list.
+
+        Endpoint: /app/brands
+
+        Method: GET
+      operationId: getActiveBrandsList
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetBrandsListOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetActiveBrandsListESEesp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getActiveBrandsList
+      tags:
+      - Brand
+  /app/cart:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will add product ot the cart.
+
+        Endpoint: app/cart
+
+        Method: POST
+      operationId: addToCart
+      parameters:
+      - description: Add to cart
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddToCartOpts'
+          description: Add to cart
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/addToCart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: addToCart
+      tags:
+      - cart
+  /app/cart/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will get the cart information according to the user id.
+
+        Endpoint : /app/cart/{userID}
+
+        Method: GET
+      operationId: getCartInfo
+      parameters:
+      - enum:
+        - 60b50277a97a2d73b211aec7
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCartInfoResp'
+        "400":
+          description: ' Bad Request'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' invalid user'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCartInfo
+      tags:
+      - cart
+  /app/cart/{userID}/checkout:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return checkout cart.
+
+        Endpoint: /app/cart/{userID}/checkout
+
+        Method: GET
+      operationId: checkoutCart
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: userID
+        required: true
+        type: string
+      - in: query
+        name: source
+        required: true
+        type: string
+      - enum:
+        - web
+        - android
+        - ios
+        in: query
+        name: platform
+        required: true
+        type: string
+      - in: query
+        name: isCOD
+        required: true
+        type: boolean
+      - in: query
+        name: request_id
+        required: true
+        type: string
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/OrderInfo'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkoutCart
+      tags:
+      - cart
+  /app/cart/{userID}/coupon:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will successful remove the coupon on the product.
+
+        Endpoint: /app/cart/{userID}/coupon
+
+        Method: DELETE
+      operationId: removeCoupon
+      parameters:
+      - enum:
+        - 611ca3d6c2b96106c6c9ee47
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: removeCoupon
+      tags:
+      - coupon
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will successful apply the coupon on the product.
+
+        Endpoint: /app/cart/{userID}/coupon
+
+        Method: POST
+      operationId: applyCoupon
+      parameters:
+      - enum:
+        - 61dd5c77c69b0de021ce1810
+        in: path
+        name: userID
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ApplyCouponOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCartInfoResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: applyCoupon
+      tags:
+      - coupon
+  /app/cart/address:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will set the cart address of the user..
+
+        Endpoint : /app/cart/address
+
+        Method: POST
+      operationId: setCartAddress
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddressOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' invalid user'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: setCartAddress
+      tags:
+      - cart
+  /app/cart/item:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will update the item quantity in the cart.
+
+        Endpoint : /app/cart/item
+        Method: PUT
+      operationId: updateItemQty
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateItemQtyOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/addToCart'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' invalid user'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: updateItemQty
+      tags:
+      - cart
+  /app/check/cod:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will check the COD eligiblity.
+
+        Endpoint: /app/check/cod
+
+        Method: GET
+      operationId: checkCODEligiblity
+      parameters:
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkCODEligiblity
+      tags:
+      - Check
+      - CODviaGoKwik
+  /app/creator/commission:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return commision and revenue.
+
+        Endpoint: /app/creator/commission
+
+        Method: GET
+      operationId: getCommissionAndRevenue
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCommissionAndRevenueOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCommissionAndRevenueResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCommissionAndRevenue
+      tags:
+      - Creator
+  /app/creator/dashboard:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return dashaboard of the influencer.
+
+        Endpoint: /app/creator/dashboard
+
+        Method: POST
+      operationId: getInfluencerDashboard
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerDashboardOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerDashboardResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerDashboard
+      tags:
+      - Creator
+  /app/creator/debit-request:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will post the debit request.
+
+        Endpoint: /app/creator/debit-request
+
+        Method: POST
+      operationId: debitRequest
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CommissionDebitRequest'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: debitRequest
+      tags:
+      - DebitRequest
+  /app/creator/ledger:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the ledger details of the influencer.
+
+        Endpoint: /app/creator/ledger
+
+        Method: GET
+      operationId: getInfluencerLedger
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerLedgerOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerLedgerResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerLedger
+      tags:
+      - Creator
+  /app/creator/payout-info:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer payout information.
+
+        Endpoint: /app/creator/payout-info
+
+        Method: GET
+      operationId: getInfluencerPayoutInfo
+      parameters:
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetPayoutInfoResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerPayoutInfo
+      tags:
+      - Creator
+  /app/customer/{customerID}:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Endpoint: /app/customer/{customerID}
+
+        Method: POST
+      operationId: getCustomerInfo
+      parameters:
+      - enum:
+        - 60b50277a97a2d73b211aec7
+        in: path
+        name: customerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/getCustomerInfo'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: This endpoint will return the address of the user.
+      tags:
+      - getCustomerInfo
+  /app/customer/brand/follow:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will follow the brand.
+
+        Endpoint: /app/customer/brand/follow
+
+        Method: POST
+      operationId: followBrand
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddBrandFollowerOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: followBrand
+      tags:
+      - followUnfollow
+  /app/customer/brand/unfollow:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will unfollow the brand.
+
+        Endpoint: /app/customer/brand/unfollow
+
+        Method: POST
+      operationId: unFollowBrand
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddBrandFollowerOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: unFollowBrand
+      tags:
+      - followUnfollow
+  /app/customer/influencer/follow:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will follow the influencer.
+
+        Endpoint: /app/customer/influencer/follow
+
+        Method: POST
+      operationId: followInfluencer
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddInfluencerFollowerOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: followInfluencer
+      tags:
+      - followUnfollow
+  /app/customer/influencer/unfollow:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will unfollow the influencer.
+
+        Endpoint: /app/customer/influencer/unfollow
+
+        Method: POST
+      operationId: unFollowInfluencer
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddInfluencerFollowerOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: unFollowInfluencer
+      tags:
+      - followUnfollow
+  /app/express-checkout:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint is for express checkout.
+
+        Endpoint: /app/express-checkout
+
+        Method: POST
+      operationId: expressCheckout
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ExpressCheckoutOpts'
+          type: object
+      - description: Platform type for example android, web or ios.
+        in: query
+        name: platform
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/OrderInfo'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: expressCheckout
+      tags:
+      - ExpressCheckout
+  /app/express-checkout/check/cod:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will express checkout RTO.
+
+        Endpoint: /app/express-checkout/check/cod
+
+        Method: POST
+      operationId: expressCheckoutRTO
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ExpressCheckoutWebOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: expressCheckoutRTO
+      tags:
+      - CODviaGoKwik
+  /app/influencer:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will edit the influencer details.
+
+        Endpoint: /app/influencer
+
+        Method: PUT
+      operationId: editInfluencerApp
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/EditInfluencerAppOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/EditInfluencerResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Not Authorized
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: editInfluencerApp
+      tags:
+      - AppInfluencer
+  /app/influencer/{influencerID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer information.
+
+        Endpoint: /app/influencer/{influencerID}
+
+        Method: GET
+      operationId: getInfluencerInfo
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerInfoByIDOpts'
+          type: object
+      - enum:
+        - 60b50277a97a2d73b211aec7
+        in: path
+        name: influencerID
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerInfoEsResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerInfo
+      tags:
+      - AppInfluencer
+  /app/influencer/basic:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer basic information.
+
+        Endpoint: /app/influencer/basic
+
+        Method: GET
+      operationId: getInfluencersBasic
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencersByIDBasicOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerBasicESEesp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencersBasic
+      tags:
+      - AppInfluencer
+  /app/influencer/username/{username}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer information by username.
+
+        Endpoint: /app/influencer/username/{username}
+
+        Method: GET
+      operationId: getInfluencerInfoByUsername
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerInfoByUsernameOpts'
+          type: object
+      - enum:
+        - kartikay_sharma
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerInfoEsResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerInfoByUsername
+      tags:
+      - AppInfluencer
+  /app/influencer/username/basic:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer basic information by username.
+
+        Endpoint: /app/influencer/username/basic
+
+        Method: POST
+      operationId: getInfluencersBasicByUsername
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencersByUsernameBasicOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerBasicESEesp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencersBasicByUsername
+      tags:
+      - AppInfluencer
+  /app/size/get:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return size profile.
+
+        Endpoint: /app/size/get
+
+        Method: GET
+      operationId: getSizeProfile
+      parameters:
+      - enum:
+        - 60acf7bcf928b0fa83a7f89f
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetSizeProfileResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getSizeProfile
+      tags:
+      - GetSizeProfile
+  /app/user/influencer-request:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will post the request claim by the influencer.
+
+        Endpoint: /app/user/influencer-request
+
+        Method: POST
+      operationId: claimInfluencerRequest
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/InfluencerAccountRequestOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: claimInfluencerRequest
+      tags:
+      - InfluencerRequest
+  /app/user/influencer-request/status:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the status of the influencer request.
+
+        Endpoint: /app/user/influencer-request/status
+
+        Method: GET
+      operationId: checkClaimInfluencerRequestStatus
+      parameters:
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkClaimInfluencerRequestStatus
+      tags:
+      - InfluencerRequest
+  /app/wishlist:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will delete the product from the wishlist.
+
+        Endpoint: /app/wishlist
+
+        Method: DELETE
+      operationId: removeFromWishlist
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveFromWishlistOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: removeFromWishlist
+      tags:
+      - Wishlist
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will add the product to the wishlist.
+
+        Endpoint: /app/wishlist
+
+        Method: PUT
+      operationId: addToWishlist
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddToWishlistOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: addToWishlist
+      tags:
+      - Wishlist
+  /app/wishlist/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the wishlist product of the user.
+
+        Endpoint: /app/wishlist/{userID}
+
+        Method: GET
+      operationId: getWishlist
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getWishlist
+      tags:
+      - Wishlist
+  /brand/{brandID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return brand details.
+
+        Endpoint: /brand/{brandID}
+
+        Method: POST
+      operationId: getBrandByID
+      parameters:
+      - enum:
+        - 60b50277a97a2d73b211aec7
+        in: path
+        name: brandID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/getBrandByID'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: getBrandByID
+      tags:
+      - Brand
+  /brand/check/username:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will check the brand username exists or not.
+
+        Endpoint: /brand/check/username
+
+        Method: GET
+      operationId: checkBrandUsernameExists
+      parameters:
+      - enum:
+        - falthead
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkBrandUsernameExists
+      tags:
+      - CheckUsername
+  /brand/user/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will help the brand to recover forget password.
+
+        Endpoint: /brand/user/forgot-password
+
+        Method: POST
+      operationId: brandUserForgotPassword
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ForgotPasswordOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: brandUserForgotPassword
+      tags:
+      - BrandDashAPIs
+  /brand/user/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will login the brand user.
+
+        Endpoint: /brand/user/login
+
+        Method: POST
+      operationId: brandUserLogin
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/BrandUserLoginOpts'
+          type: object
+      - in: query
+        name: returnToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' token'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: brandUserLogin
+      tags:
+      - BrandDashAPIs
+  /brand/user/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will reset the brand password.
+
+        Endpoint: /brand/user/reset-password
+
+        Method: POST
+      operationId: brandUserResetPassword
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ResetPasswordOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: brandUserResetPassword
+      tags:
+      - BrandDashAPIs
+  /cart/{userID}:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will clear the cart of the user.
+
+        Endpoint: /cart/{userID}
+
+        Method: DELETE
+      operationId: clearCart
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' Bad Request'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: clearCart
+      tags:
+      - cart
+  /customer:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will update the customer information.
+
+        Endpoint: /customer
+
+        Method: PUT
+      operationId: updateCustomerInfo
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCustomerOpts'
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: updateCustomerInfo
+      tags:
+      - customer
+  /customer/{userID}/address:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the address of the user.
+
+        Endpoint: /customer/{userID}/address
+
+        Method: GET
+      operationId: GetAddress
+      parameters:
+      - enum:
+        - 60b50277a97a2d73b211aec8
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/getAddress'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: GetAddress
+      tags:
+      - customer
+  /customer/address:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will delete the address of the customer.
+
+        Endpoint: /customer/address
+
+        Method: DELETE
+      operationId: removeAddress
+      parameters:
+      - in: body
+        name: address_id
+        required: true
+        schema:
+          enum:
+          - user_id:60b50277a97a2d73b211aec7
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: removeAddress
+      tags:
+      - customer
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will add the address of the customer.
+
+        Endpoint: /customer/address
+
+        Method: PUT
+      operationId: addAddress
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddAddressOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/AddAddressResp'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: addAddress
+      tags:
+      - customer
+  /customer/address/edit:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will edit the address.
+
+        Endpoint : /customer/address/edit
+        Method: PUT
+      operationId: editAddress
+      parameters:
+      - description: Edit Address
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/EditAddressOpts'
+          description: Edit Address
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: editAddress
+      tags:
+      - customer
+  /customer/apple/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will login the user via apple.
+
+        Endpoint: /customer/apple/login
+
+        Method: POST
+      operationId: loginViaApple
+      parameters:
+      - description: Login user via apple
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginWithApple'
+          description: Login user via apple
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: loginViaApple
+      tags:
+      - login
+  /customer/email/login:
+    post:
+      consumes:
+      - application/json
+      description: User login via email
+      operationId: loginViaEmail
+      parameters:
+      - description: Login Via Email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/EmailLoginCustomerOpts'
+          description: Login Via Email
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SuccessfulLogin
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      tags:
+      - login
+  /customer/email/signup:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        User Signup via email
+
+        Endpoint: /customer/email/signup
+
+        Method: POST
+      operationId: signUpViaEmail
+      parameters:
+      - description: Signup Via Email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserOpts'
+          description: Signup Via Email
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: signUpViaEmail
+      tags:
+      - signup
+  /customer/otp/confirm:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will confirm login via mobile otp.
+
+        Endpoint: /customer/otp/confirm
+
+        Method: POST
+      operationId: confrimloginViaMobileOtp
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/MobileLoginCustomerUserOpts'
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: confrimloginViaMobileOtp
+      tags:
+      - login
+  /customer/otp/generate:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will generate the otp when login via mobile
+
+
+        Endpoint: /customer/otp/generate
+
+        Method: POST
+      operationId: LoginViaMobileOTP
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GenerateMobileLoginOTPOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' payload : true'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: LoginViaMobileOTP
+      tags:
+      - login
+  /customer/social/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will login the user via social
+
+        Endpoint: /customer/social/login
+
+        Method: POST
+      operationId: loginViaSocial
+      parameters:
+      - description: Login user via social
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginWithSocial'
+          description: Login user via social
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' Success'
+          schema:
+            $ref: '#/definitions/SuccessfulLogin'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: loginViaSocial
+      tags:
+      - login
+  /influencer/check/username:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will check the influencer username exists or not.
+
+        Endpoint: /influencer/check/username
+
+        Method: GET
+      operationId: checkInfluencerUsernameExists
+      parameters:
+      - enum:
+        - kartikay_sharma
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkInfluencerUsernameExists
+      tags:
+      - CheckUsername
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will returns the updated user info stored in the token.
+
+        Endpoint: /me
+
+        Method: GET
+      operationId: me
+      parameters:
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/UserClaim'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: me
+      tags:
+      - ME
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will returns the updated user info stored in the token.
+
+        Endpoint: /me
+
+        Method: POST
+      operationId: updateMe
+      parameters:
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/UserClaim'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: updateMe
+      tags:
+      - ME
+  /user/auth/email/check:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Endpoint: /user/auth/email/check
+
+        This endpoint will check the user email exists or not.
+
+        Method: POST
+      operationId: checkEmail
+      parameters:
+      - description: Check user email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CheckEmailOpts'
+          description: Check user email
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' payload : true'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: Check User Email for Auth
+      tags:
+      - checkEmail
+  /user/auth/email/verify:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will verify the user email.
+
+        Endpoint: /user/auth/email/verify
+
+        Method: POST
+      operationId: verifyEmailAuth
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/VerifyEmailOpts'
+          type: object
+      - description: If value is set to True, token is omitted from response
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+        "500":
+          description: Failed to login user
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: verifyEmailAuth
+      tags:
+      - Verification
+  /user/auth/logoutt:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will logout the user.
+
+        Endpoint: /user/auth/logoutt
+
+        Method: GET
+      operationId: logoutUser
+      parameters:
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: logoutUser
+      tags:
+      - logout
+  /user/auth/phone/check:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Endpoint: /user/auth/phone/check
+
+        Method: POST
+      operationId: checkPhoneNo
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CheckPhoneNoOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' payload : true'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: Check User Phone No for Auth
+      tags:
+      - checkPhoneNo
+  /user/auth/phone/verify:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will verify user phone number.
+
+        Endpoint: /user/auth/phone/verify
+
+        Method: POST
+      operationId: verifyPhoneNoAuth
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/VerifyPhoneNoOpts'
+          type: object
+      - enum:
+        - true
+        in: query
+        name: isWeb
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' payload : true'
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: verifyPhoneNoAuth
+      tags:
+      - Verification
+  /user/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will help the user to recover the password.
+
+        Endpoint: /user/forgot-password
+
+        Method: POST
+      operationId: forgotPassword
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ForgotPasswordOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: forgotPassword
+      tags:
+      - Password
+  /user/influencerid:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return user id by influencer id.
+
+        Endpoint: /user/influencerid
+
+        Method: GET
+      operationId: getUserIDByInfluencerID
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetUserInfoByIDOpts'
+          type: object
+      - in: query
+        name: id
+        required: true
+        type: string
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/ObjectID'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getUserIDByInfluencerID
+      tags:
+      - getUserIDByInfluencerID
+  /user/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will help the user reset the password.
+
+        Endpoint: /user/reset-password
+
+        Method: POST
+      operationId: resetPassword
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ResetPasswordOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: resetPassword
+      tags:
+      - Password
+  /user/verify-email/resend:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will resend email verification code
+
+        Endpoint: /user/verify-email/resend
+
+        Method: POST
+      operationId: resendEmailVerificationCode
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ResendVerificationEmailOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: "true"
+        "400":
+          description: ' Error'
+          schema:
+            $ref: '#/definitions/CommonError'
+      summary: resendEmailVerificationCode
+      tags:
+      - Verification
+  /v2/app/cart/checkout:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will check the chekcout cart.
+
+        Endpoint: /v2/app/cart/checkout
+
+        Method: GET
+      operationId: checkoutCartV2
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CheckoutOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/OrderInfo'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: checkoutCartV2
+      tags:
+      - CODviaGoKwik
+  /v2/app/influencer:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint edit the influencer information.
+
+        Endpoint: /v2/app/influencer
+
+        Method: PUT
+      operationId: editInfluencerAppV2
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/EditInfluencerAppV2Opts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/EditInfluencerResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: editInfluencerAppV2
+      tags:
+      - v2Influnencer
+  /v2/app/user/influencer-request:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will claim the influencer request.
+
+        Endpoint: /v2/app/user/influencer-request
+
+        Method: POST
+      operationId: claimInfluencerRequestV2
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/InfluencerAccountRequestV2Opts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: claimInfluencerRequestV2
+      tags:
+      - v2Influnencer
+  /web/express-checkout:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint is for express checkout for web.
+
+        Endpoint: /web/express-checkout
+
+        Method: POST
+      operationId: expressCheckoutWeb
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ExpressCheckoutWebOpts'
+          type: object
+      - description: Platform type for example android, web or ios.
+        in: query
+        name: platform
+        required: true
+        type: string
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/OrderInfo'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: ' Invalid User'
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: expressCheckoutWeb
+      tags:
+      - ExpressCheckout
+produces:
+- application/json
+schemes:
+- https
+swagger: "2.0"

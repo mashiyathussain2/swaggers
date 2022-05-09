@@ -1,0 +1,2784 @@
+basePath: /api
+definitions:
+  AddInfluencerProductsOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+    type: object
+    x-go-package: go-app/schema
+  AppErr:
+    properties:
+      Error:
+        items:
+          type: string
+        type: array
+      RequestID:
+        type: string
+    type: object
+    x-go-package: go-app/server/handler
+  Attribute:
+    description: Attribute define key value pair that defines catalog properties
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      value:
+        type: string
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  BrandInfoResp:
+    properties:
+      description:
+        type: string
+        x-go-name: Description
+      id:
+        $ref: '#/definitions/ObjectID'
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+      slug:
+        type: string
+        x-go-name: Slug
+    type: object
+    x-go-package: go-app/schema
+  BrandSearchResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      logo:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/schema
+  Catalog:
+    description: Catalog contains catalog specific data such as name, description,
+      linked content, brand info, keywords, specifications, variant info etc
+    properties:
+      avg_rating:
+        format: float
+        type: number
+        x-go-name: AvgRating
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        $ref: '#/definitions/ObjectID'
+      catalog_content:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: CatalogContent
+      category_path:
+        description: |-
+          Path stores entire path of category as a string of hyphen seperated ids Eg. /84700/80009/1282094266/1200003270
+          Using this we can store multiple category path inside a single catalog
+          category_path: [/84700/80009/1282094266, /84701/80008/1282094267]
+          men/footwear/casual, women/footwear/casual
+
+          filtering category can be done using regex such as {$regex: "^84700/$"} {$regex: "^84700/80009/$"}
+        items:
+          type: string
+        type: array
+        x-go-name: Paths
+      commission_rate:
+        format: uint64
+        type: integer
+        x-go-name: CommissionRate
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      description:
+        type: string
+        x-go-name: Description
+      eta:
+        $ref: '#/definitions/ETA'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      filter_attrs:
+        items:
+          $ref: '#/definitions/Attribute'
+        type: array
+        x-go-name: FilterAttribute
+      hsn_code:
+        type: string
+        x-go-name: HSNCode
+      id:
+        $ref: '#/definitions/ObjectID'
+      keywords:
+        items:
+          type: string
+        type: array
+        x-go-name: Keywords
+      lname:
+        type: string
+        x-go-name: LName
+      name:
+        type: string
+        x-go-name: Name
+      retail_price:
+        $ref: '#/definitions/Price'
+      size_profile:
+        $ref: '#/definitions/ObjectID'
+      slug:
+        description: |-
+          slug is used in setting up catalog thumbnail image name and
+          when sharing a catalog sharing link is generated through slug
+        type: string
+        x-go-name: Slug
+      specs:
+        items:
+          $ref: '#/definitions/Specification'
+        type: array
+        x-go-name: Specifications
+      status:
+        $ref: '#/definitions/Status'
+      status_history:
+        items:
+          $ref: '#/definitions/Status'
+        type: array
+        x-go-name: StatusHistory
+      tax:
+        $ref: '#/definitions/Tax'
+      total_rating_count:
+        format: uint64
+        type: integer
+        x-go-name: TotalRatingCount
+      transfer_price:
+        $ref: '#/definitions/Price'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      variant_type:
+        type: string
+        x-go-name: VariantType
+      variants:
+        items:
+          $ref: '#/definitions/Variant'
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/model
+  CatalogContentInfoResp:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_active:
+        type: boolean
+        x-go-name: IsActive
+      is_processed:
+        type: boolean
+        x-go-name: IsProcessed
+      media_id:
+        $ref: '#/definitions/ObjectID'
+      media_info:
+        type: object
+        x-go-name: MediaInfo
+      media_type:
+        type: string
+        x-go-name: MediaType
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
+  CatalogSearchResp:
+    properties:
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      discount_info:
+        $ref: '#/definitions/DiscountBasicResp'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        type: string
+        x-go-name: Name
+      retail_price:
+        $ref: '#/definitions/Price'
+      variants:
+        items:
+          properties:
+            id:
+              $ref: '#/definitions/ObjectID'
+          type: object
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/schema
+  ContentSearchResp:
+    properties:
+      caption:
+        type: string
+        x-go-name: Caption
+      id:
+        $ref: '#/definitions/ObjectID'
+      media_info:
+        type: object
+        x-go-name: MediaInfo
+    type: object
+    x-go-package: go-app/schema
+  CreateInfluencerCollectionOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      image:
+        $ref: '#/definitions/Img'
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      is_draft:
+        type: boolean
+        x-go-name: IsDraft
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: uint64
+        type: integer
+        x-go-name: Order
+    type: object
+    x-go-package: go-app/schema
+  CreateReviewStoryOpts:
+    properties:
+      brand_id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+      catalog_id:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
+      file_name:
+        type: string
+        x-go-name: FileName
+      rating:
+        format: uint64
+        type: integer
+        x-go-name: Rating
+      user_id:
+        format: ObjectID
+        type: string
+        x-go-name: UserID
+    type: object
+    x-go-package: go-app/schema
+  CreateReviewStoryResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      upload_url:
+        type: string
+        x-go-name: UploadURL
+    type: object
+    x-go-package: go-app/schema
+  CurrencyISO:
+    description: CurrencyISO iso representation of currency
+    type: string
+    x-go-package: go-app/model
+  DiscountBasicResp:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_active:
+        type: boolean
+        x-go-name: IsActive
+      max_value:
+        description: MaxValue will only be applicable in case of PercentOffType type
+          where you want to restrict discount value to a limit.
+        format: uint64
+        type: integer
+        x-go-name: MaxValue
+      sale_id:
+        $ref: '#/definitions/ObjectID'
+      type:
+        type: string
+        x-go-name: Type
+      value:
+        format: uint64
+        type: integer
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/schema
+  DiscoverSearchResp:
+    properties:
+      brand:
+        items:
+          $ref: '#/definitions/BrandSearchResp'
+        type: array
+        x-go-name: Brand
+      hashtags:
+        items:
+          $ref: '#/definitions/HashtagSearchResp'
+        type: array
+        x-go-name: Hashtag
+      influencer:
+        items:
+          $ref: '#/definitions/InfluencerSearchResp'
+        type: array
+        x-go-name: Influencer
+      series:
+        items:
+          $ref: '#/definitions/SeriesSearchResp'
+        type: array
+        x-go-name: Series
+    type: object
+    x-go-package: go-app/schema
+  ETA:
+    description: ETA contains maximum and minimum delivery time of a catalog
+    properties:
+      max:
+        format: int64
+        type: integer
+        x-go-name: Max
+      min:
+        format: int64
+        type: integer
+        x-go-name: Min
+      unit:
+        type: string
+        x-go-name: Unit
+    type: object
+    x-go-package: go-app/model
+  EditInfluencerCollectionAppOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      image:
+        $ref: '#/definitions/Img'
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      status:
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: go-app/schema
+  GetActiveCollectionsOpts:
+    properties:
+      Gender:
+        type: string
+      Page:
+        format: int64
+        type: integer
+      Size:
+        format: int64
+        type: integer
+    type: object
+    x-go-package: go-app/schema
+  GetActiveInfluencerCollectionsOpts:
+    properties:
+      InfluencerID:
+        type: string
+      Page:
+        format: int64
+        type: integer
+      Size:
+        format: int64
+        type: integer
+    type: object
+    x-go-package: go-app/schema
+  GetAppActiveSaleOpts:
+    properties:
+      Genders:
+        items:
+          type: string
+        type: array
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogBasicResp:
+    properties:
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      discount_id:
+        format: ObjectID
+        type: string
+        x-go-name: DiscountID
+      discount_info:
+        $ref: '#/definitions/DiscountBasicResp'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      retail_price:
+        $ref: '#/definitions/Price'
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogByBrandIDOpts:
+    properties:
+      BrandID:
+        type: string
+      Page:
+        format: uint64
+        type: integer
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogByCategoryIDFilterResp:
+    properties:
+      doc_count:
+        format: int64
+        type: integer
+        x-go-name: Count
+      key:
+        type: string
+        x-go-name: Key
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogByCategoryIDResp:
+    properties:
+      brand_filter:
+        items:
+          $ref: '#/definitions/GetCatalogByCategoryIDFilterResp'
+        type: array
+        x-go-name: BrandFilter
+      data:
+        items:
+          $ref: '#/definitions/GetCatalogBasicResp'
+        type: array
+        x-go-name: Data
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogByIDFilter:
+    properties:
+      id:
+        items:
+          type: string
+        type: array
+        x-go-name: IDs
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogBySaleIDOpts:
+    properties:
+      Page:
+        format: uint64
+        type: integer
+      SaleID:
+        type: string
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogCountOpts:
+    properties:
+      brand_id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+      is_active:
+        type: boolean
+        x-go-name: IsActive
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogInfoResp:
+    properties:
+      avg_rating:
+        format: float
+        type: number
+        x-go-name: AvgRating
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      content_info:
+        items:
+          $ref: '#/definitions/CatalogContentInfoResp'
+        type: array
+        x-go-name: ContentInfo
+      description:
+        type: string
+        x-go-name: Description
+      discount_id:
+        format: ObjectID
+        type: string
+        x-go-name: DiscountID
+      discount_info:
+        $ref: '#/definitions/DiscountBasicResp'
+      eta:
+        $ref: '#/definitions/ETA'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      filter_attr:
+        items:
+          $ref: '#/definitions/Attribute'
+        type: array
+        x-go-name: FilterAttribute
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      retail_price:
+        $ref: '#/definitions/Price'
+      size_profile:
+        type: string
+        x-go-name: SizeProfile
+      slug:
+        type: string
+        x-go-name: Slug
+      specs:
+        items:
+          $ref: '#/definitions/Specification'
+        type: array
+        x-go-name: Specifications
+      total_rating_count:
+        format: uint64
+        type: integer
+        x-go-name: TotalRatingCount
+      variant_type:
+        type: string
+        x-go-name: VariantType
+      variants:
+        items:
+          $ref: '#/definitions/VariantInfo'
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogOpts:
+    properties:
+      brand_id:
+        format: ObjectID
+        type: string
+        x-go-name: BrandID
+      is_active:
+        type: boolean
+        x-go-name: IsActive
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      size:
+        format: int64
+        type: integer
+        x-go-name: Size
+      sku:
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogsBySubCollectionInfo:
+    properties:
+      catalog_ids:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: CatalogIDs
+      featured_catalog_ids:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FeaturedCatalogIDs
+    type: object
+    x-go-package: go-app/schema
+  GetCatalogsBySubCollectionResp:
+    properties:
+      sub_collections:
+        items:
+          $ref: '#/definitions/GetCatalogsBySubCollectionInfo'
+        type: array
+        x-go-name: SubCollections
+      title:
+        type: string
+        x-go-name: Title
+    type: object
+    x-go-package: go-app/schema
+  GetCollectionCatalogByIDs:
+    properties:
+      fid:
+        items:
+          type: string
+        type: array
+        x-go-name: FeatIDs
+      id:
+        items:
+          type: string
+        type: array
+        x-go-name: IDs
+    type: object
+    x-go-package: go-app/schema
+  GetCollectionCatalogInfoResp:
+    properties:
+      base_price:
+        $ref: '#/definitions/Price'
+      brand_id:
+        $ref: '#/definitions/ObjectID'
+      brand_info:
+        $ref: '#/definitions/BrandInfoResp'
+      discount_id:
+        $ref: '#/definitions/ObjectID'
+      discount_info:
+        $ref: '#/definitions/GetCollectionDiscountInfoResp'
+      featured_image:
+        $ref: '#/definitions/IMG'
+      id:
+        $ref: '#/definitions/ObjectID'
+      name:
+        type: string
+        x-go-name: Name
+      retail_price:
+        $ref: '#/definitions/Price'
+      slug:
+        type: string
+        x-go-name: Slug
+      variant_type:
+        type: string
+        x-go-name: VariantType
+      variants:
+        items:
+          $ref: '#/definitions/GetCollectionVariantResp'
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/schema
+  GetCollectionDiscountInfoResp:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      max_value:
+        format: uint64
+        type: integer
+        x-go-name: MaxValue
+      type:
+        type: string
+        x-go-name: Type
+      value:
+        format: uint64
+        type: integer
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/schema
+  GetCollectionESResp:
+    properties:
+      genders:
+        items:
+          type: string
+        type: array
+        x-go-name: Genders
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      status:
+        type: string
+        x-go-name: Status
+      sub_collections:
+        items:
+          $ref: '#/definitions/GetSubCollectionESResp'
+        type: array
+        x-go-name: SubCollections
+      title:
+        type: string
+        x-go-name: Title
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
+  GetCollectionVariantResp:
+    properties:
+      attribute:
+        type: string
+        x-go-name: Attribute
+      id:
+        $ref: '#/definitions/ObjectID'
+      is_deleted:
+        type: boolean
+        x-go-name: IsDeleted
+    type: object
+    x-go-package: go-app/schema
+  GetGroupsByCatalogIDOpts:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+    type: object
+    x-go-package: go-app/schema
+  GetGroupsByCatalogIDResp:
+    properties:
+      basis:
+        type: string
+        x-go-name: Basis
+      catalog_info:
+        items:
+          $ref: '#/definitions/Catalog'
+        type: array
+        x-go-name: CatalogInfo
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerCollectionESResp:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      image:
+        $ref: '#/definitions/Img'
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      name:
+        description: InfluencerInfo *InfluencerInfo       `json:"influencer_info"`
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      slug:
+        type: string
+        x-go-name: Slug
+      status:
+        description: CatalogInfo    []GetCatalogBasicResp `json:"catalog_info"`
+        type: string
+        x-go-name: Status
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerCollectionRespApp:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      image:
+        $ref: '#/definitions/IMG'
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      slug:
+        type: string
+        x-go-name: Slug
+      status:
+        type: string
+        x-go-name: Status
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerCollectionsOpts:
+    properties:
+      id:
+        type: string
+        x-go-name: InfluencerID
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      status:
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerProductESResp:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    type: object
+    x-go-package: go-app/schema
+  GetInfluencerProducts:
+    properties:
+      id:
+        type: string
+        x-go-name: InfluencerID
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/schema
+  GetMainCategoriesByParentIDResp:
+    properties:
+      featured_image:
+        $ref: '#/definitions/IMG'
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/schema
+  GetParentCategoriesResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      thumbnail:
+        $ref: '#/definitions/IMG'
+    type: object
+    x-go-package: go-app/schema
+  GetReviewMediaInfo:
+    properties:
+      dimensions:
+        type: object
+        x-go-name: Dimensions
+      duration:
+        format: float
+        type: number
+        x-go-name: Duration
+      hls_playback_url:
+        type: string
+        x-go-name: PlaybackURL
+    type: object
+    x-go-package: go-app/schema
+  GetReviewStoryInfoResp:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      media_info:
+        $ref: '#/definitions/GetReviewMediaInfo'
+      media_type:
+        type: string
+        x-go-name: MediaType
+    type: object
+    x-go-package: go-app/schema
+  GetReviewsByCatalogIDFilter:
+    properties:
+      CatalogID:
+        type: string
+      Page:
+        format: uint64
+        type: integer
+    type: object
+    x-go-package: go-app/schema
+  GetReviewsByCatalogIDResp:
+    properties:
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      rating:
+        format: uint64
+        type: integer
+        x-go-name: Rating
+      story_info:
+        $ref: '#/definitions/GetReviewStoryInfoResp'
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      user_info:
+        $ref: '#/definitions/ReviewUserInfo'
+    type: object
+    x-go-package: go-app/schema
+  GetSalesResp:
+    properties:
+      banner:
+        $ref: '#/definitions/IMG'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      genders:
+        items:
+          type: string
+        type: array
+        x-go-name: Genders
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      slug:
+        type: string
+        x-go-name: Slug
+      valid_after:
+        format: date-time
+        type: string
+        x-go-name: ValidAfter
+      valid_before:
+        format: date-time
+        type: string
+        x-go-name: ValidBefore
+      web_banner:
+        $ref: '#/definitions/IMG'
+    type: object
+    x-go-package: go-app/schema
+  GetSimilarProducts:
+    properties:
+      query:
+        type: string
+        x-go-name: Query
+    type: object
+    x-go-package: go-app/schema
+  GetSubCategoriesByParentIDResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/schema
+  GetSubCollectionESResp:
+    properties:
+      catalog_ids:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: CatalogIDs
+      catalog_info:
+        items:
+          $ref: '#/definitions/GetCollectionCatalogInfoResp'
+        type: array
+        x-go-name: CatalogInfo
+      featured_catalog_ids:
+        items:
+          $ref: '#/definitions/ObjectID'
+        type: array
+        x-go-name: FeaturedCatalogIDs
+      id:
+        $ref: '#/definitions/ObjectID'
+      image:
+        $ref: '#/definitions/IMG'
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: go-app/schema
+  GetUnicommerceProductsResp:
+    properties:
+      brand:
+        type: string
+        x-go-name: Brand
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      parentTitle:
+        type: string
+        x-go-name: ParentTitle
+      variants:
+        items:
+          $ref: '#/definitions/GetUnicommerceVariantResp'
+        type: array
+        x-go-name: Variants
+    type: object
+    x-go-package: go-app/schema
+  GetUnicommerceVariantResp:
+    properties:
+      live:
+        type: boolean
+        x-go-name: Live
+      size:
+        type: string
+        x-go-name: Size
+      sku:
+        type: string
+        x-go-name: SKU
+      title:
+        type: string
+        x-go-name: Title
+      variantId:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/schema
+  HashtagSearchResp:
+    properties:
+      text:
+        type: string
+        x-go-name: Text
+    type: object
+    x-go-package: go-app/schema
+  IMG:
+    description: IMG contains image url, src, height and id
+    properties:
+      height:
+        format: int64
+        type: integer
+        x-go-name: Height
+      src:
+        type: string
+        x-go-name: SRC
+      width:
+        format: int64
+        type: integer
+        x-go-name: Width
+    type: object
+    x-go-package: go-app/model
+  Img:
+    description: Img contains image src url
+    properties:
+      src:
+        type: string
+        x-go-name: SRC
+    type: object
+    x-go-package: go-app/schema
+  InfluencerCollectionResp:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      image:
+        $ref: '#/definitions/IMG'
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+      name:
+        type: string
+        x-go-name: Name
+      order:
+        format: int64
+        type: integer
+        x-go-name: Order
+      slug:
+        type: string
+        x-go-name: Slug
+      status:
+        type: string
+        x-go-name: Status
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    type: object
+    x-go-package: go-app/schema
+  InfluencerSearchResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      profile_image:
+        $ref: '#/definitions/IMG'
+    type: object
+    x-go-package: go-app/schema
+  Inventory:
+    description: Inventory contains inventory specific data
+    properties:
+      catalog_id:
+        $ref: '#/definitions/ObjectID'
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      id:
+        $ref: '#/definitions/ObjectID'
+      sku:
+        type: string
+        x-go-name: SKU
+      status:
+        $ref: '#/definitions/InventoryStatus'
+      unit_in_stock:
+        format: int64
+        type: integer
+        x-go-name: UnitInStock
+      updated_at:
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+      variant_id:
+        $ref: '#/definitions/ObjectID'
+    type: object
+    x-go-package: go-app/model
+  InventoryStatus:
+    description: InventoryStatus stores catalog status such as out_of_stock, in_stock,
+      inactive
+    properties:
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      value:
+        type: string
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  ObjectID:
+    items:
+      format: uint8
+      type: integer
+    title: ObjectID is the BSON ObjectID type.
+    type: array
+    x-go-package: go.mongodb.org/mongo-driver/bson/primitive
+  Price:
+    description: Price represents cost of an entity
+    properties:
+      iso:
+        $ref: '#/definitions/CurrencyISO'
+      value:
+        format: float
+        type: number
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  RemoveInfluencerProductsOpts:
+    properties:
+      catalog_ids:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogIDs
+      influencer_id:
+        format: ObjectID
+        type: string
+        x-go-name: InfluencerID
+    type: object
+    x-go-package: go-app/schema
+  ReviewUserInfo:
+    properties:
+      full_name:
+        type: string
+        x-go-name: FullName
+      id:
+        $ref: '#/definitions/ObjectID'
+      profile_image:
+        $ref: '#/definitions/Img'
+    type: object
+    x-go-package: go-app/schema
+  SearchOpts:
+    properties:
+      BrandID:
+        type: string
+      Page:
+        format: int64
+        type: integer
+      Query:
+        type: string
+    type: object
+    x-go-package: go-app/schema
+  SearchResp:
+    properties:
+      brand:
+        items:
+          $ref: '#/definitions/BrandSearchResp'
+        type: array
+        x-go-name: Brand
+      catalog:
+        items:
+          $ref: '#/definitions/CatalogSearchResp'
+        type: array
+        x-go-name: Catalog
+      content:
+        items:
+          $ref: '#/definitions/ContentSearchResp'
+        type: array
+        x-go-name: Content
+      influencer:
+        items:
+          $ref: '#/definitions/InfluencerSearchResp'
+        type: array
+        x-go-name: Influencer
+    type: object
+    x-go-package: go-app/schema
+  SeriesSearchResp:
+    properties:
+      id:
+        format: ObjectID
+        type: string
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      thumbnail:
+        $ref: '#/definitions/Img'
+    type: object
+    x-go-package: go-app/schema
+  ShopSearchResp:
+    properties:
+      catalog:
+        description: Brand   []BrandSearchResp   `json:"brand"`
+        items:
+          $ref: '#/definitions/CatalogSearchResp'
+        type: array
+        x-go-name: Catalog
+    type: object
+    x-go-package: go-app/schema
+  Specification:
+    description: Specification contains catalog specification in key:value format
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      value:
+        type: string
+        x-go-name: Value
+    type: object
+    x-go-package: go-app/model
+  Status:
+    description: "Unlist: status is set by default when a new catalog instance is
+      created.\ncatalog with this status are now shown to the customer as this represents
+      WIP catalog.\nunlist is one time status only once unlist status is changed it
+      cannot be reverted.\n\nallowed status transitions \t-> publish\n> discard\n\nPublish:
+      \tstatus is set thorugh admin/keeper dashboard to allow visibility of a catalog
+      to customer.\npublish status can only be changed to discard\n\nallowed status
+      transitions \t-> discard\n\nDiscard:\tdiscard is an alias to delete a catalog
+      without actually deleting it from the database to avoid NOT FOUND for\nother
+      services while searching for catalog"
+    properties:
+      created_at:
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      name:
+        type: string
+        x-go-name: Name
+      value:
+        type: string
+        x-go-name: Value
+    title: Status stores catalog status such as unlisted (default), published, archive
+    type: object
+    x-go-package: go-app/model
+  Tax:
+    properties:
+      rate:
+        format: float
+        type: number
+        x-go-name: Rate
+      tax_ranges:
+        items:
+          $ref: '#/definitions/TaxRange'
+        type: array
+        x-go-name: TaxRanges
+      type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: go-app/model
+  TaxRange:
+    properties:
+      max_value:
+        format: int64
+        type: integer
+        x-go-name: MaxValue
+      min_value:
+        format: int64
+        type: integer
+        x-go-name: MinValue
+      rate:
+        format: float
+        type: number
+        x-go-name: Rate
+    type: object
+    x-go-package: go-app/model
+  UpdateInventoryCVOpts:
+    properties:
+      catalog_id:
+        format: ObjectID
+        type: string
+        x-go-name: CatalogID
+      operation:
+        $ref: '#/definitions/UpdateInventoryOperation'
+      variant_id:
+        format: ObjectID
+        type: string
+        x-go-name: VariantID
+    type: object
+    x-go-package: go-app/schema
+  UpdateInventoryOperation:
+    description: UpdateInventoryOperation defines struct for operation on Inventory
+    properties:
+      operator:
+        type: string
+        x-go-name: Operator
+      unit:
+        format: int64
+        type: integer
+        x-go-name: Unit
+    type: object
+    x-go-package: go-app/schema
+  Variant:
+    description: Variant contains variants based on one property (size, color)
+    properties:
+      attribute:
+        type: string
+        x-go-name: Attribute
+      id:
+        $ref: '#/definitions/ObjectID'
+      inventory_id:
+        $ref: '#/definitions/ObjectID'
+      is_deleted:
+        type: boolean
+        x-go-name: IsDeleted
+      sku:
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: go-app/model
+  VariantInfo:
+    description: VariantInfo contains all variant data (size, color)
+    properties:
+      attribute:
+        type: string
+        x-go-name: Attribute
+      id:
+        $ref: '#/definitions/ObjectID'
+      inventory_id:
+        $ref: '#/definitions/ObjectID'
+      inventory_info:
+        $ref: '#/definitions/Inventory'
+      is_deleted:
+        type: boolean
+        x-go-name: IsDeleted
+      sku:
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: go-app/schema
+host: catalogv2.getshitdone.in
+info:
+  contact:
+    email: mashiyat.hussain@hypd.in
+    name: tech
+  description: |-
+    # Responses
+    __Possible Response Status Codes__
+     Status Code | Description |
+    -----------|-------|
+     200 | OK |
+     400 | Bad Request |
+     401 | Unauthorized |
+     500 | Server Error |
+     403 | Invalid User |
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  termsOfService: https://www.hypd.store/terms-and-conditions
+  title: 'CatalogV2 API:'
+  x-logo:
+    altText: HYPD STORE
+    backgroundColor: '#FFFFFF'
+    url: https://www.hypd.store/img/social-logo.png
+paths:
+  /app/brand/catalog:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the catalog information by brand ID.
+
+        Endpoint: /app/brand/catalog
+
+        Method: GET
+      operationId: getCatalogInfoByBrandId
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCatalogByBrandIDOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+          schema:
+            $ref: '#/definitions/GetCatalogBasicResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogInfoByBrandId
+      tags:
+      - AppCatalog
+  /app/catalog/{catalogID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the catalog information by catalog ID.
+
+        Endpoint: /app/catalog/{catalogID}
+
+        Method: GET
+      operationId: getCatalogInfoById
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogInfoResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogInfoById
+      tags:
+      - AppCollectionCatalogV2
+  /app/catalog/basic:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return catalog basic by IDs.
+
+        Endpoint: /app/catalog/basic
+
+        Method: GET
+      operationId: getCatalogBasicByIds
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCatalogByIDFilter'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogBasicResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogBasicByIds
+      tags:
+      - AppCollectionCatalogV2
+  /app/catalog/category/{categoryID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return catalog by category ID.
+
+        Endpoint: /app/catalog/category/{categoryID}
+
+        Method: GET
+      operationId: getCatalogByCategoryID
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogByCategoryIDResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogByCategoryID
+      tags:
+      - AppCollectionCatalogV2
+  /app/catalog/similar:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return similar products.
+
+        Endpoint: /app/catalog/similar
+
+        Method: GET
+      operationId: getSimilarProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetSimilarProducts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogBasicResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getSimilarProducts
+      tags:
+      - AppCollectionCatalogV2
+  /app/category/{categoryID}/lvl2:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return main catalog by parent ID.
+
+        Endpoint: /app/category/{categoryID}/lvl2
+
+        Method: GET
+      operationId: getMainCategoryByParentID
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetMainCategoriesByParentIDResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getMainCategoryByParentID
+      tags:
+      - AppCategoryCatalog
+  /app/category/{categoryID}/lvl3:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return sub category by parent ID.
+
+        Endpoint: /app/category/{categoryID}/lvl3
+
+        Method: GET
+      operationId: getSubCatergoryByParentID
+      parameters:
+      - enum:
+        - 6065d4503824bf77961c21ae
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetSubCategoriesByParentIDResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getSubCatergoryByParentID
+      tags:
+      - AppCategoryCatalog
+  /app/category/lvl1:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the parent app category.
+
+        Endpoint: /app/category/lvl1
+
+        Method: GET
+      operationId: getParentCategory
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+          schema:
+            $ref: '#/definitions/GetParentCategoriesResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getParentCategory
+      tags:
+      - AppCategoryCatalog
+  /app/collections:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the collections.
+
+        Endpoint: /app/collections
+
+        Method: GET
+      operationId: getActiveCollections
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetActiveCollectionsOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+          schema:
+            $ref: '#/definitions/GetCollectionESResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getActiveCollections
+      tags:
+      - AppCollectionCatalogV2
+  /app/groups/catalog:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return groups of catalog by ID.
+
+        Endpoint: /app/groups/catalog
+
+        Method: GET
+      operationId: getGroupsByCatalogID
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetGroupsByCatalogIDOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetGroupsByCatalogIDResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getGroupsByCatalogID
+      tags:
+      - AppCatalog
+  /app/influencer/collection:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the active influencer collection by ID.
+
+        Endpoint: /app/influencer/collection
+
+        Method: GET
+      operationId: getActiveInfluencerCollectionByID
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerCollectionESResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getActiveInfluencerCollectionByID
+      tags:
+      - InfluencerCollectionApp
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will create influencer collection.
+
+        Endpoint: /app/influencer/collection
+
+        Method: POST
+      operationId: createInfluencerCollectionApp
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateInfluencerCollectionOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/InfluencerCollectionResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: createInfluencerCollectionApp
+      tags:
+      - InfluencerCollectionApp
+    put:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will edit the influencer collection app.
+
+        Endpoint: /app/influencer/collection
+
+        Method: PUT
+      operationId: editInfluencerCollectionApp
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/EditInfluencerCollectionAppOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/InfluencerCollectionResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: editInfluencerCollectionApp
+      tags:
+      - InfluencerCollectionApp
+  /app/influencer/collections:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the influencer collections.
+
+        Endpoint: /app/influencer/collections
+
+        Method: GET
+      operationId: appGetInfluencerCollections
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerCollectionsOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerCollectionRespApp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: appGetInfluencerCollections
+      tags:
+      - InfluencerCollectionApp
+  /app/influencer/collections/active:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return active influencer collections.
+
+        Endpoint: /app/influencer/collections/active
+
+        Method: GET
+      operationId: getActiveInfluencerCollections
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetActiveInfluencerCollectionsOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerCollectionESResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getActiveInfluencerCollections
+      tags:
+      - InfluencerCollectionApp
+  /app/influencer/products:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will remove influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: DELETE
+      operationId: removeInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/RemoveInfluencerProductsOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: removeInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: GET
+      operationId: getInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetInfluencerProducts'
+          type: object
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetInfluencerProductESResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will add influencer products.
+
+        Endpoint: /app/influencer/products
+
+        Method: POST
+      operationId: addInfluencerProducts
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/AddInfluencerProductsOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: addInfluencerProducts
+      tags:
+      - InfluencerCollectionKEEPER
+  /app/review:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will post the app review.
+
+        Endpoint: /app/review
+
+        Method: POST
+      operationId: createReview
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateReviewStoryOpts'
+          type: object
+      - description: Customer login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/CreateReviewStoryResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: createReview
+      tags:
+      - AppReview
+  /app/review/catalog:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will return the review by catalog ID.
+
+        Endpoint: /app/review/catalog
+
+        Method: GET
+      operationId: getReviewsByCatalogID
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetReviewsByCatalogIDFilter'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetReviewsByCatalogIDResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getReviewsByCatalogID
+      tags:
+      - AppReview
+  /app/sale:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the active sales.
+
+        Endpoint: /app/sale
+
+        Method: GET
+      operationId: getAppActiveSale
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetAppActiveSaleOpts'
+          type: object
+      - description: Login required for successful response.
+        in: header
+        name: cookie
+        required: true
+        type: string
+      - description: Token required for successful response.
+        in: header
+        name: auth token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetSalesResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getAppActiveSale
+      tags:
+      - AppSale
+  /app/sale/items:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return sales catalogs.
+
+        Endpoint: /app/sale/items
+
+        Method: GET
+      operationId: getSaleCatalogs
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCatalogBySaleIDOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogBasicResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getSaleCatalogs
+      tags:
+      - AppSale
+  /app/search:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the catalog.
+
+        Endpoint: /app/search
+
+        Method: GET
+      operationId: search
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/SearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: search
+      tags:
+      - LegacySearch
+  /app/search/brand:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the influencer.
+
+        Endpoint: /app/search/brand
+
+        Method: GET
+      operationId: searchInfluencer
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/InfluencerSearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchInfluencer
+      tags:
+      - LegacySearch
+  /app/search/catalog:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the catalog.
+
+        Endpoint: /app/search/catalog
+
+        Method: GET
+      operationId: searchCatalog
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/SearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchCatalog
+      tags:
+      - LegacySearch
+  /app/search/discover:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the discover.
+
+        Endpoint: /app/search/discover
+
+        Method: GET
+      operationId: searchDiscover
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/DiscoverSearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchDiscover
+      tags:
+      - LegacySearch
+  /app/search/hashtag:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the hashtags.
+
+        Endpoint: /app/search/hashtag
+
+        Method: GET
+      operationId: searchHashtag
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/HashtagSearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchHashtag
+      tags:
+      - LegacySearch
+  /app/search/series:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the series.
+
+        Endpoint: /app/search/series
+
+        Method: GET
+      operationId: searchSeries
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/SeriesSearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchSeries
+      tags:
+      - LegacySearch
+  /app/search/shop:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint will search the shop.
+
+        Endpoint: /app/search/shop
+
+        Method: GET
+      operationId: searchShop
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/SearchOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/ShopSearchResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: searchShop
+      tags:
+      - LegacySearch
+  /app/subcollection:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return catalog by sub collection ID.
+
+        Endpoint: /app/subcollection
+
+        Method: GET
+      operationId: GetCatalogBySubCollectionID
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogsBySubCollectionResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: GetCatalogBySubCollectionID
+      tags:
+      - AppCollectionCatalogV2
+  /inventory:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint update the internal inventory.
+
+        Endpoint: /inventory
+
+        Method: POST
+      operationId: updateInventoryInternal
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateInventoryCVOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' true'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: updateInventoryInternal
+      tags:
+      - Inventory
+  /unicommerce/catalog:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the catalogs.
+
+        Endpoint: /unicommerce/catalog
+
+        Method: POST
+      operationId: getCatalogs
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCatalogOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetUnicommerceProductsResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogs
+      tags:
+      - UnicommerceAPIs
+  /unicommerce/catalog/count:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint post the catalog count.
+
+        Endpoint: /unicommerce/catalog/count
+
+        Method: POST
+      operationId: getCatalogCount
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCatalogCountOpts'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCatalogCount
+      tags:
+      - UnicommerceAPIs
+  /v2/app/catalog/basic:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        This endpoint return the collection of catalog by IDs.
+
+        Endpoint: /v2/app/catalog/basic
+
+        Method: GET
+      operationId: getCollectionCatalogByIDs
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GetCollectionCatalogByIDs'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ' OK'
+          schema:
+            $ref: '#/definitions/GetCatalogBasicResp'
+        "400":
+          description: ' BadRequest'
+          schema:
+            $ref: '#/definitions/AppErr'
+        "403":
+          description: Invalid User
+          schema:
+            $ref: '#/definitions/AppErr'
+      summary: getCollectionCatalogByIDs
+      tags:
+      - AppCollectionCatalogV2
+produces:
+- application/json
+schemes:
+- https
+swagger: "2.0"
+x-tagGroups:
+- description: This is the catalogv2 api.
+  name: CatalogV2
+  tags:
+  - AppCatalog
+  - AppCollectionCatalogV2
+  - AppCategoryCatalog
+  - InfluencerCollectionKEEPER
+  - InfluencerCollectionApp
+  - AppReview
+  - AppSale
+  - Inventory
+  - LegacySearch
+  - UnicommerceAPIs
+  x-traitTag: true
